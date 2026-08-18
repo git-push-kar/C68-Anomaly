@@ -1,0 +1,187 @@
+# =====================================================================
+# TEP RCA System - master configuration
+# Tennessee Eastman Process anomaly detection + InternVL2-2B root-cause
+# analysis. Every value below is overridable on the command line where a
+# corresponding argparse/click flag exists. No absolute paths are hardcoded.
+# =====================================================================
+
+seed: 42
+log_level: INFO
+
+# ---------------------------------------------------------------------
+# Data paths (relative to the project root unless absolute)
+# ---------------------------------------------------------------------
+paths:
+  data_root: data/raw
+  normal_data_path: data/raw/normal
+  fault_data_path: data/raw/faults
+  processed_data_path: data/processed
+  llm_dataset_path: data/llm
+  output_dir: outputs
+
+# ---------------------------------------------------------------------
+# TEP dataset assumptions (see preprocessing/tep_loader.py for details)
+# ---------------------------------------------------------------------
+dataset:
+  # Supported formats:
+  #   "tep_52col_csv"  : one CSV per fault scenario plus a normal file.
+  #                      Each file is a T x F matrix (rows = samples in
+  #                      chronological order, columns = process variables).
+  #                      Optional fault onset column / timestamp column.
+  #   "tep_matlab_52col": .mat archives exposing the same T x F layout
+  #                      (extension point; same loader contract).
+  format: tep_52col_csv
+  num_features: 52
+  has_header: true
+  delimiter: ","
+  timestamp_column: null          # name of a timestamp column if present
+  fault_onset_column: null        # column holding the fault-injection sample idx
+  fault_onset_index: 161          # fallback onset (0-based) when unknown
+  normal_file_pattern: "normal*.csv"
+  fault_file_pattern: "fault_*.csv"
+  missing_value_strategy: interpolate   # interpolate | ffill | drop
+  drop_constant_sensors: false
+  clip_percentile: 99.9
+
+# ---------------------------------------------------------------------
+# Normalization
+# ---------------------------------------------------------------------
+preprocessing:
+  scaler: standard               # standard | minmax
+  scaler_dir: outputs/preprocessing
+  baseline_dir: outputs/preprocessing
+
+# ---------------------------------------------------------------------
+# Sliding windows
+# ---------------------------------------------------------------------
+windowing:
+  window_size: 60
+  stride: 5
+  dtype: float32
+  block_samples: 500      # contiguous temporal blocks used for leakage-free splits
+  test_ratio: 0.2
+
+# ---------------------------------------------------------------------
+# Unsupervised anomaly detector (LSTM Autoencoder, normal-only training)
+# ---------------------------------------------------------------------
+anomaly_detector:
+  model_dir: outputs/anomaly_detector
+  lstm:
+    hidden_size: 32
+    num_layers: 2
+    latent_dim: 16
+    dropout: 0.1
+    bidirectional_encoder: false
+  train:
+    epochs: 50
+    batch_size: 64
+    learning_rate: 1.0e-3
+    weight_decay: 1.0e-5
+    lr_scheduler: cosine
+    val_ratio: 0.15
+    early_stopping_patience: 8
+    gradient_clip_norm: 1.0
+    checkpoint_every: 5
+  threshold:
+    # Methods: percentile | mean_std | validation_percentile
+    method: percentile
+    percentile: 99.0
+    k_std: 6.0
+    min_anomaly_score: 0.0
+
+# ---------------------------------------------------------------------
+# Evidence extraction
+# ---------------------------------------------------------------------
+evidence:
+  top_k_sensors: 5
+  min_deviation_percent: 3.0
+  baseline_windows: 20          # windows before event used as pre-anomaly baseline
+  trend_smoothing_window: 8
+  onset_sensitivity: 1.5        # multiplier of per-sensor error std for onset detect
+  max_temporal_events: 6
+
+# ---------------------------------------------------------------------
+# Continuous streaming simulation
+# ---------------------------------------------------------------------
+streaming:
+  window_size: 60               # normally mirrors windowing.window_size
+  stride: 5
+  replay_rate: 0.0              # seconds per record; 0.0 = as fast as possible
+  inject_fault_at: null         # e.g. 800 -> inject fault file at sample 800
+  source_file: null             # path to a single CSV to replay
+  normal_source: data/raw/normal/normal.csv
+  fault_source: data/raw/faults/fault_04.csv
+
+# ---------------------------------------------------------------------
+# Anomaly event aggregation
+# ---------------------------------------------------------------------
+events:
+  db_path: outputs/events.db
+  consecutive_windows_to_confirm: 3   # consecutive anomalous windows -> open event
+  min_separation_windows: 20          # gap that ends an open event
+  max_event_windows: 200              # hard cap on a single event length
+
+# ---------------------------------------------------------------------
+# InternVL2-2B TEP adapter (single adapter: "tep_rca")
+# ---------------------------------------------------------------------
+llm:
+  base_model: OpenGVLab/InternVL2-2B
+  adapter_name: tep_rca
+  adapter_dir: outputs/tep_rca_adapter
+  trust_remote_code: true
+  use_flash_attn: false
+  dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
+  lora:
+    r: 16
+    alpha: 32
+    dropout: 0.05
+    bias: none
+    # InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B; these are the
+    # exact InternLM2 linear module names (verified from model internals).
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+  training:
+    use_4bit: true               # QLoRA (bitsandbytes NF4 + double quant)
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_use_double_quant: true
+    fp16: false
+    bf16: true
+    batch_size: 2
+    gradient_accumulation_steps: 8
+    num_epochs: 3
+    learning_rate: 2.0e-4
+    weight_decay: 0.01
+    max_sequence_length: 4096
+    warmup_ratio: 0.03
+    lr_scheduler: cosine
+    max_grad_norm: 1.0
+    gradient_checkpointing: true
+    logging_steps: 10
+    save_steps: 200
+    eval_steps: 200
+    save_total_limit: 2
+    dataloader_num_workers: 2
+    train_faults: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 22]
+    val_faults: [4, 14]
+    test_faults: [15, 21]
+  generation:
+    max_new_tokens: 768
+    do_sample: false
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 50
+    repetition_penalty: 1.0
+
+# ---------------------------------------------------------------------
+# API / UI
+# ---------------------------------------------------------------------
+api:
+  host: 0.0.0.0
+  port: 8000
+  stream_fps: 10                 # simulated records per second in live mode

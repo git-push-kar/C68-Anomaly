@@ -1,0 +1,12 @@
+{
+  "fault_04": {
+    "fault_id": 4,
+    "onset_index": 161,
+    "n_samples": 2400
+  },
+  "fault_14": {
+    "fault_id": 14,
+    "onset_index": 161,
+    "n_samples": 2400
+  }
+}

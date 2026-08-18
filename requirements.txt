@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------
+# TEP RCA System - verified dependency set
+# ---------------------------------------------------------------------
+# Tested together with:
+#   Python 3.10 / 3.11
+#   torch       2.5.1
+#   transformers 4.46.3        (>= 4.37.0 required by InternVL2 remote code)
+#   peft        0.14.0
+#   accelerate  0.33.0
+#   bitsandbytes 0.45.1        (Windows: install prebuilt wheel; see README)
+#   datasets    3.0.0
+#
+# InternVL2-2B is loaded via AutoModel(trust_remote_code=True). The remote
+# code asserts transformers >= 4.37.0.
+# ---------------------------------------------------------------------
+
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.4
+pyyaml>=6.0
+tqdm>=4.66
+sentencepiece>=0.2.0
+
+# deep learning / InternVL2-2B
+torch>=2.1,<3.0
+transformers>=4.40,<5.0
+peft>=0.11,<1.0
+accelerate>=0.30
+bitsandbytes>=0.43
+datasets>=2.19
+
+# API / UI
+fastapi>=0.110,<0.116
+uvicorn[standard]>=0.29
+pydantic>=2.6
+streamlit>=1.34
+requests>=2.31
+
+# evaluation helper
+matplotlib>=3.8   # optional; used by scripts/evaluate_anomaly_detector.py plots
