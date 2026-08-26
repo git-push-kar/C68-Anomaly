@@ -161,12 +161,15 @@ Supervision maps **sensor evidence -> likely root cause + reasoning** (not
 faults configured in `config.yaml` under `llm.training.*_faults`), so a fault
 never leaks across splits. Writes to `data/llm/`.
 
-### 4.6 Fine-tune InternVL2-2B (QLoRA)
+### 4.6 Fine-tune InternVL2-2B (run on RTX A5000 only - not in this env)
 
 ```bash
+# Default QLoRA (works on any GPU ≥8 GB):
 python scripts/train_tep_adapter.py --config configs/config.yaml
-# FP16 LoRA alternative:
-python scripts/train_tep_adapter.py --config configs/config.yaml --log-level INFO
+# RTX A5000 optimized (BF16 LoRA, faster, 24 GB):
+python scripts/train_tep_adapter.py --config configs/config_a5000.yaml
+# Or explicitly without 4-bit on the base config:
+python scripts/train_tep_adapter.py --config configs/config.yaml --no-4bit
 ```
 
 * Prints the mandatory header: base model, `Adapters loaded: NONE`,
@@ -220,16 +223,32 @@ curl -X POST http://localhost:8000/api/events
 streamlit run ui/app.py
 ```
 
-## 5. Hardware / memory guidance
+## 5. Hardware / memory guidance (RTX A5000 primary target)
 
-| Mode | Approx. VRAM | Notes |
-|------|-------------|-------|
-| **4-bit QLoRA** (recommended, single consumer GPU) | ~6–8 GB for InternVL2-2B | `use_4bit: true`, bf16 compute, batch 1–2 + grad accumulation, gradient checkpointing |
-| **FP16 LoRA** | ~12–14 GB | base weights in fp16 (~4.3 GB) + grads/optimizer/activations; use small batch + grad checkpointing |
+This system was prepared for **NVIDIA RTX A5000 (24 GB, Ampere 8.6, CUDA 11.8/12.1)**.
+Training is NOT run in this environment; run it directly on the A5000.
 
-Both modes support: gradient accumulation, gradient checkpointing, configurable
-batch size, configurable sequence length, FP16/BF16, and CPU fallback for the
-sensor pipeline. Single-GPU only; no multi-GPU assumptions.
+| Mode | Approx. VRAM | RTX A5000 config | Notes |
+|------|-------------|------------------|-------|
+| **4-bit QLoRA** (default, `configs/config.yaml`) | ~6–8 GB | `use_4bit: true`, bf16, batch 2 × 8 grad-accum, checkpointing ON | Safest, leaves headroom; use on any GPU ≥8 GB |
+| **BF16 LoRA** (recommended on RTX A5000, `configs/config_a5000.yaml`) | ~12–14 GB | `use_4bit: false`, bf16, batch 4 × 4 grad-accum, checkpointing ON | **Fastest on 24 GB**; ~2× throughput over QLoRA on A5000 |
+| **FP16 LoRA** | ~12–14 GB | same as BF16 but `bf16: false, fp16: true` | Use only if BF16 unavailable |
+
+A5000 install hint:
+```bash
+# CUDA 12.1 build (check nvidia-smi → CUDA Version)
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+# or CUDA 11.8
+pip install torch --index-url https://download.pytorch.org/whl/cu118
+pip install -r requirements.txt
+# optional: flash-attn for speed (requires matching CUDA toolkit + ninja)
+# pip install flash-attn --no-build-isolation  # then set llm.use_flash_attn: true
+```
+
+Both modes support gradient accumulation, gradient checkpointing, configurable
+batch size / sequence length / FP16/BF16, and CPU fallback for the sensor
+pipeline. Single-GPU only; no multi-GPU assumptions. For A5000 prefer
+`configs/config_a5000.yaml` (`--config configs/config_a5000.yaml`).
 
 ## 6. Tested package versions
 

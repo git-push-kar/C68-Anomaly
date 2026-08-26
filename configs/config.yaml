@@ -123,13 +123,23 @@ events:
 
 # ---------------------------------------------------------------------
 # InternVL2-2B TEP adapter (single adapter: "tep_rca")
+# Target hardware: NVIDIA RTX A5000 (24 GB) - see README section 5
+# ---------------------------------------------------------------------
+# RTX A5000 notes:
+#   - Ampere (compute 8.6) supports BF16 natively; bf16: true is optimal.
+#   - 24 GB fits EITHER QLoRA 4-bit (~6-8 GB) or FP16 LoRA (~12-14 GB).
+#     Default below is QLoRA (use_4bit: true) for headroom; for maximum
+#     throughput on A5000 switch to: use_4bit: false, batch_size: 4,
+#     gradient_accumulation_steps: 4, optim: adamw_torch (see README).
+#   - Gradient checkpointing is on; disable only if you have VRAM to spare
+#     and want speed over memory savings.
 # ---------------------------------------------------------------------
 llm:
   base_model: OpenGVLab/InternVL2-2B
   adapter_name: tep_rca
   adapter_dir: outputs/tep_rca_adapter
   trust_remote_code: true
-  use_flash_attn: false
+  use_flash_attn: false          # set true on A5000 if flash-attn installed
   dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
   lora:
     r: 16
@@ -147,13 +157,13 @@ llm:
       - up_proj
       - down_proj
   training:
-    use_4bit: true               # QLoRA (bitsandbytes NF4 + double quant)
+    use_4bit: true               # QLoRA (bitsandbytes NF4 + double quant) - A5000 safe
     bnb_4bit_quant_type: nf4
     bnb_4bit_use_double_quant: true
-    fp16: false
-    bf16: true
-    batch_size: 2
-    gradient_accumulation_steps: 8
+    fp16: false                  # never true together with bf16
+    bf16: true                   # Ampere BF16 - optimal on RTX A5000
+    batch_size: 2                # A5000 FP16 alternative: 4
+    gradient_accumulation_steps: 8  # A5000 FP16 alternative: 4 (effective 16)
     num_epochs: 3
     learning_rate: 2.0e-4
     weight_decay: 0.01
@@ -166,7 +176,8 @@ llm:
     save_steps: 200
     eval_steps: 200
     save_total_limit: 2
-    dataloader_num_workers: 2
+    dataloader_num_workers: 2     # A5000: 2-4 depending on CPU cores
+    optim: null                  # null = auto: paged_adamw_8bit if 4bit else adamw_torch
     train_faults: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 22]
     val_faults: [4, 14]
     test_faults: [15, 21]

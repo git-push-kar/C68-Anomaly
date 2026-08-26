@@ -1,0 +1,57 @@
+# RTX A5000 (24 GB) optimized profile for TEP RCA
+# Extends configs/config.yaml - pass as: python scripts/train_tep_adapter.py --config configs/config_a5000.yaml
+# Or merge manually: use_4bit false gives ~2x speed over QLoRA on 24GB, at cost of ~12-14 GB VRAM.
+seed: 42
+log_level: INFO
+
+llm:
+  base_model: OpenGVLab/InternVL2-2B
+  adapter_name: tep_rca
+  adapter_dir: outputs/tep_rca_adapter
+  trust_remote_code: true
+  use_flash_attn: false  # set true if flash-attn2 is installed (pip install flash-attn --no-build-isolation)
+  dummy_image_size: 448
+  lora:
+    r: 16
+    alpha: 32
+    dropout: 0.05
+    bias: none
+    target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+  training:
+    use_4bit: false              # FP16/BF16 LoRA on A5000 - faster, fits in 24GB
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_use_double_quant: true
+    fp16: false
+    bf16: true
+    batch_size: 4                # A5000 can handle 4 with checkpointing
+    gradient_accumulation_steps: 4  # effective batch 16
+    num_epochs: 3
+    learning_rate: 2.0e-4
+    weight_decay: 0.01
+    max_sequence_length: 4096
+    warmup_ratio: 0.03
+    lr_scheduler: cosine
+    max_grad_norm: 1.0
+    gradient_checkpointing: true
+    dataloader_num_workers: 4
+    optim: adamw_torch
+    logging_steps: 10
+    save_steps: 200
+    eval_steps: 200
+    save_total_limit: 2
+    train_faults: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 22]
+    val_faults: [4, 14]
+    test_faults: [15, 21]
+  generation:
+    max_new_tokens: 768
+    do_sample: false
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 50
+    repetition_penalty: 1.0
+
+# Anomaly detector also benefits from A5000 - larger batch for faster epochs
+anomaly_detector:
+  train:
+    batch_size: 128
+    epochs: 50

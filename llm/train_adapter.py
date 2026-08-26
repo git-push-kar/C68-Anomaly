@@ -116,7 +116,7 @@ def train_tep_adapter(
         dataloader_num_workers=int(training.get("dataloader_num_workers", 2)),
         fp16=bool(training.get("fp16", False)),
         bf16=bool(training.get("bf16", False)),
-        optim=training.get("optim", "paged_adamw_8bit" if training.get("use_4bit", True) else "adamw_torch"),
+        optim=training.get("optim") or ("paged_adamw_8bit" if training.get("use_4bit", True) else "adamw_torch"),
         gradient_checkpointing=bool(training.get("gradient_checkpointing", True)),
         report_to=[],
         save_strategy="steps",
