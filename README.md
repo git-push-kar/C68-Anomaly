@@ -52,20 +52,20 @@ sensor_stream
 
 ## 2. TEP dataset assumptions
 
-The loader isolates all format-specific logic in
-`preprocessing/tep_loader.py`.
+The loader isolates all format-specific logic in `preprocessing/tep_loader.py` and auto-detects both formats.
 
-* **Format** `tep_52col_csv`: normal data in `data/raw/normal/normal*.csv`;
-  each fault in `data/raw/faults/fault_XX.csv` (XX = fault id 01..22).
-* Each file is a **T x F matrix**; rows are chronological samples, columns are
-  the process variables (52 where applicable: XMEAS 1–41, XMV 42–52).
-* Optional columns: a timestamp column and a fault-onset column
-  (configurable via `dataset.timestamp_column` / `dataset.fault_onset_column`).
-* Without a header, columns are named `XMEAS_1..XMEAS_41, XMV_42..XMV_52`.
-* Missing values: interpolate / ffill / drop (`dataset.missing_value_strategy`).
-* Fault onset default is sample index 161 when unknown.
-* To add another public TEP format (e.g. .mat) add a `TEPDataFormat` member and
-  a loader function in `tep_loader.py`; nothing else changes.
+* **Format `tep_rieth_csv` (current, default)** — Rieth et al. consolidated files:
+  ```
+  data/raw/normal/TEP_FaultFree_Training.csv  (250k rows, 500 runs × 500 samples, fault 0)
+  data/raw/normal/TEP_FaultFree_Testing.csv   (480k rows, 500 runs × 960 samples, fault 0)
+  data/raw/faults/TEP_Faulty_Training.csv     (5M rows, 20 faults × 500 runs × 500 samples)
+  data/raw/faults/TEP_Faulty_Testing.csv      (9.6M rows, 20×500×960)
+  Columns: faultNumber, simulationRun, sample, xmeas_1..41, xmv_1..11 (52 sensors)
+  Fault injected at sample 160 (0-based, 161 1-based) — `dataset.fault_onset_index`.
+  ```
+* **Format `tep_52col_csv` (legacy)** — one file per run: `data/raw/normal/normal*.csv`, `data/raw/faults/fault_XX.csv` (T×52 matrix, no meta cols). Still supported.
+* Missing values: `interpolate | ffill | drop` (`dataset.missing_value_strategy`).
+* To add another public TEP format (e.g. `.mat`) add a `TEPDataFormat` member and a loader in `tep_loader.py`; nothing else changes.
 
 ## 3. How the system behaves (section 30 walkthrough)
 
@@ -102,124 +102,98 @@ The loader isolates all format-specific logic in
     and attaches only `tep_rca` (see `scripts/test_adapter.py`).
 12. **Run**: commands below.
 
-## 4. Quick start
+## 4. Training process (what is trained, how, and where)
 
-### 4.1 Install dependencies
+The system has **two independent training stages** — they do not share weights and can be run in any order (preprocessing must come first).
+
+```
+Stage 0: PREPROCESSING (no learning)
+  TEP_FaultFree/Faulty_*.csv
+    → validation + missing-value handling
+    → scaler fitted ONLY on normal data (data/raw/normal/TEP_FaultFree_*.csv)
+    → per-run sliding windows [60,52] (never across simulationRun)
+    → leakage-free split by whole simulationRun (not random windows)
+  Outputs: outputs/preprocessing/scaler.pkl + baseline_stats.json
+           data/processed/normal_values.npy, normal_windows_{train,val,test}.npy
+           data/processed/fault_values/fault_XX.npy
+
+Stage 1: ANOMALY DETECTOR (unsupervised LSTM Autoencoder)
+  What is trained: LSTM Encoder (52→32×2) → latent 16 → LSTM Decoder → reconstruction
+  Loss: MSE on normal windows only
+  Threshold: learned from normal validation scores (percentile 99.0 or mean+k·std)
+  Outputs: outputs/anomaly_detector/model.pt, threshold.json
+
+Stage 2: LLM ADAPTER (supervised instruction-tuning)
+  What is trained: ONE LoRA/QLoRA adapter "tep_rca" on FROZEN InternVL2-2B
+  Input:  structured evidence JSON (top sensors, deviations, temporal order)
+  Target: JSON {summary, root_cause, affected_subsystem, evidence, reasoning,
+           severity, confidence, recommended_action, uncertainty}
+  Splits: by fault scenario (train 1,2,3,5,6,7,8,9,10,11,12,13,16,17,18,19,20,22
+          / val 4,14 / test 15,21) — no leakage of overlapping windows
+  Outputs: outputs/tep_rca_adapter/adapter_config.json + adapter_model.safetensors
+```
+
+**Full command sequence (RTX A5000 — see §5 for VRAM notes):**
 
 ```bash
+# 0. Install (A5000: match CUDA — check nvidia-smi)
 python -m venv .venv
-# Windows: .venv\Scripts\activate   |   Linux/macOS: source .venv/bin/activate
+# Windows: .venv\Scripts\activate | Linux: source .venv/bin/activate
+pip install torch --index-url https://download.pytorch.org/whl/cu121  # or cu118
 pip install -r requirements.txt
-```
+# bitsandbytes Windows: needs prebuilt wheel — see https://github.com/bitsandbytes-foundation/bitsandbytes#windows
+# Without it, use --no-4bit (FP16 LoRA)
 
-**bitsandbytes on Windows**: 4-bit QLoRA needs a prebuilt wheel
-(no official PyPI wheel for older versions). Check the
-[bitsandbytes Windows guide](https://github.com/bitsandbytes-foundation/bitsandbytes#windows)
-or install a compatible build. Without bitsandbytes, use FP16 LoRA:
-`--no-4bit` (see `scripts/train_tep_adapter.py`).
+# 1. Preprocessing — smoke test (5 runs/fault, ~10 sec, no 5GB load)
+python scripts/prepare_tep.py --config configs/config.yaml --smoke --log-level INFO
+# Full (730k normal + 14.6M faulty, writes ~4GB to data/processed):
+python scripts/prepare_tep.py --config configs/config.yaml --full
+# or: python scripts/prepare_tep.py --config configs/config_a5000.yaml --full
+# Custom: --max-runs 20  (20 runs per fault)
 
-### 4.2 Prepare TEP data
+# 2. Train LSTM autoencoder (only normal windows)
+python scripts/train_anomaly_detector.py --config configs/config.yaml          # default 50 epochs, batch 64
+python scripts/train_anomaly_detector.py --config configs/config_a5000.yaml    # A5000: batch 128, faster
+# Resume / override: --resume --epochs 80
 
-Place CSVs under `data/raw/` (see section 2), then:
-
-```bash
-python scripts/prepare_tep.py --config configs/config.yaml
-```
-
-This fits + saves the normal-only scaler and baseline, saves processed arrays
-and creates leakage-free window splits (splitting by the contiguous normal run,
-never random window splitting).
-
-### 4.3 Train the anomaly detector
-
-```bash
-python scripts/train_anomaly_detector.py --config configs/config.yaml
-# optional: --resume --epochs 80
-```
-
-Saves `outputs/anomaly_detector/model.pt` + `threshold.json` (threshold is
-estimated from normal validation scores — percentile / mean+std, configurable —
-never hardcoded).
-
-### 4.4 Evaluate the anomaly detector
-
-```bash
+# 3. Evaluate detector (no training)
 python scripts/evaluate_anomaly_detector.py --config configs/config.yaml
-```
+# → data/processed/anomaly_detector_eval.json (precision/recall/F1/FPR/AUROC/delay)
 
-Writes precision/recall/F1/FPR/FNR/AUROC/AUPRC/detection-delay to
-`data/processed/anomaly_detector_eval.json`.
-
-### 4.5 Generate the LLM instruction dataset
-
-```bash
+# 4. Generate LLM instruction data (structured evidence → JSON report)
 python scripts/generate_llm_dataset.py --config configs/config.yaml --samples-per-fault 8
-```
+# → data/llm/train.jsonl (360), val.jsonl, test.jsonl + split_metadata.json
+# Uses fault knowledge base, not fault_id→name mapping
 
-Supervision maps **sensor evidence -> likely root cause + reasoning** (not
-`fault_id -> fault_name`). Splits are by whole fault scenario (train/val/test
-faults configured in `config.yaml` under `llm.training.*_faults`), so a fault
-never leaks across splits. Writes to `data/llm/`.
-
-### 4.6 Fine-tune InternVL2-2B (run on RTX A5000 only - not in this env)
-
-```bash
-# Default QLoRA (works on any GPU ≥8 GB):
+# 5. Fine-tune InternVL2-2B adapter (RUN ON RTX A5000 — not in smoke env)
+# QLoRA (any GPU ≥8GB, 6-8GB VRAM):
 python scripts/train_tep_adapter.py --config configs/config.yaml
-# RTX A5000 optimized (BF16 LoRA, faster, 24 GB):
+# A5000 BF16 LoRA (recommended, 12-14GB, ~2× faster):
 python scripts/train_tep_adapter.py --config configs/config_a5000.yaml
-# Or explicitly without 4-bit on the base config:
-python scripts/train_tep_adapter.py --config configs/config.yaml --no-4bit
+# Explicit: --no-4bit --batch-size 4 --lr 2e-4 --lora-r 16 --resume
+# Prints: Base model, Adapters loaded: NONE, Training adapter: tep_rca, total/trainable/%
+# Fails if any adapter already on base; saves to outputs/tep_rca_adapter/
 ```
 
-* Prints the mandatory header: base model, `Adapters loaded: NONE`,
-  `Training adapter: tep_rca`, total / trainable / percentage.
-* **Fails** if any unexpected adapter is detected on the base model.
-* Base is frozen; only `tep_rca` LoRA parameters train (targets: the InternLM2
-  attention/MLP projections of InternVL2-2B).
-* Resume: `--resume` (uses the last checkpoint).
-* Save: the adapter + tokenizer are written under `outputs/tep_rca_adapter/`.
+InternVL2-2B is loaded as `AutoModel.from_pretrained(..., trust_remote_code=True)` — LLM backbone is `InternLM2-Chat-1.8B`; text-only TEP uses dummy `pixel_values` + `image_flags=0` (official InternVL pattern).
 
-> InternVL2-2B is loaded with `AutoModel.from_pretrained(..., trust_remote_code=True)`.
-> Its LLM backbone is InternLM2-Chat-1.8B (verified from the released
-> `config.json`). `forward()` requires `pixel_values`; for the text-only TEP
-> data we pass a dummy zero image with `image_flags=0`, which is the officially
-> supported InternVL text-only training pattern.
+### 4.7 Inference without training (quick check)
 
-### 4.7 Verify the adapter on a fresh base
+After training, or with the smoke `outputs/`:
 
 ```bash
+# Verify adapter on fresh base
 python scripts/test_adapter.py --config configs/config.yaml
-```
 
-Loads a fresh original InternVL2-2B, attaches **only** `tep_rca`, builds a
-sample anomaly event, and prints an automatic RCA report.
-
-### 4.8 Run the continuous sensor simulation + automatic reporting
-
-```bash
+# End-to-end stream + automatic report
 python scripts/test_end_to_end.py --config configs/config.yaml --inject-at 800
-# without the LLM (deterministic reports only):
-python scripts/test_end_to_end.py --config configs/config.yaml --no-llm --inject-at 800
-```
+python scripts/test_end_to_end.py --config configs/config.yaml --no-llm --inject-at 800  # deterministic fallback
 
-### 4.9 Ask follow-up questions
+# Follow-up QA
+python -c "from main import TEPApp; from utils import load_config; app=TEPApp(load_config()); print(app.answer_followup('ANOM-0001','Why cooling?'))"
 
-Either via the end-to-end script (it asks one automatically) or:
-
-```python
-from main import TEPApp
-from utils import load_config
-app = TEPApp(load_config())
-app.answer_followup("ANOM-0001", "Which sensors should I inspect?")
-```
-
-### 4.10 API server + UI
-
-```bash
+# API / UI
 uvicorn api.server:app --host 0.0.0.0 --port 8000
-curl -X POST http://localhost:8000/api/events
-
 streamlit run ui/app.py
 ```
 

@@ -25,20 +25,20 @@ paths:
 dataset:
   # Supported formats:
   #   "tep_52col_csv"  : one CSV per fault scenario plus a normal file.
-  #                      Each file is a T x F matrix (rows = samples in
-  #                      chronological order, columns = process variables).
-  #                      Optional fault onset column / timestamp column.
-  #   "tep_matlab_52col": .mat archives exposing the same T x F layout
-  #                      (extension point; same loader contract).
-  format: tep_52col_csv
+  #                      Each file is a T x F matrix (52 cols, no meta cols).
+  #   "tep_rieth_csv"  : Rieth consolidated (faultNumber, simulationRun, sample,
+  #                      xmeas_1..41, xmv_1..11) - auto-detected even when format is
+  #                      tep_52col_csv. Files: TEP_FaultFree_*.csv, TEP_Faulty_*.csv
+  #   "tep_matlab_52col": .mat archives (extension point).
+  format: tep_rieth_csv
   num_features: 52
   has_header: true
   delimiter: ","
   timestamp_column: null          # name of a timestamp column if present
   fault_onset_column: null        # column holding the fault-injection sample idx
-  fault_onset_index: 161          # fallback onset (0-based) when unknown
-  normal_file_pattern: "normal*.csv"
-  fault_file_pattern: "fault_*.csv"
+  fault_onset_index: 160          # 0-based; Rieth fault injected at sample 160 (1-based 161)
+  normal_file_pattern: "TEP_FaultFree*.csv"
+  fault_file_pattern: "TEP_Faulty*.csv"
   missing_value_strategy: interpolate   # interpolate | ffill | drop
   drop_constant_sensors: false
   clip_percentile: 99.9
@@ -109,8 +109,8 @@ streaming:
   replay_rate: 0.0              # seconds per record; 0.0 = as fast as possible
   inject_fault_at: null         # e.g. 800 -> inject fault file at sample 800
   source_file: null             # path to a single CSV to replay
-  normal_source: data/raw/normal/normal.csv
-  fault_source: data/raw/faults/fault_04.csv
+  normal_source: data/raw/normal/TEP_FaultFree_Training.csv
+  fault_source: data/raw/faults/TEP_Faulty_Training.csv
 
 # ---------------------------------------------------------------------
 # Anomaly event aggregation

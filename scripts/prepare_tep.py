@@ -39,12 +39,15 @@ from utils import ensure_dir, load_config, save_json, set_seed  # noqa: E402
 logger = logging.getLogger(__name__)
 
 
-def prepare_tep(config: Dict) -> Dict:
+def prepare_tep(config: Dict, max_runs_per_fault: Optional[int] = None, smoke: bool = False) -> Dict:
     set_seed(config.get("seed", 42))
     processed_dir = ensure_dir(config["paths"]["processed_data_path"])
     scaler_dir = ensure_dir(config["preprocessing"]["scaler_dir"])
 
-    data = load_tep_data(config)
+    if smoke and max_runs_per_fault is None:
+        max_runs_per_fault = 5  # fast smoke: 5 runs per fault (~25 windows each fault)
+
+    data = load_tep_data(config, max_runs_per_fault=max_runs_per_fault)
     if data.normal.empty:
         raise RuntimeError(
             "No normal-operation data found. Place normal CSV(s) in "
@@ -79,14 +82,13 @@ def prepare_tep(config: Dict) -> Dict:
     save_json(processed_dir / "fault_metadata.json", fault_metadata)
 
     # ---- windows + leakage-free split ----------------------------------------
+    # Each simulationRun is 500 samples; we treat each 500-sample block as one
+    # independent segment so windows never span runs (true for Rieth dataset and
+    # also compatible with legacy single-run files).
     window_size = int(config["windowing"]["window_size"])
     stride = int(config["windowing"]["stride"])
     block_samples = int(config["windowing"].get("block_samples", 500))
 
-    # Split the (single) normal run into contiguous temporal blocks. Each block
-    # is one segment; the split assigns whole blocks to train/val/test, which is
-    # leakage-free (a window never spans two segments) while still allowing a
-    # validation set from a single long run.
     blocks: List[np.ndarray] = []
     segment_ids: List[int] = []
     block_starts = np.arange(0, len(normal_values), block_samples)
@@ -95,6 +97,10 @@ def prepare_tep(config: Dict) -> Dict:
         if len(block) >= window_size:
             blocks.append(block)
             segment_ids.extend([block_id] * max(0, (len(block) - window_size) // stride + 1))
+        elif len(block) > 0:
+            logger.warning("Skipping tail block %d with %d samples (< window_size %d)", block_id, len(block), window_size)
+    if not blocks:
+        raise RuntimeError(f"No complete blocks found: normal_values has {len(normal_values)} rows, window_size={window_size}, block_samples={block_samples}")
     normal_windows = np.concatenate([to_windows(b, window_size, stride) for b in blocks], axis=0)
 
     train_idx, val_idx, test_idx = split_windows_by_segment(
@@ -142,10 +148,32 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare TEP data.")
     parser.add_argument("--config", default=None)
     parser.add_argument("--log-level", default="INFO")
+    parser.add_argument("--smoke", action="store_true", help="Fast smoke: limit to 5 runs per fault (no full 14M-row load)")
+    parser.add_argument("--max-runs", type=int, default=None, help="Limit to first N runs per fault (e.g. 10)")
+    parser.add_argument("--full", action="store_true", help="Force full data load (overrides --smoke)")
     args = parser.parse_args()
     logging.basicConfig(level=args.log_level.upper(), format="%(levelname)-7s %(message)s")
     config = load_config(args.config)
-    prepare_tep(config)
+    # --full overrides smoke/matching defaults
+    if args.full:
+        max_runs = None
+        smoke = False
+    else:
+        max_runs = args.max_runs
+        smoke = args.smoke
+        # Default to smoke if no explicit --max-runs/--full and dataset is large (>1GB faulty)
+        if max_runs is None and not smoke:
+            # Auto-detect large Rieth dataset: if faulty Training exists and is >500MB, default to smoke
+            from pathlib import Path as _P
+            from utils import resolve_path as _rp
+            try:
+                fp = _rp(config, "fault_data_path") / "TEP_Faulty_Training.csv"
+                if fp.exists() and fp.stat().st_size > 500_000_000:
+                    logger.info("Large Rieth dataset detected (%.1f GB) - defaulting to --smoke (5 runs/fault). Use --full for full load.", fp.stat().st_size/1e9)
+                    smoke = True
+            except Exception:
+                pass
+    prepare_tep(config, max_runs_per_fault=max_runs, smoke=smoke)
 
 
 if __name__ == "__main__":

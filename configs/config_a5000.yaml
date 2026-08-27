@@ -4,6 +4,25 @@
 seed: 42
 log_level: INFO
 
+paths:
+  data_root: data/raw
+  normal_data_path: data/raw/normal
+  fault_data_path: data/raw/faults
+  processed_data_path: data/processed
+
+dataset:
+  format: tep_rieth_csv
+  num_features: 52
+  has_header: true
+  delimiter: ","
+  fault_onset_index: 160
+  normal_file_pattern: "TEP_FaultFree*.csv"
+  fault_file_pattern: "TEP_Faulty*.csv"
+
+streaming:
+  normal_source: data/raw/normal/TEP_FaultFree_Training.csv
+  fault_source: data/raw/faults/TEP_Faulty_Training.csv
+
 llm:
   base_model: OpenGVLab/InternVL2-2B
   adapter_name: tep_rca
