@@ -37,7 +37,7 @@ outputs/**/*.pkl
 outputs/**/*.db
 outputs/**/*.sqlite
 
-data/raw/
+
 !data/raw/.gitkeep
 !data/raw/**/.gitkeep
 # Ignore large raw/processed dumps (TEP is ~several GB); keep placeholders
