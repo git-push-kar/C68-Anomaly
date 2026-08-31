@@ -36,6 +36,11 @@ outputs/**/*.bin
 outputs/**/*.pkl
 outputs/**/*.db
 outputs/**/*.sqlite
+# Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)
+outputs_smoke/
+outputs/*_smoke/
+data/processed_smoke/
+data/*_smoke/
 
 
 !data/raw/.gitkeep

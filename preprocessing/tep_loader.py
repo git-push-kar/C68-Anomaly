@@ -328,16 +328,16 @@ def load_tep_data(config: dict, max_runs_per_fault: Optional[int] = None) -> TEP
     if not normal_files and normal_path.exists():
         normal_files = sorted(normal_path.glob("TEP_FaultFree*.csv"))
 
-    # Prefer Training file for smoke (more representative of scaler fit); sorted order puts Testing before Training
-    if max_runs_per_fault is not None and len(normal_files) > 1:
-        # Prefer the Training file
+    # Prefer Training file for scaler fit (Rieth protocol: Training for train, Testing for test)
+    # Sorted order puts Testing before Training, so explicitly pick Training.
+    if len(normal_files) > 1:
         training_candidates = [p for p in normal_files if "Training" in p.name]
         if training_candidates:
-            logger.info("Smoke mode: using Training normal file %s", training_candidates[0].name)
+            if max_runs_per_fault is not None:
+                logger.info("Smoke mode: using Training normal file %s", training_candidates[0].name)
+            else:
+                logger.info("Using Training normal file %s for scaler fit (Testing held out for eval)", training_candidates[0].name)
             normal_files = training_candidates[:1]
-        else:
-            logger.info("Smoke mode: using only first normal file %s (of %d) for speed", normal_files[0].name, len(normal_files))
-            normal_files = normal_files[:1]
 
     if normal_files:
         frames = []

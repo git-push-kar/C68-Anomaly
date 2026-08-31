@@ -84,8 +84,10 @@ anomaly_detector:
     checkpoint_every: 5
   threshold:
     # Methods: percentile | mean_std | validation_percentile
+    # A5000: 99.5 is less aggressive than 99.0 (was FPR 13.5% on synthetic) — reduces
+    # false alarms on normal data. Use 99.9 if FPR still >5% after Rieth retrain.
     method: percentile
-    percentile: 99.0
+    percentile: 99.5
     k_std: 6.0
     min_anomaly_score: 0.0
 
@@ -147,14 +149,15 @@ llm:
     dropout: 0.05
     bias: none
     # InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B; these are the
-    # exact InternLM2 linear module names shipped in the hub
-    # modeling_internlm2.py (verify against the actual snapshot before use).
+    # exact InternLM2 linear module names (q/k/v/o + gate/up/down)
     target_modules:
-      - wqkv
-      - wo
-      - w1
-      - w2
-      - w3
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
   training:
     use_4bit: true               # QLoRA (bitsandbytes NF4 + double quant) - A5000 safe
     bnb_4bit_quant_type: nf4

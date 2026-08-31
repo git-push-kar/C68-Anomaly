@@ -41,6 +41,17 @@ logger = logging.getLogger(__name__)
 
 def prepare_tep(config: Dict, max_runs_per_fault: Optional[int] = None, smoke: bool = False) -> Dict:
     set_seed(config.get("seed", 42))
+    # ── Smoke isolation: never pollute production paths ───────────────
+    # smoke → data/processed_smoke + outputs/preprocessing_smoke
+    # full  → data/processed       + outputs/preprocessing (A5000)
+    if smoke:
+        smoke_processed = str(config["paths"]["processed_data_path"]).rstrip("/") + "_smoke"
+        smoke_scaler = str(config["preprocessing"]["scaler_dir"]).rstrip("/") + "_smoke"
+        # Patch config in-place for this run so downstream code uses smoke paths
+        config["paths"]["processed_data_path"] = smoke_processed
+        config["preprocessing"]["scaler_dir"] = smoke_scaler
+        config["preprocessing"]["baseline_dir"] = smoke_scaler
+        logger.info("SMOKE MODE → writing to %s and %s (production untouched)", smoke_processed, smoke_scaler)
     processed_dir = ensure_dir(config["paths"]["processed_data_path"])
     scaler_dir = ensure_dir(config["preprocessing"]["scaler_dir"])
 

@@ -119,8 +119,8 @@ Stage 0: PREPROCESSING (no learning)
 
 Stage 1: ANOMALY DETECTOR (unsupervised LSTM Autoencoder)
   What is trained: LSTM Encoder (52→32×2) → latent 16 → LSTM Decoder → reconstruction
-  Loss: MSE on normal windows only
-  Threshold: learned from normal validation scores (percentile 99.0 or mean+k·std)
+  Loss: MSE on normal windows only (scaler fitted only on TEP_FaultFree_Training.csv)
+  Threshold: learned from normal validation scores (percentile 99.5 on A5000 — was 99.0 synthetic, now less aggressive to cut FPR 13.5% → <5%)
   Outputs: outputs/anomaly_detector/model.pt, threshold.json
 
 Stage 2: LLM ADAPTER (supervised instruction-tuning)
@@ -145,8 +145,12 @@ pip install -r requirements.txt
 # Without it, use --no-4bit (FP16 LoRA)
 
 # 1. Preprocessing — smoke test (5 runs/fault, ~10 sec, no 5GB load)
+#    Smoke is ISOLATED: writes to data/processed_smoke + outputs/preprocessing_smoke,
+#    production data/processed + outputs/preprocessing remain untouched for A5000.
 python scripts/prepare_tep.py --config configs/config.yaml --smoke --log-level INFO
-# Full (730k normal + 14.6M faulty, writes ~4GB to data/processed):
+# Full for A5000 (250k normal Training only → 730k if you include Testing):
+#   — scaler fitted ONLY on TEP_FaultFree_Training.csv (Rieth protocol, not Testing)
+#   — writes ~4GB to data/processed + outputs/preprocessing (overwrites smoke)
 python scripts/prepare_tep.py --config configs/config.yaml --full
 # or: python scripts/prepare_tep.py --config configs/config_a5000.yaml --full
 # Custom: --max-runs 20  (20 runs per fault)
@@ -161,9 +165,11 @@ python scripts/evaluate_anomaly_detector.py --config configs/config.yaml
 # → data/processed/anomaly_detector_eval.json (precision/recall/F1/FPR/AUROC/delay)
 
 # 4. Generate LLM instruction data (structured evidence → JSON report)
+#    NOTE: SKIP for now — A5000 not in use. Code ready; run before adapter training.
 python scripts/generate_llm_dataset.py --config configs/config.yaml --samples-per-fault 8
 # → data/llm/train.jsonl (360), val.jsonl, test.jsonl + split_metadata.json
 # Uses fault knowledge base, not fault_id→name mapping
+# A5000 recommended: --samples-per-fault 20-30 for better category accuracy
 
 # 5. Fine-tune InternVL2-2B adapter (RUN ON RTX A5000 — not in smoke env)
 # QLoRA (any GPU ≥8GB, 6-8GB VRAM):
@@ -268,3 +274,31 @@ main.py                       # TEPApp high-level interface
   unclassified rather than fabricating a cause.
 * The LSTM autoencoder, threshold and evidence pipeline run fully without the
   LLM; the adapter adds grounded natural-language reasoning.
+
+
+  Pipeline — code generation → training → evaluation → inference (A5000)
+# 0. Code already generated (no LLM dataset now — deferred, code ready at generate_llm_dataset.py)
+
+# 1. PREPROCESSING — smoke (isolated) or full A5000 (production, scaler on Training only)
+python scripts/prepare_tep.py --config configs/config.yaml --smoke        # writes _smoke, safe to run anytime
+python scripts/prepare_tep.py --config configs/config_a5000.yaml --full   # 250k normal + 5M faulty → data/processed (overwrites smoke prod)
+
+# 2. DETECTOR TRAINING (unsupervised, normal only)
+python scripts/train_anomaly_detector.py --config configs/config_a5000.yaml  # batch 128, 50 epochs → model.pt
+# → threshold 99.5 learned on normal val → threshold.json
+
+# 3. DETECTOR EVALUATION (good results targeted)
+python scripts/evaluate_anomaly_detector.py --config configs/config_a5000.yaml
+# → data/processed/anomaly_detector_eval.json (expect after fix: FPR <5%, FNR <10%, AUROC >0.95, delay ~4-8)
+
+# 4. LLM DATASET — SKIP NOW (deferred, A5000 not in use)
+# When ready: python scripts/generate_llm_dataset.py --config configs/config.yaml --samples-per-fault 20
+
+# 5. ADAPTER TRAINING — on A5000 only (frozen InternVL2-2B)
+python scripts/train_tep_adapter.py --config configs/config_a5000.yaml  # BF16 LoRA 12-14GB, batch 4×4
+
+# 6. INFERENCE / ACTUAL USE
+python scripts/test_adapter.py --config configs/config_a5000.yaml
+python scripts/test_end_to_end.py --config configs/config_a5000.yaml --inject-at 800  # auto report + follow-up
+uvicorn api.server:app --host 0.0.0.0 --port 8000; streamlit run ui/app.py
+Production threshold 99.5 + consecutive_windows_to_confirm 3 (config.yaml:120) reduces normal-as-anomaly; larger LLM dataset (20/sample) will fix category when A5000 is available.
