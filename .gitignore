@@ -60,18 +60,35 @@ $RECYCLE.BIN/
 *.sublime-workspace
 
 # ── ML / Data / Outputs (generated artifacts) ─────────────────────────
-# Keep directory structure via .gitkeep, ignore large generated files
-outputs/
+# Ignore heavy binaries/checkpoints, but TRACK results/eval/inference (json/md/csv/txt)
 !outputs/.gitkeep
-!outputs/tep_rca_adapter/evaluation*.json
-!outputs/tep_rca_adapter/training_summary.json
+outputs/*.pt
 outputs/**/*.pt
+outputs/*.pth
 outputs/**/*.pth
+outputs/*.safetensors
 outputs/**/*.safetensors
+outputs/*.bin
 outputs/**/*.bin
+outputs/*.pkl
 outputs/**/*.pkl
+outputs/*.db
 outputs/**/*.db
+outputs/*.sqlite
 outputs/**/*.sqlite
+outputs/*.onnx
+outputs/**/*.onnx
+outputs/**/checkpoint-*/
+outputs/**/checkpoint_*/
+outputs/**/tokenizer.model
+# keep results human-readable – explicitly allow (no ignore needed, but ensure not blocked)
+!outputs/**/*.json
+!outputs/**/*.md
+!outputs/**/*.csv
+!outputs/**/*.txt
+!outputs/**/*.yaml
+!outputs/**/*.yml
+!outputs/**/*.jinja
 
 data/raw/
 !data/raw/.gitkeep
