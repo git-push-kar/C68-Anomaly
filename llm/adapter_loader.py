@@ -12,7 +12,11 @@ from typing import Any, Dict, Optional
 
 import torch
 
-from llm.model import assert_no_adapter
+from llm.model import (
+    assert_no_adapter,
+    _drop_unused_inputs_embeds,
+    ensure_language_model_generate,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +47,17 @@ def load_tep_adapter(
     from transformers import AutoModel
 
     adapter_path = Path(adapter_path)
-    if not (adapter_path / "adapter_config.json").exists():
+    # Trainer.save_model on a PeftModel writes the adapter under
+    # <adapter_name>/adapter_config.json; a plain save puts it at the root.
+    nested = adapter_path / adapter_name
+    if (adapter_path / "adapter_config.json").exists():
+        peft_dir = adapter_path
+    elif (nested / "adapter_config.json").exists():
+        peft_dir = nested
+    else:
         raise FileNotFoundError(
-            f"No adapter_config.json in {adapter_path}; is this a trained tep_rca adapter?"
+            f"No adapter_config.json in {adapter_path} (or {nested}); "
+            "is this a trained tep_rca adapter?"
         )
     dtype = torch_dtype or (torch.bfloat16 if torch.cuda.is_available() else torch.float16)
 
@@ -58,9 +70,21 @@ def load_tep_adapter(
         device_map=device_map,
     )
     assert_no_adapter(model)
+    ensure_language_model_generate(model)
+    _drop_unused_inputs_embeds(model)
+
+    try:
+        from transformers import AutoTokenizer
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            base_model, trust_remote_code=True, use_fast=False
+        )
+        model.img_context_token_id = tokenizer.convert_tokens_to_ids("<IMG_CONTEXT>")
+    except Exception as exc:  # pragma: no cover
+        logger.warning("Could not set img_context_token_id: %s", exc)
 
     model = PeftModel.from_pretrained(
-        model, str(adapter_path), adapter_name=adapter_name, is_trainable=False
+        model, str(peft_dir), adapter_name=adapter_name, is_trainable=False
     )
     logger.info("Attached adapter '%s' from %s onto base %s.",
                 adapter_name, adapter_path, base_model)

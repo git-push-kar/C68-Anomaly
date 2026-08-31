@@ -147,6 +147,96 @@ def build_followup_samples(evidence: Dict, kb: Dict) -> List[Dict]:
     ]
 
 
+def build_severity_samples(evidence: Dict, kb: Dict) -> List[Dict]:
+    """Corrective samples that force a rubric-grounded severity decision.
+
+    The base report samples state severity as a fact; these ask the model to
+    justify it from deviation magnitudes so critical/high faults are not
+    downgraded to medium.
+    """
+    sensors = evidence["top_anomalous_sensors"]
+    max_dev = max(s["deviation_percent"] for s in sensors) if sensors else 0.0
+    max_dev = max(abs(v) for v in [max_dev])
+
+    q = (
+        "An anomaly was detected in the TEP. The strongest deviations are: "
+        + "; ".join(
+            f"{s['display_name']} {s['deviation_percent']:+.1f}% (trend {s['trend']})"
+            for s in sensors[:3]
+        )
+        + f". The anomaly score is {evidence['anomaly_score']:.2f}. "
+        "Use the severity rubric. What severity should this anomaly be assigned, "
+        "and why? Respond with ONLY a JSON object using exactly these keys: "
+        'severity, reasoning. severity must be one of "low", "medium", "high", "critical".'
+    )
+    reason = (
+        f"The largest deviation magnitude is {max_dev:.0f}% and the temporal "
+        f"sequence and affected subsystem ({kb['subsystem']}) indicate a "
+        f"{kb['severity']} event."
+    )
+    return [
+        {"kind": "severity", "question": q,
+         "answer": json.dumps({"severity": kb["severity"], "reasoning": reason},
+                              ensure_ascii=False)},
+    ]
+
+
+def build_discrimination_samples(
+    evidence: Dict, kb: Dict, alt_kb: Dict
+) -> List[Dict]:
+    """Corrective samples that distinguish this fault from a same-subsystem peer.
+
+    The base report samples name only the true cause. These present the true
+    cause against a confusable peer (same subsystem) and ask which fits the
+    evidence, teaching the model to rely on the initiating variable / cascade
+    rather than the subsystem alone.
+    """
+    init = kb["initiating"][0]
+    alt = alt_kb["initiating"][0] if alt_kb["initiating"] else None
+
+    q = (
+        "An anomaly was detected in the TEP. Top deviations: "
+        + "; ".join(
+            f"{s['display_name']} {s['deviation_percent']:+.1f}% "
+            f"(trend: {s['trend']})"
+            for s in evidence["top_anomalous_sensors"][:4]
+        )
+        + ". Temporal order: "
+        + ", then ".join(
+            tick["display_name"] for tick in evidence["temporal_sequence"]["sequence"][:3]
+        )
+        + ". Two candidate root causes are considered: "
+        f"{kb['name']} vs {alt_kb['name']}. Which is more likely and why? "
+        "Respond with ONLY a JSON object using exactly these keys: "
+        "root_cause, reasoning. Distinguish using the initiating variable and "
+        "the propagation pattern, not just the subsystem."
+    )
+    reason = (
+        f"{kb['name']}: the initiating variable {init['sensor']} "
+        f"{'decreased' if init['direction'] == 'decrease' else 'increased'} first, "
+        f"consistent with {kb['reasoning']}. "
+        f"Compared to {alt_kb['name']}, the evidence direction and cascade fit "
+        f"{kb['name']} better"
+        + (f" (the peer would deviate {alt['sensor']} instead)." if alt else ".")
+    )
+    return [
+        {"kind": "discrimination", "question": q,
+         "answer": json.dumps({"root_cause": kb["name"], "reasoning": reason},
+                              ensure_ascii=False)},
+    ]
+
+
+def _same_subsystem_peer(fault_id: int, kb: Dict, fault_ids) -> Dict:
+    """Pick a confusable peer sharing the subsystem (prefer sharing the
+    initiating sensor)."""
+    peers = [f for f in fault_ids if f != fault_id and FAULT_KNOWLEDGE[f]["subsystem"] == kb["subsystem"]]
+    if not peers:
+        peers = [f for f in fault_ids if f != fault_id]
+    init_sensor = {s["sensor"] for s in kb["initiating"]}
+    peers.sort(key=lambda f: len({s["sensor"] for s in FAULT_KNOWLEDGE[f]["initiating"]} & init_sensor), reverse=True)
+    return FAULT_KNOWLEDGE[peers[0]]
+
+
 def generate_dataset(config: Dict, samples_per_fault: int, seed: int) -> Dict:
     set_seed(seed)
     rng = np.random.RandomState(seed)
@@ -198,6 +288,36 @@ def generate_dataset(config: Dict, samples_per_fault: int, seed: int) -> Dict:
                             "severity": kb["severity"],
                         },
                     })
+                if split == "train":
+                    for ss in build_severity_samples(evidence, kb):
+                        records[split].append({
+                            "kind": "severity",
+                            "fault_id": fault_id,
+                            "fault_name": kb["name"],
+                            "severity": kb["severity"],
+                            "question": ss["question"],
+                            "answer": ss["answer"],
+                            "evidence": evidence,
+                            "reference": {
+                                "name": kb["name"], "subsystem": kb["subsystem"],
+                                "severity": kb["severity"],
+                            },
+                        })
+                    for ds in build_discrimination_samples(evidence, kb,
+                                                           _same_subsystem_peer(fault_id, kb, split_map["train"])):
+                        records[split].append({
+                            "kind": "discrimination",
+                            "fault_id": fault_id,
+                            "fault_name": kb["name"],
+                            "severity": kb["severity"],
+                            "question": ds["question"],
+                            "answer": ds["answer"],
+                            "evidence": evidence,
+                            "reference": {
+                                "name": kb["name"], "subsystem": kb["subsystem"],
+                                "severity": kb["severity"],
+                            },
+                        })
         logger.info("Split '%s': %d samples from faults %s",
                     split, len(records[split]), fault_ids)
 

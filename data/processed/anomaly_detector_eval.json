@@ -1,0 +1,22 @@
+{
+  "threshold": 1.0474454164505005,
+  "precision": 0.9864253393665159,
+  "recall": 1.0,
+  "f1": 0.9931662870159453,
+  "false_positive_rate": 0.1348314606741573,
+  "false_negative_rate": 0.0,
+  "auroc": 1.0,
+  "auprc": 1.0,
+  "tp": 872,
+  "fp": 12,
+  "tn": 77,
+  "fn": 0,
+  "n_normal_test_windows": 89,
+  "n_fault_windows": 938,
+  "detection_delay_samples": {
+    "fault_04": 4,
+    "fault_14": 4
+  },
+  "mean_detection_delay_samples": 4.0,
+  "missed_faults": 0
+}

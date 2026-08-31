@@ -189,8 +189,16 @@ python scripts/test_adapter.py --config configs/config.yaml
 python scripts/test_end_to_end.py --config configs/config.yaml --inject-at 800
 python scripts/test_end_to_end.py --config configs/config.yaml --no-llm --inject-at 800  # deterministic fallback
 
-# Follow-up QA
-python -c "from main import TEPApp; from utils import load_config; app=TEPApp(load_config()); print(app.answer_followup('ANOM-0001','Why cooling?'))"
+<### 4.9 Ask follow-up questions
+
+```python
+from main import TEPApp
+from utils import load_config
+app = TEPApp(load_config())
+app.answer_followup("ANOM-0001", "Which sensors should I inspect?")
+# or one-liner:
+# python -c "from main import TEPApp; from utils import load_config; app=TEPApp(load_config()); print(app.answer_followup('ANOM-0001','Why cooling?'))"
+```
 
 # API / UI
 uvicorn api.server:app --host 0.0.0.0 --port 8000

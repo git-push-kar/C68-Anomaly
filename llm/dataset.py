@@ -34,7 +34,13 @@ SYSTEM_PROMPT = (
     "causes, affected subsystems, severity, and recommended actions. You never "
     "claim absolute causal certainty: correlation and temporal order are "
     "supporting evidence, not proof. Whenever evidence is insufficient you say "
-    "so explicitly and recommend verification."
+    "so explicitly and recommend verification.\n"
+    "Severity rubric: low = minor deviations, process stable; medium = moderate "
+    "deviations contained by control; high = large deviations, significant "
+    "operational impact; critical = deviations approaching safety limits "
+    "(e.g. strong sustained rises in reactor temperature/pressure with large "
+    "magnitude deviations). Use strong magnitudes and safety-relevant trends "
+    "to justify high/critical, do not default to medium."
 )
 
 ANSWER_KEYS = [
@@ -196,11 +202,12 @@ class TEPInstructionDataset(torch.utils.data.Dataset):
                 1, 3, self.dummy_image_size, self.dummy_image_size,
                 dtype=self.pixel_dtype,
             ),
-            "image_flags": torch.tensor([[0]], dtype=torch.long),
+            "image_flags": torch.tensor([0], dtype=torch.long),
         }
 
 
 def _pad_batch(
+<<<<<<< HEAD
     input_ids: List[torch.Tensor],
     labels: List[torch.Tensor],
     attention: List[torch.Tensor],
@@ -215,11 +222,21 @@ def _pad_batch(
         "attention_mask": [],
     }
     for ids, labs, attn in zip(input_ids, labels, attention):
+=======
+    batch: List[Dict], pad_token_id: int
+) -> Dict[str, torch.Tensor]:
+    """Pad one collated batch to the longest sequence in it."""
+    max_len = max(b["input_ids"].shape[0] for b in batch)
+    out = {"input_ids": [], "labels": [], "attention_mask": []}
+    for b in batch:
+        ids, labs, attn = b["input_ids"], b["labels"], b["attention_mask"]
+>>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912
         pad = max_len - ids.shape[0]
         if pad > 0:
             ids = torch.cat([ids, torch.full((pad,), pad_token_id, dtype=ids.dtype)])
             labs = torch.cat([labs, torch.full((pad,), -100, dtype=labs.dtype)])
             attn = torch.cat([attn, torch.zeros(pad, dtype=attn.dtype)])
+<<<<<<< HEAD
         padded["input_ids"].append(ids)
         padded["labels"].append(labs)
         padded["attention_mask"].append(attn)
@@ -232,10 +249,32 @@ def _pad_batch(
         padded["pixel_values"] = padded["pixel_values"].unsqueeze(1)
     padded["image_flags"] = torch.stack(image_flags)
     return padded
+=======
+        out["input_ids"].append(ids)
+        out["labels"].append(labs)
+        out["attention_mask"].append(attn)
+    out["input_ids"] = torch.stack(out["input_ids"])
+    out["labels"] = torch.stack(out["labels"])
+    out["attention_mask"] = torch.stack(out["attention_mask"])
+    out["pixel_values"] = torch.cat([b["pixel_values"] for b in batch], dim=0)
+    out["image_flags"] = torch.stack([b["image_flags"] for b in batch])
+    return out
+
+
+class TEPCollator:
+    """Picklable data collator (module-level class, safe for worker processes)."""
+
+    def __init__(self, pad_token_id: int) -> None:
+        self.pad_token_id = int(pad_token_id)
+
+    def __call__(self, batch: List[Dict]) -> Dict[str, torch.Tensor]:
+        return _pad_batch(batch, pad_token_id=self.pad_token_id)
+>>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912
 
 
 def make_collator(pad_token_id: int):
     """Factory that injects the tokenizer pad id into the collator."""
+<<<<<<< HEAD
 
     def collator(batch: List[Dict]) -> Dict[str, torch.Tensor]:
         max_len = max(b["input_ids"].shape[0] for b in batch)
@@ -250,3 +289,6 @@ def make_collator(pad_token_id: int):
         )
 
     return collator
+=======
+    return TEPCollator(pad_token_id)
+>>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912

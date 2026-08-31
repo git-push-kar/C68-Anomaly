@@ -109,22 +109,28 @@ def evaluate_adapter(
         if sample.get("severity") and answer.get("severity") == sample["severity"]:
             severity_hits += 1
 
-        # evidence consistency: answer only references sensors in evidence
-        mentioned = set(_normalize(t) for t in re.findall(r"[A-Za-z_]+", str(answer)))
+        # evidence consistency: answer only references sensors present in evidence.
+        # Only unambiguous sensor names (underscored / X{MEAS,MV,...}N tokens) count,
+        # so ordinary language can never trip the check.
+        sensor_re = re.compile(r"(?:^|[\s\W])([A-Za-z][A-Za-z0-9]*_[A-Za-z0-9]+|X(?:MEAS|MV|MAX|MIN|PV|CV)[0-9]+)(?:$|[\s\W])")
+        mentioned = set(t.lower() for t in sensor_re.findall(str(answer)))
         evidence_sensors = {
-            _normalize(s.get("display_name", "")) for s in evidence.get("top_anomalous_sensors", [])
+            _normalize(s.get("display_name", "")).replace(" ", "_")
+            for s in evidence.get("top_anomalous_sensors", [])
         }
-        foreign = mentioned - evidence_sensors - {
-            "the", "a", "an", "and", "of", "to", "in", "on", "is", "are", "was",
-            "be", "that", "this", "it", "for", "with", "as", "at", "by", "from",
-            "likely", "cause", "anomaly", "evidence", "sensor", "flow", "temperature",
-            "pressure", "reactor", "system", "process", "root", "subsystem", "cooling",
-            "cooling", "water", "feed", "level", "valve", "condenser", "stripper",
-            "separator", "purge", "compressor", "recycle", "stream", "component",
-            "minutes", "min", "later", "decreased", "increased", "consistency",
-            "high", "medium", "low", "critical", "confidence", "recommended",
-            "action", "summary", "reasoning", "uncertainty", "analysis", "report",
+        evidence_sensors.add(_normalize(str(evidence.get("candidate_subsystem", ""))).replace(" ", "_"))
+        json_keys = {
+            "summary", "root_cause", "affected_subsystem", "evidence", "reasoning",
+            "severity", "confidence", "recommended_action", "uncertainty",
+            "anomaly_score", "event_id", "temporal_sequence", "first_onset_minutes",
+            "top_anomalous_sensors", "display_name", "current_value",
+            "baseline_value", "deviation_percent", "trend", "contribution",
+            "candidate_subsystem", "candidate_subsystem_score", "pre_anomaly_context",
+            "duration_minutes", "status", "relative_time_minutes", "z_score",
+            "dev_range", "delay_min", "fault_id", "fault_name", "kind", "question",
+            "answer", "reference", "name", "subsystem", "action",
         }
+        foreign = mentioned - evidence_sensors - json_keys
         if foreign:
             hallucinated += 1
         else:

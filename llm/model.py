@@ -7,6 +7,7 @@ found on the base model.
 """
 from __future__ import annotations
 
+import functools
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -19,16 +20,45 @@ logger = logging.getLogger(__name__)
 
 ADAPTER_NAME = "tep_rca"
 
-# InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B (verified from
-# config.json: llm_config.architectures == ["InternLM2ForCausalLM"]). These are
-# the exact linear layer names that receive LoRA adapters.
+# InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B. The hub snapshot uses
+# fused QKV attention (wqkv) + outlook (wo) and MLP projections named
+# w1/w3/w2 (see modeling_internlm2.py within the snapshot). These are the
+# exact linear layer names that receive LoRA adapters.
 INTERNLM2_LORA_TARGETS = [
-    "q_proj", "k_proj", "v_proj", "o_proj",
-    "gate_proj", "up_proj", "down_proj",
+    "wqkv", "wo", "w1", "w2", "w3",
 ]
 
 # Adapter markers used by assert_no_adapter (fail on unexpected adapters).
 ADAPTER_MARKERS = ("lora_", "adalora_", "ia3_", "prefix_encoder", "prompt_encoder")
+
+
+def ensure_language_model_generate(model: Any) -> None:
+    """Attach ``GenerationMixin`` to InternVL2's language_model.
+
+    The hub ``InternLM2ForCausalLM`` defines ``prepare_inputs_for_generation`` /
+    ``_reorder_cache`` but does NOT inherit ``GenerationMixin``, so in
+    transformers >=4.50 ``language_model.generate`` does not exist and the chat
+    model's ``generate`` would crash. ``GenerationMixin.generate`` calls many
+    other mixin helpers, so the whole class is made to inherit it at runtime.
+
+    Note: this project's inference path intentionally does NOT use
+    ``model.generate`` (the old remote model cannot consume modern transformers
+    KV-cache objects); ``llm/inference.py`` runs a manual greedy decode through
+    ``forward`` instead. This hook is kept so any other code path (e.g. future
+    image-vqa support) can still call ``generate``.
+    """
+    from transformers.generation.utils import GenerationMixin
+
+    lm = model.language_model if hasattr(model, "language_model") else model
+    cls = type(lm)
+    if not issubclass(cls, GenerationMixin):
+        cls.__bases__ = (GenerationMixin,) + cls.__bases__
+    lm._supports_generation = True
+    if getattr(lm, "generation_config", None) is None:
+        from transformers import GenerationConfig
+
+        lm.generation_config = GenerationConfig.from_model_config(lm.config)
+    logger.info("Attached GenerationMixin to language_model (%s).", cls.__name__)
 
 
 def assert_no_adapter(model: Any) -> None:
@@ -141,6 +171,7 @@ def load_base_model(
     # Print the base-load preamble and fail if an adapter is already present.
     _print_load_header(config, model)
     assert_no_adapter(model)
+    ensure_language_model_generate(model)
 
     # Set the image-context token id: forward()/generate() require it. For
     # text-only data image_flags are 0 so no vision embeddings are injected.
@@ -212,10 +243,36 @@ def build_lora_config(config: Dict) -> Any:
     )
 
 
+def _drop_unused_inputs_embeds(model: Any) -> None:
+    """Patch the chat model's forward so PEFT's CAUSAL_LM wrapper works.
+
+    ``PeftModelForCausalLM.forward`` unconditionally forwards an
+    ``inputs_embeds`` keyword to the base model, but
+    ``InternVLChatModel.forward`` does not accept it. We only ever feed
+    ``input_ids`` (inputs_embeds stays None), so drop the kwarg before the
+    original forward runs. ``functools.wraps`` keeps the original signature
+    visible to ``inspect`` so the Trainer keeps the batch columns.
+    """
+    import functools
+
+    if not hasattr(model, "language_model"):
+        return
+    orig_forward = model.forward
+
+    @functools.wraps(orig_forward)
+    def patched_forward(*args, **kwargs):
+        if kwargs.get("inputs_embeds") is None:
+            kwargs.pop("inputs_embeds", None)
+        return orig_forward(*args, **kwargs)
+
+    model.forward = patched_forward
+
+
 def wrap_peft(model: Any, config: Dict) -> Any:
     """Wrap the frozen base with the ``tep_rca`` LoRA adapter."""
     from peft import get_peft_model
 
+    _drop_unused_inputs_embeds(model)
     lora_config = build_lora_config(config)
     model = get_peft_model(model, lora_config, adapter_name=ADAPTER_NAME)
     return model

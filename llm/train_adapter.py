@@ -80,7 +80,15 @@ def train_tep_adapter(
     training = llm_cfg["training"]
     output_dir = Path(output_dir or llm_cfg.get("adapter_dir"))
     output_dir = ensure_dir(output_dir)
-    logger.info("GPU: %s", get_device())
+    device = get_device()
+    logger.info("GPU: %s", device)
+
+    use_bf16 = bool(training.get("bf16", False))
+    use_fp16 = bool(training.get("fp16", False))
+    if device.type == "cpu" and (use_bf16 or use_fp16):
+        logger.warning("No GPU available; forcing fp32 (bf16/fp16 disabled).")
+        use_bf16 = False
+        use_fp16 = False
 
     model = load_base_model(config, eval_mode=False)
     model = wrap_peft(model, config)
@@ -111,12 +119,18 @@ def train_tep_adapter(
         logging_steps=int(training.get("logging_steps", 10)),
         save_steps=int(training.get("save_steps", 200)),
         eval_steps=int(training.get("eval_steps", 200)),
-        evaluation_strategy="steps" if val_dataset is not None else "no",
+        eval_strategy="steps" if val_dataset is not None else "no",
         save_total_limit=int(training.get("save_total_limit", 2)),
         dataloader_num_workers=int(training.get("dataloader_num_workers", 2)),
+<<<<<<< HEAD
         fp16=bool(training.get("fp16", False)),
         bf16=bool(training.get("bf16", False)),
         optim=training.get("optim") or ("paged_adamw_8bit" if training.get("use_4bit", True) else "adamw_torch"),
+=======
+        fp16=use_fp16,
+        bf16=use_bf16,
+        optim=training.get("optim", "paged_adamw_8bit" if training.get("use_4bit", True) else "adamw_torch"),
+>>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912
         gradient_checkpointing=bool(training.get("gradient_checkpointing", True)),
         report_to=[],
         save_strategy="steps",
@@ -133,7 +147,8 @@ def train_tep_adapter(
         tokenizer=tokenizer,
     )
 
-    trainer.train(resume_from_checkpoint=str(output_dir) if resume and _checkpoints_exist(output_dir) else None)
+    resume_ckpt = _latest_checkpoint(output_dir) if resume and _checkpoints_exist(output_dir) else None
+    trainer.train(resume_from_checkpoint=resume_ckpt)
     trainer.save_model(str(output_dir))
 
     # Persist tokenizer + remote-code/config so the adapter package is self
@@ -159,6 +174,14 @@ def train_tep_adapter(
 
 def _checkpoints_exist(output_dir: Path) -> bool:
     return any(p.is_dir() and p.name.startswith("checkpoint-") for p in output_dir.iterdir())
+
+
+def _latest_checkpoint(output_dir: Path) -> Optional[str]:
+    """Return the newest ``checkpoint-<step>`` directory, or None."""
+    ckpts = [p for p in output_dir.iterdir() if p.is_dir() and p.name.startswith("checkpoint-")]
+    if not ckpts:
+        return None
+    return str(sorted(ckpts, key=lambda p: int(p.name.split("-")[-1]))[-1])
 
 
 def _copy_base_support_files(base_model: str, output_dir: Path) -> None:

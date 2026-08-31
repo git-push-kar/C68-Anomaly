@@ -33,6 +33,16 @@ REPORT_SYSTEM_PROMPT = (
 )
 
 
+def _apply_top_p(probs: torch.Tensor, top_p: float) -> torch.Tensor:
+    """Nucleus filtering on a batch x vocab probability tensor."""
+    sorted_probs, sorted_idx = probs.sort(descending=True, dim=-1)
+    cumsum = sorted_probs.cumsum(dim=-1)
+    keep = cumsum - sorted_probs <= top_p
+    sorted_probs = sorted_probs.masked_fill(~keep, 0.0)
+    probs = torch.zeros_like(probs).scatter(-1, sorted_idx, sorted_probs)
+    return probs / probs.sum(dim=-1, keepdim=True).clamp_min(1e-12)
+
+
 def extract_json_object(text: str) -> Optional[Dict]:
     """Extract the first balanced JSON object from a model response."""
     start = text.find("{")
@@ -125,28 +135,71 @@ class RCAInference:
 
     # ------------------------------------------------------------------
     def _generate(self, prompt: str, max_new_tokens: Optional[int] = None) -> str:
+        """Greedy decode via repeated forward passes.
+
+        The base InternVL2 remote code predates the KV-cache APIs used by the
+        installed transformers, so ``model.generate`` is unreliable here. We
+        instead run the plain forward pass (which the LoRA training path uses
+        successfully) and append argmax tokens until EOS or the token budget.
+        """
         eos_token_id = self.tokenizer.convert_tokens_to_ids(EOS)
-        inputs = self.tokenizer(prompt, return_tensors="pt", add_special_tokens=True)
-        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
-        gen = {
-            "max_new_tokens": max_new_tokens or int(self._gen_config.get("max_new_tokens", 768)),
-            "do_sample": bool(self._gen_config.get("do_sample", False)),
-            "temperature": float(self._gen_config.get("temperature", 0.7)),
-            "top_p": float(self._gen_config.get("top_p", 0.9)),
-            "top_k": int(self._gen_config.get("top_k", 50)),
-            "repetition_penalty": float(self._gen_config.get("repetition_penalty", 1.0)),
-            "eos_token_id": eos_token_id,
-            "pad_token_id": self.tokenizer.pad_token_id,
-        }
+        max_new = max_new_tokens or int(self._gen_config.get("max_new_tokens", 768))
+        do_sample = bool(self._gen_config.get("do_sample", False))
+        temp = float(self._gen_config.get("temperature", 0.7))
+        top_p = float(self._gen_config.get("top_p", 0.9))
+        top_k = int(self._gen_config.get("top_k", 50))
+        rep_penalty = float(self._gen_config.get("repetition_penalty", 1.0))
+        pad = self.tokenizer.pad_token_id or eos_token_id
+
+        enc = self.tokenizer(prompt, return_tensors="pt", add_special_tokens=True)
+        input_ids = enc["input_ids"].to(self.model.device)
+        attention_mask = enc["attention_mask"].to(self.model.device)
+
+        # Text-only InternVL2 forward needs the dummy image placeholders.
+        dummy = torch.zeros(
+            1, 3, int(self.config["llm"].get("dummy_image_size", 448)),
+            int(self.config["llm"].get("dummy_image_size", 448)),
+            dtype=torch.bfloat16, device=self.model.device,
+        )
+        image_flags = torch.zeros((input_ids.shape[0],), dtype=torch.long, device=self.model.device)
+
+        generated: List[int] = []
         with torch.no_grad():
-            output = self.model.generate(
-                pixel_values=None,
-                input_ids=inputs["input_ids"],
-                attention_mask=inputs["attention_mask"],
-                **gen,
-            )
-        new_tokens = output[0][inputs["input_ids"].shape[1]:]
-        text = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
+            for _ in range(max_new):
+                logits = self.model(
+                    pixel_values=dummy,
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    image_flags=image_flags,
+                    use_cache=False,
+                ).logits[:, -1, :]
+                if rep_penalty != 1.0 and generated:
+                    for g in set(generated):
+                        logits[:, g] /= rep_penalty
+                if do_sample:
+                    logits = logits / temp
+                    probs = torch.nn.functional.softmax(logits, dim=-1)
+                    if top_p < 1.0:
+                        probs = _apply_top_p(probs, top_p)
+                    if top_k > 0:
+                        top_probs, _ = torch.topk(probs, min(top_k, probs.shape[-1]))
+                        probs[probs < top_probs[:, -1:]] = 0.0
+                        probs = probs / probs.sum(dim=-1, keepdim=True).clamp_min(1e-12)
+                    next_id = torch.multinomial(probs, num_samples=1)
+                else:
+                    if top_k > 0:
+                        top_vals, _ = torch.topk(logits, min(top_k, logits.shape[-1]))
+                        logits[logits < top_vals[:, -1:]] = -float("inf")
+                    next_id = torch.argmax(logits, dim=-1, keepdim=True)
+                next_id = next_id.to(self.model.device)
+                if int(next_id.item()) == eos_token_id:
+                    break
+                generated.append(int(next_id.item()))
+                input_ids = torch.cat([input_ids, next_id], dim=-1)
+                attention_mask = torch.cat(
+                    [attention_mask, torch.ones_like(next_id)], dim=-1
+                )
+        text = self.tokenizer.decode(generated, skip_special_tokens=True)
         return text.strip()
 
     # ------------------------------------------------------------------

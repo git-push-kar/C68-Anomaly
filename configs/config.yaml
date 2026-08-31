@@ -147,15 +147,14 @@ llm:
     dropout: 0.05
     bias: none
     # InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B; these are the
-    # exact InternLM2 linear module names (verified from model internals).
+    # exact InternLM2 linear module names shipped in the hub
+    # modeling_internlm2.py (verify against the actual snapshot before use).
     target_modules:
-      - q_proj
-      - k_proj
-      - v_proj
-      - o_proj
-      - gate_proj
-      - up_proj
-      - down_proj
+      - wqkv
+      - wo
+      - w1
+      - w2
+      - w3
   training:
     use_4bit: true               # QLoRA (bitsandbytes NF4 + double quant) - A5000 safe
     bnb_4bit_quant_type: nf4
