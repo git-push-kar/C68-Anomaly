@@ -85,8 +85,7 @@ _DEFAULT_CONFIG: Dict[str, Any] = {
             "alpha": 32,
             "dropout": 0.05,
             "target_modules": [
-                "q_proj", "k_proj", "v_proj", "o_proj",
-                "gate_proj", "up_proj", "down_proj",
+                "wqkv", "wo", "w1", "w2", "w3",
             ],
         },
         "training": {

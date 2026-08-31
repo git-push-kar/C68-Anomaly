@@ -1,0 +1,125 @@
+# ── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.pyo
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.whl
+pip-log.txt
+pip-delete-this-directory.txt
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.log
+*.swp
+*.swo
+*~
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+
+# ── ML / Data / Outputs (generated artifacts) ─────────────────────────
+# Keep directory structure via .gitkeep, ignore large generated files
+outputs/
+!outputs/.gitkeep
+!outputs/tep_rca_adapter/evaluation*.json
+!outputs/tep_rca_adapter/training_summary.json
+outputs/**/*.pt
+outputs/**/*.pth
+outputs/**/*.safetensors
+outputs/**/*.bin
+outputs/**/*.pkl
+outputs/**/*.db
+outputs/**/*.sqlite
+
+data/raw/
+!data/raw/.gitkeep
+!data/raw/**/.gitkeep
+# Ignore large raw/processed dumps (TEP is ~several GB); keep placeholders
+data/raw/**/*.csv
+data/raw/**/*.mat
+data/raw/**/*.dat
+data/processed/
+!data/processed/.gitkeep
+data/processed/**/*.npy
+data/processed/**/*.npz
+data/processed/**/*.pkl
+data/llm/
+!data/llm/.gitkeep
+data/llm/**/*.jsonl
+data/llm/**/*.arrow
+data/llm/**/*.parquet
+
+# ── Checkpoints / HF cache ────────────────────────────────────────────
+checkpoints/
+*.ckpt
+.cache/
+hf_cache/
+transformers_cache/
+
+# ── Databases ─────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ── Logs ──────────────────────────────────────────────────────────────
+logs/
+wandb/
+mlruns/
+lightning_logs/
+
+# ── Jupyter ───────────────────────────────────────────────────────────
+.ipynb_checkpoints
+*.ipynb
+
+# ── IDE ───────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+
+# ── Secrets ───────────────────────────────────────────────────────────
+.env.local
+.env.*.local
+secrets.yaml
+secrets.json

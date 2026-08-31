@@ -1,0 +1,69 @@
+{
+  "adapter_name": "tep_rca",
+  "base_model": "OpenGVLab/InternVL2-2B",
+  "lora": {
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "target_modules": [
+      "wqkv",
+      "wo",
+      "w1",
+      "w2",
+      "w3"
+    ],
+    "bias": "none"
+  },
+  "training": {
+    "use_4bit": true,
+    "bf16": true,
+    "fp16": false,
+    "batch_size": 2,
+    "gradient_accumulation_steps": 8,
+    "num_epochs": 3,
+    "learning_rate": 0.0002,
+    "max_sequence_length": 4096,
+    "warmup_ratio": 0.03,
+    "lr_scheduler": "cosine",
+    "gradient_checkpointing": true,
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": true,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "logging_steps": 10,
+    "save_steps": 200,
+    "eval_steps": 200,
+    "save_total_limit": 2,
+    "dataloader_num_workers": 2,
+    "train_faults": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      16,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "val_faults": [
+      4,
+      14
+    ],
+    "test_faults": [
+      15,
+      21
+    ]
+  },
+  "train_examples": 1008,
+  "val_examples": 40
+}
