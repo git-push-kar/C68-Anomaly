@@ -1,5 +1,5 @@
-"""End-to-end test: continuous stream -> detection -> evidence -> report ->
-follow-up question, using the full TEPApp pipeline.
+"""End-to-end test: continuous stream -> detection -> evidence -> report,
+using the full TEPApp pipeline.
 
 Requires prepared data and a trained anomaly detector (see README steps 2-3).
 The InternVL adapter is optional; without it deterministic reports are used and
@@ -73,15 +73,6 @@ def main() -> None:
         print(f"\nReasoning:\n  {report.get('reasoning')}")
         print(f"\nRecommended action:\n  {report.get('recommended_action')}")
         print(f"Confidence: {report.get('confidence')} | Uncertainty: {report.get('uncertainty')}")
-
-    event_id = events[0]["event_id"]
-    question = "Why is the cooling system the most likely cause?"
-    print(f"\n--- Follow-up question on {event_id} ---")
-    print(f"Q: {question}")
-    if app.rca is None:
-        print("A: (no LLM loaded; deterministic fallback)")
-    answer = app.answer_followup(event_id, question)
-    print(f"A: {answer['answer']}\n")
 
     print("End-to-end test completed successfully.")
 
