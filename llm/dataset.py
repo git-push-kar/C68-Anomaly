@@ -207,22 +207,6 @@ class TEPInstructionDataset(torch.utils.data.Dataset):
 
 
 def _pad_batch(
-<<<<<<< HEAD
-    input_ids: List[torch.Tensor],
-    labels: List[torch.Tensor],
-    attention: List[torch.Tensor],
-    pixel_values: List[torch.Tensor],
-    image_flags: List[torch.Tensor],
-    max_len: int,
-    pad_token_id: int,
-) -> Dict[str, torch.Tensor]:
-    padded = {
-        "input_ids": [],
-        "labels": [],
-        "attention_mask": [],
-    }
-    for ids, labs, attn in zip(input_ids, labels, attention):
-=======
     batch: List[Dict], pad_token_id: int
 ) -> Dict[str, torch.Tensor]:
     """Pad one collated batch to the longest sequence in it."""
@@ -230,26 +214,11 @@ def _pad_batch(
     out = {"input_ids": [], "labels": [], "attention_mask": []}
     for b in batch:
         ids, labs, attn = b["input_ids"], b["labels"], b["attention_mask"]
->>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912
         pad = max_len - ids.shape[0]
         if pad > 0:
             ids = torch.cat([ids, torch.full((pad,), pad_token_id, dtype=ids.dtype)])
             labs = torch.cat([labs, torch.full((pad,), -100, dtype=labs.dtype)])
             attn = torch.cat([attn, torch.zeros(pad, dtype=attn.dtype)])
-<<<<<<< HEAD
-        padded["input_ids"].append(ids)
-        padded["labels"].append(labs)
-        padded["attention_mask"].append(attn)
-    padded["input_ids"] = torch.stack(padded["input_ids"])
-    padded["labels"] = torch.stack(padded["labels"])
-    padded["attention_mask"] = torch.stack(padded["attention_mask"])
-    padded["pixel_values"] = torch.stack([p.squeeze(0) if p.dim() == 4 and p.shape[0] == 1 else p for p in pixel_values])
-    # InternVL expects [B, 3, 448, 448] when image_flags=0 it's ignored; keep stacked
-    if padded["pixel_values"].dim() == 3:
-        padded["pixel_values"] = padded["pixel_values"].unsqueeze(1)
-    padded["image_flags"] = torch.stack(image_flags)
-    return padded
-=======
         out["input_ids"].append(ids)
         out["labels"].append(labs)
         out["attention_mask"].append(attn)
@@ -269,26 +238,8 @@ class TEPCollator:
 
     def __call__(self, batch: List[Dict]) -> Dict[str, torch.Tensor]:
         return _pad_batch(batch, pad_token_id=self.pad_token_id)
->>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912
 
 
 def make_collator(pad_token_id: int):
     """Factory that injects the tokenizer pad id into the collator."""
-<<<<<<< HEAD
-
-    def collator(batch: List[Dict]) -> Dict[str, torch.Tensor]:
-        max_len = max(b["input_ids"].shape[0] for b in batch)
-        return _pad_batch(
-            [b["input_ids"] for b in batch],
-            [b["labels"] for b in batch],
-            [b["attention_mask"] for b in batch],
-            [b["pixel_values"] for b in batch],
-            [b["image_flags"] for b in batch],
-            max_len=max_len,
-            pad_token_id=pad_token_id,
-        )
-
-    return collator
-=======
     return TEPCollator(pad_token_id)
->>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912
