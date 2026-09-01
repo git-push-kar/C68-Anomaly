@@ -92,13 +92,31 @@ def prepare_tep(config: Dict, max_runs_per_fault: Optional[int] = None, smoke: b
         }
     save_json(processed_dir / "fault_metadata.json", fault_metadata)
 
-    # ---- windows + leakage-free split ----------------------------------------
+    # ---- windows + leakage-free split (run-level, manifest-aware) --------
     # Each simulationRun is 500 samples; we treat each 500-sample block as one
-    # independent segment so windows never span runs (true for Rieth dataset and
-    # also compatible with legacy single-run files).
+    # independent segment so windows never span runs. If a detector manifest
+    # exists (350/75/75), use its run IDs for deterministic leakage-free split;
+    # otherwise fall back to block-order split.
     window_size = int(config["windowing"]["window_size"])
     stride = int(config["windowing"]["stride"])
     block_samples = int(config["windowing"].get("block_samples", 500))
+
+    # Try to load detector manifest for 500-run full dataset
+    manifest_path = processed_dir / "manifests" / "detector_split.json"
+    use_manifest = manifest_path.exists() and not smoke and max_runs_per_fault is None
+    if use_manifest:
+        try:
+            with open(manifest_path) as f:
+                manifest = json.load(f)
+            train_runs = set(manifest["train_runs"])
+            val_runs = set(manifest["validation_runs"])
+            test_runs = set(manifest["test_runs"])
+            # Map block_id (0-based) -> run_id (1-based) in file order; for Training file, run 1 is block 0
+            # For --full (500 runs), block_id 0..499 maps to run_id per manifest
+            logger.info("Using detector manifest %s: 350/75/75 run-level split", manifest_path)
+        except Exception as e:
+            logger.warning("Failed to load manifest %s: %s, falling back to block split", manifest_path, e)
+            use_manifest = False
 
     blocks: List[np.ndarray] = []
     segment_ids: List[int] = []
@@ -107,6 +125,7 @@ def prepare_tep(config: Dict, max_runs_per_fault: Optional[int] = None, smoke: b
         block = normal_values[start:start + block_samples]
         if len(block) >= window_size:
             blocks.append(block)
+            # Segment id is block_id, but for manifest we will map to run_id later
             segment_ids.extend([block_id] * max(0, (len(block) - window_size) // stride + 1))
         elif len(block) > 0:
             logger.warning("Skipping tail block %d with %d samples (< window_size %d)", block_id, len(block), window_size)
@@ -114,12 +133,29 @@ def prepare_tep(config: Dict, max_runs_per_fault: Optional[int] = None, smoke: b
         raise RuntimeError(f"No complete blocks found: normal_values has {len(normal_values)} rows, window_size={window_size}, block_samples={block_samples}")
     normal_windows = np.concatenate([to_windows(b, window_size, stride) for b in blocks], axis=0)
 
-    train_idx, val_idx, test_idx = split_windows_by_segment(
-        normal_windows, segment_ids,
-        val_ratio=float(config["anomaly_detector"]["train"].get("val_ratio", 0.15)),
-        seed=int(config.get("seed", 42)),
-        test_ratio=float(config["windowing"].get("test_ratio", 0.2)),
-    )
+    if use_manifest:
+        # Build run_id -> block_id map: block 0 = run 1, etc., for the Training file order
+        # For --full, we loaded 500 runs from TEP_FaultFree_Training.csv in order 1..500
+        run_to_block = {run_id: run_id - 1 for run_id in range(1, 501)}  # 1-based to 0-based
+        train_blocks = {run_to_block[r] for r in train_runs if r in run_to_block}
+        val_blocks = {run_to_block[r] for r in val_runs if r in run_to_block}
+        test_blocks = {run_to_block[r] for r in test_runs if r in run_to_block}
+        train_idx = [i for i, sid in enumerate(segment_ids) if sid in train_blocks]
+        val_idx = [i for i, sid in enumerate(segment_ids) if sid in val_blocks]
+        test_idx = [i for i, sid in enumerate(segment_ids) if sid in test_blocks]
+        # Convert to numpy arrays
+        train_idx = np.array(train_idx, dtype=np.int64)
+        val_idx = np.array(val_idx, dtype=np.int64)
+        test_idx = np.array(test_idx, dtype=np.int64)
+        logger.info("Manifest split: train %d windows (%d runs), val %d (%d runs), test %d (%d runs)",
+                    len(train_idx), len(train_blocks), len(val_idx), len(val_blocks), len(test_idx), len(test_blocks))
+    else:
+        train_idx, val_idx, test_idx = split_windows_by_segment(
+            normal_windows, segment_ids,
+            val_ratio=float(config["anomaly_detector"]["train"].get("val_ratio", 0.15)),
+            seed=int(config.get("seed", 42)),
+            test_ratio=float(config["windowing"].get("test_ratio", 0.2)),
+        )
     np.save(processed_dir / "normal_windows_train.npy", normal_windows[train_idx])
     np.save(processed_dir / "normal_windows_val.npy", normal_windows[val_idx])
     if test_idx is not None and len(test_idx):

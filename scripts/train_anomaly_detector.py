@@ -49,7 +49,6 @@ def train_anomaly_detector(config: Dict, resume: bool = False, epochs: int = Non
 
     if epochs:
         config["anomaly_detector"]["train"]["epochs"] = epochs
-    segment_ids = [0] * len(train_windows)
 
     # Train in SCALED space (the detector re-scales at inference). Scaling is
     # applied here because the raw TEP magnitudes (reactor pressure ~2500 kPa,
@@ -65,8 +64,14 @@ def train_anomaly_detector(config: Dict, resume: bool = False, epochs: int = Non
         val_windows.reshape(-1, num_features)
     ).reshape(val_windows.shape)
 
-    model = train_autoencoder(config, train_scaled, segment_ids,
-                              output_dir=model_dir, resume=resume)
+    model = train_autoencoder(
+        config,
+        train_scaled,
+        segment_ids=None,
+        output_dir=model_dir,
+        resume=resume,
+        validation_windows=val_scaled,
+    )
     model.eval()
 
     # ---- threshold from normal validation scores ----------------------------

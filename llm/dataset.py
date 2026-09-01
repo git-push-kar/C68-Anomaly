@@ -88,10 +88,13 @@ def format_evidence_question(evidence: Dict) -> str:
     sensors = evidence.get("top_anomalous_sensors", [])
     if sensors:
         for s in sensors:
+            # Primary: stable z-score, secondary: percent for readability (bounded)
+            z = s.get("z_score", s.get("zScore", 0.0))
             lines.append(
                 f"- {s.get('display_name', s.get('name'))}: "
-                f"{s.get('deviation_percent', 0.0):+.1f}% "
-                f"(trend: {s.get('trend', 'unknown')}, "
+                f"z={z:+.2f} "
+                f"(deviation: {s.get('deviation_percent', 0.0):+.1f}%, "
+                f"trend: {s.get('trend', 'unknown')}, "
                 f"contribution: {s.get('contribution', 0.0):.2f})"
             )
     else:

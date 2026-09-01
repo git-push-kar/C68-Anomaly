@@ -58,6 +58,7 @@ def train_autoencoder(
     output_dir,
     resume: bool = False,
     device=None,
+    validation_windows: Optional[np.ndarray] = None,
 ) -> LSTMAutoencoder:
     """Train the LSTM AE on normal windows; returns the best model.
 
@@ -77,12 +78,25 @@ def train_autoencoder(
     model = build_autoencoder(config, num_features, sequence_length).to(device)
     logger.info("LSTM AE parameters: %d", sum(p.numel() for p in model.parameters()))
 
-    train_set, val_set = make_train_val_sets(
-        normal_windows,
-        segment_ids,
-        float(train_cfg.get("val_ratio", 0.15)),
-        int(config.get("seed", 42)),
-    )
+    if validation_windows is not None:
+        # The preparation stage has already made a leakage-free split by whole
+        # simulation run. Do not split train-only windows a second time: that
+        # can leave no validation segments and silently produce NaN validation
+        # loss, as happens when all passed segment IDs are identical.
+        train_set = WindowedTensorDataset(normal_windows)
+        val_set = WindowedTensorDataset(np.asarray(validation_windows, dtype=np.float32))
+    else:
+        train_set, val_set = make_train_val_sets(
+            normal_windows,
+            segment_ids,
+            float(train_cfg.get("val_ratio", 0.15)),
+            int(config.get("seed", 42)),
+        )
+    if len(train_set) == 0 or len(val_set) == 0:
+        raise ValueError(
+            f"Training and validation sets must both be non-empty; got "
+            f"train={len(train_set)}, val={len(val_set)}."
+        )
     batch_size = int(train_cfg.get("batch_size", 64))
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
@@ -135,6 +149,11 @@ def train_autoencoder(
 
         train_mse = running / max(n_batches, 1)
         val_mse, _ = evaluate(model, val_loader, device)
+        if not math.isfinite(val_mse):
+            raise RuntimeError(
+                "Validation MSE is not finite. Check the prepared validation "
+                "windows and do not save this detector artifact."
+            )
         logger.info(
             "Epoch %d/%d | train MSE %.5f | val MSE %.5f",
             epoch + 1, epochs, train_mse, val_mse,
