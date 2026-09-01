@@ -30,6 +30,9 @@ def main() -> None:
     parser.add_argument("--source", default=None, help="Normal CSV to replay")
     parser.add_argument("--fault", default=None, help="Fault CSV to inject")
     parser.add_argument("--inject-at", type=int, default=800)
+    parser.add_argument("--normal-run", type=int, default=None)
+    parser.add_argument("--fault-number", type=int, default=None)
+    parser.add_argument("--fault-run", type=int, default=None)
     parser.add_argument("--no-llm", action="store_true", help="Skip LLM adapter")
     parser.add_argument("--log-level", default="INFO")
     args = parser.parse_args()
@@ -49,6 +52,9 @@ def main() -> None:
         source_file=source,
         inject_fault_file=fault,
         inject_fault_at=args.inject_at,
+        normal_simulation_run=args.normal_run,
+        fault_number=args.fault_number,
+        fault_simulation_run=args.fault_run,
     )
     print(f"Closed anomaly events: {len(events)}")
 

@@ -67,9 +67,13 @@ class SensorStream:
         inject_fault_frame: Optional[pd.DataFrame] = None,
         inject_fault_at: Optional[int] = None,
         fault_label: Optional[int] = None,
+        fault_number: Optional[int] = None,
+        simulation_run: Optional[int] = None,
     ) -> "SensorStream":
         config = config or load_config()
-        df = load_single_csv(path, config)
+        df = load_single_csv(
+            path, config, fault_number=fault_number, simulation_run=simulation_run
+        )
         ws = window_size or int(config["streaming"]["window_size"])
         st = stride or int(config["streaming"]["stride"])
         rr = replay_rate if replay_rate is not None else float(config["streaming"].get("replay_rate", 0.0))

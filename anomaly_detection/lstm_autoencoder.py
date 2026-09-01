@@ -57,8 +57,10 @@ class LSTMEncoder(nn.Module):
 class LSTMDecoder(nn.Module):
     """Decode a latent vector back into a [B, W, F] sequence.
 
-    The decoder receives the latent as its initial hidden state; per-step input
-    is a zero vector (teacher-free, mirrors common autoencoder design).
+    The decoder receives the latent as its initial hidden/cell state and as the
+    repeated per-step input. Feeding zeros at every step often collapses to a
+    mean reconstruction on standardized sensor data, because the decoder has
+    very little signal after initialization.
     """
 
     def __init__(
@@ -75,9 +77,11 @@ class LSTMDecoder(nn.Module):
         self.sequence_length = sequence_length
         self.hidden_size = hidden_size
         self.num_layers = num_layers
+        self.latent_dim = latent_dim
         self.latent_proj = nn.Linear(latent_dim, hidden_size * num_layers)
+        self.cell_proj = nn.Linear(latent_dim, hidden_size * num_layers)
         self.lstm = nn.LSTM(
-            input_size=num_features,
+            input_size=latent_dim,
             hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
@@ -88,12 +92,9 @@ class LSTMDecoder(nn.Module):
     def forward(self, latent: torch.Tensor) -> torch.Tensor:
         batch = latent.shape[0]
         h0 = self.latent_proj(latent).view(self.num_layers, batch, self.hidden_size)
-        c0 = torch.zeros_like(h0)
-        zeros = torch.zeros(
-            batch, self.sequence_length, self.num_features,
-            device=latent.device, dtype=latent.dtype,
-        )
-        out, _ = self.lstm(zeros, (h0, c0))
+        c0 = self.cell_proj(latent).view(self.num_layers, batch, self.hidden_size)
+        decoder_input = latent[:, None, :].repeat(1, self.sequence_length, 1)
+        out, _ = self.lstm(decoder_input, (h0, c0))
         return self.out_proj(out)
 
 

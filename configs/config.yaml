@@ -67,19 +67,19 @@ windowing:
 anomaly_detector:
   model_dir: outputs/anomaly_detector
   lstm:
-    hidden_size: 32
+    hidden_size: 128
     num_layers: 2
-    latent_dim: 16
-    dropout: 0.1
+    latent_dim: 64
+    dropout: 0.05
     bidirectional_encoder: false
   train:
-    epochs: 50
+    epochs: 100
     batch_size: 64
     learning_rate: 1.0e-3
     weight_decay: 1.0e-5
     lr_scheduler: cosine
     val_ratio: 0.15
-    early_stopping_patience: 8
+    early_stopping_patience: 15
     gradient_clip_norm: 1.0
     checkpoint_every: 5
   threshold:
@@ -111,6 +111,9 @@ streaming:
   source_file: null             # path to a single CSV to replay
   normal_source: data/raw/normal/TEP_FaultFree_Training.csv
   fault_source: data/raw/faults/TEP_Faulty_Training.csv
+  normal_simulation_run: 1
+  fault_number: 1
+  fault_simulation_run: 1
 
 # ---------------------------------------------------------------------
 # Anomaly event aggregation

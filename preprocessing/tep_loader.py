@@ -415,11 +415,18 @@ def load_tep_data(config: dict, max_runs_per_fault: Optional[int] = None) -> TEP
     return TEPData(normal=normal_frame, faults=faults, feature_names=feature_names)
 
 
-def load_single_csv(path: Union[str, Path], config: dict) -> pd.DataFrame:
+def load_single_csv(
+    path: Union[str, Path],
+    config: dict,
+    fault_number: Optional[int] = None,
+    simulation_run: Optional[int] = None,
+) -> pd.DataFrame:
     """Load one CSV (used by the streaming simulator) with the same rules.
 
-    Handles both legacy 52-col and Rieth consolidated files (returns first
-    fault's sensors if the file contains multiple faults).
+    Handles both legacy 52-col and Rieth consolidated files.  For a Rieth
+    consolidated file, ``fault_number`` and ``simulation_run`` select one
+    temporally coherent run rather than replaying unrelated runs back-to-back.
+    This is essential for a realistic continuous-stream simulation.
     """
     ds = config["dataset"]
     feature_names = CANONICAL_NAMES
@@ -435,11 +442,19 @@ def load_single_csv(path: Union[str, Path], config: dict) -> pd.DataFrame:
             for chunk in pd.read_csv(p, header=0 if ds.get("has_header", True) else None, delimiter=ds.get("delimiter", ","), chunksize=500000):
                 chunk.columns = [str(c).strip() for c in chunk.columns]
                 chunk = _normalize_rieth_columns(chunk)
-                # If multiple faults, keep only fault 0 for normal, or first fault otherwise
-                # For simulator, just return sensor columns (all rows)
+                if fault_number is not None and "faultNumber" in chunk.columns:
+                    chunk = chunk[chunk["faultNumber"] == int(fault_number)]
+                if simulation_run is not None and "simulationRun" in chunk.columns:
+                    chunk = chunk[chunk["simulationRun"] == int(simulation_run)]
+                if chunk.empty:
+                    continue
                 sensor_cols = [c for c in CANONICAL_NAMES if c in chunk.columns]
-                # Drop meta, keep sensors
                 chunks.append(chunk[sensor_cols])
+            if not chunks:
+                raise ValueError(
+                    f"No rows matched fault_number={fault_number}, "
+                    f"simulation_run={simulation_run} in {p}"
+                )
             df = pd.concat(chunks, ignore_index=True) if len(chunks) > 1 else chunks[0]
             df = _handle_missing(df, ds.get("missing_value_strategy", "interpolate"))
             return df.reset_index(drop=True)

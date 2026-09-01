@@ -284,22 +284,40 @@ class TEPApp:
         inject_fault_file: Optional[str] = None,
         inject_fault_at: Optional[int] = None,
         replay_rate: Optional[float] = None,
+        normal_simulation_run: Optional[int] = None,
+        fault_number: Optional[int] = None,
+        fault_simulation_run: Optional[int] = None,
     ) -> List[Dict]:
         """Replay a CSV through the pipeline; returns closed event payloads."""
         from streaming.simulator import SensorStream
 
+        # Use streaming config defaults if not provided via CLI
+        normal_run = normal_simulation_run if normal_simulation_run is not None else int(self.config["streaming"].get("normal_simulation_run", 1))
+        fnum = fault_number if fault_number is not None else self.config["streaming"].get("fault_number")
+        frun = fault_simulation_run if fault_simulation_run is not None else int(self.config["streaming"].get("fault_simulation_run", 1))
         stream = SensorStream.from_csv(
             source_file or self.config["streaming"]["normal_source"],
             config=self.config,
             replay_rate=replay_rate,
+            fault_number=0,
+            simulation_run=normal_run,
         )
         fault_frame = None
         fault_label = None
         if inject_fault_file:
             from preprocessing.tep_loader import load_single_csv
 
-            fault_frame = load_single_csv(inject_fault_file, self.config)
-            fault_label = _infer_fault_label(inject_fault_file)
+            if fnum is not None:
+                fault_label = int(fnum)
+            else:
+                fault_label = _infer_fault_label(inject_fault_file)
+            fault_frame = load_single_csv(
+                inject_fault_file,
+                self.config,
+                fault_number=fault_label,
+                simulation_run=frun,
+            )
+        fault_onset = int(self.config["dataset"].get("fault_onset_index", 160))
         events = []
 
         # simulate fault injection by switching frames
@@ -308,18 +326,28 @@ class TEPApp:
             if (inject_fault_at is not None and fault_frame is not None
                     and rec["sample_index"] >= inject_fault_at):
                 off = rec["sample_index"] - inject_fault_at
+                fault_row = (fault_onset + off) % len(fault_frame)
                 rec = {
                     "sample_index": rec["sample_index"],
-                    "values": fault_frame.iloc[off % len(fault_frame)].to_numpy(dtype=np.float32),
+                    "values": fault_frame.iloc[fault_row].to_numpy(dtype=np.float32),
                     "is_fault": True,
                     "fault_label": fault_label,
                 }
             all_records.append(rec)
         for rec in all_records:
             result = self.process_sensor_stream(rec)
-            if result["anomaly_detected"]:
+            if result.get("event") is not None:
                 events.append(result["event"])
+        final_event = self.finalize_stream()
+        if final_event is not None:
+            events.append(final_event)
         return events
+
+    def finalize_stream(self) -> Optional[Dict]:
+        """Close an active event when a finite replay/input stream ends."""
+        if self._open is None:
+            return None
+        return self._close_event()
 
 
 def _infer_fault_label(path: str) -> int:

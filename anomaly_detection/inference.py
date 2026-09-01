@@ -65,8 +65,22 @@ class AnomalyDetector:
 
         num_features = int(state["num_features"])
         sequence_length = int(state["sequence_length"])
+        # Prefer lstm config saved inside the checkpoint, fall back to the
+        # separate config.json (written by train.py) which contains the full
+        # 128/64 architecture used for the current model.
+        saved_config = {}
+        config_path = model_dir / "config.json"
+        if config_path.exists():
+            try:
+                saved_config = load_json(config_path)
+            except Exception:
+                saved_config = {}
+        lstm_cfg = state.get("lstm") or saved_config.get("lstm") or {}
+        if not lstm_cfg and saved_config:
+            # config.json nests under "lstm" directly
+            lstm_cfg = saved_config.get("lstm", {})
         model = build_autoencoder(
-            {"anomaly_detector": {"lstm": state.get("lstm", {})}},
+            {"anomaly_detector": {"lstm": lstm_cfg}},
             num_features,
             sequence_length,
         )

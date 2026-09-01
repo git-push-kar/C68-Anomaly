@@ -1,6 +1,7 @@
 # RTX A5000 (24 GB) optimized profile for TEP RCA
-# Extends configs/config.yaml - pass as: python scripts/train_tep_adapter.py --config configs/config_a5000.yaml
-# Or merge manually: use_4bit false gives ~2x speed over QLoRA on 24GB, at cost of ~12-14 GB VRAM.
+# Full standalone config - mirrors configs/config.yaml with A5000 throughput tuning
+# Use as: python scripts/train_tep_adapter.py --config configs/config_a5000.yaml
+# QLoRA (use_4bit true) ~6-8GB, FP16/BF16 LoRA (use_4bit false) ~12-14GB on 24GB
 seed: 42
 log_level: INFO
 
@@ -9,41 +10,111 @@ paths:
   normal_data_path: data/raw/normal
   fault_data_path: data/raw/faults
   processed_data_path: data/processed
+  llm_dataset_path: data/llm
+  output_dir: outputs
 
 dataset:
   format: tep_rieth_csv
   num_features: 52
   has_header: true
   delimiter: ","
+  timestamp_column: null
+  fault_onset_column: null
   fault_onset_index: 160
   normal_file_pattern: "TEP_FaultFree*.csv"
   fault_file_pattern: "TEP_Faulty*.csv"
+  missing_value_strategy: interpolate
+  drop_constant_sensors: false
+  clip_percentile: 99.9
+
+preprocessing:
+  scaler: standard
+  scaler_dir: outputs/preprocessing
+  baseline_dir: outputs/preprocessing
+
+windowing:
+  window_size: 60
+  stride: 5
+  dtype: float32
+  block_samples: 500
+  test_ratio: 0.2
+
+anomaly_detector:
+  model_dir: outputs/anomaly_detector
+  lstm:
+    hidden_size: 128
+    num_layers: 2
+    latent_dim: 64
+    dropout: 0.05
+    bidirectional_encoder: false
+  train:
+    epochs: 100
+    batch_size: 128
+    learning_rate: 1.0e-3
+    weight_decay: 1.0e-5
+    lr_scheduler: cosine
+    val_ratio: 0.15
+    early_stopping_patience: 15
+    gradient_clip_norm: 1.0
+    checkpoint_every: 5
+  threshold:
+    method: percentile
+    percentile: 99.0
+    k_std: 6.0
+    min_anomaly_score: 0.0
+
+evidence:
+  top_k_sensors: 5
+  min_deviation_percent: 3.0
+  baseline_windows: 20
+  trend_smoothing_window: 8
+  onset_sensitivity: 1.5
+  max_temporal_events: 6
 
 streaming:
+  window_size: 60
+  stride: 5
+  replay_rate: 0.0
+  inject_fault_at: null
+  source_file: null
   normal_source: data/raw/normal/TEP_FaultFree_Training.csv
   fault_source: data/raw/faults/TEP_Faulty_Training.csv
+  normal_simulation_run: 1
+  fault_number: 1
+  fault_simulation_run: 1
+
+events:
+  db_path: outputs/events.db
+  consecutive_windows_to_confirm: 3
+  min_separation_windows: 20
+  max_event_windows: 200
 
 llm:
   base_model: OpenGVLab/InternVL2-2B
   adapter_name: tep_rca
   adapter_dir: outputs/tep_rca_adapter
   trust_remote_code: true
-  use_flash_attn: false  # set true if flash-attn2 is installed (pip install flash-attn --no-build-isolation)
+  use_flash_attn: false
   dummy_image_size: 448
   lora:
     r: 16
     alpha: 32
     dropout: 0.05
     bias: none
-    target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+    target_modules:
+      - wqkv
+      - wo
+      - w1
+      - w2
+      - w3
   training:
-    use_4bit: false              # FP16/BF16 LoRA on A5000 - faster, fits in 24GB
+    use_4bit: false
     bnb_4bit_quant_type: nf4
     bnb_4bit_use_double_quant: true
     fp16: false
     bf16: true
-    batch_size: 4                # A5000 can handle 4 with checkpointing
-    gradient_accumulation_steps: 4  # effective batch 16
+    batch_size: 4
+    gradient_accumulation_steps: 4
     num_epochs: 3
     learning_rate: 2.0e-4
     weight_decay: 0.01
@@ -52,12 +123,12 @@ llm:
     lr_scheduler: cosine
     max_grad_norm: 1.0
     gradient_checkpointing: true
-    dataloader_num_workers: 4
-    optim: adamw_torch
     logging_steps: 10
     save_steps: 200
     eval_steps: 200
     save_total_limit: 2
+    dataloader_num_workers: 4
+    optim: adamw_torch
     train_faults: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 22]
     val_faults: [4, 14]
     test_faults: [15, 21]
@@ -69,8 +140,7 @@ llm:
     top_k: 50
     repetition_penalty: 1.0
 
-# Anomaly detector also benefits from A5000 - larger batch for faster epochs
-anomaly_detector:
-  train:
-    batch_size: 128
-    epochs: 50
+api:
+  host: 0.0.0.0
+  port: 8000
+  stream_fps: 10
