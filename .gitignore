@@ -25,46 +25,10 @@ ENV/
 env.bak/
 venv.bak/
 
-# Distribution
-*.egg-info/
-dist/
-build/
-*.egg
-
-# Caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.hypothesis/
-.coverage
-htmlcov/
-.tox/
-.nox/
-coverage.xml
-*.cover
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.log
-*.swp
-*.swo
-*~
-*.code-workspace
-*.sublime-project
-*.sublime-workspace
-
 # ── ML / Data / Outputs (generated artifacts) ─────────────────────────
 # Keep directory structure via .gitkeep, ignore large generated files
 outputs/
 !outputs/.gitkeep
-!outputs/tep_rca_adapter/evaluation*.json
-!outputs/tep_rca_adapter/training_summary.json
 outputs/**/*.pt
 outputs/**/*.pth
 outputs/**/*.safetensors
@@ -72,8 +36,13 @@ outputs/**/*.bin
 outputs/**/*.pkl
 outputs/**/*.db
 outputs/**/*.sqlite
+# Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)
+outputs_smoke/
+outputs/*_smoke/
+data/processed_smoke/
+data/*_smoke/
 
-data/raw/
+
 !data/raw/.gitkeep
 !data/raw/**/.gitkeep
 # Ignore large raw/processed dumps (TEP is ~several GB); keep placeholders
@@ -105,6 +74,7 @@ transformers_cache/
 *.db-journal
 
 # ── Logs ──────────────────────────────────────────────────────────────
+*.log
 logs/
 wandb/
 mlruns/
@@ -114,9 +84,33 @@ lightning_logs/
 .ipynb_checkpoints
 *.ipynb
 
-# ── IDE ───────────────────────────────────────────────────────────────
-.idea/
+# ── Testing / Linting / Typing ────────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# ── OS / IDE ──────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+*.swo
+*~
 .vscode/
+.idea/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
 
 # ── Secrets ───────────────────────────────────────────────────────────
 .env.local

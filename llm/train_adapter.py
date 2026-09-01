@@ -122,9 +122,15 @@ def train_tep_adapter(
         eval_strategy="steps" if val_dataset is not None else "no",
         save_total_limit=int(training.get("save_total_limit", 2)),
         dataloader_num_workers=int(training.get("dataloader_num_workers", 2)),
+<<<<<<< HEAD
+        fp16=bool(training.get("fp16", False)),
+        bf16=bool(training.get("bf16", False)),
+        optim=training.get("optim") or ("paged_adamw_8bit" if training.get("use_4bit", True) else "adamw_torch"),
+=======
         fp16=use_fp16,
         bf16=use_bf16,
         optim=training.get("optim", "paged_adamw_8bit" if training.get("use_4bit", True) else "adamw_torch"),
+>>>>>>> 81ec7b45d61ee3bedbded42679134865723a8912
         gradient_checkpointing=bool(training.get("gradient_checkpointing", True)),
         report_to=[],
         save_strategy="steps",
