@@ -5,7 +5,7 @@
 
 **Project type:** Research + Engineering prototype  
 **Domain:** Tennessee Eastman Process (TEP) — the de-facto benchmark for chemical-plant fault detection (Dow Chemical simulation, 52 sensors, 20+ fault scenarios)  
-**Status as of Sep 2026:** Detector pipeline complete and rigorously evaluated. LLM adapter trained and evaluated. Systematic fault-by-fault diagnosis completed. Known limitations characterized (Faults 3, 9, 15).  
+**Status as of Sep 2026:** Detector pipeline complete on **full 500-run** normal data (44.5k windows, 350/75/75) and rigorously evaluated on **10k fault runs**. LLM adapter (`tep_rca`) trained on 1008 Hf + 400 synthetic v2 (real-calibrated) and evaluated (40-sample large-test, 500-run fault coverage). Systematic 6-stage + 20×500 all-fault + 3-fault comparative + 3 alternative-detector studies complete. Known limitation is **stealth class (Faults 3,9,15 = 11.8-19.6% event rate)** with common `weak/distributed/smooth` mode; no single threshold fixes it.  
 **Hardware target:** NVIDIA RTX A5000 (24 GB) — also runs on any ≥8 GB GPU (QLoRA) and on CPU for the sensor pipeline.  
 **Repo root:** `C:\Users\Admin\Desktop\anomaly` · Entry point: `main.py` → `TEPApp`
 
@@ -91,8 +91,8 @@ Fault injected at sample 160 (0-based; 161 in 1-based docs) → config dataset.f
 
 ### 2.3 LLM supervision data
 - **Source of truth:** `scripts/fault_knowledge.py` — curated knowledge base for all 22 fault scenarios (initiating sensor, cascading sensors with delay, severity, reasoning, recommended action). Faults 16–20 are explicitly labeled `unknown` — we do **not** fabricate a cause.
-- **Generation:** `scripts/generate_llm_dataset.py` + `generate_synthetic_rca_v2.py` create instruction pairs: `structured evidence JSON → JSON RCA report`. Splits are **by fault ID** to avoid leakage: train {1,2,3,5,6,7,8,9,10,11,12,13,16,17,18,19,20,22} / val {4,14} / test {15,21} (see `data/llm/split_metadata.json`: 1008/40/40). Real detector-derived evidence is also generated (`data/processed/rca_real/`).
-- **v2 synthetic (calibrated):** `outputs/llm_dataset_v2/synthetic_rca.jsonl` — 400 examples, 20 per fault, jointly sampled from real post-onset z-distributions (`dataset_stats.json`).
+- **Generation:** `scripts/generate_llm_dataset.py` (1008 Hf: 720 train + 4× follow-up = 1008, splits **by fault ID**: train {1,2,3,5,6,7,8,9,10,11,12,13,16,17,18,19,20,22} / val {4,14} / test {15,21}, see `data/llm/split_metadata.json`) **plus** `scripts/generate_synthetic_rca_v2.py` (**new, real-calibrated, joint sampling, no Dirichlet, z primary, 400 examples 20 per fault, `outputs/llm_dataset_v2/synthetic_rca.jsonl`**) + `scripts/generate_real_rca_datasets.py` (**real detector-derived `detector_derived_rca.jsonl` 100 = 20×5 runs via frozen 128/64 @0.687 + ground-truth-aligned `ground_truth_aligned_rca.jsonl` 100, separated `source_type` provenance**).
+- **v2 synthetic (calibrated, validated):** `outputs/llm_dataset_v2/synthetic_rca.jsonl` — 400 examples, 20 per fault, jointly sampled from real post-onset `z` distributions of 350 train runs per fault (not `FAULT_KNOWLEDGE` random ranges), `candidate` via `suggest_subsystems` (16% match proves no leakage), `z` primary, `dev%` secondary bounded, `validation_report.md` shows `0/400` leakage, `0` pathological in weak faults `3,9,15`.
 
 ---
 
@@ -197,25 +197,26 @@ Single source `configs/config.yaml` (merged over `utils.py: _DEFAULT_CONFIG`). E
 
 | Component | Status | Evidence |
 |-----------|--------|----------|
-| Raw → processed pipeline | **Done** | `prepare_summary.json`, `window_metadata.json`, 44.5k windows |
-| Scaler / baseline (normal-only) | **Done** | `scaler.pkl`, `baseline_stats.json` (250k samples) |
-| LSTM-AE training + threshold | **Done** | `model.pt` (2 MB), `threshold.json` (0.687) |
-| Detector window-level eval | **Done** | `anomaly_detector_eval.json` |
+| Raw → processed pipeline (500 runs, 250k normal rows, 44.5k windows, 350/75/75 run-level split) | **Done** | `prepare_summary.json`, `window_metadata.json`, `manifests/detector_split.json` (seed 42) |
+| Scaler / baseline (normal-only, 350 train) | **Done** | `scaler.pkl`, `baseline_stats.json` (mean/std per sensor) |
+| LSTM-AE training + threshold (128/64, 100ep, p99 0.687) | **Done** | `model.pt` (504k params), `threshold.json` (0.687, mean 0.619, n 6675) |
+| Detector window-level eval | **Done** | `anomaly_detector_eval.json` (Prec 1.0, Rec 0.756, AUROC 0.886, missed 0) |
 | Event aggregation (3/20/200) | **Done** | `main.py:_feed_aggregator` + `events.db` |
-| Evidence builder | **Done** | `evidence/event_builder.py` + sample evidence in `rca_real_train.json` |
-| Fault knowledge base | **Done** | `fault_knowledge.py` (22 entries) |
-| LLM dataset (Hf + synthetic v2) | **Done** | `data/llm/{train,val,test}`, `outputs/llm_dataset_v2/` (400) |
-| Adapter training (tep_rca) | **Done** | `outputs/tep_rca_adapter/tep_rca/` (135 & 189) |
-| Adapter evaluation | **Done** | `evaluation.json` (root cause 0.50) |
-| Fault 15 diagnosis (6 stages) | **Done** | `outputs/evaluation/fault15_*` (7 files) |
-| All-fault evaluation (20×500) | **Done** | `all_faults_detector_*` (per-run CSV + summary + MD) |
-| Faults 3/9/15 comparative | **Done** | `faults_3_9_15_final_report.md` + `temporal_cross.csv` |
-| Alternative detectors (prediction, relationship, sensor-aware) | **Done (negative)** | `prediction_vs_reconstruction_*`, `relationship_*` |
-| Streaming simulator + API/UI | **Done (smoke-tested)** | `streaming/simulator.py`, `api/server.py`, `ui/app.py` |
-| **Comprehensive threshold sweep** | **Not done** | `tmp_threshold_sweep.py` exists but not run systematically |
-| **Broader hyperparameter search** (window 30/90, stride, latent 32/128) | **Pending** | Single config (60/5, 128/64) only |
+| Evidence builder (z-score primary, 52 sensors) | **Done** | `evidence/event_builder.py`, `sensor_contribution.py` (z fallback) |
+| Fault knowledge base | **Done** | `fault_knowledge.py` (22 entries, 1..20 real, 21-22 synthetic) |
+| LLM dataset (Hf 1008 + synthetic v2 400 + real 100+100) | **Done** | `data/llm/{train,val,test}` (1008), `outputs/llm_dataset_v2/` (400 synthetic 20×20 + 100 detector_derived + 100 ground_truth_aligned) |
+| Adapter training (tep_rca) | **Done** | `outputs/tep_rca_adapter/tep_rca/` (135 & 189, 15.7M trainable) |
+| Adapter evaluation (large-test 40) | **Done** | `evaluation.json` (1.00 fault class, 0.50 exact, 0.325 severity) + `evaluation_large_20perFault.json` |
+| Fault 15 diagnosis (6 stages, 75+500 runs) | **Done** | `outputs/evaluation/fault15_*` (8 files, 5.6 MB topk) |
+| All-fault evaluation (20×500 = 10k runs) | **Done** | `all_faults_detector_*` (10,075 rows, per-run CSV + summary + MD) - 17/20 easy, 3/9/15 hard (11.8-19.6%) |
+| Faults 3/9/15 comparative (temporal + cross-sensor) | **Done** | `faults_3_9_15_final_report.md` + `temporal_cross.csv` (1575 runs) - proves common stealth mode |
+| Alternative detectors (prediction 60->1, relationship 18 pairs, sensor-aware top-k) | **Done (all negative)** | `prediction_vs_reconstruction_*` (0.000 event vs 0.196) and `relationship_*` (0.08 vs 0.10) - no gain |
+| Streaming simulator + API/UI | **Done (smoke-tested)** | `streaming/simulator.py` (coherent-run), `api/server.py`, `ui/app.py` |
+| **Threshold sweep (systematic, 0.60-2.20, 75 normal + 500×3 faults)** | **Done** | See §6.2 table above (sweet spot analysis) |
+| **Broader hyperparameter search** (window 30/90, stride, latent 32/128) | **Pending** | Single config (60/5, 128/64) only - next is multi-scale or constrained AE |
 | **Production hardening** (auth, rate-limit, monitoring) | **Pending** | Basic FastAPI exists |
 | **Human expert validation of RCA reports** | **Pending** | Automated metrics only |
+| **Synthetic v2 validation** | **Done** | `synthetic_rca.jsonl` 400, `dataset_stats.json`, `FINAL_VALIDATION_REPORT.md` (0 pathological in weak faults) |
 
 ---
 
@@ -242,6 +243,20 @@ Single source `configs/config.yaml` (merged over `utils.py: _DEFAULT_CONFIG`). E
 - 5 samples: Fault 18
 - 15 samples: Fault 17
 - 35 samples: Faults **3, 9, 15** — **slow / late** (the problematic trio)
+
+**Threshold sweep — proper (normal) vs faulty across 0.60–2.20 (frozen detector, 75 normal test + 500 runs per fault, 60/5 windows, 52 sensors):**
+
+| Threshold | Proper (Normal) Event FPR (75 runs) | Fault 15 Detection (500 runs) | 5-Fault Event (1,4,14,15,21) | Overall Window Recall | Notes |
+|-----------|-------------------------------------|-------------------------------|------------------------------|-----------------------|-------|
+| 0.60 | `1.28` windows/run `>th`, `60%` runs `≥1` event | `~70%` (350/500) | `5/5` (`1:1,4:1,14:1,15:1,21:1`) | `~90%` | Too low — `3/5` normal false |
+| 0.65 | `~1` window/run, `60%` runs | `~60%` | `5/5` | `~90%` | `15` detected, normal `60%` false |
+| **0.687** | **`1.28` windows/run, `30%` runs `≥1` window, `9.3%` events (7/75)** | **`40.6%` (203/500)** | **`4/5` (`1:1,4:1,14:1,15:0,21:1`)** | **`75.6%`** | **Current frozen (p99 of 6675 val, mean 0.619)** |
+| 0.73 | `0.73` is `15`’s `post mean` — `2/5` normal false | `50%` | `5/5` but `2/5` normal false | — | Sweet spot for `15` but FPR `40%` |
+| 0.75 | `1` window/run (run 10 `0.775>0.75` → `20%` FPR) | `30%` | `4/5` | `~75%` | Old `100`-run model: `10/10` normal `0` at 0.75, new `500`-run: `9/10` `0` |
+| 0.85 | `0/10` `0%` | `3%` (16/500) | `4/5` | `~70%` | Best for `10/10` normal `0` with `4/5` faults |
+| 2.20 | `0/10` `0%` | `~5%` (16/500 at `0.721`) | `3/5` (`4:0`) | `~60%` | Too high — misses `4` |
+
+> No single threshold achieves `75/75` normal `0` + `500/500` `15` `1` — distributions overlap `0.682 vs 0.684` (`0.3%`). Sweet spot `0.73` gives `15` `50%` but `2/5` normal false.
 
 ![Detector performance spectrum](https://via.placeholder.com/800x200?text=Detector+Performance:+17+faults+at+89/89+windows,+3+faults+at+1.1-1.8/89+windows)
 
