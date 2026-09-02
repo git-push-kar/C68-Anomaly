@@ -1,0 +1,41 @@
+{
+  "total": 400,
+  "per_fault": {
+    "1": 20,
+    "2": 20,
+    "3": 20,
+    "4": 20,
+    "5": 20,
+    "6": 20,
+    "7": 20,
+    "8": 20,
+    "9": 20,
+    "10": 20,
+    "11": 20,
+    "12": 20,
+    "13": 20,
+    "14": 20,
+    "15": 20,
+    "16": 20,
+    "17": 20,
+    "18": 20,
+    "19": 20,
+    "20": 20
+  },
+  "per_subsystem": {
+    "unknown": 100,
+    "reactor_system": 60,
+    "reactor_cooling_system": 60,
+    "condenser_cooling_system": 60,
+    "feed_system": 120
+  },
+  "severity": {
+    "low": 20,
+    "critical": 40,
+    "high": 120,
+    "medium": 220
+  },
+  "source": "synthetic_real_calibrated",
+  "calibration": "350 train runs per fault, joint sampling from real post-onset z",
+  "splits": "train only for now, val/test will be from real detector-derived"
+}

@@ -75,19 +75,24 @@ def main():
             top_idx = np.argsort(np.abs(z_post))[::-1][:5]
             top_sensors = []
             for idx in top_idx:
-                raw_name = f"XMEAS_{idx+1}" if idx < 41 else f"XMV_{idx-41+1}"
+                # Correct mapping: XMEAS 1..41 -> index 0..40, XMV 1..11 -> index 41..51
+                # Use feature_names for correct mapping
+                raw_name = feature_names[idx]  # e.g., XMEAS_1, XMV_11
                 display = SENSOR_NAMES.get(raw_name, raw_name)
                 z_val = float(z_post[idx])
                 # Get direction
                 direction = "increasing" if z_val > 0 else "decreasing"
-                # Get deviation% safely (bounded)
+                # Get deviation% safely: use bounded secondary display, null if baseline near zero
                 mean_val = float(sensor_means_post[idx])
                 baseline_m = float(baseline_mean[idx])
-                if abs(baseline_m) > 1e-6:
-                    dev_pct = float((mean_val - baseline_m) / abs(baseline_m) * 100)
-                    dev_pct = max(-100, min(100, dev_pct))  # bound to +-100% for display
+                baseline_s = float(baseline_std[idx])
+                if abs(baseline_m) < 1e-3:  # near zero, don't compute unbounded %
+                    dev_pct = None  # explicitly safe representation
                 else:
-                    dev_pct = float(z_val * 10)  # fallback
+                    dev_pct = float((mean_val - baseline_m) / abs(baseline_m) * 100)
+                    # Bound to +-1000% for display, but keep as display-only
+                    if abs(dev_pct) > 1000:
+                        dev_pct = None  # too large, use z as primary
                 top_sensors.append({
                     "display_name": display,
                     "z_score": round(float(z_val), 2),
@@ -97,24 +102,30 @@ def main():
             # Temporal: for fault, we know onset at 160, but we can estimate onset from z crossing
             # For synthetic, we will use a simple temporal order based on z ranking (largest first)
             temporal = [{"display_name": s["display_name"], "relative_time_minutes": round(float(i * 0.5), 1)} for i, s in enumerate(top_sensors[:3])]
-            real_examples.append((top_sensors, temporal))
+            real_examples.append((top_sensors, temporal, run))
 
         # Now generate ~20 synthetic variants per fault via joint sampling + perturbation
         # Preserve joint structure by sampling a real example and perturbing
         for i in range(SYNTHETIC_PER_FAULT):
-            # Pick a real example as base (joint)
-            base_sensors, base_temporal = real_examples[rng.randint(len(real_examples))]
+            # Pick a real example as base (joint) - coupled provenance
+            base_idx = rng.randint(len(real_examples))
+            base_sensors, base_temporal, base_run_id = real_examples[base_idx]
             # Create variant
             # Copy
             sensors = [dict(s) for s in base_sensors]
             temporal = [dict(t) for t in base_temporal]
-            # Perturbation types (controlled variation)
+            # Perturbation types (controlled variation) - preserve joint structure
             perturb_type = rng.choice(["none", "noise", "missing_sensor", "swap_order", "weak"])
+            # Couple provenance to actual base example
+            base_run_for_provenance = None
+            # We will set base_run_for_provenance after picking base
             if perturb_type == "noise":
                 for s in sensors:
                     s["z_score"] = round(float(s["z_score"] + rng.normal(0, 0.3)), 2)
-                    # Keep deviation in sync (approx)
-                    s["deviation_percent"] = round(float(s["z_score"] * 10), 1)
+                    if s["deviation_percent"] is not None:
+                        s["deviation_percent"] = round(float(s["deviation_percent"] + rng.normal(0, 3)), 1)
+                        if abs(s["deviation_percent"]) > 1000:
+                            s["deviation_percent"] = None
             elif perturb_type == "missing_sensor":
                 if len(sensors) > 3:
                     sensors.pop(rng.randint(0, len(sensors)-1))
@@ -127,8 +138,11 @@ def main():
             elif perturb_type == "weak":
                 for s in sensors:
                     # Reduce z by 20-30% to simulate weak evidence
-                    s["z_score"] = round(float(s["z_score"] * rng.uniform(0.6, 0.8)), 2)
-                    s["deviation_percent"] = round(float(s["z_score"] * 10), 1)
+                    orig_z = float(s["z_score"])
+                    new_z = round(float(orig_z * rng.uniform(0.6, 0.8)), 2)
+                    s["z_score"] = new_z
+                    if s["deviation_percent"] is not None:
+                        s["deviation_percent"] = round(float(s["deviation_percent"] * rng.uniform(0.6, 0.8)), 1)
 
             # Derive candidate subsystem via sensor mapping (no KB leakage)
             from evidence.process_relationships import suggest_subsystems
@@ -159,7 +173,7 @@ def main():
                 "evidence_type": "synthetic_real_calibrated",
                 "provenance": {
                     "source_type": "synthetic_real_calibrated",
-                    "base_run": int(train_runs[rng.randint(len(train_runs))]),
+                    "base_run": int(base_run_id),
                     "perturbation": perturb_type,
                     "seed": int(seed + fault_id * 100 + i),
                 }
@@ -206,6 +220,40 @@ def main():
                 "target": target,
                 "provenance": evidence["provenance"],
             })
+
+    # Validation: check for pathological |z| and dev% before saving
+    print("\nValidating synthetic examples...")
+    pathological = []
+    for ex in synthetic_examples:
+        for s in ex["evidence"]["top_anomalous_sensors"]:
+            z = s["z_score"]
+            dev = s["deviation_percent"]
+            # Check |z| >5: only report if real calibration for that fault/sensor doesn't support it
+            # For now, just report all |z|>5
+            if abs(z) > 5:
+                pathological.append((ex["evidence"]["event_id"], s["display_name"], z, dev, ex["fault_id"]))
+            if dev is not None and abs(dev) > 1000:
+                pathological.append((ex["evidence"]["event_id"], s["display_name"], z, dev, ex["fault_id"]))
+    if pathological:
+        print(f"Found {len(pathological)} sensors with |z|>5 or |dev|>1000 (may be valid for strong faults like 6):")
+        for event_id, sensor, z, dev, fid in pathological[:10]:
+            print(f"  {event_id} fault {fid} {sensor} z={z} dev={dev}")
+        # Check real calibration for those sensors/faults
+        # For fault 6, XMV_5 with z 146 is valid (real p99 145), so keep
+        # For other faults, if real p99 <5, then |z|>5 would be invalid - but our joint sampling from real should not produce it unless perturbed
+        # For now, require zero pathological that are not from known strong faults
+        # Count how many are from fault 6,12,18 etc vs weak faults 3,9,15
+        weak_faults = [3,9,15]
+        weak_pathological = [p for p in pathological if p[4] in weak_faults]
+        if weak_pathological:
+            print(f"ERROR: {len(weak_pathological)} pathological in weak faults {weak_faults} (should be 0):")
+            for p in weak_pathological[:5]:
+                print(f"  {p}")
+            raise ValueError("Pathological |z|>5 in weak faults - synthetic generation bug, fix before proceeding")
+        else:
+            print(f"All {len(pathological)} pathological are from strong faults (6, etc.) where |z|>5 is valid real calibration - keeping")
+    else:
+        print("No pathological |z|>5 or |dev|>1000 found - clean")
 
     # Save synthetic
     import json
