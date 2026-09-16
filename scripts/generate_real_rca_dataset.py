@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
-from utils import ensure_dir, load_config, save_json
+from utils import ensure_dir, get_fault_onset, load_config, save_json
 from preprocessing.tep_loader import load_tep_data
 
 def generate_real_rca_dataset(config_path=None, max_runs_per_fault=75):
@@ -65,7 +65,9 @@ def generate_real_rca_dataset(config_path=None, max_runs_per_fault=75):
                     fault_number=0,
                     simulation_run=1
                 )
-                fault_onset = 160
+                # Per-split onset (Task 0): Training 20, Testing 160
+                # This file is TEP_Faulty_Training.csv → faulty_training
+                fault_onset = int(get_fault_onset(config, "faulty_training"))
                 stream_df = pd.concat([normal_df.iloc[:fault_onset], df.iloc[:500-fault_onset]], ignore_index=True)
                 # Reuse app but reset state (faster than reloading model)
                 app._buffer.clear()

@@ -37,7 +37,13 @@ _DEFAULT_CONFIG: Dict[str, Any] = {
         "num_features": 52,
         "has_header": True,
         "delimiter": ",",
-        "fault_onset_index": 161,
+        "fault_onset": {
+            "faulty_training": 20,
+            "faulty_testing": 160,
+            "fault_free_training": None,
+            "fault_free_testing": None,
+        },
+        "fault_onset_index": 160,  # deprecated fallback
         "normal_file_pattern": "normal*.csv",
         "fault_file_pattern": "fault_*.csv",
         "missing_value_strategy": "interpolate",
@@ -75,6 +81,38 @@ _DEFAULT_CONFIG: Dict[str, Any] = {
         "min_separation_windows": 20,
         "max_event_windows": 200,
     },
+    "dynamic_detector": {
+        "enabled": False,
+        "method": "cva",
+        "cva": {
+            "n_past": 5,
+            "n_future": 5,
+            "state_order_mode": "energy",
+            "state_order": 20,
+            "energy_threshold": 0.90,
+            "statistics": ["T2", "Q", "Tr"],
+            "primary_statistic": "Q",
+        },
+        "dpca": {
+            "n_lags": 3,
+            "variance_threshold": 0.90,
+            "statistics": ["T2", "SPE"],
+            "primary_statistic": "SPE",
+        },
+        "thresholding": {
+            "target_far": 0.01,
+            "holdout_normal_runs": 100,
+            "smoothing": "none",
+            "ewma_lambda": 0.1,
+            "cusum_k": 0.5,
+            "cusum_h": 5.0,
+        },
+        "fusion": {
+            "mode": "or",
+            "weights": {"lstm_ae": 0.5, "dynamic": 0.5},
+            "per_detector_far": 0.005,
+        },
+    },
     "llm": {
         "base_model": "OpenGVLab/InternVL2-2B",
         "adapter_name": "tep_rca",
@@ -85,7 +123,7 @@ _DEFAULT_CONFIG: Dict[str, Any] = {
             "alpha": 32,
             "dropout": 0.05,
             "target_modules": [
-                "wqkv", "wo", "w1", "w2", "w3",
+                "q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj",
             ],
         },
         "training": {
@@ -274,3 +312,61 @@ def set_torch_threads(max_threads: Optional[int] = None) -> None:
             torch.set_num_threads(max_threads)
     except ImportError:
         pass
+
+
+# ---------------------------------------------------------------------
+# Fault onset helpers (per-split, Task 0)
+# ---------------------------------------------------------------------
+def _infer_split_from_path(path: Union[str, Path]) -> Optional[str]:
+    """Infer split name from filename: faulty_training, faulty_testing, etc."""
+    name = Path(path).name.lower()
+    if "faulty" in name and "training" in name:
+        return "faulty_training"
+    if "faulty" in name and "testing" in name:
+        return "faulty_testing"
+    if "faultfree" in name and "training" in name:
+        return "fault_free_training"
+    if "faultfree" in name and "testing" in name:
+        return "fault_free_testing"
+    # Legacy single-file patterns
+    if "fault" in name:
+        return "faulty_training"
+    if "normal" in name:
+        return "fault_free_training"
+    return None
+
+
+def get_fault_onset(config: Dict[str, Any], split: str) -> Optional[int]:
+    """Resolve onset for a split, with assertion for faulty splits."""
+    ds = config.get("dataset", {})
+    mapping = ds.get("fault_onset") or {}
+    # Try exact key, then lowercased
+    onset = mapping.get(split)
+    if onset is None:
+        onset = mapping.get(split.lower())
+    if onset is None:
+        # Fallback to legacy constant only for faulty splits
+        if split.startswith("faulty"):
+            onset = ds.get("fault_onset_index")
+            if onset is not None:
+                logging.getLogger(__name__).warning(
+                    "Using deprecated fault_onset_index=%s for split %s; prefer fault_onset mapping",
+                    onset, split,
+                )
+        else:
+            onset = None
+    if split.startswith("faulty") and onset is None:
+        raise ValueError(
+            f"Fault onset not configured for faulty split '{split}': "
+            f"dataset.fault_onset is {mapping}. Refusing to guess."
+        )
+    return onset
+
+
+def resolve_onset_for_path(config: Dict[str, Any], path: Union[str, Path]) -> Optional[int]:
+    """Infer split from filename then resolve onset."""
+    split = _infer_split_from_path(path)
+    if split is None:
+        # Default to faulty_training for backward compat when path is ambiguous
+        split = "faulty_training"
+    return get_fault_onset(config, split)

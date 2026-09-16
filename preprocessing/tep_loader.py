@@ -42,7 +42,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from utils import resolve_path
+from utils import _infer_split_from_path, get_fault_onset, resolve_onset_for_path, resolve_path
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +144,7 @@ def _load_rieth_faults_consolidated(
     has_header: bool,
     delimiter: str,
     missing_strategy: str,
-    fault_onset_index: int,
+    fault_onset_index: Optional[int],
     max_runs_per_fault: Optional[int] = None,
 ) -> Dict[int, Tuple[pd.DataFrame, Optional[int]]]:
     """Load a single Rieth consolidated file (e.g. TEP_Faulty_Training.csv)
@@ -157,7 +157,12 @@ def _load_rieth_faults_consolidated(
     length (500 vs 960) is handled correctly and large 3.6GB files are not
     fully loaded.
     """
-    logger.info("Reading Rieth consolidated file: %s (max_runs=%s)", path, max_runs_per_fault)
+    if fault_onset_index is None:
+        raise ValueError(
+            f"Fault onset not configured for {path.name}: "
+            f"dataset.fault_onset.faulty_training/faulty_testing is null. Refusing to guess."
+        )
+    logger.info("Reading Rieth consolidated file: %s (max_runs=%s, onset=%s)", path, max_runs_per_fault, fault_onset_index)
     faults: Dict[int, List[pd.DataFrame]] = {}
     # Collect buffers per fault
     n_chunks_read = 0
@@ -201,16 +206,17 @@ def _load_rieth_faults_consolidated(
     result: Dict[int, Tuple[pd.DataFrame, Optional[int]]] = {}
     for fid, bufs in faults.items():
         df = pd.concat(bufs, ignore_index=True) if len(bufs) > 1 else bufs[0].reset_index(drop=True)
-        # Trim to exactly N runs if needed (handles 960 vs 500)
-        if max_runs_per_fault is not None:
-            # Determine run length from sample column max if available, else assume 500
-            # For smoke, keep first N*run_length rows where run_length is inferred from df size / N?
-            # Simpler: keep first N * (df.shape[0] // max_runs_per_fault) ??? Instead filter by simulationRun already done, so df already limited.
-            # But groupby within chunk already filtered, so we can just keep as is.
-            pass
-        result[fid] = (df.reset_index(drop=True), int(fault_onset_index) if fault_onset_index is not None else 160)
-        run_len = 500 if "TEP_Faulty_Training" in str(path) else 960
+        result[fid] = (df.reset_index(drop=True), int(fault_onset_index) if fault_onset_index is not None else None)
+        run_len = 500 if "Training" in str(path) else 960
         logger.info("  -> fault %02d: %d samples (~%d runs, run_len~%d)", fid, len(df), len(df)//run_len, run_len)
+    # Per-split summary (Task 0)
+    try:
+        split = _infer_split_from_path(str(path))
+        spp = 500 if "Training" in str(path) else 960
+        n_runs = len(next(iter(result.values()))[0]) // spp if result else 0
+        logger.info("Loaded split %s: file=%s n_runs=%d samples_per_run=%d onset=%s", split, path.name, n_runs, spp, fault_onset_index)
+    except Exception:
+        pass
     return result
 
 
@@ -224,13 +230,14 @@ def _load_csv_faults(
     missing_strategy: str,
     timestamp_column: Optional[str],
     onset_column: Optional[str],
-    fault_onset_index: int,
+    config: Dict,
     max_runs_per_fault: Optional[int] = None,
 ) -> Dict[int, Tuple[pd.DataFrame, Optional[int]]]:
     """Load fault scenarios as {fault_id: (dataframe, onset_index)}.
 
     Handles both legacy per-fault files (fault_04.csv) and Rieth
     consolidated files (TEP_Faulty_*.csv) transparently.
+    Resolves per-split onset via dataset.fault_onset mapping.
     """
     faults: Dict[int, Tuple[pd.DataFrame, Optional[int]]] = {}
     files = sorted(fault_dir.glob(pattern)) if fault_dir.exists() else []
@@ -244,6 +251,11 @@ def _load_csv_faults(
         logger.info("Smoke mode: using Training fault file %s (of %d) for speed", chosen.name, len(files))
         files = [chosen]
     for path in files:
+        # Resolve per-split onset (Task 0)
+        try:
+            file_onset = resolve_onset_for_path(config, path)
+        except ValueError as exc:
+            raise ValueError(f"Cannot resolve onset for {path}: {exc}") from exc
         # Peek header to detect Rieth format
         try:
             peek = pd.read_csv(path, nrows=2, header=0 if has_header else None, delimiter=delimiter)
@@ -251,7 +263,7 @@ def _load_csv_faults(
                 peek.columns = [str(c).strip() for c in peek.columns]
             if _is_rieth_format(peek):
                 rieth_faults = _load_rieth_faults_consolidated(
-                    path, has_header, delimiter, missing_strategy, fault_onset_index,
+                    path, has_header, delimiter, missing_strategy, file_onset,
                     max_runs_per_fault=max_runs_per_fault,
                 )
                 # Merge (consolidated file may appear twice: Training + Testing)
@@ -280,8 +292,10 @@ def _load_csv_faults(
         onset: Optional[int] = None
         if onset_col is not None and len(onset_col) > 0:
             onset = int(onset_col[0])
-        elif fault_onset_index is not None:
-            onset = int(fault_onset_index)
+        elif file_onset is not None:
+            onset = int(file_onset)
+        else:
+            raise ValueError(f"Fault onset not configured for {path.name} (no fault_onset mapping)")
         faults[fault_id] = (df, onset)
         logger.info("Loaded fault %02d from %s (samples=%d, onset=%s)",
                     fault_id, path, len(df), onset)
@@ -379,7 +393,16 @@ def load_tep_data(config: dict, max_runs_per_fault: Optional[int] = None) -> TEP
                         df = pd.concat(chunks, ignore_index=True) if chunks else pd.DataFrame(columns=CANONICAL_NAMES)
                     df = _handle_missing(df, ds.get("missing_value_strategy", "interpolate"))
                     frames.append(df)
-                    logger.info("Loaded %d normal samples from Rieth file %s", len(df), path)
+                    # Per-split summary (Task 0)
+                    try:
+                        split = _infer_split_from_path(str(path))
+                        onset = get_fault_onset(config, split) if split else None
+                    except ValueError:
+                        onset = None
+                    # n_runs and samples_per_run for Rieth normal
+                    n_runs = len(df) // (500 if "Training" in path.name else 960) if len(df) else 0
+                    spp = 500 if "Training" in path.name else 960
+                    logger.info("Loaded split %s: file=%s n_runs=%d samples_per_run=%d onset=%s", split, path.name, n_runs, spp, onset)
                     continue
             except Exception as exc:
                 logger.warning("Rieth normal detect failed for %s: %s, trying matrix mode", path, exc)
@@ -407,7 +430,7 @@ def load_tep_data(config: dict, max_runs_per_fault: Optional[int] = None) -> TEP
         ds.get("missing_value_strategy", "interpolate"),
         ds.get("timestamp_column"),
         ds.get("fault_onset_column"),
-        ds.get("fault_onset_index"),
+        config,
         max_runs_per_fault=max_runs_per_fault,
     )
 

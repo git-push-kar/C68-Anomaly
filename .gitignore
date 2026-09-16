@@ -66,6 +66,7 @@ checkpoints/
 .cache/
 hf_cache/
 transformers_cache/
+.kilo/
 
 # ── Databases ─────────────────────────────────────────────────────────
 *.db

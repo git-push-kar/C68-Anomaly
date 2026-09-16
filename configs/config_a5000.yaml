@@ -20,6 +20,11 @@ dataset:
   delimiter: ","
   timestamp_column: null
   fault_onset_column: null
+  fault_onset:
+    faulty_training: 20
+    faulty_testing: 160
+    fault_free_training: null
+    fault_free_testing: null
   fault_onset_index: 160
   normal_file_pattern: "TEP_FaultFree*.csv"
   fault_file_pattern: "TEP_Faulty*.csv"
@@ -139,6 +144,34 @@ llm:
     top_p: 0.9
     top_k: 50
     repetition_penalty: 1.0
+
+dynamic_detector:
+  enabled: true
+  method: cva
+  cva:
+    n_past: 5
+    n_future: 5
+    state_order_mode: energy
+    state_order: 20
+    energy_threshold: 0.90
+    statistics: [T2, Q, Tr]
+    primary_statistic: Q
+  dpca:
+    n_lags: 3
+    variance_threshold: 0.90
+    statistics: [T2, SPE]
+    primary_statistic: SPE
+  thresholding:
+    target_far: 0.01
+    holdout_normal_runs: 100
+    smoothing: none
+    ewma_lambda: 0.1
+    cusum_k: 0.5
+    cusum_h: 5.0
+  fusion:
+    mode: or
+    weights: {lstm_ae: 0.5, dynamic: 0.5}
+    per_detector_far: 0.005
 
 api:
   host: 0.0.0.0
