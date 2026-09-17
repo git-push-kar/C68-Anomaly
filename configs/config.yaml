@@ -36,7 +36,14 @@ dataset:
   delimiter: ","
   timestamp_column: null          # name of a timestamp column if present
   fault_onset_column: null        # column holding the fault-injection sample idx
-  fault_onset_index: 160          # 0-based; Rieth fault injected at sample 160 (1-based 161)
+  # Per-split fault onset (0-based). Training: 20 (1h into 25h run), Testing: 160 (8h into 48h run)
+  fault_onset:
+    faulty_training: 20
+    faulty_testing: 160
+    fault_free_training: null
+    fault_free_testing: null
+  # Deprecated: use fault_onset mapping above. Kept for backward compat.
+  fault_onset_index: 160
   normal_file_pattern: "TEP_FaultFree*.csv"
   fault_file_pattern: "TEP_Faulty*.csv"
   missing_value_strategy: interpolate   # interpolate | ffill | drop
@@ -193,6 +200,37 @@ llm:
     top_p: 0.9
     top_k: 50
     repetition_penalty: 1.0
+
+# ---------------------------------------------------------------------
+# Dynamic detector (DPCA + CVA) — lag-aware, parallel to LSTM AE
+# ---------------------------------------------------------------------
+dynamic_detector:
+  enabled: true
+  method: cva              # cva | dpca | both
+  cva:
+    n_past: 5              # lags in past vector
+    n_future: 5            # lags in future vector
+    state_order_mode: energy   # energy | fixed
+    state_order: 20            # used when mode == fixed
+    energy_threshold: 0.90
+    statistics: [T2, Q, Tr]
+    primary_statistic: Q
+  dpca:
+    n_lags: 3
+    variance_threshold: 0.90
+    statistics: [T2, SPE]
+    primary_statistic: SPE
+  thresholding:
+    target_far: 0.01
+    holdout_normal_runs: 100     # fault-free runs reserved for threshold fitting
+    smoothing: none              # none | ewma | cusum
+    ewma_lambda: 0.1
+    cusum_k: 0.5
+    cusum_h: 5.0
+  fusion:
+    mode: or                 # or | weighted
+    weights: {lstm_ae: 0.5, dynamic: 0.5}   # used when mode == weighted
+    per_detector_far: 0.005  # when mode == or, split the FAR budget
 
 # ---------------------------------------------------------------------
 # API / UI

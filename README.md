@@ -26,29 +26,31 @@ store, streaming simulator, API, UI) remains **external** to the adapter.
 
 ## 1. Architecture
 
-Two independent intelligence layers:
+Three intelligence layers (dynamic added additive, LSTM untouched):
 
 | Layer | Module(s) | Responsibility |
 |-------|-----------|----------------|
-| **A. Sensor / time-series pipeline** | `preprocessing/`, `anomaly_detection/`, `evidence/`, `streaming/`, `events/` | raw sensor stream, normalization, sliding windows, unsupervised anomaly detection, per-sensor contributions, temporal analysis, event aggregation, evidence JSON |
-| **B. InternVL2-2B TEP adapter** | `llm/` | understands structured anomaly evidence, root-cause reasoning, severity, recommendations, follow-up QA |
+| **A. Sensor / time-series pipeline** | `preprocessing/`, `anomaly_detection/lstm`, `anomaly_detection/dynamic`, `evidence/`, `streaming/`, `events/` | raw stream, normal-only scaler, LSTM AE + **CVA/DPCA lag-aware** (parallel), fusion, per-sensor + `lag_profile` evidence, event aggregation |
+| **B. InternVL2-2B TEP adapter** | `llm/` | understands `detector_evidence` + `change_type` (level vs dynamics) + `lag_profile`, root-cause reasoning |
+| **Dynamic details** | `anomaly_detection/dynamic/{lag_builder,cva,dpca,statistics,contributions}` | CVA primary, DPCA baseline, `T2/Q/Tr` + `SPE`, empirical `FAR 0.01` thresholds, `or` fusion |
 
 The adapter weights contain **only** learned InternVL LoRA parameters. No sensor
 logic is inside the adapter.
 
 ```
-Pipeline data flow
+Pipeline data flow (with dynamic detector — runs in parallel, fused before aggregation)
 ------------------
 sensor_stream
   -> preprocessor (missing values, validation, scaler fitted on NORMAL only)
-  -> LSTM autoencoder (reconstruction error)
-  -> anomaly threshold (learned from normal validation scores)
-  -> event_aggregator (groups consecutive anomalous windows -> ONE event)
-  -> evidence_generator (top sensors, % deviation, trends, temporal order,
-                         candidate subsystem, pre/post context)
+  ->+- LSTM autoencoder (reconstruction MSE) -+
+    |                                          |-> fusion (OR / weighted, per-detector FAR) -> event_aggregator
+  ->+- DPCA / CVA (lag-aware, T2/Q/Tr) -------+   (never straddles simulationRun)
+  -> evidence_generator (top sensors + detector_evidence {triggered_by, change_type: level|dynamics|mixed, lag_profile})
   -> InternVL2-2B + tep_rca adapter -> automatic report (JSON)
   -> event_store (SQLite) -> user_follow_up -> adapter -> answer
 ```
+**What the dynamic stage does:** The LSTM AE sees *level* shifts (MSE). Faults 3 (D-feed temp step absorbed by controller), 9 (random variance, mean 0), and 15 (valve sticking, autocorrelation) change *temporal/second-order* structure, not level, so MSE is blind. CVA (primary) builds past `P=[y_{t-1}..y_{t-5}]` / future `F=[y_t..y_{t+4}]` Hankel per `simulationRun` (never straddling, `lag_builder.py`), fits `Spp/Sff/Sfp` streaming, `H=Sff^{-1/2}SfpSpp^{-1/2}`, SVD, keeps `r` via `energy 0.90` (`state_order 20`), then emits `T2=z^Tz`, `Q=e^Te`, `Tr` per sample. `Q` is most sensitive for 3/9/15 (literature). DPCA (`n_lags 3`, PCA `90% var`) is the cheap baseline — if CVA does not beat DPCA, the inverse-sqrt conditioning or past/future ordering is wrong. Thresholds are empirical percentiles on *held-out* fault-free `100` runs (not chi-square), with optional `EWMA 0.1`/`CUSUM` smoothing. `fusion` `or` (each at `per_detector_far 0.005` → combined `0.01`) or `weighted` (percentile-rank normalisation). Evidence now carries `detector_evidence` + `lag_profile` so the LLM can distinguish `level` vs `dynamics` change.
+
 
 ## 2. TEP dataset assumptions
 
@@ -61,7 +63,9 @@ The loader isolates all format-specific logic in `preprocessing/tep_loader.py` a
   data/raw/faults/TEP_Faulty_Training.csv     (5M rows, 20 faults × 500 runs × 500 samples)
   data/raw/faults/TEP_Faulty_Testing.csv      (9.6M rows, 20×500×960)
   Columns: faultNumber, simulationRun, sample, xmeas_1..41, xmv_1..11 (52 sensors)
-  Fault injected at sample 160 (0-based, 161 1-based) — `dataset.fault_onset_index`.
+  Fault injected at sample 20 (0-based) for Training (1 h into 25 h run) and
+  at sample 160 (0-based) for Testing (8 h into 48 h run) — `dataset.fault_onset`
+  mapping `faulty_training: 20, faulty_testing: 160` (fault-free splits: null).
   ```
 * **Format `tep_52col_csv` (legacy)** — one file per run: `data/raw/normal/normal*.csv`, `data/raw/faults/fault_XX.csv` (T×52 matrix, no meta cols). Still supported.
 * Missing values: `interpolate | ffill | drop` (`dataset.missing_value_strategy`).
@@ -117,11 +121,20 @@ Stage 0: PREPROCESSING (no learning)
            data/processed/normal_values.npy, normal_windows_{train,val,test}.npy
            data/processed/fault_values/fault_XX.npy
 
-Stage 1: ANOMALY DETECTOR (unsupervised LSTM Autoencoder)
-  What is trained: LSTM Encoder (52→32×2) → latent 16 → LSTM Decoder → reconstruction
-  Loss: MSE on normal windows only (scaler fitted only on TEP_FaultFree_Training.csv)
-  Threshold: learned from normal validation scores (percentile 99.5 on A5000 — was 99.0 synthetic, now less aggressive to cut FPR 13.5% → <5%)
-  Outputs: outputs/anomaly_detector/model.pt, threshold.json
+Stage 1: ANOMALY DETECTOR (unsupervised LSTM Autoencoder — unchanged, not retrained)
+  What is trained: LSTM Encoder (52→128×2→64 in A5000 config) → reconstruction MSE on normal windows only
+  Threshold: empirical percentile on normal val (99.5 on A5000)
+  Outputs: outputs/anomaly_detector/model.pt, threshold.json (left untouched by dynamic stage)
+
+Stage 1b: DYNAMIC DETECTOR (CVA primary + DPCA baseline — NEW, additive, parallel)
+  What is trained: CVA past/future Hankel (`n_past 5`, `n_future 5`, `float64`, streaming `Spp/Sff/Sfp`, `eps 1e-6`, `eigh` inv-sqrt, SVD, `r` via energy 0.90) → `J/Vt` + `L`; DPCA augmented `52*(n_lags 3+1)` PCA 90%. NOT straddling runs, per-run `t_index`.
+  Loss: none (linear algebra, not deep learning, CPU-only minutes on A5000)
+  Statistics: CVA `T2/Q/Tr` (Q most sensitive for 3/9/15), DPCA `T2/SPE`; thresholds empirical `FAR 0.01` on held-out 100 fault-free runs → `outputs/anomaly_detector/dynamic/dynamic_thresholds.json` (never overwrites LSTM `threshold.json`)
+  Outputs: outputs/anomaly_detector/dynamic/cva_model.npz, dpca_model.npz, dynamic_thresholds.json, fit_metadata.json (run IDs, singular spectrum)
+  Why: faults 3 (step absorbed), 9 (variance only), 15 (valve sticking, dynamics) are invisible to MSE but visible to CVA Q/Tr. DPCA must be beaten by CVA or bug in conditioning.
+  Evidence: `sensor_contributions` folds `52*n_past` residual → `52` + `(n_lags,52)` lag_profile (high-lag peak = slow dynamics). `detector_evidence {triggered_by, lstm_ae {score,thr,alarmed}, cva {T2/Q/Tr, state_order}, change_type: level|dynamics|mixed|unknown}` added, `evidence_schema_version 2`.
+
+Fusion: `dynamic_detector.fusion.mode or` (each at `per_detector_far 0.005` → combined `0.01`, verified on fault_free_testing) or `weighted` (percentile-rank normalisation). Fused alarm feeds existing `event_aggregator` unchanged; first `n_past+n_future-1` samples return `warming_up` not null alarm.
 
 Stage 2: LLM ADAPTER (supervised instruction-tuning)
   What is trained: ONE LoRA/QLoRA adapter "tep_rca" on FROZEN InternVL2-2B
@@ -155,14 +168,22 @@ python scripts/prepare_tep.py --config configs/config.yaml --full
 # or: python scripts/prepare_tep.py --config configs/config_a5000.yaml --full
 # Custom: --max-runs 20  (20 runs per fault)
 
-# 2. Train LSTM autoencoder (only normal windows)
-python scripts/train_anomaly_detector.py --config configs/config.yaml          # default 50 epochs, batch 64
-python scripts/train_anomaly_detector.py --config configs/config_a5000.yaml    # A5000: batch 128, faster
+# 2. Train LSTM autoencoder (only normal windows) — UNCHANGED, NOT retrained by dynamic stage
+python scripts/train_anomaly_detector.py --config configs/config.yaml          # 100 epochs, batch 64 (A5000: 128)
 # Resume / override: --resume --epochs 80
 
-# 3. Evaluate detector (no training)
-python scripts/evaluate_anomaly_detector.py --config configs/config.yaml
-# → data/processed/anomaly_detector_eval.json (precision/recall/F1/FPR/AUROC/delay)
+# 2b. Train dynamic detector (CVA/DPCA) — NEW, runs in parallel, CPU-only minutes, no GPU
+python scripts/train_dynamic_detector.py --config configs/config.yaml                 # default method cva, uses scaler.pkl assert
+python scripts/train_dynamic_detector.py --config configs/config_a5000.yaml --method both  # or --method dpca / cva
+# → outputs/anomaly_detector/dynamic/cva_model.npz, dpca_model.npz, dynamic_thresholds.json, fit_metadata.json
+# Logs singular spectrum + chosen r; first thing to inspect if CVA underperforms on 3/9/15
+
+# 3. Evaluate detector — NEW per-fault table (FDR @ FAR 0.01, not aggregate)
+python scripts/evaluate_anomaly_detector.py --config configs/config.yaml                 # all detectors
+python scripts/evaluate_anomaly_detector.py --config configs/config_a5000.yaml --detector cva  # isolate
+python scripts/evaluate_anomaly_detector.py --config configs/config_a5000.yaml --detector lstm_ae
+# → data/processed/anomaly_detector_eval.json per-fault {lstm_ae, dpca, cva, fused} + highlight_3_9_15 + realised_far
+# Rules enforced: FDR post-onset only (discard <160/20), FAR only on fault_free_testing, thresholds from holdout
 
 # 4. Generate LLM instruction data (structured evidence → JSON report)
 #    NOTE: SKIP for now — A5000 not in use. Code ready; run before adapter training.
@@ -183,30 +204,30 @@ python scripts/train_tep_adapter.py --config configs/config_a5000.yaml
 
 InternVL2-2B is loaded as `AutoModel.from_pretrained(..., trust_remote_code=True)` — LLM backbone is `InternLM2-Chat-1.8B`; text-only TEP uses dummy `pixel_values` + `image_flags=0` (official InternVL pattern).
 
-### 4.7 Inference without training (quick check)
+### 4.7 Inference with fused detectors + follow-up
 
-After training, or with the smoke `outputs/`:
+After both detectors trained, streaming fuses `lstm_ae OR cva` (or `weighted`) before `event_aggregator`. Evidence now includes `detector_evidence` + `change_type` + `lag_profile` for the LLM.
 
 ```bash
 # Verify adapter on fresh base
 python scripts/test_adapter.py --config configs/config.yaml
 
-# End-to-end stream + automatic report
+# End-to-end stream with fused alarm (dynamic in parallel)
 python scripts/test_end_to_end.py --config configs/config.yaml --inject-at 800
 python scripts/test_end_to_end.py --config configs/config.yaml --no-llm --inject-at 800  # deterministic fallback
+# With explicit fault/run selection (per-split onset 20 vs 160 handled)
+python scripts/test_end_to_end.py --config configs/config.yaml --fault-number 9 --fault-run 5 --normal-run 1
 
-<### 4.9 Ask follow-up questions
-
-```python
+# Follow-up (now grounded in detector_evidence)
+```
 from main import TEPApp
 from utils import load_config
-app = TEPApp(load_config())
-app.answer_followup("ANOM-0001", "Which sensors should I inspect?")
-# or one-liner:
-# python -c "from main import TEPApp; from utils import load_config; app=TEPApp(load_config()); print(app.answer_followup('ANOM-0001','Why cooling?'))"
+app = TEPApp(load_config())  # loads LSTM + CVA/DPCA if dynamic_detector.enabled
+app.process_sensor_stream({"values": arr})  # first 9 samples → warming_up
+app.answer_followup("ANOM-0001", "Why is this dynamics not level?")
 ```
 
-# API / UI
+# API / UI (unchanged, fused alarm transparent)
 uvicorn api.server:app --host 0.0.0.0 --port 8000
 streamlit run ui/app.py
 ```
@@ -252,18 +273,19 @@ scikit-learn 1.4+ · pandas 2.1+ · fastapi/uvicorn/streamlit (latest)
 ## 7. Project layout
 
 ```
-configs/config.yaml           # single source of configuration
-preprocessing/                # tep_loader, scaler, windowing
-anomaly_detection/            # dataset, LSTM AE, train, threshold, inference
-evidence/                     # contributions, temporal, relationships, event builder
-llm/                          # dataset, model, train_adapter, evaluate, adapter_loader, inference
-streaming/                    # SensorStream simulator
-events/                       # SQLite event store
+configs/config.yaml (+ config_a5000.yaml)  # single source, now with dynamic_detector + per-split fault_onset
+preprocessing/                # tep_loader (per-split onset, run-boundary aware), scaler, windowing
+anomaly_detection/            # lstm/, dynamic/{lag_builder,cva,dpca,statistics,contributions,fusion}, threshold, inference
+evidence/                     # contributions, temporal, relationships, event builder (now detector_evidence v2)
+llm/                          # dataset (v2 consumes detector_evidence), train_adapter, evaluate
+streaming/                    # SensorStream (per-run faultNumber/simulationRun, warming_up)
+events/                       # SQLite event store (fused alarm)
 api/server.py                 # FastAPI backend
 ui/app.py                     # Streamlit UI
-scripts/                      # prepare_tep, train/eval detector, gen dataset,
-                              # train adapter, test_adapter, test_end_to_end
-main.py                       # TEPApp high-level interface
+scripts/                      # prepare_tep (--smoke/--full), train_anomaly_detector, train_dynamic_detector,
+                              # evaluate_anomaly_detector (--detector, per-fault 3/9/15), generate_* , test_*
+main.py                       # TEPApp (fusion OR/weighted, DynamicDetectorRunner)
+tests/                        # 6 tests for lag, CVA recovery, variance sensitivity, etc.
 ```
 
 ## 8. Uncertainty & limitations
@@ -274,31 +296,4 @@ main.py                       # TEPApp high-level interface
   unclassified rather than fabricating a cause.
 * The LSTM autoencoder, threshold and evidence pipeline run fully without the
   LLM; the adapter adds grounded natural-language reasoning.
-
-
-  Pipeline — code generation → training → evaluation → inference (A5000)
-# 0. Code already generated (no LLM dataset now — deferred, code ready at generate_llm_dataset.py)
-
-# 1. PREPROCESSING — smoke (isolated) or full A5000 (production, scaler on Training only)
-python scripts/prepare_tep.py --config configs/config.yaml --smoke        # writes _smoke, safe to run anytime
-python scripts/prepare_tep.py --config configs/config_a5000.yaml --full   # 250k normal + 5M faulty → data/processed (overwrites smoke prod)
-
-# 2. DETECTOR TRAINING (unsupervised, normal only)
-python scripts/train_anomaly_detector.py --config configs/config_a5000.yaml  # batch 128, 50 epochs → model.pt
-# → threshold 99.5 learned on normal val → threshold.json
-
-# 3. DETECTOR EVALUATION (good results targeted)
-python scripts/evaluate_anomaly_detector.py --config configs/config_a5000.yaml
-# → data/processed/anomaly_detector_eval.json (expect after fix: FPR <5%, FNR <10%, AUROC >0.95, delay ~4-8)
-
-# 4. LLM DATASET — SKIP NOW (deferred, A5000 not in use)
-# When ready: python scripts/generate_llm_dataset.py --config configs/config.yaml --samples-per-fault 20
-
-# 5. ADAPTER TRAINING — on A5000 only (frozen InternVL2-2B)
-python scripts/train_tep_adapter.py --config configs/config_a5000.yaml  # BF16 LoRA 12-14GB, batch 4×4
-
-# 6. INFERENCE / ACTUAL USE
-python scripts/test_adapter.py --config configs/config_a5000.yaml
-python scripts/test_end_to_end.py --config configs/config_a5000.yaml --inject-at 800  # auto report + follow-up
-uvicorn api.server:app --host 0.0.0.0 --port 8000; streamlit run ui/app.py
-Production threshold 99.5 + consecutive_windows_to_confirm 3 (config.yaml:120) reduces normal-as-anomaly; larger LLM dataset (20/sample) will fix category when A5000 is available.
+* **NEW:** CVA targets dynamic/second-order faults; faults 3/9/15 remain the hardest. Expect 9 to lift clearly, 15 moderately, 3 possibly <50% FDR at 1% FAR — if 3 jumps >80%, audit for leakage (scaler contamination, threshold on test, run straddling).

@@ -26,7 +26,7 @@ from anomaly_detection import AnomalyDetector
 from events.event_store import EventStore
 from evidence.event_builder import AnomalyEvent, build_event, make_event_id
 from preprocessing.scaler import load_scaler
-from utils import ensure_dir, load_config
+from utils import ensure_dir, get_fault_onset, load_config, resolve_onset_for_path
 
 logger = logging.getLogger(__name__)
 
@@ -317,7 +317,14 @@ class TEPApp:
                 fault_number=fault_label,
                 simulation_run=frun,
             )
-        fault_onset = int(self.config["dataset"].get("fault_onset_index", 160))
+        # Per-split onset (Task 0): Training 20 vs Testing 160
+        if inject_fault_file is not None:
+            try:
+                fault_onset = int(resolve_onset_for_path(self.config, inject_fault_file))
+            except ValueError:
+                fault_onset = int(get_fault_onset(self.config, "faulty_training"))
+        else:
+            fault_onset = int(get_fault_onset(self.config, "faulty_training") or 20)
         events = []
 
         # simulate fault injection by switching frames
