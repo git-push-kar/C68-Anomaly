@@ -46,9 +46,10 @@ class EventEvidence:
     reasoning_notes: List[str]
     evidence_type: str = "model_derived_evidence"
     uncertainty: str = ""
+    detector_evidence: Optional[Dict] = None
 
     def to_dict(self) -> Dict:
-        return {
+        data = {
             "event_id": self.event_id,
             "anomaly_score": float(self.anomaly_score),
             "severity": self.severity,
@@ -61,6 +62,9 @@ class EventEvidence:
             "evidence_type": self.evidence_type,
             "uncertainty": self.uncertainty,
         }
+        if self.detector_evidence is not None:
+            data["detector_evidence"] = self.detector_evidence
+        return data
 
 
 @dataclass
@@ -123,6 +127,7 @@ def build_event(
     start_time: Optional[datetime] = None,
     detection_time: Optional[datetime] = None,
     fault_label: Optional[int] = None,
+    detector_evidence: Optional[Dict] = None,
 ) -> AnomalyEvent:
     """Assemble one anomaly event from a run of anomalous windows.
 
@@ -216,6 +221,7 @@ def build_event(
             "Correlation between sensor deviations and the candidate subsystem "
             "does not prove causation; on-site inspection is required to confirm."
         ),
+        detector_evidence=detector_evidence,
     )
 
     sensor_time_series = {

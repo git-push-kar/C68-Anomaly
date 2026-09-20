@@ -26,7 +26,7 @@ from anomaly_detection import AnomalyDetector
 from events.event_store import EventStore
 from evidence.event_builder import AnomalyEvent, build_event, make_event_id
 from preprocessing.scaler import load_scaler
-from utils import ensure_dir, get_fault_onset, load_config, resolve_onset_for_path
+from utils import ensure_dir, get_fault_onset, load_config, resolve_onset_for_path, to_native
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +85,9 @@ class TEPApp:
         )
         self.scaler = load_scaler(scaler_dir)
         self.event_store = EventStore(self.config["events"]["db_path"])
+
+        from anomaly_detection.dynamic.runner import DynamicDetectorRunner
+        self.dynamic_runner = DynamicDetectorRunner(self.config)
 
         # --- LLM (tep_rca adapter) is optional at runtime -------------------
         self.rca = None
@@ -157,12 +160,22 @@ class TEPApp:
                     "is_anomalous": False, "open_event": self._open is not None}
 
         window = np.stack(list(self._buffer)[-self.window_size:], axis=0)
-        score, per_sensor_error = self.detector.score_window(window)
-        is_anomalous = self.detector.is_anomalous(score)
+        lstm_score, per_sensor_error = self.detector.score_window(window)
+
+        # Dynamic detector scoring (CVA / DPCA) on scaled window
+        window_scaled = self.scaler.transform(window.astype(np.float32)).astype(np.float64)
+        dyn_result = self.dynamic_runner.score_window(window_scaled)
+
+        # Fusion (OR / weighted)
+        is_anomalous, score, detector_evidence = self.dynamic_runner.fuse(
+            lstm_score=lstm_score,
+            lstm_threshold=self.detector.threshold.threshold,
+            dyn_result=dyn_result,
+        )
         self._recent_flags.append(int(is_anomalous))
 
         event_payload = self._feed_aggregator(
-            score, per_sensor_error, window, fault_label
+            score, per_sensor_error, window, fault_label, detector_evidence, is_anomalous
         )
         result = {
             "anomaly_detected": event_payload is not None,
@@ -172,6 +185,7 @@ class TEPApp:
             "window_id": self._window_id,
             "window_score": round(float(score), 5),
             "is_anomalous": bool(is_anomalous),
+            "detector_evidence": detector_evidence,
             "open_event": self._open is not None,
         }
         return result
@@ -179,7 +193,8 @@ class TEPApp:
     # ==================================================================
     # event aggregation (no LLM call per anomalous window)
     # ==================================================================
-    def _feed_aggregator(self, score: float, per_sensor_error, window, fault_label):
+    def _feed_aggregator(self, score: float, per_sensor_error, window, fault_label,
+                         detector_evidence: Optional[Dict] = None, is_anomalous: bool = False):
         """Group consecutive anomalous windows into a single event.
 
         Returns the event payload (dict) when an event is closed, else None.
@@ -190,6 +205,7 @@ class TEPApp:
                     "scores": [score],
                     "errors": [per_sensor_error],
                     "windows": [window],
+                    "detector_evidences": [detector_evidence] if detector_evidence else [],
                     "start_sample": max(0, self._window_id * self.stride),
                     "start_time": datetime.now(),
                     "fault_label": fault_label,
@@ -197,11 +213,13 @@ class TEPApp:
                 }
             return None
 
-        if score > self.detector.threshold.threshold:
+        if is_anomalous or score > self.detector.threshold.threshold:
             self._open["normal_since"] = 0
             self._open["scores"].append(score)
             self._open["errors"].append(per_sensor_error)
             self._open["windows"].append(window)
+            if detector_evidence:
+                self._open.setdefault("detector_evidences", []).append(detector_evidence)
             if fault_label is not None:
                 self._open["fault_label"] = fault_label
             if len(self._open["scores"]) >= self._max_event_windows:
@@ -220,6 +238,28 @@ class TEPApp:
     def _close_event(self):
         state = self._open
         self._open = None
+
+        # Consolidate detector evidence across the event windows
+        ev_list = state.get("detector_evidences", [])
+        if ev_list:
+            has_both = any(e.get("triggered_by") == "both" for e in ev_list)
+            has_dyn = any(e.get("triggered_by") == "dynamic" for e in ev_list)
+            has_lstm = any(e.get("triggered_by") == "lstm_ae" for e in ev_list)
+            if has_both or (has_dyn and has_lstm):
+                trig = "both"
+                ctype = "mixed"
+            elif has_dyn:
+                trig = "dynamic"
+                ctype = "dynamics"
+            else:
+                trig = "lstm_ae"
+                ctype = "level"
+            summary_ev = dict(ev_list[-1])
+            summary_ev["triggered_by"] = trig
+            summary_ev["change_type"] = ctype
+        else:
+            summary_ev = None
+
         event = build_event(
             event_id=make_event_id(self._next_event_counter()),
             anomaly_scores=state["scores"],
@@ -233,6 +273,7 @@ class TEPApp:
             start_time=state["start_time"],
             detection_time=datetime.now(),
             fault_label=state.get("fault_label"),
+            detector_evidence=to_native(summary_ev) if summary_ev else None,
         )
         event.report = self._generate_report(event)
         self.event_store.store_event(event)
@@ -355,6 +396,10 @@ class TEPApp:
         if self._open is None:
             return None
         return self._close_event()
+
+    def flush(self) -> Optional[Dict]:
+        """Alias for finalize_stream()."""
+        return self.finalize_stream()
 
 
 def _infer_fault_label(path: str) -> int:

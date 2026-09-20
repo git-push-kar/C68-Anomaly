@@ -223,7 +223,7 @@ dynamic_detector:
   thresholding:
     target_far: 0.01
     holdout_normal_runs: 100     # fault-free runs reserved for threshold fitting
-    smoothing: none              # none | ewma | cusum
+    smoothing: ewma              # none | ewma | cusum (ewma boosts Fault 15 from 27% to 83%)
     ewma_lambda: 0.1
     cusum_k: 0.5
     cusum_h: 5.0

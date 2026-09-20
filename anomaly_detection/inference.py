@@ -79,10 +79,18 @@ class AnomalyDetector:
         if not lstm_cfg and saved_config:
             # config.json nests under "lstm" directly
             lstm_cfg = saved_config.get("lstm", {})
+
+        # Auto-detect whether checkpoint was saved with cell_proj and what decoder input size was
+        has_cell_proj = "decoder.cell_proj.weight" in state["model_state_dict"]
+        dec_ih = state["model_state_dict"].get("decoder.lstm.weight_ih_l0")
+        dec_in_dim = int(dec_ih.shape[1]) if dec_ih is not None else None
+
         model = build_autoencoder(
             {"anomaly_detector": {"lstm": lstm_cfg}},
             num_features,
             sequence_length,
+            use_cell_proj=has_cell_proj,
+            decoder_input_dim=dec_in_dim,
         )
         model.load_state_dict(state["model_state_dict"])
         return cls(model, scaler, threshold, device=device)

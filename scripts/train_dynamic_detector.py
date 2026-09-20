@@ -163,19 +163,20 @@ def main():
             if P.shape[0] == 0:
                 continue
             scores = cva_model.score(P)
-            all_T2.append(scores["T2"])
-            all_Q.append(scores["Q"])
-            all_Tr.append(scores["Tr"])
+            # Smooth PER RUN (never straddling run boundary)
+            smoothed = smooth_stats(scores, mode=smoothing, ewma_lambda=ewma_lambda, cusum_k=cusum_k, cusum_h=cusum_h)
+            all_T2.append(smoothed["T2"])
+            all_Q.append(smoothed["Q"])
+            all_Tr.append(smoothed["Tr"])
         if all_T2:
             T2_arr = np.concatenate(all_T2)
             Q_arr = np.concatenate(all_Q)
             Tr_arr = np.concatenate(all_Tr)
             cva_stats = {"T2": T2_arr, "Q": Q_arr, "Tr": Tr_arr}
-            cva_stats = smooth_stats(cva_stats, mode=smoothing, ewma_lambda=ewma_lambda, cusum_k=cusum_k, cusum_h=cusum_h)
             cva_thr = compute_thresholds(cva_stats, target_far=target_far)
             thresholds["cva"] = cva_thr
             stats_holdout["cva"] = {k: {"mean": float(v.mean()), "p99": float(np.percentile(v, 99))} for k, v in cva_stats.items()}
-            logger.info("CVA thresholds (FAR %.3f): %s", target_far, cva_thr)
+            logger.info("CVA thresholds (FAR %.3f, smoothing %s): %s", target_far, smoothing, cva_thr)
 
     if dpca_model is not None:
         from anomaly_detection.dynamic.lag_builder import build_augmented_matrix
@@ -185,17 +186,18 @@ def main():
             if Xa.shape[0] == 0:
                 continue
             scores = dpca_model.score(Xa)
-            all_T2.append(scores["T2"])
-            all_SPE.append(scores["SPE"])
+            # Smooth PER RUN (never straddling run boundary)
+            smoothed = smooth_stats(scores, mode=smoothing, ewma_lambda=ewma_lambda, cusum_k=cusum_k, cusum_h=cusum_h)
+            all_T2.append(smoothed["T2"])
+            all_SPE.append(smoothed["SPE"])
         if all_T2:
             T2_arr = np.concatenate(all_T2)
             SPE_arr = np.concatenate(all_SPE)
             dpca_stats = {"T2": T2_arr, "SPE": SPE_arr}
-            dpca_stats = smooth_stats(dpca_stats, mode=smoothing, ewma_lambda=ewma_lambda, cusum_k=cusum_k, cusum_h=cusum_h)
             dpca_thr = compute_thresholds(dpca_stats, target_far=target_far)
             thresholds["dpca"] = dpca_thr
             stats_holdout["dpca"] = {k: {"mean": float(v.mean()), "p99": float(np.percentile(v, 99))} for k, v in dpca_stats.items()}
-            logger.info("DPCA thresholds (FAR %.3f): %s", target_far, dpca_thr)
+            logger.info("DPCA thresholds (FAR %.3f, smoothing %s): %s", target_far, smoothing, dpca_thr)
 
     # Fusion per-detector FAR (when mode or, split budget)
     fusion_cfg = dyn_cfg.get("fusion", {})
