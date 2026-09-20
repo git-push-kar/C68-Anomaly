@@ -473,6 +473,10 @@ def load_single_csv(
                     continue
                 sensor_cols = [c for c in CANONICAL_NAMES if c in chunk.columns]
                 chunks.append(chunk[sensor_cols])
+                if simulation_run is not None:
+                    expected_samples = 960 if "Testing" in str(p) else 500
+                    if sum(len(c) for c in chunks) >= expected_samples:
+                        break
             if not chunks:
                 raise ValueError(
                     f"No rows matched fault_number={fault_number}, "

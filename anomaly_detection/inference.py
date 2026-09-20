@@ -118,12 +118,15 @@ class AnomalyDetector:
         return score, per_sensor
 
     @torch.no_grad()
-    def score_windows(self, windows: np.ndarray) -> tuple:
+    def score_windows(self, windows: np.ndarray, already_scaled: bool = False) -> tuple:
         """Score a batch of windows -> (scores[N], per_sensor_errors[N, F])."""
         windows = np.asarray(windows, dtype=np.float32)
         n = windows.shape[0]
-        flat = windows.reshape(-1, windows.shape[-1])
-        scaled = self.scaler.transform(flat).reshape(windows.shape)
+        if not already_scaled:
+            flat = windows.reshape(-1, windows.shape[-1])
+            scaled = self.scaler.transform(flat).reshape(windows.shape)
+        else:
+            scaled = windows
         tensor = torch.as_tensor(scaled, dtype=torch.float32, device=self.device)
         all_scores: list = []
         all_errors: list = []

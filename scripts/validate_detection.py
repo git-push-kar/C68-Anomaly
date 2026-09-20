@@ -27,10 +27,12 @@ RIETH_TO_CANONICAL = {f"xmeas_{i}": f"XMEAS_{i}" for i in range(1, 42)}
 RIETH_TO_CANONICAL.update({f"xmv_{i}": f"XMV_{i + 41}" for i in range(1, 12)})
 
 FAULT_NAMES = {
-    1: "A Feed Loss",
-    4: "Reactor Cooling Water Inlet Temp",
-    14: "Reactor Cooling Water Valve",
-    15: "Condenser Cooling Water Valve",
+    1: "A Feed Loss (Step)",
+    3: "D Feed Temp (Step)",
+    4: "Reactor Cooling Water Inlet Temp (Step)",
+    9: "D Feed Temp (Random Variation)",
+    14: "Reactor Cooling Water Valve (Sticking)",
+    15: "Condenser Cooling Water Valve (Sticking)",
     21: "Reactor Cooling Water Loss",
 }
 
@@ -39,7 +41,10 @@ def _load_runs(csv_path, config, simulation_runs, fault_number=None):
     """Load per-run sensor DataFrames from a Rieth CSV. Returns {run_id: DataFrame}."""
     ds = config["dataset"]
     run_buffers = {}
-    for chunk in pd.read_csv(csv_path, header=0, delimiter=ds.get("delimiter", ","), chunksize=500_000):
+    requested_set = set(simulation_runs)
+    # Expected samples: 960 for testing, 500 for training
+    expected_samples = 960 if "Testing" in str(csv_path) else 500
+    for chunk in pd.read_csv(csv_path, header=0, delimiter=ds.get("delimiter", ","), chunksize=250_000):
         chunk.columns = [str(c).strip() for c in chunk.columns]
         col_map = {}
         for c in chunk.columns:
@@ -62,6 +67,11 @@ def _load_runs(csv_path, config, simulation_runs, fault_number=None):
                 run_buffers.setdefault(int(run_id), []).append(group[sensor_cols])
         else:
             run_buffers.setdefault(0, []).append(chunk[sensor_cols])
+
+        # Early exit once all requested simulation runs have reached expected samples
+        if requested_set.issubset(run_buffers.keys()):
+            if all(sum(len(b) for b in run_buffers[r]) >= expected_samples for r in requested_set):
+                break
     return {rid: pd.concat(bufs, ignore_index=True) for rid, bufs in run_buffers.items()}
 
 
@@ -81,6 +91,10 @@ def _run_app(app, df):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default=None)
+    parser.add_argument("--split", choices=["testing", "training"], default="testing", help="Dataset split (default: testing for unseen data)")
+    parser.add_argument("--normal-csv", default=None, help="Explicit path to normal CSV")
+    parser.add_argument("--fault-csv", default=None, help="Explicit path to fault CSV")
+    parser.add_argument("--faults", type=int, nargs="+", default=[1, 3, 4, 9, 14, 15, 21], help="Fault numbers to test")
     parser.add_argument("--no-llm", action="store_true")
     parser.add_argument("--normal-runs", type=int, nargs="+", default=list(range(1, 11)))
     parser.add_argument("--fault-runs", type=int, nargs="+", default=list(range(1, 6)))
@@ -89,12 +103,16 @@ def main():
     logging.basicConfig(level=args.log_level.upper(), format="%(levelname)-7s %(message)s")
 
     config = load_config(args.config)
-    normal_csv = str(Path(config["paths"]["data_root"]) / "normal" / "TEP_FaultFree_Training.csv")
-    fault_csv = str(Path(config["paths"]["data_root"]) / "faults" / "TEP_Faulty_Training.csv")
+    split_cap = "Testing" if args.split == "testing" else "Training"
+    normal_default = Path(config["paths"]["data_root"]) / "normal" / f"TEP_FaultFree_{split_cap}.csv"
+    fault_default = Path(config["paths"]["data_root"]) / "faults" / f"TEP_Faulty_{split_cap}.csv"
+    normal_csv = str(args.normal_csv or normal_default)
+    fault_csv = str(args.fault_csv or fault_default)
 
     # Part 1: Normal validation
     print("=" * 70)
-    print("PART 1: Normal validation (no false alarms)")
+    print(f"PART 1: Normal validation on {args.split.upper()} data (zero false alarms target)")
+    print(f"Source: {normal_csv}")
     print("=" * 70)
     normal_runs = _load_runs(normal_csv, config, simulation_runs=args.normal_runs)
     print(f"Loaded {len(normal_runs)} runs: {sorted(normal_runs.keys())}")
@@ -120,14 +138,13 @@ def main():
 
     # Part 2: Fault validation
     print("\n" + "=" * 70)
-    print("PART 2: Fault validation (1, 4, 14, 15, 21)")
+    print(f"PART 2: Fault validation on {args.split.upper()} data ({args.faults})")
+    print(f"Source: {fault_csv}")
     print("=" * 70)
-    for fid in [1, 4, 14, 15, 21]:
-        print(f"\n--- Fault {fid}: {FAULT_NAMES.get(fid, '?')} ---")
+    for fid in args.faults:
+        fname = FAULT_NAMES.get(fid, f"Fault {fid}")
+        print(f"\n--- Fault {fid}: {fname} ---")
         fault_runs = _load_runs(fault_csv, config, args.fault_runs, fault_number=fid)
-        if not fault_runs:
-            testing_csv = str(Path(config["paths"]["data_root"]) / "faults" / "TEP_Faulty_Testing.csv")
-            fault_runs = _load_runs(testing_csv, config, args.fault_runs, fault_number=fid)
         if not fault_runs:
             print(f"  NOT IN DATASET (fault {fid} not available)")
             continue
