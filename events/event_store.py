@@ -69,7 +69,7 @@ class EventStore:
     def __init__(self, db_path: str) -> None:
         self.db_path = str(db_path)
         ensure_dir(Path(self.db_path).parent)
-        self._conn = sqlite3.connect(self.db_path)
+        self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.executescript(_SCHEMA)
         self._conn.commit()
