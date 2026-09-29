@@ -622,4 +622,3 @@ TEP Downs & Vogel 1993, Rieth consolidated onset 20/160; LLM `scripts/fault_know
 ---
 
 *Original footer preserved: Report generated Sep 2026 from frozen artifacts: `threshold.json` (1.85 C68 / 0.687 base), `data/processed/anomaly_detector_eval.json` (fused FDR 0.826 for 15), `all_faults_detector_summary.csv` (10,075 runs), `fault15_diagnostic_report.md`, `faults_3_9_15_final_report.md`, `prediction_vs_reconstruction_summary.csv`, `relationship_detector_summary.csv`, `evaluation.json`, `training_summary.json`, `fit_metadata.json`, `PCA_T2_SPE_*` graphs — no test leakage, no fault-supervised detection retraining.*
-Final changes
