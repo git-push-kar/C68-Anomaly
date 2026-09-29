@@ -44,9 +44,15 @@ st.caption("Unsupervised LSTM autoencoder + InternVL2-2B (tep_rca adapter)")
 
 detector_status = app.detector.describe()
 st.sidebar.header("System status")
-st.sidebar.write(f"Detector threshold: {detector_status['threshold']:.5f}")
+st.sidebar.write(f"Detector threshold: {detector_status['threshold']:.5f} (frozen 1.85)")
+try:
+    _q = (app.dynamic_runner.thresholds.get("cva", {}) or {}).get("Q")
+    st.sidebar.write(f"CVA Q thr: {_q:.1f} | fusion: {app.dynamic_runner.fusion_mode}")
+except Exception:
+    pass
 st.sidebar.write(f"LLM adapter loaded: {'YES' if app.rca is not None else 'NO (fallback reports)'}")
 st.sidebar.write(f"Event store: {CONFIG['events']['db_path']}")
+st.sidebar.caption("Accepted scope: 18/20 (faults 3,9 documented limitation)")
 
 tab_live, tab_events, tab_chat = st.tabs(["Live stream", "Anomaly events", "Follow-up chat"])
 
@@ -108,10 +114,22 @@ with tab_events:
         st.info("No events yet. Run the live stream first.")
     for ev in events:
         evidence = ev.get("evidence", {})
+        det = evidence.get("detector_evidence", {}) or {}
+        trig = det.get("triggered_by", "-")
+        ctype = det.get("change_type", "-")
         with st.expander(
             f"{ev['event_id']} | {evidence.get('severity', '?').upper()} | "
-            f"score {ev.get('max_anomaly_score', 0):.3f}"
+            f"score {ev.get('max_anomaly_score', 0):.3f} | {trig}/{ctype}"
         ):
+            if det:
+                cva = ((det.get("dynamic", {}) or {}).get("cva", {}) or {})
+                st.write(f"Detector: LSTM {((det.get('lstm_ae', {}) or {}).get('score', 0)):.3f} "
+                         f"vs {((det.get('lstm_ae', {}) or {}).get('threshold', 0)):.3f} | "
+                         f"CVA Q {cva.get('score', 0):.1f} vs {cva.get('threshold', 0):.1f} "
+                         f"| lag-energy {cva.get('lag_energy', '-')} | slow-drift {cva.get('slow_drift_ratio', '-')}")
+                notes = evidence.get("reasoning_notes", [])
+                for n in notes[-3:]:
+                    st.caption(n)
             st.json(ev)
 
 with tab_chat:

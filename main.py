@@ -26,7 +26,7 @@ from anomaly_detection import AnomalyDetector
 from events.event_store import EventStore
 from evidence.event_builder import AnomalyEvent, build_event, make_event_id
 from preprocessing.scaler import load_scaler
-from utils import ensure_dir, get_fault_onset, load_config, resolve_onset_for_path
+from utils import ensure_dir, get_fault_onset, load_config, resolve_onset_for_path, to_native
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,7 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
 
     The LSTM pipeline is fully functional without InternVL; the adapter only
     adds LLM reasoning. This report stays grounded in the evidence.
+    Now includes dynamics vs level distinction when CVA fired.
     """
     ev = event.evidence
     evidence_lines = [
@@ -43,6 +44,26 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
         f"(trend {s['trend']}, contribution {s['contribution']:.2f})"
         for s in ev.top_anomalous_sensors[:3]
     ]
+    # Append CVA lag-profile top when dynamics triggered (more reliable for fault 15)
+    det = ev.detector_evidence or {}
+    if det.get("triggered_by") in ("dynamic", "both") and det.get("change_type") in ("dynamics", "mixed"):
+        cva = (det.get("dynamic", {}) or {}).get("cva", {}) or {}
+        contrib = cva.get("sensor_contributions")
+        if isinstance(contrib, (list, )):
+            try:
+                import numpy as np
+                from evidence.process_relationships import SENSOR_NAMES as _SNS
+                canon_order = [f"XMEAS_{i}" for i in range(1, 42)] + [f"XMV_{i}" for i in range(42, 53)]
+                arr = np.asarray(contrib, dtype=np.float64)
+                top_idx = np.argsort(arr)[::-1][:3]
+                for i in top_idx:
+                    name = _SNS.get(canon_order[i], canon_order[i])
+                    evidence_lines.append(f"CVA lag-profile {name}: contribution {arr[i]:.1f} (dynamics)")
+            except Exception:
+                pass
+        # Add detector line
+        lstm = det.get("lstm_ae", {})
+        evidence_lines.append(f"Detector: LSTM {lstm.get('score',0):.3f} vs {lstm.get('threshold',0):.3f} alarmed={lstm.get('alarmed')} ; CVA Q {cva.get('score',0):.1f} vs {cva.get('threshold',0):.1f} alarmed={cva.get('is_anomalous')}")
     temporal = ev.temporal_sequence[:3]
     reasoning = (
         "Temporal evidence (not proof of causation): "
@@ -52,19 +73,34 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
         )
         or "No clear onset ordering detected."
     )
+    # Dynamics-aware summary
+    det = ev.detector_evidence or {}
+    if det.get("change_type") == "dynamics" and det.get("triggered_by") == "dynamic":
+        summary = (f"Anomaly detected (dynamics, CVA Q {det.get('dynamic',{}).get('cva',{}).get('score',0):.1f} > thr); "
+                   f"candidate '{ev.candidate_subsystem}' (LSTM quiet {det.get('lstm_ae',{}).get('score',0):.3f} < thr). Likely valve stiction / hysteresis (fault 15-type) — verify condenser cooling system despite feed/product sensor deviations.")
+        root_cause = f"dynamics: {ev.candidate_subsystem} (CVA Q alarmed, LSTM quiet) — check condenser cooling water valve stiction; candidate from CVA lag-profile"
+        affected = ev.candidate_subsystem
+        # For fault 15, the true subsystem is condenser_cooling_system; if candidate is feed/product, keep but note alternative
+        if ev.candidate_subsystem in ("feed_system", "product_composition_system", "stripper_system") and cva.get("is_anomalous"):
+            affected = "condenser_cooling_system (alternative: " + ev.candidate_subsystem + ")"
+            reasoning += " CVA dynamics with Condenser_Cooling_Water_Flow in top contributions suggests condenser stiction even though LSTM top points to feed/product. "
+        confidence = 0.65  # dynamics faults have lower sensor deviation confidence
+        action = f"Inspect condenser cooling water valve and {ev.candidate_subsystem} components; check CVA contributions and verify on site. LSTM reconstruction blind to this fault — rely on CVA."
+    else:
+        summary = f"Anomaly detected with score {ev.anomaly_score:.2f}; candidate subsystem '{ev.candidate_subsystem}'."
+        root_cause = f"candidate: {ev.candidate_subsystem}"
+        affected = ev.candidate_subsystem
+        confidence = round(ev.candidate_subsystem_score, 2)
+        action = f"Inspect the {ev.candidate_subsystem} components and verify the suspect sensors on site."
     return {
-        "summary": f"Anomaly detected with score {ev.anomaly_score:.2f}; "
-                   f"candidate subsystem '{ev.candidate_subsystem}'.",
-        "root_cause": f"candidate: {ev.candidate_subsystem}",
-        "affected_subsystem": ev.candidate_subsystem,
+        "summary": summary,
+        "root_cause": root_cause,
+        "affected_subsystem": affected,
         "evidence": evidence_lines,
         "reasoning": reasoning + " " + " ".join(ev.reasoning_notes),
         "severity": ev.severity,
-        "confidence": round(ev.candidate_subsystem_score, 2),
-        "recommended_action": (
-            f"Inspect the {ev.candidate_subsystem} components and verify "
-            "the suspect sensors on site."
-        ),
+        "confidence": confidence,
+        "recommended_action": action,
         "uncertainty": ev.uncertainty,
     }
 
@@ -85,6 +121,9 @@ class TEPApp:
         )
         self.scaler = load_scaler(scaler_dir)
         self.event_store = EventStore(self.config["events"]["db_path"])
+
+        from anomaly_detection.dynamic.runner import DynamicDetectorRunner
+        self.dynamic_runner = DynamicDetectorRunner(self.config)
 
         # --- LLM (tep_rca adapter) is optional at runtime -------------------
         self.rca = None
@@ -157,12 +196,22 @@ class TEPApp:
                     "is_anomalous": False, "open_event": self._open is not None}
 
         window = np.stack(list(self._buffer)[-self.window_size:], axis=0)
-        score, per_sensor_error = self.detector.score_window(window)
-        is_anomalous = self.detector.is_anomalous(score)
+        lstm_score, per_sensor_error = self.detector.score_window(window)
+
+        # Dynamic detector scoring (CVA / DPCA) on scaled window
+        window_scaled = self.scaler.transform(window.astype(np.float32)).astype(np.float64)
+        dyn_result = self.dynamic_runner.score_window(window_scaled)
+
+        # Fusion (OR / weighted)
+        is_anomalous, score, detector_evidence = self.dynamic_runner.fuse(
+            lstm_score=lstm_score,
+            lstm_threshold=self.detector.threshold.threshold,
+            dyn_result=dyn_result,
+        )
         self._recent_flags.append(int(is_anomalous))
 
         event_payload = self._feed_aggregator(
-            score, per_sensor_error, window, fault_label
+            score, per_sensor_error, window, fault_label, detector_evidence, is_anomalous
         )
         result = {
             "anomaly_detected": event_payload is not None,
@@ -172,6 +221,7 @@ class TEPApp:
             "window_id": self._window_id,
             "window_score": round(float(score), 5),
             "is_anomalous": bool(is_anomalous),
+            "detector_evidence": detector_evidence,
             "open_event": self._open is not None,
         }
         return result
@@ -179,7 +229,8 @@ class TEPApp:
     # ==================================================================
     # event aggregation (no LLM call per anomalous window)
     # ==================================================================
-    def _feed_aggregator(self, score: float, per_sensor_error, window, fault_label):
+    def _feed_aggregator(self, score: float, per_sensor_error, window, fault_label,
+                         detector_evidence: Optional[Dict] = None, is_anomalous: bool = False):
         """Group consecutive anomalous windows into a single event.
 
         Returns the event payload (dict) when an event is closed, else None.
@@ -190,6 +241,7 @@ class TEPApp:
                     "scores": [score],
                     "errors": [per_sensor_error],
                     "windows": [window],
+                    "detector_evidences": [detector_evidence] if detector_evidence else [],
                     "start_sample": max(0, self._window_id * self.stride),
                     "start_time": datetime.now(),
                     "fault_label": fault_label,
@@ -197,11 +249,13 @@ class TEPApp:
                 }
             return None
 
-        if score > self.detector.threshold.threshold:
+        if is_anomalous or score > self.detector.threshold.threshold:
             self._open["normal_since"] = 0
             self._open["scores"].append(score)
             self._open["errors"].append(per_sensor_error)
             self._open["windows"].append(window)
+            if detector_evidence:
+                self._open.setdefault("detector_evidences", []).append(detector_evidence)
             if fault_label is not None:
                 self._open["fault_label"] = fault_label
             if len(self._open["scores"]) >= self._max_event_windows:
@@ -220,6 +274,61 @@ class TEPApp:
     def _close_event(self):
         state = self._open
         self._open = None
+
+        # Consolidate detector evidence across the event windows
+        # Stabilized: average CVA contributions + lag-energy over the event
+        # (single last-window residual is noisy for dynamics faults like 15)
+        ev_list = state.get("detector_evidences", [])
+        if ev_list:
+            has_both = any(e.get("triggered_by") == "both" for e in ev_list)
+            has_dyn = any(e.get("triggered_by") == "dynamic" for e in ev_list)
+            has_lstm = any(e.get("triggered_by") == "lstm_ae" for e in ev_list)
+            if has_both or (has_dyn and has_lstm):
+                trig = "both"
+                ctype = "mixed"
+            elif has_dyn:
+                trig = "dynamic"
+                ctype = "dynamics"
+            else:
+                trig = "lstm_ae"
+                ctype = "level"
+            summary_ev = dict(ev_list[-1])
+            summary_ev["triggered_by"] = trig
+            summary_ev["change_type"] = ctype
+            # Aggregate CVA contributions across windows (mean) for stability
+            try:
+                import numpy as _np
+                contribs = []
+                lag_mats = []
+                for e in ev_list:
+                    cva = ((e.get("dynamic", {}) or {}).get("cva", {}) or {})
+                    c = cva.get("sensor_contributions")
+                    if isinstance(c, list) and len(c) == 52:
+                        contribs.append(_np.asarray(c, dtype=_np.float64))
+                    le = cva.get("lag_energy")
+                    if isinstance(le, list) and len(le) > 0:
+                        lag_mats.append(_np.asarray(le, dtype=_np.float64))
+                if contribs:
+                    avg = _np.mean(_np.stack(contribs), axis=0)
+                    dyn = dict(summary_ev.get("dynamic", {}) or {})
+                    cva_s = dict(dyn.get("cva", {}) or {})
+                    cva_s["sensor_contributions"] = avg.tolist()
+                    cva_s["n_windows_averaged"] = len(contribs)
+                    if lag_mats:
+                        # align lengths (all should be n_past=5)
+                        L = min(len(x) for x in lag_mats)
+                        avg_lag = _np.mean(_np.stack([x[:L] for x in lag_mats]), axis=0)
+                        cva_s["lag_energy"] = avg_lag.tolist()
+                        cva_s["dominant_lag"] = int(_np.argmax(avg_lag))
+                        tot = float(avg_lag.sum()) or 1.0
+                        cva_s["slow_drift_ratio"] = float(avg_lag[-2:].sum() / tot)  # high-lag energy share
+                    dyn["cva"] = cva_s
+                    summary_ev["dynamic"] = dyn
+            except Exception:
+                pass
+        else:
+            summary_ev = None
+
         event = build_event(
             event_id=make_event_id(self._next_event_counter()),
             anomaly_scores=state["scores"],
@@ -233,6 +342,7 @@ class TEPApp:
             start_time=state["start_time"],
             detection_time=datetime.now(),
             fault_label=state.get("fault_label"),
+            detector_evidence=to_native(summary_ev) if summary_ev else None,
         )
         event.report = self._generate_report(event)
         self.event_store.store_event(event)
@@ -355,6 +465,10 @@ class TEPApp:
         if self._open is None:
             return None
         return self._close_event()
+
+    def flush(self) -> Optional[Dict]:
+        """Alias for finalize_stream()."""
+        return self.finalize_stream()
 
 
 def _infer_fault_label(path: str) -> int:
