@@ -138,12 +138,20 @@ class DynamicDetectorRunner:
                 cva_thr = q_thr if self.cva_primary == "Q" else (t2_thr if self.cva_primary == "T2" else tr_thr)
                 cva_anom = cva_score > cva_thr
                 
-                # Sensor contributions from last residual
+                # Sensor contributions from last residual + lag-energy trend feature
                 last_e = raw_scores["e"][-1] if "e" in raw_scores and len(raw_scores["e"]) else None
                 contrib, lag_profile = (None, None)
+                lag_energy, dom_lag = (None, None)
                 if last_e is not None:
                     contrib, lag_profile = sensor_contributions(last_e, self.cva_model.n_past, F)
-                
+                    try:
+                        import numpy as _np
+                        # lag_profile (n_lags, 52): energy per lag block
+                        lag_energy = [float(_np.sum(lag_profile[i] ** 2)) for i in range(lag_profile.shape[0])]
+                        dom_lag = int(_np.argmax(lag_profile.sum(axis=1) ** 2)) if lag_profile.shape[0] else 0
+                    except Exception:
+                        lag_energy, dom_lag = (None, None)
+
                 cva_res = {
                     "score": cva_score,
                     "threshold": cva_thr,
@@ -151,6 +159,8 @@ class DynamicDetectorRunner:
                     "stats": {"T2": t2_score, "Q": q_score, "Tr": tr_score},
                     "thresholds": {"T2": t2_thr, "Q": q_thr, "Tr": tr_thr},
                     "sensor_contributions": contrib.tolist() if contrib is not None else None,
+                    "lag_energy": lag_energy,
+                    "dominant_lag": dom_lag,
                     "state_order": int(self.cva_model.r),
                 }
             else:

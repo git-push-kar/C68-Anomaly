@@ -27,8 +27,12 @@ venv.bak/
 
 # ── ML / Data / Outputs (generated artifacts) ─────────────────────────
 # Keep directory structure via .gitkeep, ignore large generated files
-outputs/
+outputs/*
 !outputs/.gitkeep
+!outputs/evaluation/
+!outputs/evaluation/*
+!outputs/llm_dataset_v2/
+!outputs/llm_dataset_v2/*
 outputs/**/*.pt
 outputs/**/*.pth
 outputs/**/*.safetensors
@@ -49,12 +53,14 @@ data/*_smoke/
 data/raw/**/*.csv
 data/raw/**/*.mat
 data/raw/**/*.dat
-data/processed/
+data/processed/*
 !data/processed/.gitkeep
+!data/processed/manifests/
+!data/processed/manifests/*
 data/processed/**/*.npy
 data/processed/**/*.npz
 data/processed/**/*.pkl
-data/llm/
+data/llm/*
 !data/llm/.gitkeep
 data/llm/**/*.jsonl
 data/llm/**/*.arrow

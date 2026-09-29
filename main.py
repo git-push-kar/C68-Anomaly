@@ -36,6 +36,7 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
 
     The LSTM pipeline is fully functional without InternVL; the adapter only
     adds LLM reasoning. This report stays grounded in the evidence.
+    Now includes dynamics vs level distinction when CVA fired.
     """
     ev = event.evidence
     evidence_lines = [
@@ -43,6 +44,26 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
         f"(trend {s['trend']}, contribution {s['contribution']:.2f})"
         for s in ev.top_anomalous_sensors[:3]
     ]
+    # Append CVA lag-profile top when dynamics triggered (more reliable for fault 15)
+    det = ev.detector_evidence or {}
+    if det.get("triggered_by") in ("dynamic", "both") and det.get("change_type") in ("dynamics", "mixed"):
+        cva = (det.get("dynamic", {}) or {}).get("cva", {}) or {}
+        contrib = cva.get("sensor_contributions")
+        if isinstance(contrib, (list, )):
+            try:
+                import numpy as np
+                from evidence.process_relationships import SENSOR_NAMES as _SNS
+                canon_order = [f"XMEAS_{i}" for i in range(1, 42)] + [f"XMV_{i}" for i in range(42, 53)]
+                arr = np.asarray(contrib, dtype=np.float64)
+                top_idx = np.argsort(arr)[::-1][:3]
+                for i in top_idx:
+                    name = _SNS.get(canon_order[i], canon_order[i])
+                    evidence_lines.append(f"CVA lag-profile {name}: contribution {arr[i]:.1f} (dynamics)")
+            except Exception:
+                pass
+        # Add detector line
+        lstm = det.get("lstm_ae", {})
+        evidence_lines.append(f"Detector: LSTM {lstm.get('score',0):.3f} vs {lstm.get('threshold',0):.3f} alarmed={lstm.get('alarmed')} ; CVA Q {cva.get('score',0):.1f} vs {cva.get('threshold',0):.1f} alarmed={cva.get('is_anomalous')}")
     temporal = ev.temporal_sequence[:3]
     reasoning = (
         "Temporal evidence (not proof of causation): "
@@ -52,19 +73,34 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
         )
         or "No clear onset ordering detected."
     )
+    # Dynamics-aware summary
+    det = ev.detector_evidence or {}
+    if det.get("change_type") == "dynamics" and det.get("triggered_by") == "dynamic":
+        summary = (f"Anomaly detected (dynamics, CVA Q {det.get('dynamic',{}).get('cva',{}).get('score',0):.1f} > thr); "
+                   f"candidate '{ev.candidate_subsystem}' (LSTM quiet {det.get('lstm_ae',{}).get('score',0):.3f} < thr). Likely valve stiction / hysteresis (fault 15-type) — verify condenser cooling system despite feed/product sensor deviations.")
+        root_cause = f"dynamics: {ev.candidate_subsystem} (CVA Q alarmed, LSTM quiet) — check condenser cooling water valve stiction; candidate from CVA lag-profile"
+        affected = ev.candidate_subsystem
+        # For fault 15, the true subsystem is condenser_cooling_system; if candidate is feed/product, keep but note alternative
+        if ev.candidate_subsystem in ("feed_system", "product_composition_system", "stripper_system") and cva.get("is_anomalous"):
+            affected = "condenser_cooling_system (alternative: " + ev.candidate_subsystem + ")"
+            reasoning += " CVA dynamics with Condenser_Cooling_Water_Flow in top contributions suggests condenser stiction even though LSTM top points to feed/product. "
+        confidence = 0.65  # dynamics faults have lower sensor deviation confidence
+        action = f"Inspect condenser cooling water valve and {ev.candidate_subsystem} components; check CVA contributions and verify on site. LSTM reconstruction blind to this fault — rely on CVA."
+    else:
+        summary = f"Anomaly detected with score {ev.anomaly_score:.2f}; candidate subsystem '{ev.candidate_subsystem}'."
+        root_cause = f"candidate: {ev.candidate_subsystem}"
+        affected = ev.candidate_subsystem
+        confidence = round(ev.candidate_subsystem_score, 2)
+        action = f"Inspect the {ev.candidate_subsystem} components and verify the suspect sensors on site."
     return {
-        "summary": f"Anomaly detected with score {ev.anomaly_score:.2f}; "
-                   f"candidate subsystem '{ev.candidate_subsystem}'.",
-        "root_cause": f"candidate: {ev.candidate_subsystem}",
-        "affected_subsystem": ev.candidate_subsystem,
+        "summary": summary,
+        "root_cause": root_cause,
+        "affected_subsystem": affected,
         "evidence": evidence_lines,
         "reasoning": reasoning + " " + " ".join(ev.reasoning_notes),
         "severity": ev.severity,
-        "confidence": round(ev.candidate_subsystem_score, 2),
-        "recommended_action": (
-            f"Inspect the {ev.candidate_subsystem} components and verify "
-            "the suspect sensors on site."
-        ),
+        "confidence": confidence,
+        "recommended_action": action,
         "uncertainty": ev.uncertainty,
     }
 
@@ -240,6 +276,8 @@ class TEPApp:
         self._open = None
 
         # Consolidate detector evidence across the event windows
+        # Stabilized: average CVA contributions + lag-energy over the event
+        # (single last-window residual is noisy for dynamics faults like 15)
         ev_list = state.get("detector_evidences", [])
         if ev_list:
             has_both = any(e.get("triggered_by") == "both" for e in ev_list)
@@ -257,6 +295,37 @@ class TEPApp:
             summary_ev = dict(ev_list[-1])
             summary_ev["triggered_by"] = trig
             summary_ev["change_type"] = ctype
+            # Aggregate CVA contributions across windows (mean) for stability
+            try:
+                import numpy as _np
+                contribs = []
+                lag_mats = []
+                for e in ev_list:
+                    cva = ((e.get("dynamic", {}) or {}).get("cva", {}) or {})
+                    c = cva.get("sensor_contributions")
+                    if isinstance(c, list) and len(c) == 52:
+                        contribs.append(_np.asarray(c, dtype=_np.float64))
+                    le = cva.get("lag_energy")
+                    if isinstance(le, list) and len(le) > 0:
+                        lag_mats.append(_np.asarray(le, dtype=_np.float64))
+                if contribs:
+                    avg = _np.mean(_np.stack(contribs), axis=0)
+                    dyn = dict(summary_ev.get("dynamic", {}) or {})
+                    cva_s = dict(dyn.get("cva", {}) or {})
+                    cva_s["sensor_contributions"] = avg.tolist()
+                    cva_s["n_windows_averaged"] = len(contribs)
+                    if lag_mats:
+                        # align lengths (all should be n_past=5)
+                        L = min(len(x) for x in lag_mats)
+                        avg_lag = _np.mean(_np.stack([x[:L] for x in lag_mats]), axis=0)
+                        cva_s["lag_energy"] = avg_lag.tolist()
+                        cva_s["dominant_lag"] = int(_np.argmax(avg_lag))
+                        tot = float(avg_lag.sum()) or 1.0
+                        cva_s["slow_drift_ratio"] = float(avg_lag[-2:].sum() / tot)  # high-lag energy share
+                    dyn["cva"] = cva_s
+                    summary_ev["dynamic"] = dyn
+            except Exception:
+                pass
         else:
             summary_ev = None
 

@@ -1,0 +1,30 @@
+{
+  "seed": 42,
+  "fault_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "synthetic_per_fault": 20,
+  "calibration_runs": 350,
+  "evidence_schema": "z-score primary, deviation% secondary, candidate via suggest_subsystems",
+  "no_dirichlet": true,
+  "joint_sampling": true
+}

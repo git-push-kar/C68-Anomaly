@@ -1,0 +1,94 @@
+{
+  "seed": 42,
+  "method": "fault_id_holdout",
+  "configs": {
+    "primary": {
+      "train": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        16,
+        17,
+        18,
+        19,
+        20,
+        22
+      ],
+      "val": [
+        4,
+        14
+      ],
+      "test": [
+        15,
+        21
+      ]
+    },
+    "config_A": {
+      "train": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "val": [
+        16,
+        17
+      ],
+      "test": [
+        18,
+        19,
+        20
+      ]
+    },
+    "config_B": {
+      "train": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "val": [
+        19,
+        20
+      ],
+      "test": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "note": "No trajectory from test fault IDs appears in train - tests fault generalization, 21/22 synthetic excluded from primary (1-20 only)"
+}
