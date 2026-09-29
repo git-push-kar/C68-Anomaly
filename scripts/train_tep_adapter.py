@@ -1,4 +1,4 @@
-"""Fine-tune InternVL2-2B (frozen) with the single ``tep_rca`` LoRA/QLoRA adapter.
+"""Fine-tune InternVL3-2B / InternVL2-2B (frozen) with the single ``tep_rca`` LoRA/QLoRA adapter.
 
 Prints the mandatory training header (base model, adapters: NONE, training
 adapter: tep_rca, parameter counts) and fails if an unexpected adapter exists.
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Train the InternVL2-2B tep_rca LoRA/QLoRA adapter."
+        description="Train the InternVL3-2B tep_rca LoRA/QLoRA adapter."
     )
     parser.add_argument("--config", default=None)
     parser.add_argument("--resume", action="store_true",

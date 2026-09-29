@@ -134,7 +134,7 @@ events:
   max_event_windows: 200              # hard cap on a single event length
 
 # ---------------------------------------------------------------------
-# InternVL2-2B TEP adapter (single adapter: "tep_rca")
+# InternVL3-2B TEP adapter (single adapter: "tep_rca")
 # Target hardware: NVIDIA RTX A5000 (24 GB) - see README section 5
 # ---------------------------------------------------------------------
 # RTX A5000 notes:
@@ -147,7 +147,7 @@ events:
 #     and want speed over memory savings.
 # ---------------------------------------------------------------------
 llm:
-  base_model: OpenGVLab/InternVL2-2B
+  base_model: OpenGVLab/InternVL3-2B
   adapter_name: tep_rca
   adapter_dir: outputs/tep_rca_adapter
   trust_remote_code: true
@@ -158,8 +158,6 @@ llm:
     alpha: 32
     dropout: 0.05
     bias: none
-    # InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B; these are the
-    # exact InternLM2 linear module names (q/k/v/o + gate/up/down)
     target_modules:
       - q_proj
       - k_proj
@@ -168,6 +166,11 @@ llm:
       - gate_proj
       - up_proj
       - down_proj
+      - wqkv
+      - wo
+      - w1
+      - w2
+      - w3
   training:
     use_4bit: true               # QLoRA (bitsandbytes NF4 + double quant) - A5000 safe
     bnb_4bit_quant_type: nf4

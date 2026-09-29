@@ -1,4 +1,4 @@
-"""Load the ``tep_rca`` adapter onto a FRESH original InternVL2-2B.
+"""Load the ``tep_rca`` adapter onto a FRESH original InternVL3-2B / InternVL2-2B.
 
 The adapter (adapter_config.json + adapter_model.safetensors) is independent:
 it contains only the learned LoRA parameters. The base model is reloaded from
@@ -32,10 +32,10 @@ def load_tep_adapter(
     trust_remote_code: bool = True,
     adapter_name: str = ADAPTER_NAME,
 ) -> Any:
-    """Load a fresh InternVL2-2B and attach ONLY the tep_rca adapter.
+    """Load a fresh base model (e.g. InternVL3-2B) and attach ONLY the tep_rca adapter.
 
     Args:
-        base_model: path or hub id of the ORIGINAL InternVL2-2B.
+        base_model: path or hub id of the ORIGINAL base model (e.g. OpenGVLab/InternVL3-2B).
         adapter_path: directory produced by training (adapter_config.json etc).
         torch_dtype: inference dtype (default bfloat16, falling back to fp16).
         device_map: HF device_map for inference.

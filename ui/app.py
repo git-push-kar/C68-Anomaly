@@ -40,7 +40,7 @@ def get_app() -> TEPApp:
 app = get_app()
 
 st.title("Tennessee Eastman Process — Anomaly Detection & Root-Cause Analysis")
-st.caption("Unsupervised LSTM autoencoder + InternVL2-2B (tep_rca adapter)")
+st.caption("Unsupervised LSTM autoencoder + InternVL3-2B (tep_rca adapter)")
 
 detector_status = app.detector.describe()
 st.sidebar.header("System status")

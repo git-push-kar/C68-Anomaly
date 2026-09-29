@@ -13,9 +13,9 @@ The fixes implemented were strictly structural and mathematical integrations rat
 | Component | Status After Fixes | Retraining Required? | Notes & Execution Time |
 | :--- | :--- | :--- | :--- |
 | **0. Scaler & Normal Baseline** (`outputs/preprocessing/`) | Intact | **NO** | Already fitted strictly on fault-free normal training data. |
-| **1. LSTM Autoencoder** (`outputs/anomaly_detector/model.pt`) | Compatible | **NO** | Backward compatibility was added to `LSTMDecoder` and `from_artifacts`. Existing weights load perfectly. Calibrated threshold is `1.85`. |
-| **2. Dynamic Detector (CVA / DPCA)** (`outputs/anomaly_detector/dynamic/`) | Trained & Saved | **NO** (Already completed locally) | Trained with per-run EWMA smoothing ($\lambda = 0.1$). If running on a fresh environment, retraining takes **~25 seconds on CPU** (closed-form SVD/eigh). |
-| **3. InternVL2-2B LoRA Adapter** (`outputs/tep_rca_adapter/`) | Optional | **OPTIONAL** | The detector and streaming pipeline run 100% deterministically without the LLM. Only retrain if you want the LLM to explicitly write reports about the new `detector_evidence` schema (`change_type: "dynamics"`). Takes **~12 min on Colab T4 GPU**. |
+| **1. LSTM Autoencoder** (`outputs/anomaly_detector/model.pt`) | Compatible | **NO** | Sensor brain operates directly on 52-D time series. Calibrated threshold is `1.85`. |
+| **2. Dynamic Detector (CVA / DPCA)** (`outputs/anomaly_detector/dynamic/`) | Trained & Saved | **NO** (Already completed locally) | Trained with per-run EWMA smoothing ($\lambda = 0.1$). Closed-form SVD takes **~25s on CPU**. |
+| **3. InternVL3-2B LoRA Adapter** (`outputs/tep_rca_adapter/`) | Target for Upgrade | **YES (for LLM Adapter only)** | Base model changed to `OpenGVLab/InternVL3-2B`. LoRA delta weights are base-model specific. Takes **~12 min on GPU**. Sensor detector continues to run deterministically with fallback reports if LLM is disabled. |
 
 ---
 
@@ -100,13 +100,13 @@ python scripts/train_anomaly_detector.py --config configs/config.yaml
 
 ---
 
-### Step 4 (Optional): Fine-Tune InternVL2-2B LoRA Adapter (`tep_rca`)
-*(Only needed if you want the LLM to generate natural-language root-cause reports using the updated dynamic evidence schema).*
+### Step 4: Fine-Tune InternVL3-2B LoRA Adapter (`tep_rca`)
+*(Required to update the LLM adapter to InternVL3-2B).*
 ```bash
-# 1. Generate instruction dataset from real fault evidence
+# 1. Generate instruction dataset from real fault evidence (if not already generated)
 python scripts/generate_llm_dataset.py --config configs/config.yaml --samples-per-fault 8
 
-# 2. Fine-tune the tep_rca adapter on InternVL2-2B (4-bit QLoRA)
+# 2. Fine-tune the tep_rca adapter on InternVL3-2B (4-bit QLoRA)
 python scripts/train_tep_adapter.py --config configs/config.yaml
 ```
 * **Execution Time**: $\sim 12 - 14$ minutes on Colab T4 GPU ($\sim 5$ minutes on A100 / RTX A5000).
