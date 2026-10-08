@@ -1,40 +1,432 @@
 {
-  "threshold": 0.6873631477355957,
-  "precision": 0.9999569773850492,
-  "recall": 0.7564029131867605,
-  "f1": 0.8612931493319753,
-  "false_positive_rate": 0.014232209737827715,
-  "false_negative_rate": 0.24359708681323952,
-  "auroc": 0.886111065599499,
-  "auprc": 0.9997168928110298,
-  "tp": 2208046,
-  "fp": 95,
-  "tn": 6580,
-  "fn": 711094,
-  "n_normal_test_windows": 6675,
-  "n_fault_windows": 2919780,
-  "detection_delay_samples": {
-    "fault_01": 0,
-    "fault_02": 0,
-    "fault_03": 35,
-    "fault_04": 0,
-    "fault_05": 0,
-    "fault_06": 0,
-    "fault_07": 0,
-    "fault_08": 0,
-    "fault_09": 35,
-    "fault_10": 0,
-    "fault_11": 0,
-    "fault_12": 0,
-    "fault_13": 0,
-    "fault_14": 0,
-    "fault_15": 35,
-    "fault_16": 0,
-    "fault_17": 15,
-    "fault_18": 5,
-    "fault_19": 0,
-    "fault_20": 0
+  "threshold": 1.85,
+  "dynamic_thresholds": {
+    "cva": {
+      "T2": 95.40831708116153,
+      "Q": 204.53034049815352,
+      "Tr": 204.53034049815372
+    },
+    "dpca": {
+      "T2": 106.42614794643004,
+      "SPE": 25.110689576182768
+    }
   },
-  "mean_detection_delay_samples": 6.25,
-  "missed_faults": 0
+  "realised_far": {
+    "lstm_ae": 0.0,
+    "cva_T2": 0.004206098843322818,
+    "cva_Q": 0.011146161934805467,
+    "cva_Tr": 0.011146161934805467,
+    "dpca_T2": 0.008150470219435737,
+    "dpca_SPE": 0.009195402298850575,
+    "fused": 0.011146161934805443
+  },
+  "per_fault": {
+    "1": {
+      "lstm_ae": {
+        "fdr": 1.0,
+        "delay": 0.0,
+        "n_windows": 745,
+        "delays_per_run": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cva": {
+        "T2": {
+          "fdr": 0.9949748743718593,
+          "delay": 4.0,
+          "n_samples": 3980
+        },
+        "Q": {
+          "fdr": 0.9969849246231156,
+          "delay": 2.4,
+          "n_samples": 3980
+        },
+        "Tr": {
+          "fdr": 0.9969849246231156,
+          "delay": 2.4,
+          "n_samples": 3980
+        }
+      },
+      "cva_primary": {
+        "fdr": 0.9969849246231156,
+        "delay": 2.4,
+        "n_samples": 3980
+      },
+      "dpca": {
+        "T2": {
+          "fdr": 0.991,
+          "delay": 7.2,
+          "n_samples": 4000
+        },
+        "SPE": {
+          "fdr": 0.99575,
+          "delay": 3.4,
+          "n_samples": 4000
+        }
+      },
+      "dpca_primary": {
+        "fdr": 0.99575,
+        "delay": 3.4,
+        "n_samples": 4000
+      },
+      "fused": {
+        "fdr": 1.0,
+        "delay": 0.0
+      }
+    },
+    "3": {
+      "lstm_ae": {
+        "fdr": 0.0,
+        "delay": null,
+        "n_windows": 745,
+        "delays_per_run": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "cva": {
+        "T2": {
+          "fdr": 0.004020100502512563,
+          "delay": 434.3333333333333,
+          "n_samples": 3980
+        },
+        "Q": {
+          "fdr": 0.02085427135678392,
+          "delay": 108.0,
+          "n_samples": 3980
+        },
+        "Tr": {
+          "fdr": 0.02085427135678392,
+          "delay": 108.0,
+          "n_samples": 3980
+        }
+      },
+      "cva_primary": {
+        "fdr": 0.02085427135678392,
+        "delay": 108.0,
+        "n_samples": 3980
+      },
+      "dpca": {
+        "T2": {
+          "fdr": 0.00675,
+          "delay": 294.5,
+          "n_samples": 4000
+        },
+        "SPE": {
+          "fdr": 0.01225,
+          "delay": 465.75,
+          "n_samples": 4000
+        }
+      },
+      "dpca_primary": {
+        "fdr": 0.01225,
+        "delay": 465.75,
+        "n_samples": 4000
+      },
+      "fused": {
+        "fdr": 0.02085427135678397,
+        "delay": 108.0
+      }
+    },
+    "9": {
+      "lstm_ae": {
+        "fdr": 0.0,
+        "delay": null,
+        "n_windows": 745,
+        "delays_per_run": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "cva": {
+        "T2": {
+          "fdr": 0.014824120603015075,
+          "delay": 389.75,
+          "n_samples": 3980
+        },
+        "Q": {
+          "fdr": 0.02864321608040201,
+          "delay": 152.33333333333334,
+          "n_samples": 3980
+        },
+        "Tr": {
+          "fdr": 0.02864321608040201,
+          "delay": 152.33333333333334,
+          "n_samples": 3980
+        }
+      },
+      "cva_primary": {
+        "fdr": 0.02864321608040201,
+        "delay": 152.33333333333334,
+        "n_samples": 3980
+      },
+      "dpca": {
+        "T2": {
+          "fdr": 0.0075,
+          "delay": 221.33333333333334,
+          "n_samples": 4000
+        },
+        "SPE": {
+          "fdr": 0.01275,
+          "delay": 465.75,
+          "n_samples": 4000
+        }
+      },
+      "dpca_primary": {
+        "fdr": 0.01275,
+        "delay": 465.75,
+        "n_samples": 4000
+      },
+      "fused": {
+        "fdr": 0.02864321608040199,
+        "delay": 152.33333333333334
+      }
+    },
+    "15": {
+      "lstm_ae": {
+        "fdr": 0.0,
+        "delay": null,
+        "n_windows": 745,
+        "delays_per_run": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "cva": {
+        "T2": {
+          "fdr": 0.04120603015075377,
+          "delay": 305.0,
+          "n_samples": 3980
+        },
+        "Q": {
+          "fdr": 0.8263819095477387,
+          "delay": 12.4,
+          "n_samples": 3980
+        },
+        "Tr": {
+          "fdr": 0.8263819095477387,
+          "delay": 12.4,
+          "n_samples": 3980
+        }
+      },
+      "cva_primary": {
+        "fdr": 0.8263819095477387,
+        "delay": 12.4,
+        "n_samples": 3980
+      },
+      "dpca": {
+        "T2": {
+          "fdr": 0.01475,
+          "delay": 220.66666666666666,
+          "n_samples": 4000
+        },
+        "SPE": {
+          "fdr": 0.014,
+          "delay": 410.0,
+          "n_samples": 4000
+        }
+      },
+      "dpca_primary": {
+        "fdr": 0.014,
+        "delay": 410.0,
+        "n_samples": 4000
+      },
+      "fused": {
+        "fdr": 0.8263819095477387,
+        "delay": 12.4
+      }
+    }
+  },
+  "highlight_3_9_15": {
+    "3": {
+      "lstm_ae": {
+        "fdr": 0.0,
+        "delay": null,
+        "n_windows": 745,
+        "delays_per_run": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "cva": {
+        "T2": {
+          "fdr": 0.004020100502512563,
+          "delay": 434.3333333333333,
+          "n_samples": 3980
+        },
+        "Q": {
+          "fdr": 0.02085427135678392,
+          "delay": 108.0,
+          "n_samples": 3980
+        },
+        "Tr": {
+          "fdr": 0.02085427135678392,
+          "delay": 108.0,
+          "n_samples": 3980
+        }
+      },
+      "cva_primary": {
+        "fdr": 0.02085427135678392,
+        "delay": 108.0,
+        "n_samples": 3980
+      },
+      "dpca": {
+        "T2": {
+          "fdr": 0.00675,
+          "delay": 294.5,
+          "n_samples": 4000
+        },
+        "SPE": {
+          "fdr": 0.01225,
+          "delay": 465.75,
+          "n_samples": 4000
+        }
+      },
+      "dpca_primary": {
+        "fdr": 0.01225,
+        "delay": 465.75,
+        "n_samples": 4000
+      },
+      "fused": {
+        "fdr": 0.02085427135678397,
+        "delay": 108.0
+      }
+    },
+    "9": {
+      "lstm_ae": {
+        "fdr": 0.0,
+        "delay": null,
+        "n_windows": 745,
+        "delays_per_run": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "cva": {
+        "T2": {
+          "fdr": 0.014824120603015075,
+          "delay": 389.75,
+          "n_samples": 3980
+        },
+        "Q": {
+          "fdr": 0.02864321608040201,
+          "delay": 152.33333333333334,
+          "n_samples": 3980
+        },
+        "Tr": {
+          "fdr": 0.02864321608040201,
+          "delay": 152.33333333333334,
+          "n_samples": 3980
+        }
+      },
+      "cva_primary": {
+        "fdr": 0.02864321608040201,
+        "delay": 152.33333333333334,
+        "n_samples": 3980
+      },
+      "dpca": {
+        "T2": {
+          "fdr": 0.0075,
+          "delay": 221.33333333333334,
+          "n_samples": 4000
+        },
+        "SPE": {
+          "fdr": 0.01275,
+          "delay": 465.75,
+          "n_samples": 4000
+        }
+      },
+      "dpca_primary": {
+        "fdr": 0.01275,
+        "delay": 465.75,
+        "n_samples": 4000
+      },
+      "fused": {
+        "fdr": 0.02864321608040199,
+        "delay": 152.33333333333334
+      }
+    },
+    "15": {
+      "lstm_ae": {
+        "fdr": 0.0,
+        "delay": null,
+        "n_windows": 745,
+        "delays_per_run": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "cva": {
+        "T2": {
+          "fdr": 0.04120603015075377,
+          "delay": 305.0,
+          "n_samples": 3980
+        },
+        "Q": {
+          "fdr": 0.8263819095477387,
+          "delay": 12.4,
+          "n_samples": 3980
+        },
+        "Tr": {
+          "fdr": 0.8263819095477387,
+          "delay": 12.4,
+          "n_samples": 3980
+        }
+      },
+      "cva_primary": {
+        "fdr": 0.8263819095477387,
+        "delay": 12.4,
+        "n_samples": 3980
+      },
+      "dpca": {
+        "T2": {
+          "fdr": 0.01475,
+          "delay": 220.66666666666666,
+          "n_samples": 4000
+        },
+        "SPE": {
+          "fdr": 0.014,
+          "delay": 410.0,
+          "n_samples": 4000
+        }
+      },
+      "dpca_primary": {
+        "fdr": 0.014,
+        "delay": 410.0,
+        "n_samples": 4000
+      },
+      "fused": {
+        "fdr": 0.8263819095477387,
+        "delay": 12.4
+      }
+    }
+  },
+  "overall": {
+    "lstm_ae_mean_fdr": 0.25
+  },
+  "false_positive_rate": 0.0,
+  "auroc": null,
+  "auprc": null
 }

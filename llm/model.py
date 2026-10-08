@@ -1,6 +1,6 @@
-"""InternVL2-2B loading + single LoRA/QLoRA adapter setup ("tep_rca").
+"""InternVL3-2B / InternVL2-2B loading + single LoRA/QLoRA adapter setup ("tep_rca").
 
-Only the ORIGINAL pretrained InternVL2-2B is ever loaded as the base. The base
+Only the ORIGINAL pretrained base model is ever loaded. The base
 model stays frozen; only ``tep_rca`` parameters are trainable. Before training
 the loader prints the required header and FAILS if any unexpected adapter is
 found on the base model.
@@ -20,13 +20,14 @@ logger = logging.getLogger(__name__)
 
 ADAPTER_NAME = "tep_rca"
 
-# InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B. The hub snapshot uses
-# fused QKV attention (wqkv) + outlook (wo) and MLP projections named
-# w1/w3/w2 (see modeling_internlm2.py within the snapshot). These are the
-# exact linear layer names that receive LoRA adapters.
-INTERNLM2_LORA_TARGETS = [
+# Target linear projection layer names for InternVL architectures (InternLM2 / Qwen backbones).
+# These cover attention projections (q, k, v, o / wqkv, wo) and MLP projections (gate, up, down / w1, w2, w3).
+LORA_TARGET_MODULES = [
+    "q_proj", "k_proj", "v_proj", "o_proj",
+    "gate_proj", "up_proj", "down_proj",
     "wqkv", "wo", "w1", "w2", "w3",
 ]
+INTERNLM2_LORA_TARGETS = LORA_TARGET_MODULES
 
 # Adapter markers used by assert_no_adapter (fail on unexpected adapters).
 ADAPTER_MARKERS = ("lora_", "adalora_", "ia3_", "prefix_encoder", "prompt_encoder")
@@ -126,7 +127,7 @@ def load_base_model(
     device_map: Union[str, Dict, None] = "auto",
     eval_mode: bool = False,
 ) -> Any:
-    """Load the ORIGINAL pretrained InternVL2-2B (frozen, no adapters).
+    """Load the ORIGINAL pretrained InternVL3-2B / InternVL2-2B (frozen, no adapters).
 
     Args:
         config: merged configuration dict.
@@ -205,7 +206,7 @@ def _check_base_dir_for_adapter(base_path: str) -> None:
         if (path / candidate).exists():
             raise RuntimeError(
                 f"Unexpected adapter file '{candidate}' found in base model "
-                f"directory {path}. Base must be the original InternVL2-2B."
+                f"directory {path}. Base must be the original pretrained base model."
             )
 
 

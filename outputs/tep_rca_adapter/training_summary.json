@@ -1,11 +1,18 @@
 {
   "adapter_name": "tep_rca",
-  "base_model": "OpenGVLab/InternVL2-2B",
+  "base_model": "OpenGVLab/InternVL3-2B",
   "lora": {
     "r": 16,
     "alpha": 32,
     "dropout": 0.05,
     "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj",
       "wqkv",
       "wo",
       "w1",
@@ -35,6 +42,7 @@
     "eval_steps": 200,
     "save_total_limit": 2,
     "dataloader_num_workers": 2,
+    "optim": null,
     "train_faults": [
       1,
       2,

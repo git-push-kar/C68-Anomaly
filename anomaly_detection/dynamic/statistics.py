@@ -27,11 +27,11 @@ def empirical_threshold(
 def apply_ewma(x: np.ndarray, lam: float = 0.1) -> np.ndarray:
     """EWMA smoothing: s_t = lam*x_t + (1-lam)*s_{t-1}, s_0 = x_0."""
     x = np.asarray(x, dtype=np.float64)
-    if x.size == 0:
+    if len(x) == 0:
         return x
     s = np.empty_like(x, dtype=np.float64)
     s[0] = x[0]
-    for t in range(1, x.size):
+    for t in range(1, len(x)):
         s[t] = lam * x[t] + (1.0 - lam) * s[t - 1]
     return s
 
@@ -41,14 +41,14 @@ def apply_cusum(
 ) -> np.ndarray:
     """Two-sided CUSUM. Returns cumulative sum statistic; threshold at h."""
     x = np.asarray(x, dtype=np.float64)
-    if x.size == 0:
+    if len(x) == 0:
         return x
     if target is None:
         target = float(np.mean(x))
     g_pos = np.zeros_like(x, dtype=np.float64)
     g_neg = np.zeros_like(x, dtype=np.float64)
     s = np.zeros_like(x, dtype=np.float64)
-    for t in range(1, x.size):
+    for t in range(1, len(x)):
         g_pos[t] = max(0.0, g_pos[t - 1] + x[t] - target - k)
         g_neg[t] = max(0.0, g_neg[t - 1] + target - x[t] - k)
         s[t] = max(g_pos[t], g_neg[t])
@@ -62,11 +62,14 @@ def smooth_stats(
     cusum_k: float = 0.5,
     cusum_h: float = 5.0,
 ) -> Dict[str, np.ndarray]:
-    """Apply smoothing to each statistic stream."""
+    """Apply smoothing to each statistic stream (1D stats only)."""
     if mode == "none" or mode is None:
         return stats
     out: Dict[str, np.ndarray] = {}
     for name, arr in stats.items():
+        if arr.ndim > 1:
+            out[name] = arr
+            continue
         if mode == "ewma":
             out[name] = apply_ewma(arr, lam=ewma_lambda)
         elif mode == "cusum":

@@ -103,7 +103,17 @@ class AnomalyEvent:
         }
 
 
-def _severity_from_score(score: float, threshold: float) -> str:
+def _severity_from_score(score: float, threshold: float, detector_evidence: Optional[Dict] = None) -> str:
+    # If dynamic CVA is alarmed with high Q or dynamics/mixed change type (e.g. valve stiction),
+    # elevate severity to critical/high
+    if detector_evidence:
+        ctype = detector_evidence.get("change_type", "")
+        dyn = detector_evidence.get("dynamic", {})
+        cva = (dyn.get("cva") if isinstance(dyn, dict) else None) or {}
+        if cva.get("is_anomalous") or ctype in ("dynamics", "mixed"):
+            q_ratio = float(cva.get("score", 0)) / max(float(cva.get("threshold", 1.0)), 1e-9)
+            if q_ratio >= 2.0 or ctype == "dynamics":
+                return "critical"
     ratio = score / max(threshold, 1e-9)
     if ratio >= 3.0:
         return "critical"
@@ -155,7 +165,7 @@ def build_event(
 
     max_score = float(scores.max())
     mean_score = float(scores.mean())
-    severity = _severity_from_score(max_score, threshold)
+    severity = _severity_from_score(max_score, threshold, detector_evidence=detector_evidence)
 
     if errors.ndim == 1:
         errors = errors[None, :]

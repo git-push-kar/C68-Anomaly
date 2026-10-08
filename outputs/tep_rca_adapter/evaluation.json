@@ -1,14 +1,14 @@
 {
   "top_k": 3,
-  "samples": "fresh_20perFault_seed42",
-  "large_test_per_fault": 20,
+  "samples": "fresh_40perFault_seed42",
+  "large_test_per_fault": 40,
   "metrics": {
-    "n_samples": 40,
+    "n_samples": 80,
     "root_cause_accuracy": 0.5,
     "fault_classification_accuracy": 1.0,
-    "severity_accuracy": 0.325,
-    "evidence_consistency": 1.0,
-    "hallucination_rate": 0.0,
+    "severity_accuracy": 0.0,
+    "evidence_consistency": 0.55,
+    "hallucination_rate": 0.45,
     "hedged_reasoning_rate": 1.0,
     "recommendation_rate": 1.0,
     "json_validity_rate": 1.0,
@@ -18,16 +18,223 @@
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.86,
+      "severity": "medium",
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.83,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.88,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.83,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.83,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.81,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
       "severity": "high",
       "confidence": 0.88,
@@ -36,25 +243,106 @@
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
       "severity": "high",
-      "confidence": 0.86,
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
       "severity": "medium",
-      "confidence": 0.86,
+      "confidence": 0.73,
       "parsed": true
     },
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.72,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.88,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
+      "affected_subsystem": "condenser_cooling_system",
+      "severity": "high",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 15,
+      "fault_name": "Condenser cooling water valve sticking",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
       "severity": "high",
       "confidence": 0.88,
@@ -63,316 +351,388 @@
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.86,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.86,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.88,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.88,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.88,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.86,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.86,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.86,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.88,
+      "severity": "medium",
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 15,
       "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
+      "root_cause": "Condenser cooling water inlet temperature step change",
       "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.92,
-      "parsed": true
-    },
-    {
-      "fault_id": 15,
-      "fault_name": "Condenser cooling water valve sticking",
-      "root_cause": "Condenser cooling water inlet temperature random variation",
-      "affected_subsystem": "condenser_cooling_system",
-      "severity": "high",
-      "confidence": 0.88,
+      "severity": "medium",
+      "confidence": 0.73,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
+      "root_cause": "A_C feed concentration step change",
       "affected_subsystem": "feed_system",
-      "severity": "high",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed composition step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.83,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "C header pressure loss (reduced availability)",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.81,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.78,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed composition step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.83,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "C header pressure loss (reduced availability)",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "C header pressure loss (reduced availability)",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.81,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.76,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed composition step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.78,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed composition step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
       "confidence": 0.86,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A/C feed ratio step change",
+      "root_cause": "A_C feed composition step change",
       "affected_subsystem": "feed_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A loss of A_C_Feed_Flow reduces C feed availability",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A/C feed ratio step change",
+      "root_cause": "A_C feed concentration step change",
       "affected_subsystem": "feed_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A/C feed ratio step change",
+      "root_cause": "A_C feed concentration step change",
       "affected_subsystem": "feed_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.78,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A/C feed ratio step change",
+      "root_cause": "A_C feed composition step change",
       "affected_subsystem": "feed_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
+      "root_cause": "A_C feed composition step change",
       "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.85,
+      "severity": "medium",
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
+      "root_cause": "A_C feed concentration step change",
       "affected_subsystem": "feed_system",
-      "severity": "high",
+      "severity": "medium",
       "confidence": 0.86,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A/C feed ratio step change",
+      "root_cause": "A_C feed composition step change",
       "affected_subsystem": "feed_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.84,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.86,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.86,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A/C feed ratio step change",
+      "root_cause": "A_C feed concentration step change",
       "affected_subsystem": "feed_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.78,
       "parsed": true
     },
     {
       "fault_id": 21,
       "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A loss of A_C_Feed_Flow reduces C feed availability",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.88,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.85,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A feed loss (stream 1)",
-      "affected_subsystem": "feed_system",
-      "severity": "high",
-      "confidence": 0.88,
-      "parsed": true
-    },
-    {
-      "fault_id": 21,
-      "fault_name": "Valve position stuck (stream 4)",
-      "root_cause": "A/C feed ratio step change",
+      "root_cause": "A_C feed concentration step change",
       "affected_subsystem": "feed_system",
       "severity": "medium",
-      "confidence": 0.85,
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.74,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed composition step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.76,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "C header pressure loss (reduced availability)",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.78,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed composition step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.84,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.76,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed concentration step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.73,
+      "parsed": true
+    },
+    {
+      "fault_id": 21,
+      "fault_name": "Valve position stuck (stream 4)",
+      "root_cause": "A_C feed composition step change",
+      "affected_subsystem": "feed_system",
+      "severity": "medium",
+      "confidence": 0.72,
       "parsed": true
     }
   ],

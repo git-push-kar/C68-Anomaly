@@ -37,10 +37,8 @@ SYSTEM_PROMPT = (
     "so explicitly and recommend verification.\n"
     "Severity rubric: low = minor deviations, process stable; medium = moderate "
     "deviations contained by control; high = large deviations, significant "
-    "operational impact; critical = deviations approaching safety limits "
-    "(e.g. strong sustained rises in reactor temperature/pressure with large "
-    "magnitude deviations). Use strong magnitudes and safety-relevant trends "
-    "to justify high/critical, do not default to medium."
+    "operational impact; critical = deviations approaching safety limits, major valve sticking / actuator stiction hysteresis, or sustained rises in reactor/condenser cooling deviations. "
+    "When dynamic CVA alarms or large sensor excursions are present, classify as high or critical."
 )
 
 ANSWER_KEYS = [

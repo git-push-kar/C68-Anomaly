@@ -1,4 +1,4 @@
-"""InternVL2-2B + tep_rca inference: automatic reports and follow-up answers.
+"""InternVL3-2B / InternVL2-2B + tep_rca inference: automatic reports and follow-up answers.
 
 This module is the LLM-facing half of the pipeline. It receives structured
 anomaly events (never raw sensor series) and returns structured reports or

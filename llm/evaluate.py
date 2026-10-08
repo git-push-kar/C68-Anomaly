@@ -1,4 +1,4 @@
-"""Evaluation of the InternVL2-2B ``tep_rca`` adapter.
+"""Evaluation of the InternVL3-2B / InternVL2-2B ``tep_rca`` adapter.
 
 Independent of the anomaly detector. Runs the adapter over held-out fault
 scenarios and scores:

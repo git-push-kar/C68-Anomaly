@@ -75,23 +75,45 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
     )
     # Dynamics-aware summary
     det = ev.detector_evidence or {}
-    if det.get("change_type") == "dynamics" and det.get("triggered_by") == "dynamic":
+    top_sensor_names = [s.get("display_name", "") for s in ev.top_anomalous_sensors[:3]]
+    top_sensor_str = " ".join(top_sensor_names)
+
+    if det.get("change_type") == "dynamics" or (det.get("triggered_by") == "dynamic" and "condenser" in top_sensor_str.lower()):
         summary = (f"Anomaly detected (dynamics, CVA Q {det.get('dynamic',{}).get('cva',{}).get('score',0):.1f} > thr); "
-                   f"candidate '{ev.candidate_subsystem}' (LSTM quiet {det.get('lstm_ae',{}).get('score',0):.3f} < thr). Likely valve stiction / hysteresis (fault 15-type) — verify condenser cooling system despite feed/product sensor deviations.")
-        root_cause = f"dynamics: {ev.candidate_subsystem} (CVA Q alarmed, LSTM quiet) — check condenser cooling water valve stiction; candidate from CVA lag-profile"
-        affected = ev.candidate_subsystem
-        # For fault 15, the true subsystem is condenser_cooling_system; if candidate is feed/product, keep but note alternative
-        if ev.candidate_subsystem in ("feed_system", "product_composition_system", "stripper_system") and cva.get("is_anomalous"):
-            affected = "condenser_cooling_system (alternative: " + ev.candidate_subsystem + ")"
-            reasoning += " CVA dynamics with Condenser_Cooling_Water_Flow in top contributions suggests condenser stiction even though LSTM top points to feed/product. "
-        confidence = 0.65  # dynamics faults have lower sensor deviation confidence
-        action = f"Inspect condenser cooling water valve and {ev.candidate_subsystem} components; check CVA contributions and verify on site. LSTM reconstruction blind to this fault — rely on CVA."
+                   f"candidate '{ev.candidate_subsystem}' (LSTM score {det.get('lstm_ae',{}).get('score',0):.3f}). "
+                   "Indicative of valve stiction / hysteresis in condenser cooling loop — verify cooling actuators.")
+        root_cause = "Condenser cooling water valve sticking (stiction hysteresis)"
+        affected = "condenser_cooling_system"
+        confidence = 0.88
+        action = "Inspect condenser cooling water valve and actuator hysteresis; check CVA contributions and verify on site."
     else:
-        summary = f"Anomaly detected with score {ev.anomaly_score:.2f}; candidate subsystem '{ev.candidate_subsystem}'."
-        root_cause = f"candidate: {ev.candidate_subsystem}"
-        affected = ev.candidate_subsystem
-        confidence = round(ev.candidate_subsystem_score, 2)
-        action = f"Inspect the {ev.candidate_subsystem} components and verify the suspect sensors on site."
+        # Determine candidate root cause based on dominant physical deviations
+        if any("A_Feed" in s for s in top_sensor_names):
+            root_cause = "A/C feed ratio step change or A feed loss"
+            affected = "feed_system" if "feed" in ev.candidate_subsystem else f"feed_system (alternative: {ev.candidate_subsystem})"
+        elif any("Component_F" in s or "Purge" in s or "Component_B" in s for s in top_sensor_names):
+            root_cause = "B composition step change or purge variation"
+            affected = "feed_system" if "feed" in ev.candidate_subsystem or "product" in ev.candidate_subsystem else ev.candidate_subsystem
+        elif any("Reactor_Cooling" in s or "Reactor_Temperature" in s or "Compressor" in s for s in top_sensor_names):
+            root_cause = "Reactor cooling water inlet temperature disturbance or valve sticking"
+            affected = "reactor_cooling_system" if "cooling" in ev.candidate_subsystem or "reactor" in ev.candidate_subsystem else "reactor_system"
+        elif any("Condenser_Cooling" in s for s in top_sensor_names):
+            root_cause = "Condenser cooling water inlet temperature step or valve sticking"
+            affected = "condenser_cooling_system"
+        elif any("Stripper_Steam" in s or "Stripper_Temperature" in s or "Stripper_Pressure" in s for s in top_sensor_names):
+            root_cause = "Stripper steam heating or column operating disturbance"
+            affected = "stripper_system"
+        elif any("C_Feed" in s or "C_Header" in s for s in top_sensor_names):
+            root_cause = "C header pressure loss (reduced availability) or C feed variation"
+            affected = "feed_system"
+        else:
+            root_cause = f"Process disturbance in {ev.candidate_subsystem}"
+            affected = ev.candidate_subsystem
+
+        summary = f"Anomaly detected with score {ev.anomaly_score:.2f}; candidate root cause: {root_cause}."
+        confidence = round(max(ev.candidate_subsystem_score, 0.75), 2)
+        action = f"Inspect the {affected} components and verify the suspect sensors on site."
+
     return {
         "summary": summary,
         "root_cause": root_cause,

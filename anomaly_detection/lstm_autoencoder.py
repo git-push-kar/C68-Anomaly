@@ -57,10 +57,7 @@ class LSTMEncoder(nn.Module):
 class LSTMDecoder(nn.Module):
     """Decode a latent vector back into a [B, W, F] sequence.
 
-    The decoder receives the latent as its initial hidden/cell state and as the
-    repeated per-step input. Feeding zeros at every step often collapses to a
-    mean reconstruction on standardized sensor data, because the decoder has
-    very little signal after initialization.
+    Supports both current repeated-latent input and legacy zero-input checkpoints.
     """
 
     def __init__(
@@ -71,6 +68,8 @@ class LSTMDecoder(nn.Module):
         latent_dim: int,
         sequence_length: int,
         dropout: float = 0.0,
+        use_cell_proj: bool = True,
+        decoder_input_dim: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.num_features = num_features
@@ -78,10 +77,17 @@ class LSTMDecoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.latent_dim = latent_dim
+        self.use_cell_proj = use_cell_proj
         self.latent_proj = nn.Linear(latent_dim, hidden_size * num_layers)
-        self.cell_proj = nn.Linear(latent_dim, hidden_size * num_layers)
+        if use_cell_proj:
+            self.cell_proj = nn.Linear(latent_dim, hidden_size * num_layers)
+        else:
+            self.cell_proj = None
+
+        in_size = decoder_input_dim if decoder_input_dim is not None else (latent_dim if use_cell_proj else num_features)
+        self.decoder_input_dim = in_size
         self.lstm = nn.LSTM(
-            input_size=latent_dim,
+            input_size=in_size,
             hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
@@ -92,8 +98,18 @@ class LSTMDecoder(nn.Module):
     def forward(self, latent: torch.Tensor) -> torch.Tensor:
         batch = latent.shape[0]
         h0 = self.latent_proj(latent).view(self.num_layers, batch, self.hidden_size)
-        c0 = self.cell_proj(latent).view(self.num_layers, batch, self.hidden_size)
-        decoder_input = latent[:, None, :].repeat(1, self.sequence_length, 1)
+        if self.cell_proj is not None:
+            c0 = self.cell_proj(latent).view(self.num_layers, batch, self.hidden_size)
+        else:
+            c0 = torch.zeros_like(h0)
+
+        if self.decoder_input_dim == self.latent_dim and self.use_cell_proj:
+            decoder_input = latent[:, None, :].repeat(1, self.sequence_length, 1)
+        else:
+            decoder_input = torch.zeros(
+                batch, self.sequence_length, self.decoder_input_dim,
+                device=latent.device, dtype=latent.dtype,
+            )
         out, _ = self.lstm(decoder_input, (h0, c0))
         return self.out_proj(out)
 
@@ -108,6 +124,8 @@ class LSTMAutoencoder(nn.Module):
         latent_dim: int = 16,
         dropout: float = 0.1,
         bidirectional_encoder: bool = False,
+        use_cell_proj: bool = True,
+        decoder_input_dim: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.num_features = num_features
@@ -118,6 +136,7 @@ class LSTMAutoencoder(nn.Module):
         )
         self.decoder = LSTMDecoder(
             num_features, hidden_size, num_layers, latent_dim, sequence_length, dropout,
+            use_cell_proj=use_cell_proj, decoder_input_dim=decoder_input_dim,
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -128,7 +147,13 @@ class LSTMAutoencoder(nn.Module):
         return self.encoder(x)
 
 
-def build_autoencoder(config: Dict, num_features: int, sequence_length: int) -> LSTMAutoencoder:
+def build_autoencoder(
+    config: Dict,
+    num_features: int,
+    sequence_length: int,
+    use_cell_proj: bool = True,
+    decoder_input_dim: Optional[int] = None,
+) -> LSTMAutoencoder:
     """Instantiate an LSTMAutoencoder from the ``anomaly_detector.lstm`` config."""
     lstm_cfg = config["anomaly_detector"]["lstm"]
     return LSTMAutoencoder(
@@ -139,4 +164,6 @@ def build_autoencoder(config: Dict, num_features: int, sequence_length: int) -> 
         latent_dim=int(lstm_cfg.get("latent_dim", 16)),
         dropout=float(lstm_cfg.get("dropout", 0.1)),
         bidirectional_encoder=bool(lstm_cfg.get("bidirectional_encoder", False)),
+        use_cell_proj=use_cell_proj,
+        decoder_input_dim=decoder_input_dim,
     )

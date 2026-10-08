@@ -1,4 +1,4 @@
-"""Verify the trained ``tep_rca`` adapter on a fresh ORIGINAL InternVL2-2B.
+"""Verify the trained ``tep_rca`` adapter on a fresh ORIGINAL InternVL3-2B / InternVL2-2B.
 
 Loads a fresh base model, attaches ONLY the tep_rca adapter, creates a sample
 anomaly event (matching the automatic pipeline's evidence format), generates an
@@ -74,7 +74,7 @@ def main() -> None:
     base = args.base_model or config["llm"]["base_model"]
     adapter = args.adapter or config["llm"]["adapter_dir"]
 
-    print(f"\nLoading FRESH original InternVL2-2B from {base}")
+    print(f"\nLoading FRESH original base model from {base}")
     print(f"Attaching ONLY the tep_rca adapter from {adapter}\n")
 
     inference = RCAInference.from_adapter(base_model=base, adapter_path=adapter, config=config)
