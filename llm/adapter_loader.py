@@ -23,6 +23,23 @@ logger = logging.getLogger(__name__)
 ADAPTER_NAME = "tep_rca"
 
 
+def resolve_adapter_dir(adapter_path: str, adapter_name: str = ADAPTER_NAME) -> Optional[Path]:
+    """Return the directory containing ``adapter_config.json`` or None.
+
+    Canonical training output (``Trainer.save_model`` on a PeftModel) is
+    ``<adapter_dir>/<adapter_name>/adapter_config.json``. A legacy flat layout
+    keeps ``<adapter_dir>/adapter_config.json``. Prefer the nested layout when
+    both exist (the flat root file may be a stale copy from an older run).
+    """
+    adapter_path = Path(adapter_path)
+    nested = adapter_path / adapter_name
+    if (nested / "adapter_config.json").exists():
+        return nested
+    if (adapter_path / "adapter_config.json").exists():
+        return adapter_path
+    return None
+
+
 def load_tep_adapter(
     base_model: str,
     adapter_path: str,
@@ -49,12 +66,10 @@ def load_tep_adapter(
     adapter_path = Path(adapter_path)
     # Trainer.save_model on a PeftModel writes the adapter under
     # <adapter_name>/adapter_config.json; a plain save puts it at the root.
-    nested = adapter_path / adapter_name
-    if (adapter_path / "adapter_config.json").exists():
-        peft_dir = adapter_path
-    elif (nested / "adapter_config.json").exists():
-        peft_dir = nested
-    else:
+    # Prefer the nested (canonical) layout; fall back to the legacy flat copy.
+    peft_dir = resolve_adapter_dir(adapter_path, adapter_name)
+    if peft_dir is None:
+        nested = adapter_path / adapter_name
         raise FileNotFoundError(
             f"No adapter_config.json in {adapter_path} (or {nested}); "
             "is this a trained tep_rca adapter?"

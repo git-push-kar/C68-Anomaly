@@ -150,12 +150,15 @@ class TEPApp:
         # --- LLM (tep_rca adapter) is optional at runtime -------------------
         self.rca = None
         adapter_dir = Path(self.config["llm"]["adapter_dir"])
-        if enable_llm and (adapter_dir / "adapter_config.json").exists():
+        adapter_name = self.config["llm"].get("adapter_name", "tep_rca")
+        from llm.adapter_loader import resolve_adapter_dir
+        peft_dir = resolve_adapter_dir(adapter_dir, adapter_name)
+        if enable_llm and peft_dir is not None:
             try:
                 from llm.inference import RCAInference
 
                 self.rca = RCAInference.from_adapter(config=self.config)
-                logger.info("InternVL2-2B + tep_rca adapter loaded.")
+                logger.info("InternVL2-2B + tep_rca adapter loaded from %s.", peft_dir)
             except Exception as exc:  # pragma: no cover - depends on hardware
                 logger.error("Failed to load LLM adapter (will use fallback reports): %s", exc)
         elif enable_llm:
