@@ -149,9 +149,9 @@ events:
 llm:
   # Base model path changed to point to your local fused model. 
   # Note: Ensure this path exactly matches the location of the folder in your screenshot!
-  base_model: "C:/Users/Dell/Desktop/internvl3_2b_lr_fused"
+  base_model: "./models/internvl3_2b_lr_fused"
   adapter_name: tep_rca
-  adapter_dir: outputs/tep_rca_adapter
+  adapter_dir: outputs/tep_rca_adapter_fused
   trust_remote_code: true
   use_flash_attn: false          # set true on A5000 if flash-attn installed
   dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
