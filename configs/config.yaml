@@ -147,7 +147,9 @@ events:
 #     and want speed over memory savings.
 # ---------------------------------------------------------------------
 llm:
-  base_model: OpenGVLab/InternVL3-2B
+  # Base model path changed to point to your local fused model. 
+  # Note: Ensure this path exactly matches the location of the folder in your screenshot!
+  base_model: "C:/Users/Dell/Desktop/internvl3_2b_lr_fused"
   adapter_name: tep_rca
   adapter_dir: outputs/tep_rca_adapter
   trust_remote_code: true
@@ -172,13 +174,13 @@ llm:
       - w2
       - w3
   training:
-    use_4bit: true               # QLoRA (bitsandbytes NF4 + double quant) - A5000 safe
+    use_4bit: false               # Disabled 4-bit for standard 16-bit LoRA
     bnb_4bit_quant_type: nf4
     bnb_4bit_use_double_quant: true
     fp16: false                  # never true together with bf16
     bf16: true                   # Ampere BF16 - optimal on RTX A5000
-    batch_size: 2                # A5000 FP16 alternative: 4
-    gradient_accumulation_steps: 8  # A5000 FP16 alternative: 4 (effective 16)
+    batch_size: 4                # Increased for 16-bit throughput
+    gradient_accumulation_steps: 4  # Adjusted to maintain effective batch size of 16
     num_epochs: 3
     learning_rate: 2.0e-4
     weight_decay: 0.01
