@@ -141,14 +141,22 @@ def format_evidence_question(evidence: Dict) -> str:
         lines.append("- (no strong sensor deviations detected)")
     lines.append("")
 
-    seq = evidence.get("temporal_sequence", {}).get("sequence", [])
+    raw_seq = evidence.get("temporal_sequence")
+    if isinstance(raw_seq, dict):
+        seq = [item for item in raw_seq.get("sequence", []) if isinstance(item, dict)]
+    elif isinstance(raw_seq, list):
+        seq = [item for item in raw_seq if isinstance(item, dict)]
+    else:
+        seq = []
+
     if seq:
         lines.append("Temporal sequence (propagation timeline):")
         for i, item in enumerate(seq, start=1):
             dt = float(item.get("relative_time_minutes", 0.0))
             tag = "initiating disturbance" if i == 1 and dt == 0.0 else f"+{dt:.1f} min cascade"
+            dname = item.get("display_name") or item.get("name", "Sensor")
             lines.append(
-                f"{i}. {item.get('display_name')} became anomalous ({tag})."
+                f"{i}. {dname} became anomalous ({tag})."
             )
     else:
         lines.append("Temporal sequence: (no clear onset ordering detected)")
@@ -157,7 +165,9 @@ def format_evidence_question(evidence: Dict) -> str:
     subsystem = evidence.get("candidate_subsystem", "unknown")
     lines.append(f"Candidate affected subsystem: {subsystem}")
 
-    context = evidence.get("pre_anomaly_context", {})
+    context = evidence.get("pre_anomaly_context")
+    if not isinstance(context, dict):
+        context = {}
     lines.append(
         f"Pre-anomaly context: {context.get('status', 'unknown')} "
         f"(baseline duration ~{context.get('duration_minutes', '?')} min)"

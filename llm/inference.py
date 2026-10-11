@@ -78,6 +78,10 @@ def extract_json_object(text: str) -> Optional[Dict]:
 
 def sanitize_answer(answer: Dict, evidence: Optional[Dict] = None) -> Dict:
     """Fill in missing answer keys so reports always match the schema."""
+    if not isinstance(answer, dict):
+        answer = {}
+    if evidence is not None and not isinstance(evidence, dict):
+        evidence = {}
     for key in ANSWER_KEYS:
         answer.setdefault(key, "" if key in ("summary", "root_cause",
                                              "affected_subsystem", "reasoning",
@@ -362,6 +366,11 @@ class RCAInference:
             "6. Answer in professional, factual engineering language. Do NOT emit special tokens (such as </s>) or repeat boilerplate text."
         )
 
+        if not isinstance(event, dict):
+            event = {}
+        if not isinstance(previous_report, dict):
+            previous_report = {}
+
         context = self._render_event_context(event, previous_report)
         ev_id = event.get("event_id", "UNKNOWN")
         rc = previous_report.get("root_cause", "Unknown")
@@ -373,12 +382,18 @@ class RCAInference:
         ]
 
         # Bound history to last 4 turns to keep context sharp and avoid attention drift
-        recent_history = history[-4:] if history else []
+        recent_history = history[-4:] if isinstance(history, list) else []
         for msg in recent_history:
-            role = msg.get("role")
-            content = msg.get("content")
+            if isinstance(msg, dict):
+                role = msg.get("role")
+                content = msg.get("content")
+            elif isinstance(msg, (list, tuple)) and len(msg) >= 2:
+                role = msg[0]
+                content = msg[1]
+            else:
+                continue
             if role in ("user", "assistant") and content:
-                messages.append((role, str(content)))
+                messages.append((str(role), str(content)))
 
         messages.append(("user", question))
         prompt = build_chat_prompt(chat_system_prompt, messages)
@@ -387,7 +402,7 @@ class RCAInference:
         # Use greedy decoding (do_sample=False) for grounded, deterministic engineering answers.
         return self._generate(
             prompt,
-            max_new_tokens=int(self._gen_config.get("max_new_tokens", 384)),
+            max_new_tokens=min(int(self._gen_config.get("max_new_tokens", 384)), 256),
             do_sample=False,
             repetition_penalty=1.12,
         )
@@ -400,10 +415,14 @@ class RCAInference:
         question: str,
     ) -> Optional[str]:
         """Detect and immediately answer common operational control-room questions (used in deterministic fallback)."""
+        if not isinstance(event, dict):
+            event = {}
+        if not isinstance(report, dict):
+            report = {}
         q = question.lower().strip()
         ev_id = event.get("event_id", "UNKNOWN")
-        evidence = event.get("evidence", {}) or {}
-        det_ev = evidence.get("detector_evidence", {}) or {}
+        evidence = event.get("evidence", {}) if isinstance(event.get("evidence"), dict) else {}
+        det_ev = evidence.get("detector_evidence", {}) if isinstance(evidence.get("detector_evidence"), dict) else {}
         sev = str(report.get("severity") or evidence.get("severity", "unknown")).upper()
         score = float(event.get("max_anomaly_score", evidence.get("anomaly_score", 0.0)))
         root_cause = report.get("root_cause", "Process disturbance")
@@ -420,14 +439,14 @@ class RCAInference:
         has_action = any(w in q for w in ("what should i do", "what to do", "action", "recommend", "how to fix", "provide a fix", "fix", "mitigat", "next step", "procedure"))
         has_overview = any(w in q for w in ("which anomaly", "what is this anomaly", "what anomaly", "which fault", "what fault", "fault number", "fault type", "what happened", "what is this", "overview", "root cause", "cause", "explain anomaly", "explain this anomaly", "diagnose", "summary"))
 
-        lstm = det_ev.get("lstm_ae") or {}
+        lstm = det_ev.get("lstm_ae") if isinstance(det_ev.get("lstm_ae"), dict) else {}
         l_sc = float(lstm.get("score", 0.0))
         l_th = float(lstm.get("threshold", 0.0))
         l_ratio = l_sc / max(l_th, 1e-9)
         l_alarm = "ALARMED (Active)" if lstm.get("is_anomalous") else "Normal (Below limit)"
 
-        dyn = det_ev.get("dynamic") or {}
-        cva = dyn.get("cva") or {}
+        dyn = det_ev.get("dynamic") if isinstance(det_ev.get("dynamic"), dict) else {}
+        cva = dyn.get("cva") if isinstance(dyn.get("cva"), dict) else {}
         q_sc = float(cva.get("score", 0.0))
         q_th = float(cva.get("threshold", 0.0))
         q_ratio = q_sc / max(q_th, 1e-9)
@@ -573,8 +592,12 @@ class RCAInference:
 
     @staticmethod
     def _render_event_context(event: Dict, previous_report: Dict) -> str:
-        evidence = event.get("evidence", {}) or {}
-        det_ev = evidence.get("detector_evidence", {}) or {}
+        if not isinstance(event, dict):
+            event = {}
+        if not isinstance(previous_report, dict):
+            previous_report = {}
+        evidence = event.get("evidence", {}) if isinstance(event.get("evidence"), dict) else {}
+        det_ev = evidence.get("detector_evidence", {}) if isinstance(evidence.get("detector_evidence"), dict) else {}
         sev = str(previous_report.get("severity") or evidence.get("severity", "unknown")).upper()
         score = float(event.get("max_anomaly_score", evidence.get("anomaly_score", 0.0)))
         ev_id = event.get("event_id", "UNKNOWN")
@@ -601,7 +624,7 @@ class RCAInference:
         ctype = det_ev.get("change_type", "unspecified")
         lines.append(f"- Alarm Trigger: {trig} mode ({ctype} dynamic pattern)")
 
-        lstm = det_ev.get("lstm_ae") or {}
+        lstm = det_ev.get("lstm_ae") if isinstance(det_ev.get("lstm_ae"), dict) else {}
         if lstm and "score" in lstm:
             l_sc = float(lstm.get("score", 0.0))
             l_th = float(lstm.get("threshold", 0.0))
@@ -609,8 +632,8 @@ class RCAInference:
             l_alarm = "ALARMED (Active)" if lstm.get("is_anomalous") else "Normal (Below limit)"
             lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, margin = {l_ratio:.2f}x, status: {l_alarm})")
 
-        dyn = det_ev.get("dynamic") or {}
-        cva = dyn.get("cva") or {}
+        dyn = det_ev.get("dynamic") if isinstance(det_ev.get("dynamic"), dict) else {}
+        cva = dyn.get("cva") if isinstance(dyn.get("cva"), dict) else {}
         if cva and "score" in cva:
             q_sc = float(cva.get("score", 0.0))
             q_th = float(cva.get("threshold", 0.0))
@@ -624,8 +647,10 @@ class RCAInference:
         lines.append("")
         lines.append("### Individual Sensor Scores & Deviations (Sensor-Level Metrics)")
         top_sensors = evidence.get("top_anomalous_sensors", [])
-        if top_sensors:
+        if isinstance(top_sensors, list) and top_sensors:
             for s in top_sensors:
+                if not isinstance(s, dict):
+                    continue
                 name = s.get("display_name", s.get("name", "Unknown"))
                 z = s.get("z_score", s.get("zScore", 0.0))
                 dev = s.get("deviation_percent", 0.0)
@@ -637,15 +662,23 @@ class RCAInference:
         else:
             lines.append("- No individual sensors showed severe statistical excursions; anomaly was detected via multi-sensor correlation.")
 
-        # Temporal sequence if present
-        seq = evidence.get("temporal_sequence", {}).get("sequence", [])
+        # Temporal sequence if present (handles both dict and list representations)
+        raw_seq = evidence.get("temporal_sequence")
+        if isinstance(raw_seq, dict):
+            seq = [item for item in raw_seq.get("sequence", []) if isinstance(item, dict)]
+        elif isinstance(raw_seq, list):
+            seq = [item for item in raw_seq if isinstance(item, dict)]
+        else:
+            seq = []
+
         if seq:
             lines.append("")
             lines.append("### Event Timeline & Propagation Sequence")
             for i, item in enumerate(seq, start=1):
                 dt = float(item.get("relative_time_minutes", 0.0))
                 tag = "initiating disturbance" if i == 1 and dt == 0.0 else f"+{dt:.1f} min cascade"
-                lines.append(f"{i}. {item.get('display_name')} became anomalous ({tag})")
+                dname = item.get("display_name") or item.get("name", "Sensor")
+                lines.append(f"{i}. {dname} became anomalous ({tag})")
 
         # System Sensor Baseline Context (52 Total TEP Sensors)
         lines.append("")

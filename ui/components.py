@@ -111,8 +111,10 @@ def render_live_chart(history: List[Dict[str, Any]]):
     st.plotly_chart(fig, use_container_width=True, theme="streamlit", key="monitor_live_chart")
 
 def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]] = None, key_prefix: str = ""):
-    report = event.get("report", {})
-    evidence = event.get("evidence", {})
+    if not isinstance(event, dict):
+        event = {}
+    report = event.get("report") if isinstance(event.get("report"), dict) else {}
+    evidence = event.get("evidence") if isinstance(event.get("evidence"), dict) else {}
     ev_id = event.get("event_id", "unknown")
     
     st.markdown(f"### {ev_id} Details")
@@ -121,7 +123,7 @@ def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]]
     st.markdown(f"**Subsystem:** {report.get('affected_subsystem', 'Unknown')}")
     
     # Check if CVA was involved for additional hints
-    det_ev = evidence.get("detector_evidence", {}) or {}
+    det_ev = evidence.get("detector_evidence") if isinstance(evidence.get("detector_evidence"), dict) else {}
     if det_ev.get("triggered_by") in ["dynamic", "both"]:
         st.info("💡 **Dynamic shift detected:** The CVA (Canonical Variate Analysis) flagged unusual lag energy or drift. This often indicates a mechanical issue like a sticky valve (stiction) rather than a sudden sensor spike.")
 
@@ -135,13 +137,15 @@ def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]]
     # Bar chart of top contributing variables
     if isinstance(evidence, dict) and "top_anomalous_sensors" in evidence:
         sensors = evidence["top_anomalous_sensors"]
-        if sensors:
-            names = [s.get("display_name", "Unknown") for s in sensors]
-            contribs = [s.get("contribution", 0) for s in sensors]
-            bar_fig = go.Figure(go.Bar(x=contribs, y=names, orientation='h'))
-            bar_fig.update_layout(title="Top Contributing Variables", height=300, margin=dict(l=0, r=0, t=30, b=0))
-            chart_key = f"{key_prefix}_bar_{ev_id}" if key_prefix else f"bar_{ev_id}"
-            st.plotly_chart(bar_fig, use_container_width=True, key=chart_key)
+        if isinstance(sensors, list) and sensors:
+            valid_sensors = [s for s in sensors if isinstance(s, dict)]
+            if valid_sensors:
+                names = [s.get("display_name", s.get("name", "Unknown")) for s in valid_sensors]
+                contribs = [float(s.get("contribution", 0.0)) for s in valid_sensors]
+                bar_fig = go.Figure(go.Bar(x=contribs, y=names, orientation='h'))
+                bar_fig.update_layout(title="Top Contributing Variables", height=300, margin=dict(l=0, r=0, t=30, b=0))
+                chart_key = f"{key_prefix}_bar_{ev_id}" if key_prefix else f"bar_{ev_id}"
+                st.plotly_chart(bar_fig, use_container_width=True, key=chart_key)
             
     with st.expander("🛠 Engineer Details (Technical Evidence)"):
         st.json(event)
@@ -149,7 +153,14 @@ def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]]
     st.markdown("### Operator Notes & Chat Thread")
     if chat_history:
         for msg in chat_history:
-            role = msg.get("role", "user")
-            st.chat_message(role).write(msg.get("content", ""))
+            if isinstance(msg, dict):
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+            elif isinstance(msg, (list, tuple)) and len(msg) >= 2:
+                role = str(msg[0])
+                content = str(msg[1])
+            else:
+                continue
+            st.chat_message(role).write(content)
     else:
         st.write("No follow-up questions asked yet.")

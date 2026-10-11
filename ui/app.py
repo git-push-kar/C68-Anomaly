@@ -215,16 +215,18 @@ with tab_history:
         # Table data
         table_data = []
         for ev in events_list:
-            rep = ev.get("report", {})
-            evidence = ev.get("evidence", {})
-            det = evidence.get("detector_evidence", {}) or {}
+            if not isinstance(ev, dict):
+                continue
+            rep = ev.get("report") if isinstance(ev.get("report"), dict) else {}
+            evidence = ev.get("evidence") if isinstance(ev.get("evidence"), dict) else {}
+            det = evidence.get("detector_evidence") if isinstance(evidence.get("detector_evidence"), dict) else {}
             
             table_data.append({
-                "Event ID": ev.get("event_id"),
-                "Time": ev.get("detection_time"),
-                "Severity": rep.get("severity", "unknown").upper(),
+                "Event ID": ev.get("event_id", "-"),
+                "Time": ev.get("detection_time", "-"),
+                "Severity": str(rep.get("severity") or evidence.get("severity", "unknown")).upper(),
                 "Detector": det.get("triggered_by", "-"),
-                "Score": round(ev.get("max_anomaly_score", 0), 3),
+                "Score": round(float(ev.get("max_anomaly_score", 0.0)), 3),
                 "Suspected Fault": rep.get("root_cause", "-"),
                 "Status": ev.get("status", "open")
             })
@@ -278,7 +280,7 @@ with tab_chat:
     if not events_list:
         st.info("No events available to assist with.")
     else:
-        options = {ev["event_id"]: ev for ev in events_list}
+        options = {ev.get("event_id"): ev for ev in events_list if isinstance(ev, dict) and ev.get("event_id")}
         event_keys = list(options.keys())
         
         sel_idx = 0

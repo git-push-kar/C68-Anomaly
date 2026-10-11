@@ -394,8 +394,12 @@ class TEPApp:
         event = self.event_store.get_event(event_id)
         if event is None:
             raise KeyError(f"Unknown event: {event_id}")
-        report = event.get("report") or {}
+        if not isinstance(event, dict):
+            event = {}
+        report = event.get("report") if isinstance(event.get("report"), dict) else {}
         history = self.event_store.conversation_history(event_id)
+        if not isinstance(history, list):
+            history = []
 
         if self.rca is not None:
             answer = self.rca.answer_followup(event, report, history, user_question)
@@ -405,11 +409,14 @@ class TEPApp:
             if intent_ans is not None:
                 answer = intent_ans
             else:
+                ev_dict = event.get("evidence") if isinstance(event.get("evidence"), dict) else {}
+                top_s = ev_dict.get("top_anomalous_sensors", []) if isinstance(ev_dict, dict) else []
+                n_sensors = len(top_s) if isinstance(top_s, list) else 0
+                subsystem = ev_dict.get("candidate_subsystem", "unknown") if isinstance(ev_dict, dict) else "unknown"
                 answer = (
                     f"[Deterministic fallback] The event {event_id} shows "
-                    f"{len(event.get('evidence', {}).get('top_anomalous_sensors', []))} "
-                    "deviating sensors. The candidate subsystem is "
-                    f"'{event.get('evidence', {}).get('candidate_subsystem', 'unknown')}'. "
+                    f"{n_sensors} deviating sensors. The candidate subsystem is "
+                    f"'{subsystem}'. "
                     f"Suspected cause: {report.get('root_cause', 'Unknown')}, Severity: {report.get('severity', 'Unknown')}. "
                     "Load the tep_rca adapter for conversational open-ended answers."
                 )
