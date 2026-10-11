@@ -155,6 +155,10 @@ llm:
   trust_remote_code: true
   use_flash_attn: false          # set true on A5000 if flash-attn installed
   dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
+  followup:
+    # TEMPORARY test switch: true = LLM-only (Plan 3 alone, Plan 2 router +
+    # guardrail bypassed). Set back to false to restore combined routing.
+    prefer_llm: true
   lora:
     r: 16
     alpha: 32

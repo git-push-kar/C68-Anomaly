@@ -412,19 +412,29 @@ class TEPApp:
 
         from llm.inference import RCAInference
 
-        # 1) Intent-first: exact numeric answers when the question matches.
-        intent_hit = RCAInference._dispatch_with_intent(event, report, user_question)
+        # Temporary LLM-only test switch (Plan 3 alone): set
+        # llm.followup.prefer_llm=true in config to bypass the deterministic
+        # router AND the numeric guardrail. Plan 2 code stays intact;
+        # flip the flag back to restore combined routing.
+        prefer_llm = bool(((self.config.get("llm", {}) or {}).get("followup", {}) or {}).get("prefer_llm", False))
+
         route = None
         intent = None
         answer = None
+        intent_hit = None
+        if not prefer_llm:
+            # 1) Intent-first: exact numeric answers when the question matches.
+            intent_hit = RCAInference._dispatch_with_intent(event, report, user_question)
         if intent_hit is not None:
             intent, answer = intent_hit
             route = "deterministic"
             logger.info("Followup %s route=deterministic intent=%s", event_id, intent)
         elif self.rca is not None:
-            # 2) Open-ended: LLM with numeric guardrail.
+            # 2) Open-ended (or all questions when prefer_llm=true): LLM,
+            # with numeric guardrail unless LLM-only testing is enabled.
             llm_answer = self.rca.answer_followup(event, report, history, user_question)
-            guarded = RCAInference._guard_llm_answer(event, report, user_question, llm_answer)
+            guarded = (None if prefer_llm
+                       else RCAInference._guard_llm_answer(event, report, user_question, llm_answer))
             if guarded is not None:
                 intent, answer = guarded
                 route = "deterministic-guardrail"
@@ -432,7 +442,9 @@ class TEPApp:
                                "used deterministic intent=%s", event_id, intent)
             else:
                 answer = llm_answer
-                route = "llm"
+                route = "llm-forced" if prefer_llm else "llm"
+                if prefer_llm:
+                    logger.info("Followup %s route=llm-forced (prefer_llm test mode)", event_id)
         else:
             ev_dict = event.get("evidence") if isinstance(event.get("evidence"), dict) else {}
             top_s = ev_dict.get("top_anomalous_sensors", []) if isinstance(ev_dict, dict) else []
