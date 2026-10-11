@@ -327,33 +327,94 @@ class RCAInference:
         conversation history and the new question, so it reasons about THIS
         anomaly instead of starting a new diagnosis.
         """
+        chat_system_prompt = (
+            "You are an industrial process assistant for the Tennessee Eastman Process (TEP). "
+            "An operator is asking questions about a specific detected anomaly event.\n\n"
+            "CRITICAL INSTRUCTIONS:\n"
+            "- Answer the operator's question directly, accurately, and concisely based on the incident data provided.\n"
+            "- If asked for the scores: clearly state the overall score, LSTM reconstruction score vs threshold, and CVA Q-statistic vs threshold.\n"
+            "- If asked for the severity: state the exact assessed severity level (low, medium, high, or critical) and the reason why.\n"
+            "- If asked for the root cause or subsystem: explain the physical mechanism and suspect components.\n"
+            "- Do NOT repeat the initial diagnosis paragraph unless specifically asked to explain the entire event from scratch."
+        )
+
         context = self._render_event_context(event, previous_report)
-        messages: List[Tuple[str, str]] = [("user", context)]
+        ev_id = event.get("event_id", "UNKNOWN")
+        rc = previous_report.get("root_cause", "Unknown")
+        sev = previous_report.get("severity", "Unknown")
+
+        # Create a natural alternating dialogue structure
+        messages: List[Tuple[str, str]] = [
+            ("user", f"Here is the telemetry and diagnostic data for anomaly {ev_id}:\n\n{context}"),
+            ("assistant", f"I have reviewed the diagnostic data for incident {ev_id}. Suspected cause: {rc}, Severity: {sev.upper()}. How can I assist you with this event?"),
+        ]
+
         for msg in history:
-            if msg.get("role") == "user" and msg.get("content"):
-                messages.append(("user", str(msg["content"])))
-            elif msg.get("role") == "assistant" and msg.get("content"):
-                messages.append(("assistant", str(msg["content"])))
+            role = msg.get("role")
+            content = msg.get("content")
+            if role in ("user", "assistant") and content:
+                messages.append((role, str(content)))
+
         messages.append(("user", question))
-        prompt = build_chat_prompt(SYSTEM_PROMPT, messages)
-        return self._generate(prompt, max_new_tokens=int(self._gen_config.get("max_new_tokens", 768)))
+        prompt = build_chat_prompt(chat_system_prompt, messages)
+        return self._generate(prompt, max_new_tokens=int(self._gen_config.get("max_new_tokens", 384)))
 
     @staticmethod
     def _render_event_context(event: Dict, previous_report: Dict) -> str:
-        evidence = event.get("evidence", {})
+        evidence = event.get("evidence", {}) or {}
+        det_ev = evidence.get("detector_evidence", {}) or {}
+        sev = previous_report.get("severity") or evidence.get("severity", "unknown")
+        score = event.get("max_anomaly_score", evidence.get("anomaly_score", 0.0))
+
         lines = [
-            "The following anomaly was detected and analyzed earlier. Use it as "
-            "context when answering the user's question about THIS anomaly.",
-            "",
             f"Event ID: {event.get('event_id', 'UNKNOWN')}",
-            f"Anomaly score: {event.get('max_anomaly_score', 0.0):.3f}",
-            "Structured evidence:",
+            f"Assessed Severity: {str(sev).upper()}",
+            f"Overall Anomaly Score: {float(score):.3f}",
+            f"Suspected Root Cause: {previous_report.get('root_cause', 'Unknown')}",
+            f"Affected Subsystem: {previous_report.get('affected_subsystem', 'Unknown')}",
         ]
-        if evidence:
-            lines.append(json.dumps(evidence, ensure_ascii=False, indent=2))
-        else:
-            lines.append(str(event))
-        lines.append("")
-        lines.append("Previous automatic report:")
-        lines.append(json.dumps(previous_report, ensure_ascii=False, indent=2))
+
+        # Detector scores breakdown
+        if det_ev:
+            lines.append("\nDetector Metrics & Scores:")
+            trig = det_ev.get("triggered_by", "unspecified")
+            ctype = det_ev.get("change_type", "unspecified")
+            lines.append(f"- Alarm Trigger: {trig} mode ({ctype} dynamic pattern)")
+
+            lstm = det_ev.get("lstm_ae") or {}
+            if lstm and "score" in lstm:
+                l_sc = float(lstm.get("score", 0.0))
+                l_th = float(lstm.get("threshold", 0.0))
+                l_ratio = l_sc / max(l_th, 1e-9)
+                lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, ratio = {l_ratio:.2f}x, alarmed = {lstm.get('is_anomalous', False)})")
+
+            dyn = det_ev.get("dynamic") or {}
+            cva = dyn.get("cva") or {}
+            if cva and "score" in cva:
+                q_sc = float(cva.get("score", 0.0))
+                q_th = float(cva.get("threshold", 0.0))
+                q_ratio = q_sc / max(q_th, 1e-9)
+                lines.append(f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} (threshold = {q_th:.1f}, ratio = {q_ratio:.2f}x, alarmed = {cva.get('is_anomalous', False)})")
+                if cva.get("dominant_lag") is not None:
+                    lines.append(f"  * CVA lag metrics: dominant lag = {cva.get('dominant_lag')}, slow drift ratio = {float(cva.get('slow_drift_ratio', 0.0)):.2f}")
+
+        # Top sensor deviations
+        top_sensors = evidence.get("top_anomalous_sensors", [])
+        if top_sensors:
+            lines.append("\nTop Deviating Sensors:")
+            for s in top_sensors:
+                name = s.get("display_name", s.get("name", "Unknown"))
+                z = s.get("z_score", s.get("zScore", 0.0))
+                dev = s.get("deviation_percent", 0.0)
+                trend = s.get("trend", "unknown")
+                lim = s.get("limit_context", "")
+                lim_str = f" [Limit: {lim}]" if lim else ""
+                lines.append(f"- {name}: deviation {dev:+.1f}%, z={z:+.2f}, trend {trend}{lim_str}")
+
+        if previous_report.get("recommended_action"):
+            lines.append(f"\nRecommended Action: {previous_report['recommended_action']}")
+
+        if previous_report.get("reasoning"):
+            lines.append(f"\nInitial Diagnostic Reasoning:\n{previous_report['reasoning']}")
+
         return "\n".join(lines)
