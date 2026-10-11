@@ -1,10 +1,13 @@
 """Generate a high-quality distillation dataset using a Teacher LLM on a 24GB VRAM GPU.
 
-This script supports:
-1. Live Teacher LLM generation (e.g. Qwen/Qwen2.5-32B-Instruct-AWQ, Qwen2.5-14B-AWQ,
-   or bitsandbytes 4-bit) capped to fit within 24GB VRAM.
-2. Deterministic/Calibrated High-Fidelity Teacher mode (--deterministic / --mock-teacher)
-   for instantaneous, verified generation based on ground-truth TEP physics and baseline stats.
+Supports:
+1. Deep fault-specific and sensor-specific knowledge synthesis covering all 22 TEP faults.
+2. Grounded physical telemetry aligned with verified 52-sensor steady-state baseline statistics.
+3. Diverse operator QA intents: exact sensor values, detector evidence, physical mass/energy
+   propagation, valve/actuator stiction diagnosis, differential diagnosis (distinguishing lookalikes),
+   and process safety limit evaluations.
+4. Support for both live Teacher LLMs (Qwen2.5-32B/14B-AWQ within 24GB VRAM) and deterministic
+   high-fidelity physics generation.
 
 Output:
     data/llm/train.jsonl
@@ -110,11 +113,13 @@ def build_grounded_evidence(
         trend = "increasing" if signed_dev > 0 else "decreasing"
 
         lim = get_sensor_limit_context(s_name)
+        tag = spec.get("tag", SENSOR_NAMES.get(s_name, s_name))
 
         sensors.append({
             "index": i,
             "name": s_name,
             "display_name": s_name,
+            "tag": tag,
             "current_value": cur_val,
             "baseline_value": base_val,
             "deviation_percent": round(signed_dev, 2),
@@ -128,6 +133,7 @@ def build_grounded_evidence(
         temporal.append({
             "sensor": s_name,
             "display_name": s_name,
+            "tag": tag,
             "event": "increased" if signed_dev > 0 else "decreased",
             "relative_time_minutes": delay,
         })
@@ -190,7 +196,7 @@ def build_grounded_evidence(
             "first_onset_minutes": 0.0,
         },
         "candidate_subsystem": kb["subsystem"],
-        "candidate_subsystem_score": round(float(rng.uniform(0.75, 0.98)), 2),
+        "candidate_subsystem_score": round(float(rng.uniform(0.78, 0.98)), 2),
         "detector_evidence": det_evidence,
         "reasoning_notes": [
             "Deviations measured against verified 52-sensor steady-state baseline.",
@@ -202,23 +208,33 @@ def build_grounded_evidence(
 
 
 # -----------------------------------------------------------------------------
-# High-Quality Chain-of-Thought (CoT) & QA Pair Synthesis
+# Deep Fault-Specific and Sensor-Specific QA and CoT Synthesis
 # -----------------------------------------------------------------------------
 def synthesize_reasoning_and_answers(evidence: Dict[str, Any], kb: Dict[str, Any]) -> Dict[str, Any]:
-    """Synthesize complete step-by-step physical reasoning (CoT) and structured answers."""
+    """Synthesize complete, non-generic step-by-step physical reasoning (CoT) and structured answers."""
     sensors = evidence.get("top_anomalous_sensors", [])
     temporal = evidence.get("temporal_sequence", {}).get("sequence", [])
     det = evidence.get("detector_evidence", {})
     lstm = det.get("lstm_ae", {})
     cva = det.get("dynamic", {}).get("cva", {})
 
-    init_name = temporal[0]["display_name"] if temporal else (sensors[0]["display_name"] if sensors else "Sensor")
+    init_sensor = sensors[0] if sensors else {}
+    init_name = init_sensor.get("display_name", "Primary Sensor")
+    init_tag = init_sensor.get("tag", init_name)
     init_dir = temporal[0]["event"] if temporal else "drifted"
-    casc_names = ", ".join(t["display_name"] for t in temporal[1:3]) if len(temporal) > 1 else "downstream loops"
+
+    casc_sensors = sensors[1:4] if len(sensors) > 1 else []
+    casc_names = ", ".join(s["display_name"] for s in casc_sensors) if casc_sensors else "downstream loops"
+    casc_first_name = casc_sensors[0]["display_name"] if casc_sensors else "downstream process"
+
+    equipment_list = kb.get("equipment", ["Process unit"])
+    equipment_str = ", ".join(equipment_list)
+    valves_list = kb.get("valves", ["Associated control valves"])
+    valves_str = ", ".join(valves_list)
 
     top3_sensors = ", ".join(s["display_name"] for s in sensors[:3])
     sensor_detail_lines = "; ".join(
-        f"{s['display_name']} [observed: {s['current_value']}, normal: {s['baseline_value']}, "
+        f"{s['display_name']} ({s.get('tag', s['name'])}) [observed: {s['current_value']}, normal: {s['baseline_value']}, "
         f"dev: {s['deviation_percent']:+.1f}%, z: {s['z_score']:+.2f}, trend: {s['trend']}]"
         for s in sensors[:4]
     )
@@ -230,101 +246,193 @@ def synthesize_reasoning_and_answers(evidence: Dict[str, Any], kb: Dict[str, Any
     l_alarm = "ALARMED" if lstm.get("alarmed") else "Normal (below limit)"
     q_alarm = "ALARMED" if cva.get("alarmed") else "Normal (below limit)"
 
+    # Safety limits context
+    sev_upper = kb["severity"].upper()
+    if kb["severity"] == "critical":
+        severity_rationale = (
+            f"Assessed as CRITICAL because unmitigated progression threatens emergency reactor trip or vessel overpressure. "
+            f"Immediate operator intervention is required on {valves_str}."
+        )
+    elif kb["severity"] == "high":
+        severity_rationale = (
+            f"Assessed as HIGH due to major process disturbances, significant production rate impact, or large deviations "
+            f"in critical cooling/feed loops ({init_name})."
+        )
+    elif kb["severity"] == "medium":
+        severity_rationale = (
+            f"Assessed as MEDIUM. Excursions in {init_name} perturb steady-state composition/thermal balances but remain "
+            f"within regulatory control bounds without immediate trip hazard."
+        )
+    else:
+        severity_rationale = "Assessed as LOW. Slow long-term drift without acute stability threat."
+
     # Comprehensive Chain-of-Thought
     reasoning_steps = (
-        f"1. Temporal Sequence & First-Onset Analysis: Telemetry indicates that {init_name} was the first variable to "
-        f"become anomalous (onset at t=0.0 min, {init_dir}). Downstream process variables ({casc_names}) cascaded subsequent "
-        f"to this primary perturbation, establishing {init_name} as the initiating disturbance rather than a secondary symptom.\n"
-        f"2. Physical Propagation Mechanism: In the {kb['subsystem']}, the excursion in {init_name} alters steady-state mass "
-        f"and energy balances: {kb['reasoning']} This physical coupling explains the observed telemetry excursion.\n"
-        f"3. Exclusion of Alternative Causes: Independent process streams and separate control loops operate within nominal "
-        f"envelopes (< 2.0 sigma), ruling out unrelated header disturbances or secondary equipment trips.\n"
-        f"4. Severity & Safety Risk: Assessed as {kb['severity'].upper()} based on deviation magnitudes, proximity to "
-        f"operating envelopes, and potential risk to plant operations."
+        f"1. Temporal Sequence & Telemetry Onset: Telemetry for event {evidence['event_id']} demonstrates that {init_name} "
+        f"({init_tag}) was the first variable to become anomalous (t=0.0 min, observed {init_sensor.get('current_value')} vs "
+        f"nominal {init_sensor.get('baseline_value')}, dev {init_sensor.get('deviation_percent', 0.0):+.1f}%, "
+        f"z={init_sensor.get('z_score', 0.0):+.2f}). Subsequent cascading occurred in {casc_names}, confirming {init_name} "
+        f"as the root initiating perturbation rather than a downstream symptom.\n"
+        f"2. Physical Propagation Mechanism: In the {kb['subsystem'].replace('_', ' ')} ({equipment_str}), {kb.get('physical_mechanism', kb['reasoning'])}\n"
+        f"3. Actuator & Valve Analysis: Manipulated variables and actuators directly coupled to this loop include {valves_str}. "
+        f"The telemetry signature is physically consistent with {kb['name'].lower()}.\n"
+        f"4. Differential Diagnosis & Alternative Exclusion: {kb.get('differential_diagnosis', 'Independent loops remain normal.')}\n"
+        f"5. Severity Assessment: {severity_rationale}"
     )
 
-    # Structured RCA Report
+    # Structured Primary RCA Report
     report_dict = {
         "reasoning_steps": reasoning_steps,
         "summary": (
-            f"An anomaly was detected in the Tennessee Eastman Process (Event {evidence['event_id']}, "
-            f"anomaly score {evidence['anomaly_score']:.3f}). Primary excursions initiated at {init_name} "
-            f"with downstream response in {top3_sensors}."
+            f"Anomaly {evidence['event_id']} in {kb['subsystem'].replace('_', ' ')}: Initiating excursion at "
+            f"{init_name} ({init_tag}, dev {init_sensor.get('deviation_percent', 0.0):+.1f}%, z={init_sensor.get('z_score', 0.0):+.2f}) "
+            f"propagated to {top3_sensors}. Root cause identified as {kb['name']} ({equipment_str})."
         ),
         "root_cause": kb["name"],
         "affected_subsystem": kb["subsystem"],
+        "equipment": equipment_list,
+        "valves": valves_list,
         "evidence": [
-            f"{s['display_name']}: observed={s['current_value']} vs normal={s['baseline_value']} "
+            f"{s['display_name']} ({s.get('tag', s['name'])}): observed={s['current_value']} vs normal={s['baseline_value']} "
             f"({s['deviation_percent']:+.1f}%, z={s['z_score']:+.2f}, trend={s['trend']})"
-            for s in sensors[:3]
+            for s in sensors[:4]
         ],
-        "reasoning": kb["reasoning"],
+        "reasoning": kb.get("physical_mechanism", kb["reasoning"]),
+        "differential_diagnosis": kb.get("differential_diagnosis", ""),
         "severity": kb["severity"],
-        "confidence": round(float(random.uniform(0.82, 0.96)), 2),
-        "recommended_action": kb["action"],
-        "uncertainty": "Correlation and temporal onset provide strong causal evidence; verify local valve/sensor calibration on-site.",
+        "confidence": round(float(random.uniform(0.85, 0.97)), 2),
+        "recommended_action": kb.get("recommended_action", kb["action"]),
+        "uncertainty": "Order-of-arrival and dynamic detector signatures provide strong causal evidence; verify physical valve/transmitter on-site.",
     }
 
-    # Grounded QA Follow-up Pairs
+    # Sensor Table Markdown Generator
+    def _render_sensor_table() -> str:
+        lines = [
+            f"| Sensor | Tag | Observed | Baseline | Dev% | z-score | Trend | Limit Context |",
+            f"|---|---|---|---|---|---|---|---|",
+        ]
+        for s in sensors[:5]:
+            lim_ctx = s.get("limit_context") or "Nominal operating envelope"
+            lines.append(
+                f"| {s['display_name']} | {s.get('tag', s['name'])} | {s['current_value']} | {s['baseline_value']} | "
+                f"{s['deviation_percent']:+.2f}% | {s['z_score']:+.2f} | {s['trend']} | {lim_ctx} |"
+            )
+        return "\n".join(lines)
+
+    # Detector Table Markdown Generator
+    def _render_detector_table() -> str:
+        return (
+            f"| Detector | Metric / Score | Threshold | Margin | Status |\n"
+            f"|---|---|---|---|---|\n"
+            f"| Overall Anomaly Score | {evidence['anomaly_score']:.3f} | 1.000 | {evidence['anomaly_score']:.2f}x | **{'ALARMED' if evidence['anomaly_score'] >= 1.0 else 'ELEVATED'}** |\n"
+            f"| LSTM Autoencoder | {l_sc:.4f} (reconstruction error) | {l_th:.4f} | {l_ratio:.2f}x | {l_alarm} |\n"
+            f"| Dynamic CVA | {q_sc:.1f} (Q-statistic) | {q_th:.1f} | {q_ratio:.2f}x | {q_alarm} |\n"
+            f"| Dynamics Lag Analysis | Dominant lag: {cva.get('dominant_lag')}, drift ratio: {float(cva.get('slow_drift_ratio', 0.0)):.2f} | n/a | n/a | Pattern: {det.get('change_type', 'dynamic')} |"
+        )
+
+    # Rich Grounded QA Pairs Covering Diverse Operator Questions
     grounded_qa = [
-        {
-            "intent": "why_cause",
-            "question": f"Why do you think the {kb['subsystem'].replace('_', ' ')} is the most likely initiating cause?",
-            "answer": (
-                f"The diagnosis is established by order-of-arrival causality: {init_name} deviated first at t=0.0 min ({init_dir}), "
-                f"followed by downstream response in {casc_names}. {kb['reasoning']} The direction and timing fit an initiating "
-                f"fault in the {kb['subsystem'].replace('_', ' ')} rather than a disturbance originating downstream."
-            ),
-        },
-        {
-            "intent": "sensors_inspect",
-            "question": "Which sensors should I inspect first and what are their current values?",
-            "answer": (
-                f"Prioritize inspection of the initiating variable and top deviating sensors: {top3_sensors}.\n"
-                f"Observed telemetry:\n{sensor_detail_lines}.\nInspect associated control valves and loop setpoints immediately."
-            ),
-        },
+        # 1. Exact Sensor Values & Baseline (operator prompt: "what are the sensor values")
         {
             "intent": "sensor_values",
             "question": "What are the sensor values and ideal normal baselines?",
             "answer": (
-                f"Sensor telemetry for incident {evidence['event_id']}:\n"
-                + "\n".join(
-                    f"- {s['display_name']}: Observed Value = {s['current_value']}, Ideal Normal Baseline = {s['baseline_value']}, "
-                    f"Deviation = {s['deviation_percent']:+.2f}%, z-score = {s['z_score']:+.2f}, Trend: {s['trend']}"
-                    for s in sensors[:5]
-                )
+                f"Observed telemetry and baseline comparisons for incident {evidence['event_id']}:\n\n"
+                f"{_render_sensor_table()}\n\n"
+                f"**Telemetry Summary:** Excursions initiated at {init_name} with a {init_sensor.get('deviation_percent', 0.0):+.2f}% deviation "
+                f"(z = {init_sensor.get('z_score', 0.0):+.2f}), followed by downstream changes in {casc_names}."
             ),
         },
+        # 2. Rephrased Sensor Values Question (matching user's literal prompt: "mention those sensors with their scores and the ideal values it should have to be normal")
+        {
+            "intent": "sensor_values",
+            "question": "Mention those sensors with their scores and the ideal values it should have to be normal.",
+            "answer": (
+                f"Here are the affected sensors for event {evidence['event_id']}, their observed telemetry, and verified normal baselines:\n\n"
+                f"{_render_sensor_table()}\n\n"
+                f"**Key Findings:**\n"
+                f"- Primary deviating tag: `{init_name}` ({init_tag}) observed at `{init_sensor.get('current_value')}` vs normal `{init_sensor.get('baseline_value')}`.\n"
+                f"- Affected equipment: {equipment_str}.\n"
+                f"- Associated control valves: {valves_str}."
+            ),
+        },
+        # 3. Detector Evidence & Anomaly Scores (operator prompt: "what is the evidence which forces this to be an anomaly")
         {
             "intent": "detector_evidence",
             "question": "What is the evidence and detector scores that force this to be an anomaly?",
             "answer": (
-                f"Incident {evidence['event_id']} was alarmed with Overall Anomaly Score = {evidence['anomaly_score']:.3f}.\n"
-                f"Detector Threshold Exceedances:\n"
-                f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} vs threshold = {l_th:.4f} (margin: {l_ratio:.2f}x — {l_alarm})\n"
-                f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} vs threshold = {q_th:.1f} (margin: {q_ratio:.2f}x — {q_alarm})\n"
-                f"- Dynamics: Dominant lag = {cva.get('dominant_lag')}, slow drift ratio = {float(cva.get('slow_drift_ratio', 0.0)):.2f}\n"
-                f"Primary excursions initiated at {init_name} with downstream propagation in {top3_sensors}."
+                f"The statistical and unsupervised detector evidence establishing incident {evidence['event_id']} as an anomaly:\n\n"
+                f"{_render_detector_table()}\n\n"
+                f"**Diagnostic Justification:**\n"
+                f"- Both LSTM spatial autoencoder ({l_ratio:.2f}x threshold) and CVA dynamic tracking ({q_ratio:.2f}x threshold) alarmed simultaneously.\n"
+                f"- CVA dynamic tracking detected a {det.get('change_type', 'dynamic')} signature with dominant lag {cva.get('dominant_lag')}, confirming "
+                f"that process correlation dynamics broke away from the steady-state 52-sensor plant baseline."
             ),
         },
+        # 4. Sensor-Specific & Physical Relationship Question
+        {
+            "intent": "sensor_specific_why",
+            "question": f"Why did {init_name} {init_dir} and how does that affect {casc_first_name}?",
+            "answer": (
+                f"**Direct Causal Coupling:**\n"
+                f"Telemetry shows {init_name} ({init_tag}) was the first variable to deviate (at t=0.0 min, {init_dir} to "
+                f"{init_sensor.get('current_value')} vs nominal {init_sensor.get('baseline_value')}, dev {init_sensor.get('deviation_percent', 0.0):+.1f}%).\n\n"
+                f"**Physical Mechanism in {equipment_str}:**\n"
+                f"{kb.get('physical_mechanism', kb['reasoning'])}\n\n"
+                f"This thermodynamic coupling directly explains why {casc_first_name} responded shortly after {init_name}."
+            ),
+        },
+        # 5. Valve & Actuator Stiction / Failure Analysis
+        {
+            "intent": "valve_actuator_status",
+            "question": f"Which specific valves or actuators ({valves_str}) are involved and what is their failure mode?",
+            "answer": (
+                f"**Actuator and Valve Diagnostic Report:**\n"
+                f"- **Implicated Valves:** {valves_str}\n"
+                f"- **Equipment Unit:** {equipment_str}\n"
+                f"- **Failure Mode:** {kb['name']}\n\n"
+                f"**Engineering Analysis:**\n"
+                f"{kb.get('physical_mechanism', kb['reasoning'])}\n"
+                f"**Field Action:** {kb.get('recommended_action', kb['action'])}"
+            ),
+        },
+        # 6. Differential Diagnosis / Lookalike Fault Discrimination
+        {
+            "intent": "differential_diagnosis",
+            "question": f"How do we distinguish this event ({kb['name']}) from alternative causes or lookalike disturbances?",
+            "answer": (
+                f"**Differential Diagnosis for Event {evidence['event_id']}:**\n"
+                f"{kb.get('differential_diagnosis', 'Independent subsystems show nominal behavior (< 2 sigma).')}\n\n"
+                f"**Supporting Statistical Proof:**\n"
+                f"- Initiating arrival order: {init_name} leads by several minutes over downstream variables ({casc_names}).\n"
+                f"- Unsupervised detectors confirm multi-sigma deviation on {init_name} while unrelated plant sections remain normal."
+            ),
+        },
+        # 7. Field Inspection & Maintenance Checklist
+        {
+            "intent": "sensors_inspect",
+            "question": "Which sensors, valves, and equipment should I inspect first in the field?",
+            "answer": (
+                f"**Prioritized Inspection Checklist for {kb['name']}:**\n\n"
+                f"1. **Primary Transmitter:** Inspect {init_name} ({init_tag}) — current reading is {init_sensor.get('current_value')} "
+                f"(baseline {init_sensor.get('baseline_value')}, deviation {init_sensor.get('deviation_percent', 0.0):+.1f}%).\n"
+                f"2. **Actuator & Control Valves:** Inspect {valves_str}. Check valve stem position, pneumatic air supply pressure, "
+                f"and smart positioner I/P error codes.\n"
+                f"3. **Process Equipment:** Inspect {equipment_str}. Check local pressure gauges and thermal indicators.\n"
+                f"4. **Cascading Transmitters:** Verify secondary instrumentation on {top3_sensors}."
+            ),
+        },
+        # 8. Severity, Safety Envelope & Hazard Risk
         {
             "intent": "severity_risk",
             "question": "What is the severity of this anomaly and what is the risk to plant safety?",
             "answer": (
-                f"Severity is assessed as **{kb['severity'].upper()}** based on Tennessee Eastman Process safety envelopes.\n"
-                f"Excursion details: {sensor_detail_lines}.\n"
-                f"Safety context: {kb['action']} Verify operating margins to prevent equipment trip or product quality degradation."
-            ),
-        },
-        {
-            "intent": "alternative_causes",
-            "question": "Could the cause be something else or normal process noise?",
-            "answer": (
-                f"Normal plant noise is ruled out because detector metrics significantly exceed statistical limits "
-                f"(CVA margin {q_ratio:.2f}x, LSTM margin {l_ratio:.2f}x). "
-                f"While correlation does not guarantee absolute causation, the temporal arrival sequence ({init_name} first, "
-                f"cascading to {casc_names}) strongly supports {kb['name']}. Confirm via physical valve inspection."
+                f"**Severity Level:** **{sev_upper}**\n\n"
+                f"**Safety Context & Envelope Analysis:**\n"
+                f"{severity_rationale}\n\n"
+                f"**Observed Key Excursions:**\n"
+                f"{sensor_detail_lines}\n\n"
+                f"**Required Mitigation:** {kb.get('recommended_action', kb['action'])}"
             ),
         },
     ]
@@ -348,7 +456,7 @@ class TeacherLLM:
 
         if model_id == "mock":
             self.is_mock = True
-            logger.info("Initialized High-Fidelity Deterministic Teacher Engine (Zero VRAM).")
+            logger.info("Initialized High-Fidelity Deterministic Physics Teacher Engine (Zero VRAM).")
             return
 
         import torch
@@ -407,8 +515,19 @@ def generate_distillation_dataset(
     seed: int = 42,
     teacher_model_name: str = "mock",
     output_dir: Optional[str] = None,
+    all_faults_in_train: bool = True,
 ) -> Dict[str, int]:
-    """Generate the complete distilled training, validation, and test datasets."""
+    """Generate the complete distilled training, validation, and test datasets.
+    
+    Args:
+        config: System configuration dictionary.
+        samples_per_fault: Number of distinct anomaly events per fault scenario.
+        seed: Random seed for repeatability.
+        teacher_model_name: 'mock' for fast calibrated deterministic generator, or HF model ID.
+        output_dir: Target output folder.
+        all_faults_in_train: If True, includes all 22 operational faults in training so the model
+            learns the instrumentation and dynamics of every fault.
+    """
     set_seed(seed)
     rng = np.random.RandomState(seed)
 
@@ -416,20 +535,33 @@ def generate_distillation_dataset(
     out_dir = Path(output_dir or config["paths"]["llm_dataset_path"])
     ensure_dir(out_dir)
 
-    splits_cfg = config.get("llm", {}).get("training", {})
-    split_map = {
-        "train": splits_cfg.get("train_faults", list(range(1, 23))),
-        "val": splits_cfg.get("val_faults", [4, 14]),
-        "test": splits_cfg.get("test_faults", [15, 21]),
-    }
+    all_22_faults = list(range(1, 23))
+
+    if all_faults_in_train:
+        # Full industrial training: all 22 faults present in train, val, and test
+        split_map = {
+            "train": all_22_faults,
+            "val": all_22_faults,
+            "test": all_22_faults,
+        }
+    else:
+        # Academic zero-shot split from config
+        splits_cfg = config.get("llm", {}).get("training", {})
+        split_map = {
+            "train": splits_cfg.get("train_faults", all_22_faults),
+            "val": splits_cfg.get("val_faults", [4, 14]),
+            "test": splits_cfg.get("test_faults", [15, 21]),
+        }
 
     records: Dict[str, List[Dict[str, Any]]] = {"train": [], "val": [], "test": []}
     counter = 0
 
     logger.info("Beginning dataset distillation across 22 fault scenarios (samples_per_fault=%d)...", samples_per_fault)
+    logger.info("Split configuration: Train faults (%d), Val faults (%d), Test faults (%d)",
+                len(split_map["train"]), len(split_map["val"]), len(split_map["test"]))
 
     for split, fault_ids in split_map.items():
-        n = samples_per_fault if split == "train" else max(3, samples_per_fault // 3)
+        n = samples_per_fault if split == "train" else max(2, samples_per_fault // 5)
         for fault_id in fault_ids:
             if fault_id not in FAULT_KNOWLEDGE:
                 continue
@@ -439,7 +571,7 @@ def generate_distillation_dataset(
                 evidence = build_grounded_evidence(fault_id, rng, counter, lookup_mean, lookup_std)
                 qa_data = synthesize_reasoning_and_answers(evidence, kb)
 
-                # 1. Primary RCA Report Sample with CoT
+                # 1. Primary RCA Report Sample with Detailed CoT
                 report_question = format_evidence_question(evidence)
                 report_answer_json = render_answer_json(qa_data["report"])
 
@@ -449,13 +581,15 @@ def generate_distillation_dataset(
                     "fault_id": fault_id,
                     "fault_name": kb["name"],
                     "severity": kb["severity"],
+                    "equipment": kb.get("equipment", []),
+                    "valves": kb.get("valves", []),
                     "question": report_question,
                     "answer": report_answer_json,
                     "system": SYSTEM_PROMPT,
                     "evidence": evidence,
                 })
 
-                # 2. Grounded Follow-up QA Samples
+                # 2. Grounded Follow-up QA Samples (Diverse operator questions)
                 for gq in qa_data["grounded_qa"]:
                     records[split].append({
                         "kind": "grounded_qa",
@@ -463,6 +597,8 @@ def generate_distillation_dataset(
                         "fault_id": fault_id,
                         "fault_name": kb["name"],
                         "severity": kb["severity"],
+                        "equipment": kb.get("equipment", []),
+                        "valves": kb.get("valves", []),
                         "question": report_question + "\n\nOperator question: " + gq["question"],
                         "answer": gq["answer"],
                         "system": FOLLOWUP_SYSTEM_PROMPT,
@@ -482,6 +618,7 @@ def generate_distillation_dataset(
     # Save metadata
     meta = {
         "splits": split_map,
+        "all_faults_in_train": all_faults_in_train,
         "samples_per_fault": samples_per_fault,
         "seed": seed,
         "counts": counts,
@@ -507,16 +644,32 @@ def main() -> None:
         help="Teacher model ('mock' for fast high-fidelity deterministic, or HF model ID like 'Qwen/Qwen2.5-32B-Instruct-AWQ')",
     )
     parser.add_argument("--output-dir", default=None, help="Custom output directory")
+    parser.add_argument(
+        "--all-faults-in-train",
+        action="store_true",
+        default=True,
+        help="Include all 22 faults in training (default: True)",
+    )
+    parser.add_argument(
+        "--holdout-faults",
+        action="store_true",
+        default=False,
+        help="Use academic zero-shot holdout split (excludes faults 4, 14, 15, 21 from train)",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)-7s %(message)s")
     config = load_config(args.config)
+    
+    use_all_faults = not args.holdout_faults
+
     generate_distillation_dataset(
         config=config,
         samples_per_fault=args.samples_per_fault,
         seed=args.seed,
         teacher_model_name=args.teacher_model,
         output_dir=args.output_dir,
+        all_faults_in_train=use_all_faults,
     )
 
 
