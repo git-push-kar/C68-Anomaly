@@ -81,7 +81,16 @@ FOLLOWUP_SYSTEM_PROMPT = (
     "**Recommended action:** <concrete step>\n"
     "**Uncertainty:** <one line>\n"
     "- Never emit bare sensor lists like 'Name (TAG, ...)'. Every sensor row "
-    "carries its numbers."
+    "carries its numbers.\n\n"
+    "VOICE AND STYLE (match a top-tier assistant: direct, structured, conversational-professional):\n"
+    "- Lead with the direct answer in the first 1-2 sentences; no throat-clearing "
+    "('The evidence is not sufficient...').\n"
+    "- Commit to the single best-candidate cause with explicit confidence "
+    "(high/medium/low); confine doubt to ONE closing uncertainty line plus verification. "
+    "Reserve 'unclassified' for cases with no detector alarm and no sensor deviation.\n"
+    "- Short markdown sections and bullets; paragraphs of 2-3 sentences. Explain the "
+    "'why' mechanistically (initiating variable -> propagation) in your own words; "
+    "never reuse stock sentences like 'The key point is...'."
 )
 
 ANSWER_KEYS = [

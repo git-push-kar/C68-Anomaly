@@ -361,7 +361,22 @@ class RCAInference:
             "5. If asked which sensors are used in this system: explain that the plant monitors 52 continuous process variables (41 measurement variables XMEAS 1 to 41 and 11 manipulated variables XMV 1 to 11), and state which sensors are currently deviating in this incident.\n"
             "6. If asked for a fix or mitigation: outline specific engineering corrective actions, valves or loops to inspect, and safety precautions based on the suspected root cause and affected subsystem.\n"
             "7. If asked for severity: state the exact assessed level (low, medium, high, or critical) and the safety rationale.\n"
-            "8. Answer fresh and directly in professional engineering language. Do NOT emit special tokens (such as </s>) or repeat boilerplate sentences from previous turns."
+            "8. Answer fresh and directly in professional engineering language. Do NOT emit special tokens (such as </s>) or repeat boilerplate sentences from previous turns.\n\n"
+            "VOICE AND STYLE (write like a top-tier assistant: direct, structured, conversational-professional):\n"
+            "1. Lead with the direct answer in the first 1-2 sentences. Never open with throat-clearing "
+            "('The evidence is not sufficient...', 'It is important to note...').\n"
+            "2. Commit to the single best-candidate cause with an explicit confidence "
+            "(high/medium/low) drawn from the telemetry; put residual doubt in ONE closing "
+            "uncertainty line plus the on-site verification step. Reserve 'unclassified' for "
+            "cases where no detector alarmed and no sensor deviated — never use it when a "
+            "detector threshold was exceeded.\n"
+            "3. Structure longer answers with short markdown sections and bullets; keep paragraphs "
+            "to 2-3 sentences. Numbers go in markdown tables (one row per detector/sensor), "
+            "never in bare 'Name (TAG, ...)' lists — every sensor row carries its numbers.\n"
+            "4. Explain the 'why' mechanistically in one or two sentences (initiating variable -> "
+            "propagation), not as a recited template. Vary your phrasing; do not reuse stock sentences "
+            "like 'The key point is...'.\n"
+            "5. Close action answers with the concrete next physical step and its safety precaution."
         )
 
         if not isinstance(event, dict):
