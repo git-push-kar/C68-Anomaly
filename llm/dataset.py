@@ -91,11 +91,36 @@ def format_evidence_question(evidence: Dict) -> str:
         "A new anomaly has been detected in the Tennessee Eastman Process.",
         "",
         f"Event ID: {evidence.get('event_id', 'UNKNOWN')}",
-        f"Anomaly score: {evidence.get('anomaly_score', 0.0):.3f}",
-        f"Assessed baseline severity: {det_sev} (evaluated against TEP process safety limits)",
-        "",
-        "Top sensor deviations:",
+        f"Overall anomaly score: {evidence.get('anomaly_score', 0.0):.3f}",
+        f"Assessed severity level: {det_sev} (evaluated against TEP process safety limits)",
     ]
+
+    # Detector-specific scores and threshold ratios
+    det_ev = evidence.get("detector_evidence", {}) or {}
+    if det_ev:
+        trig = det_ev.get("triggered_by", "unspecified")
+        ctype = det_ev.get("change_type", "unspecified")
+        lines.append(f"Detector trigger: {trig} mode ({ctype} dynamic pattern)")
+
+        lstm = det_ev.get("lstm_ae") or {}
+        if lstm and "score" in lstm:
+            l_sc = float(lstm.get("score", 0.0))
+            l_th = float(lstm.get("threshold", 0.0))
+            l_ratio = l_sc / max(l_th, 1e-9)
+            lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, ratio = {l_ratio:.2f}x, alarmed = {lstm.get('is_anomalous', False)})")
+
+        dyn = det_ev.get("dynamic") or {}
+        cva = dyn.get("cva") or {}
+        if cva and "score" in cva:
+            q_sc = float(cva.get("score", 0.0))
+            q_th = float(cva.get("threshold", 0.0))
+            q_ratio = q_sc / max(q_th, 1e-9)
+            lines.append(f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} (threshold = {q_th:.1f}, ratio = {q_ratio:.2f}x, alarmed = {cva.get('is_anomalous', False)})")
+            if cva.get("dominant_lag") is not None:
+                lines.append(f"  * CVA lag metrics: dominant lag = {cva.get('dominant_lag')}, slow drift ratio = {float(cva.get('slow_drift_ratio', 0.0)):.2f}")
+
+    lines.append("")
+    lines.append("Top sensor deviations:")
     sensors = evidence.get("top_anomalous_sensors", [])
     if sensors:
         for s in sensors:
