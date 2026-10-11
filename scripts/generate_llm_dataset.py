@@ -76,6 +76,38 @@ def build_evidence(fault_id: int, rng: np.random.RandomState, counter: int) -> D
             "relative_time_minutes": round(delay, 2),
         })
 
+    # Synthetic but self-consistent detector evidence so
+    # format_evidence_question() renders LSTM/CVA threshold lines and the
+    # grounded-QA answers below can quote exact scores/thresholds.
+    # Thresholds mirror production (0.6874 / 239.8); at least one detector
+    # alarms since this is an anomaly event.
+    l_th = 0.6874
+    q_th = 239.8
+    l_sc = round(float(rng.uniform(0.4, 2.5)), 4)
+    # Critical/high faults alarm harder on CVA; mediums sometimes LSTM-only.
+    if kb["severity"] in ("critical", "high"):
+        q_sc = round(float(q_th * rng.uniform(1.5, 7.0)), 1)
+    else:
+        q_sc = round(float(q_th * rng.uniform(0.4, 3.0)), 1)
+    if l_sc < l_th and q_sc < q_th:
+        q_sc = round(float(q_th * rng.uniform(1.2, 3.0)), 1)
+    dom_lag = int(rng.randint(0, 5))
+    slow_drift = round(float(rng.uniform(0.1, 0.7)), 2)
+    detector_evidence = {
+        "triggered_by": ("both" if (l_sc >= l_th and q_sc >= q_th)
+                         else ("lstm_ae" if l_sc >= l_th else "dynamic")),
+        "change_type": ("mixed" if (l_sc >= l_th and q_sc >= q_th)
+                        else ("level" if l_sc >= l_th else "dynamics")),
+        "lstm_ae": {"score": l_sc, "threshold": l_th,
+                    "alarmed": bool(l_sc >= l_th)},
+        "dynamic": {"method": "cva",
+                    "cva": {"score": q_sc, "threshold": q_th,
+                            "is_anomalous": bool(q_sc >= q_th),
+                            "alarmed": bool(q_sc >= q_th),
+                            "dominant_lag": dom_lag,
+                            "slow_drift_ratio": slow_drift}},
+    }
+
     evidence = {
         "event_id": f"ANOM-T{counter:04d}",
         "anomaly_score": round(float(rng.uniform(1.2, 3.8)), 3),
@@ -94,8 +126,103 @@ def build_evidence(fault_id: int, rng: np.random.RandomState, counter: int) -> D
         ],
         "evidence_type": "model_derived_evidence",
         "uncertainty": "Correlation does not prove causation; verify on-site.",
+        "detector_evidence": detector_evidence,
     }
     return evidence
+
+
+def build_grounded_qa(evidence: Dict, kb: Dict, rng) -> List[Dict]:
+    """Grounded follow-up QA: the QUESTION embeds the full telemetry context
+    (unlike the legacy generic followups), and the ANSWER quotes exact
+    numbers from that context so the adapter learns to copy scores/values
+    instead of emitting boilerplate.
+
+    Mirrors the 7 deterministic intents in llm/inference.py
+    (_dispatch_with_intent) so the LLM path agrees with the router path.
+    """
+    from llm.dataset import FOLLOWUP_SYSTEM_PROMPT, format_evidence_question
+
+    det = evidence.get("detector_evidence", {}) or {}
+    lstm = det.get("lstm_ae", {}) or {}
+    cva = ((det.get("dynamic", {}) or {}).get("cva", {}) or {})
+    l_sc, l_th = float(lstm.get("score", 0.0)), float(lstm.get("threshold", 0.0))
+    q_sc, q_th = float(cva.get("score", 0.0)), float(cva.get("threshold", 0.0))
+    l_ratio = l_sc / max(l_th, 1e-9)
+    q_ratio = q_sc / max(q_th, 1e-9)
+    l_state = "ALARMED" if lstm.get("alarmed") else "Normal (below limit)"
+    q_state = "ALARMED" if (cva.get("alarmed") or cva.get("is_anomalous")) else "Normal (below limit)"
+    dom_lag = cva.get("dominant_lag", "N/A")
+    slow_drift = float(cva.get("slow_drift_ratio", 0.0))
+    sensors = evidence.get("top_anomalous_sensors", []) or []
+    seq = (evidence.get("temporal_sequence", {}) or {}).get("sequence", []) or []
+    order = ", then ".join(t.get("display_name", "") for t in seq[:3]) or "no clear ordering"
+    first = (seq[0].get("display_name", "") if seq else "")
+    top3 = ", ".join(s.get("display_name", "") for s in sensors[:3])
+    ev_id = evidence.get("event_id", "UNKNOWN")
+    sev = evidence.get("severity", kb.get("severity", "unknown"))
+    sensor_lines = "; ".join(
+        f"{s.get('display_name', '')} {float(s.get('deviation_percent', 0.0)):+.1f}% "
+        f"(val={float(s.get('current_value', 0.0)):.3f}, normal={float(s.get('baseline_value', 0.0)):.3f}, "
+        f"z={float(s.get('z_score', s.get('zScore', 0.0))):+.2f}, trend {s.get('trend', 'unknown')})"
+        for s in sensors[:4]
+    )
+
+    pairs = [
+        ("metrics",
+         rng.choice(["What are the detector metrics and scores calling this an anomaly?",
+                     "Give me the anomaly scores and thresholds."]),
+         (f"Overall anomaly score {float(evidence.get('anomaly_score', 0.0)):.3f} for {ev_id}. "
+          f"LSTM autoencoder reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, "
+          f"ratio = {l_ratio:.2f}x, {l_state}). "
+          f"CVA dynamics Q-statistic = {q_sc:.1f} (threshold = {q_th:.1f}, "
+          f"ratio = {q_ratio:.2f}x, {q_state}). "
+          f"Dominant lag {dom_lag}, slow drift ratio {slow_drift:.2f}.")),
+        ("evidence_why",
+         rng.choice(["Provide the evidence for calling this an anomaly.",
+                     "Why was this flagged as an anomaly? What is the evidence?"]),
+         (f"Threshold exceedance: LSTM {l_sc:.4f} vs {l_th:.4f} ({l_state}); "
+          f"CVA Q {q_sc:.1f} vs {q_th:.1f} ({q_state}). "
+          f"Telemetry excursions: {sensor_lines}. "
+          f"Diagnostic cause: {kb['name']} in subsystem {kb['subsystem']}.")),
+        ("sensor_values",
+         rng.choice(["What are the sensor values and ideal normal baselines?",
+                     "Give me measured vs normal values for the deviating sensors."]),
+         (f"For {ev_id}: {sensor_lines}.")),
+        ("sensors_inspect",
+         rng.choice(["Which sensors should I inspect?",
+                     "Which sensors deviated most strongly?"]),
+         (f"Inspect the sensors that deviated first and most strongly: {top3}. "
+          f"Details: {sensor_lines}.")),
+        ("overview_cause",
+         rng.choice(["Explain the cause of this anomaly.",
+                     "What is this anomaly and what is the likely root cause?"]),
+         (f"{ev_id} is a {sev} anomaly in subsystem {kb['subsystem']}. "
+          f"Likely root cause: {kb['name']}. {kb['reasoning']} "
+          f"Temporal order: {order} (initiating: {first}). "
+          f"Top sensors: {top3}. Recommended action: {kb['action']}")),
+        ("severity",
+         rng.choice(["How serious is this anomaly? What is the severity?",
+                     "What severity was assessed and why?"]),
+         (f"Severity is {sev}. This is based on the sensor deviation magnitudes "
+          f"({sensor_lines}) and subsystem {kb['subsystem']}. {kb['action']}")),
+        ("action",
+         rng.choice(["What should I do to fix it?",
+                     "What is the recommended action and mitigation?"]),
+         (f"Direct action: {kb['action']} Target subsystem: {kb['subsystem']}. "
+          f"Safety precaution: correlation does not prove causation; verify on site. "
+          f"Severity: {sev}.")),
+    ]
+    context = format_evidence_question(evidence)
+    out = []
+    for intent, op_q, ans in pairs:
+        out.append({
+            "kind": "grounded_qa",
+            "intent": intent,
+            "question": context + "\n\nOperator question: " + op_q,
+            "answer": ans,
+            "system": FOLLOWUP_SYSTEM_PROMPT,
+        })
+    return out
 
 
 def build_report_answer(evidence: Dict, kb: Dict) -> Dict:
@@ -263,11 +390,13 @@ def generate_dataset(config: Dict, samples_per_fault: int, seed: int) -> Dict:
                 answer = build_report_answer(evidence, kb)
                 records[split].append({
                     "kind": "report",
+                    "intent": "report",
                     "fault_id": fault_id,
                     "fault_name": kb["name"],
                     "severity": kb["severity"],
                     "question": question,
                     "answer": render_answer_json(answer),
+                    "system": "",
                     "evidence": evidence,
                     "reference": {
                         "name": kb["name"], "subsystem": kb["subsystem"],
@@ -277,11 +406,32 @@ def generate_dataset(config: Dict, samples_per_fault: int, seed: int) -> Dict:
                 for fq in build_followup_samples(evidence, kb):
                     records[split].append({
                         "kind": "followup",
+                        "intent": "followup_generic",
                         "fault_id": fault_id,
                         "fault_name": kb["name"],
                         "severity": kb["severity"],
                         "question": fq["question"],
                         "answer": fq["answer"],
+                        "system": "",
+                        "evidence": evidence,
+                        "reference": {
+                            "name": kb["name"], "subsystem": kb["subsystem"],
+                            "severity": kb["severity"],
+                        },
+                    })
+                # Grounded QA (Track 3): question carries telemetry context,
+                # answer quotes exact numbers. Added to every split so val /
+                # test measure grounding, not just train.
+                for gq in build_grounded_qa(evidence, kb, rng):
+                    records[split].append({
+                        "kind": "grounded_qa",
+                        "intent": gq["intent"],
+                        "fault_id": fault_id,
+                        "fault_name": kb["name"],
+                        "severity": kb["severity"],
+                        "question": gq["question"],
+                        "answer": gq["answer"],
+                        "system": gq["system"],
                         "evidence": evidence,
                         "reference": {
                             "name": kb["name"], "subsystem": kb["subsystem"],
@@ -292,11 +442,13 @@ def generate_dataset(config: Dict, samples_per_fault: int, seed: int) -> Dict:
                     for ss in build_severity_samples(evidence, kb):
                         records[split].append({
                             "kind": "severity",
+                            "intent": "severity",
                             "fault_id": fault_id,
                             "fault_name": kb["name"],
                             "severity": kb["severity"],
                             "question": ss["question"],
                             "answer": ss["answer"],
+                            "system": "",
                             "evidence": evidence,
                             "reference": {
                                 "name": kb["name"], "subsystem": kb["subsystem"],
@@ -307,11 +459,13 @@ def generate_dataset(config: Dict, samples_per_fault: int, seed: int) -> Dict:
                                                            _same_subsystem_peer(fault_id, kb, split_map["train"])):
                         records[split].append({
                             "kind": "discrimination",
+                            "intent": "discrimination",
                             "fault_id": fault_id,
                             "fault_name": kb["name"],
                             "severity": kb["severity"],
                             "question": ds["question"],
                             "answer": ds["answer"],
+                            "system": "",
                             "evidence": evidence,
                             "reference": {
                                 "name": kb["name"], "subsystem": kb["subsystem"],

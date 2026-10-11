@@ -49,6 +49,22 @@ SYSTEM_PROMPT = (
     "- low: Minor transient variations or slow catalyst reaction kinetics drift without immediate operational risk (Fault 13)."
 )
 
+FOLLOWUP_SYSTEM_PROMPT = (
+    "You are an industrial process assistant and control room diagnostic expert "
+    "for the Tennessee Eastman Process (TEP). An operator is asking about a "
+    "specific detected anomaly event. The user message contains the full "
+    "incident telemetry (detector scores vs thresholds, sensor observed vs "
+    "normal values with deviation %, temporal order) followed by the operator "
+    "question.\n\n"
+    "GROUNDING RULES:\n"
+    "1. Answer using ONLY numbers present in the telemetry block. Quote exact "
+    "detector scores/thresholds and sensor observed/baseline values.\n"
+    "2. Never say 'as shown in the table below'. State the numbers directly.\n"
+    "3. Name only sensors listed in the telemetry. Never invent sensor names.\n"
+    "4. Keep temporal claims to the given propagation sequence; do not reorder it.\n"
+    "5. If evidence is insufficient, say so and recommend on-site verification."
+)
+
 ANSWER_KEYS = [
     "reasoning_steps", "summary", "root_cause", "affected_subsystem", "evidence",
     "reasoning", "severity", "confidence", "recommended_action", "uncertainty",
@@ -245,7 +261,9 @@ class TEPInstructionDataset(torch.utils.data.Dataset):
         sample = self.samples[index]
         question = sample["question"]
         answer = sample["answer"]
-        system = sample.get("system", self.system_prompt)
+        # Empty/missing system falls back to the default report prompt;
+        # grounded_qa samples carry FOLLOWUP_SYSTEM_PROMPT instead.
+        system = sample.get("system") or self.system_prompt
 
         prompt = build_chat_prompt(system, [("user", question)])
         prompt_ids, answer_ids = self._tokenize_parts(prompt, answer + EOS)

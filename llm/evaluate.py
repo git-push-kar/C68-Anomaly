@@ -174,6 +174,75 @@ def evaluate_adapter(
     return {"metrics": metrics, "detail": detail, "counts": dict(stats)}
 
 
+def evaluate_grounding(
+    inference: RCAInference,
+    samples: List[Dict],
+    max_new_tokens: int = 512,
+) -> Dict:
+    """Grounding eval for `grounded_qa` samples (Track 3).
+
+    For each sample, generates a free-text answer from the sample's own
+    question (which embeds the telemetry context) and checks:
+      * number recall: LSTM score, CVA score, and >=1 sensor deviation/value
+        from the evidence appear verbatim in the answer;
+      * no vague boilerplate ('as shown in the table below');
+      * no foreign sensor names (same token rule as evaluate_adapter).
+    Returns metrics + per-sample detail. Free-text (no JSON parsing).
+    """
+    from llm.dataset import FOLLOWUP_SYSTEM_PROMPT  # noqa: E402
+
+    grounded = [s for s in samples if s.get("kind") == "grounded_qa"]
+    if not grounded:
+        raise ValueError("No grounded_qa samples provided.")
+    sensor_re = re.compile(r"(?:^|[\s\W])([A-Za-z][A-Za-z0-9]*_[A-Za-z0-9]+|X(?:MEAS|MV|MAX|MIN|PV|CV)[0-9]+)(?:$|[\s\W])")
+    num_re = re.compile(r"\d+\.\d+")
+    n = len(grounded)
+    num_hits = 0
+    vague_hits = 0
+    foreign_hits = 0
+    detail = []
+    for sample in grounded:
+        evidence = sample["evidence"]
+        system = sample.get("system") or FOLLOWUP_SYSTEM_PROMPT
+        prompt = build_chat_prompt(system, [("user", sample["question"])])
+        raw = inference._generate(prompt, max_new_tokens=max_new_tokens)
+        # Recall vs the reference answer's own numbers (each intent quotes a
+        # different subset: metrics -> scores, sensor_values -> val/baseline).
+        ref_numbers = num_re.findall(str(sample.get("answer", "")))
+        recalled = sum(1 for num in ref_numbers if num in raw)
+        frac = (recalled / len(ref_numbers)) if ref_numbers else 1.0
+        num_ok = frac >= 0.6
+        num_hits += int(num_ok)
+        vague = "as shown in the table below" in raw.lower() or "as shown below" in raw.lower()
+        vague_hits += int(vague)
+        sensors = evidence.get("top_anomalous_sensors", []) or []
+        mentioned = set(t.lower() for t in sensor_re.findall(raw))
+        # Allow multi-underscore names (regex only captures the first two
+        # segments) and the subsystem name itself.
+        allowed = {_normalize(s.get("display_name", "")).replace(" ", "_")
+                   for s in sensors}
+        allowed.add(_normalize(str(evidence.get("candidate_subsystem", ""))).replace(" ", "_"))
+        foreign = {m for m in mentioned
+                   if not any(a.startswith(m) or m.startswith(a) for a in allowed)}
+        foreign_hits += int(bool(foreign))
+        detail.append({
+            "fault_id": sample.get("fault_id"),
+            "intent": sample.get("intent"),
+            "number_recall": f"{recalled}/{len(ref_numbers)}",
+            "numbers_ok": num_ok,
+            "vague": vague,
+            "foreign_sensors": sorted(foreign),
+            "raw": raw[:800],
+        })
+    metrics = {
+        "n_samples": n,
+        "number_recall_rate": num_hits / n,
+        "vague_boilerplate_rate": vague_hits / n,
+        "foreign_sensor_rate": foreign_hits / n,
+    }
+    return {"metrics": metrics, "detail": detail}
+
+
 def _overlap(pred: str, ref: str, top_k: int) -> bool:
     pred_tokens = set(pred.split())
     ref_tokens = set(ref.split())

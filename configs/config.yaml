@@ -151,7 +151,7 @@ llm:
   # Note: Ensure this path exactly matches the location of the folder in your screenshot!
   base_model: "./models/internvl3_2b_lr_fused"
   adapter_name: tep_rca
-  adapter_dir: outputs/tep_rca_adapter_fused
+  adapter_dir: outputs/tep_rca_adapter_grounded
   trust_remote_code: true
   use_flash_attn: false          # set true on A5000 if flash-attn installed
   dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
