@@ -199,7 +199,7 @@ llm:
     val_faults: [4, 14]
     test_faults: [15, 21]
   generation:
-    max_new_tokens: 384
+    max_new_tokens: 512
     do_sample: false
     temperature: 0.7
     top_p: 0.9

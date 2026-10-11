@@ -73,20 +73,14 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
         )
         or "No clear onset ordering detected."
     )
-    # Dynamics-aware summary
+    # Sensor-grounded summary: root cause follows the dominant deviating
+    # sensors + candidate subsystem, never the detector trigger mode alone.
+    # (A dynamics/CVA trigger only means a dynamic pattern was seen; it must
+    # not force a condenser diagnosis when top sensors point elsewhere.)
     det = ev.detector_evidence or {}
     top_sensor_names = [s.get("display_name", "") for s in ev.top_anomalous_sensors[:3]]
-    top_sensor_str = " ".join(top_sensor_names)
 
-    if det.get("change_type") == "dynamics" or (det.get("triggered_by") == "dynamic" and "condenser" in top_sensor_str.lower()):
-        summary = (f"Anomaly detected (dynamics, CVA Q {det.get('dynamic',{}).get('cva',{}).get('score',0):.1f} > thr); "
-                   f"candidate '{ev.candidate_subsystem}' (LSTM score {det.get('lstm_ae',{}).get('score',0):.3f}). "
-                   "Indicative of valve stiction / hysteresis in condenser cooling loop — verify cooling actuators.")
-        root_cause = "Condenser cooling water valve sticking (stiction hysteresis)"
-        affected = "condenser_cooling_system"
-        confidence = 0.88
-        action = "Inspect condenser cooling water valve and actuator hysteresis; check CVA contributions and verify on site."
-    else:
+    if True:
         # Determine candidate root cause based on dominant physical deviations
         if any("A_Feed" in s for s in top_sensor_names):
             root_cause = "A/C feed ratio step change or A feed loss"
@@ -111,6 +105,14 @@ def _fallback_report(event: AnomalyEvent) -> Dict:
             affected = ev.candidate_subsystem
 
         summary = f"Anomaly detected with score {ev.anomaly_score:.2f}; candidate root cause: {root_cause}."
+        # Preserve detector context without overriding the sensor-grounded cause.
+        try:
+            cva = ((det.get("dynamic", {}) or {}).get("cva", {}) or {})
+            if cva.get("is_anomalous") or cva.get("alarmed"):
+                summary += (f" (CVA Q {float(cva.get('score', 0)):.1f} > thr "
+                            f"{float(cva.get('threshold', 0)):.1f}; dynamics pattern — verify on site)")
+        except Exception:
+            pass
         confidence = round(max(ev.candidate_subsystem_score, 0.75), 2)
         action = f"Inspect the {affected} components and verify the suspect sensors on site."
 
@@ -390,7 +392,14 @@ class TEPApp:
     # follow-up questions
     # ==================================================================
     def answer_followup(self, event_id: str, user_question: str) -> Dict:
-        """Answer a follow-up question about a stored anomaly event."""
+        """Answer a follow-up question about a stored anomaly event.
+
+        Intent-first routing (Track 2): deterministic operator intents
+        (metrics / evidence / sensor values / severity / ...) are answered
+        directly from evidence so numbers are exact. The LLM is reserved
+        for genuinely open-ended questions. A numeric guardrail discards
+        LLM answers that should contain numbers but don't.
+        """
         event = self.event_store.get_event(event_id)
         if event is None:
             raise KeyError(f"Unknown event: {event_id}")
@@ -401,27 +410,49 @@ class TEPApp:
         if not isinstance(history, list):
             history = []
 
-        if self.rca is not None:
-            answer = self.rca.answer_followup(event, report, history, user_question)
-        else:
-            from llm.inference import RCAInference
-            intent_ans = RCAInference._dispatch_operator_intent(event, report, user_question)
-            if intent_ans is not None:
-                answer = intent_ans
+        from llm.inference import RCAInference
+
+        # 1) Intent-first: exact numeric answers when the question matches.
+        intent_hit = RCAInference._dispatch_with_intent(event, report, user_question)
+        route = None
+        intent = None
+        answer = None
+        if intent_hit is not None:
+            intent, answer = intent_hit
+            route = "deterministic"
+            logger.info("Followup %s route=deterministic intent=%s", event_id, intent)
+        elif self.rca is not None:
+            # 2) Open-ended: LLM with numeric guardrail.
+            llm_answer = self.rca.answer_followup(event, report, history, user_question)
+            guarded = RCAInference._guard_llm_answer(event, report, user_question, llm_answer)
+            if guarded is not None:
+                intent, answer = guarded
+                route = "deterministic-guardrail"
+                logger.warning("Followup %s LLM answer failed numeric guardrail; "
+                               "used deterministic intent=%s", event_id, intent)
             else:
-                ev_dict = event.get("evidence") if isinstance(event.get("evidence"), dict) else {}
-                top_s = ev_dict.get("top_anomalous_sensors", []) if isinstance(ev_dict, dict) else []
-                n_sensors = len(top_s) if isinstance(top_s, list) else 0
-                subsystem = ev_dict.get("candidate_subsystem", "unknown") if isinstance(ev_dict, dict) else "unknown"
-                answer = (
-                    f"[Deterministic fallback] The event {event_id} shows "
-                    f"{n_sensors} deviating sensors. The candidate subsystem is "
-                    f"'{subsystem}'. "
-                    f"Suspected cause: {report.get('root_cause', 'Unknown')}, Severity: {report.get('severity', 'Unknown')}. "
-                    "Load the tep_rca adapter for conversational open-ended answers."
-                )
+                answer = llm_answer
+                route = "llm"
+        else:
+            ev_dict = event.get("evidence") if isinstance(event.get("evidence"), dict) else {}
+            top_s = ev_dict.get("top_anomalous_sensors", []) if isinstance(ev_dict, dict) else []
+            n_sensors = len(top_s) if isinstance(top_s, list) else 0
+            subsystem = ev_dict.get("candidate_subsystem", "unknown") if isinstance(ev_dict, dict) else "unknown"
+            answer = (
+                f"[Deterministic fallback] The event {event_id} shows "
+                f"{n_sensors} deviating sensors. The candidate subsystem is "
+                f"'{subsystem}'. "
+                f"Suspected cause: {report.get('root_cause', 'Unknown')}, Severity: {report.get('severity', 'Unknown')}. "
+                "Load the tep_rca adapter for conversational open-ended answers."
+            )
+            route = "deterministic-fallback"
+            intent = "fallback"
         self.event_store.add_followup(event_id, user_question, answer)
-        return {"event_id": event_id, "question": user_question, "answer": answer}
+        result = {"event_id": event_id, "question": user_question, "answer": answer}
+        # Backward-compatible metadata (existing UI uses only ["answer"]).
+        result["route"] = route
+        result["intent"] = intent
+        return result
 
     # ==================================================================
     # batch / file helpers

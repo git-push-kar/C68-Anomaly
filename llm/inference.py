@@ -399,9 +399,11 @@ class RCAInference:
 
         # Retain the fine-tuned TEP adapter for full chemical process domain knowledge.
         # Use greedy decoding (do_sample=False) for grounded, deterministic engineering answers.
+        # Budget raised (Track 2): open-ended answers need room for exact
+        # numbers; deterministic intents already bypass the LLM entirely.
         return self._generate(
             prompt,
-            max_new_tokens=min(int(self._gen_config.get("max_new_tokens", 384)), 256),
+            max_new_tokens=max(384, min(int(self._gen_config.get("max_new_tokens", 512)), 512)),
             do_sample=False,
             repetition_penalty=1.12,
         )
@@ -413,7 +415,59 @@ class RCAInference:
         report: Dict,
         question: str,
     ) -> Optional[str]:
-        """Detect and immediately answer common operational control-room questions (used in deterministic fallback)."""
+        """Detect and immediately answer common operational control-room questions."""
+        hit = cls._dispatch_with_intent(event, report, question)
+        return hit[1] if hit is not None else None
+
+    @classmethod
+    def _guard_llm_answer(
+        cls,
+        event: Dict,
+        report: Dict,
+        question: str,
+        llm_answer: str,
+    ) -> Optional[Tuple[str, str]]:
+        """Numeric guardrail for LLM answers.
+
+        If the operator asked for scores / evidence / sensor values but the
+        LLM answer contains no digits (or uses vague boilerplate instead of
+        numbers), fall back to the deterministic intent answer.
+        Returns (intent, answer) on guardrail trip, else None.
+        """
+        if not isinstance(llm_answer, str):
+            return None
+        q = (question or "").lower().strip()
+        needs_numbers = any(w in q for w in (
+            "score", "scores", "metric", "metrics", "threshold",
+            "reconstruction error", "q-stat", "q stat",
+            "evidence", "why is this an anomaly", "why was this flagged",
+            "sensor value", "sensor values", "ideal value", "normal value",
+            "baseline value", "measured value", "observed value",
+        ))
+        vague = any(p in llm_answer.lower() for p in (
+            "as shown in the table below",
+            "as shown below",
+        ))
+        has_digit = any(ch.isdigit() for ch in llm_answer)
+        if needs_numbers and (not has_digit or vague):
+            hit = cls._dispatch_with_intent(event, report, question)
+            if hit is not None:
+                return hit
+            # Question demanded numbers but no intent matched: force evidence view.
+            forced = cls._dispatch_with_intent(event, report, "provide the evidence for calling this an anomaly")
+            if forced is not None:
+                return forced
+        return None
+
+    @classmethod
+    def _dispatch_with_intent(
+        cls,
+        event: Dict,
+        report: Dict,
+        question: str,
+    ) -> Optional[Tuple[str, str]]:
+        """Same as _dispatch_operator_intent but also returns the intent name."""
+        # Intent labels mirror the sections below; used for route logging.
         if not isinstance(event, dict):
             event = {}
         if not isinstance(report, dict):
@@ -439,6 +493,9 @@ class RCAInference:
         has_sensors = not has_system_sensors and not has_sensor_scores and not has_sensor_values and any(w in q for w in ("sensor", "sensors", "inspect", "deviat", "which sensor"))
         has_action = any(w in q for w in ("what should i do", "what to do", "action", "recommend", "how to fix", "provide a fix", "fix", "mitigat", "next step", "procedure"))
         has_overview = any(w in q for w in ("which anomaly", "what is this anomaly", "what anomaly", "which fault", "what fault", "fault number", "fault type", "what happened", "what is this", "overview", "root cause", "cause", "explain anomaly", "explain this anomaly", "diagnose", "summary"))
+        # Generic why/explain fallback intent (checked last so specific
+        # metric/evidence/severity intents keep priority).
+        has_generic_why = any(w in q for w in ("why ", "why?", "explain", "diagnos"))
 
         lstm = det_ev.get("lstm_ae") if isinstance(det_ev.get("lstm_ae"), dict) else {}
         l_sc = float(lstm.get("score", 0.0))
@@ -488,7 +545,7 @@ class RCAInference:
                         )
             else:
                 lines.append("No univariate sensor excursions; multi-sensor correlation dynamics triggered the anomaly.")
-            return "\n".join(lines)
+            return ("sensor_values", "\n".join(lines))
 
         # Intent: Why is this an anomaly / what evidence forces it
         if has_evidence_why:
@@ -516,7 +573,7 @@ class RCAInference:
             else:
                 lines.append("- Multi-variable dynamic correlation anomaly across plant control loops.")
             lines.append(f"\n**Diagnostic Cause:** {root_cause} in subsystem `{subsystem}`.")
-            return "\n".join(lines)
+            return ("evidence_why", "\n".join(lines))
 
         # Intent: Which sensors are used in the system
         if has_system_sensors:
@@ -542,7 +599,7 @@ class RCAInference:
             if top_sensors:
                 s_names = ", ".join(s.get("display_name", s.get("name", "Sensor")) for s in top_sensors[:5])
                 lines.append(f"\nIn this incident ({ev_id}), the active deviating sensors are: **{s_names}**.")
-            return "\n".join(lines)
+            return ("system_sensors", "\n".join(lines))
 
         # Intent: Sensor scores specifically
         if has_sensor_scores:
@@ -563,7 +620,7 @@ class RCAInference:
                     lines.append(f"- **{name}:** z-score = `{z:+.2f}`, Deviation = `{dev:+.1f}%`, Trend = `{trend}`, Contribution score = `{contrib:.2f}`{val_str}{lim_text}")
             else:
                 lines.append("No individual sensors showed severe univariate excursions; anomaly was detected via dynamic multi-sensor correlation.")
-            return "\n".join(lines)
+            return ("sensor_scores", "\n".join(lines))
 
         # Intent: Both detector scores and severity requested
         if has_detector_scores and has_severity:
@@ -579,7 +636,7 @@ class RCAInference:
                 "",
                 f"- **Suspected Root Cause:** {root_cause} (`{subsystem}`)",
             ]
-            return "\n".join(lines)
+            return ("detector_severity", "\n".join(lines))
 
         # Intent: Detector Scores only
         if has_detector_scores:
@@ -592,7 +649,7 @@ class RCAInference:
                 f"- **CVA Dynamics Q-Statistic:** Score = `{q_sc:.1f}` (Threshold: `{q_th:.1f}`, Margin: `{q_ratio:.2f}x` — {q_alarm})",
                 f"- **CVA Lag Profile:** Dominant lag `{dom_lag}`, Slow drift ratio `{slow_drift:.2f}`",
             ]
-            return "\n".join(lines)
+            return ("detector_scores", "\n".join(lines))
 
         # Intent: Severity only
         if has_severity:
@@ -608,7 +665,7 @@ class RCAInference:
                 f"- **Safety Context:** {sev_expl}",
                 f"- **Suspected Cause:** {root_cause} affecting `{subsystem}`.",
             ]
-            return "\n".join(lines)
+            return ("severity", "\n".join(lines))
 
         # Intent: Overview / What is this anomaly
         if has_overview:
@@ -626,7 +683,7 @@ class RCAInference:
                 "",
                 f"**Recommended Action:** {action}",
             ]
-            return "\n".join(lines)
+            return ("overview", "\n".join(lines))
 
         # Intent: Sensors to inspect
         if has_sensors:
@@ -646,7 +703,7 @@ class RCAInference:
                     lines.append(f"- **{name}:** Deviation `{dev:+.1f}%`, z-score `{z:+.2f}`, Trend: `{trend}`{val_str}{lim_text}")
             else:
                 lines.append("No individual sensors showed severe statistical excursions; anomaly was detected via dynamic correlation.")
-            return "\n".join(lines)
+            return ("sensors_inspect", "\n".join(lines))
 
         # Intent: Recommended action / mitigation / fix
         if has_action:
@@ -656,7 +713,26 @@ class RCAInference:
                 f"- **Subsystem Target:** Inspect all valves and instruments in `{subsystem}`.",
                 f"- **Safety Precaution:** {uncertainty}",
             ]
-            return "\n".join(lines)
+            return ("action", "\n".join(lines))
+
+        # Generic why/explain fallback -> overview (only when nothing else hit,
+        # so specific metric/evidence/severity intents keep priority).
+        if has_generic_why:
+            trig = det_ev.get("triggered_by", "fused")
+            ctype = det_ev.get("change_type", "unspecified")
+            top_s = evidence.get("top_anomalous_sensors", [])[:3]
+            sensor_str = ", ".join(s.get("display_name", s.get("name", "Sensor")) for s in top_s) or "No single sensor dominating"
+            lines = [
+                f"### Incident Diagnosis for {ev_id}",
+                f"- **Root Cause:** **{root_cause}**",
+                f"- **Affected Subsystem:** `{subsystem}`",
+                f"- **Severity:** **{sev}**",
+                f"- **Alarm Trigger:** Mode `{trig}` ({ctype} dynamic pattern)",
+                f"- **Primary Deviating Sensors:** {sensor_str}",
+                "",
+                f"**Recommended Action:** {action}",
+            ]
+            return ("overview_fallback", "\n".join(lines))
 
         return None
 
