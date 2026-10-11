@@ -143,7 +143,7 @@ class RCAInference:
         successfully) and append argmax tokens until EOS or the token budget.
         """
         eos_token_id = self.tokenizer.convert_tokens_to_ids(EOS)
-        max_new = max_new_tokens or int(self._gen_config.get("max_new_tokens", 768))
+        max_new = max_new_tokens or int(self._gen_config.get("max_new_tokens", 384))
         do_sample = bool(self._gen_config.get("do_sample", False))
         temp = float(self._gen_config.get("temperature", 0.7))
         top_p = float(self._gen_config.get("top_p", 0.9))
@@ -151,11 +151,19 @@ class RCAInference:
         rep_penalty = float(self._gen_config.get("repetition_penalty", 1.0))
         pad = self.tokenizer.pad_token_id or eos_token_id
 
+        # Collect all valid stop token IDs (EOS, <|im_end|>, tokenizer eos, etc.)
+        stop_token_ids = {eos_token_id, self.tokenizer.eos_token_id}
+        for token_str in (EOS, "<|im_end|>", "</s>", "<|endoftext|>"):
+            tid = self.tokenizer.convert_tokens_to_ids(token_str)
+            if tid is not None and isinstance(tid, int) and tid > 0:
+                stop_token_ids.add(tid)
+        stop_token_ids.discard(None)
+
         enc = self.tokenizer(prompt, return_tensors="pt", add_special_tokens=True)
         input_ids = enc["input_ids"].to(self.model.device)
         attention_mask = enc["attention_mask"].to(self.model.device)
 
-        # Text-only InternVL2 forward needs the dummy image placeholders.
+        # Text-only InternVL2 forward needs the dummy image placeholders for prefill.
         dummy = torch.zeros(
             1, 3, int(self.config["llm"].get("dummy_image_size", 448)),
             int(self.config["llm"].get("dummy_image_size", 448)),
@@ -164,18 +172,87 @@ class RCAInference:
         image_flags = torch.zeros((input_ids.shape[0],), dtype=torch.long, device=self.model.device)
 
         generated: List[int] = []
+        past_key_values = None
+        use_cache = True
+        next_id = None
+
         with torch.no_grad():
-            for _ in range(max_new):
-                logits = self.model(
-                    pixel_values=dummy,
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    image_flags=image_flags,
-                    use_cache=False,
-                ).logits[:, -1, :]
+            for step in range(max_new):
+                if step == 0:
+                    # Step 0 (Prefill): evaluate prompt and initialize KV cache
+                    try:
+                        outputs = self.model(
+                            pixel_values=dummy,
+                            input_ids=input_ids,
+                            attention_mask=attention_mask,
+                            image_flags=image_flags,
+                            use_cache=True,
+                        )
+                        past_key_values = getattr(outputs, "past_key_values", None)
+                        logits = outputs.logits[:, -1, :]
+                        if past_key_values is None:
+                            use_cache = False
+                    except Exception as exc:
+                        logger.warning("KV caching prefill not supported (%s); using direct decode.", exc)
+                        use_cache = False
+                        logits = self.model(
+                            pixel_values=dummy,
+                            input_ids=input_ids,
+                            attention_mask=attention_mask,
+                            image_flags=image_flags,
+                            use_cache=False,
+                        ).logits[:, -1, :]
+                else:
+                    # Autoregressive generation steps
+                    if use_cache and past_key_values is not None:
+                        try:
+                            # Fast path: pass only the 1 newly generated token with KV cache (O(1))
+                            outputs = self.model(
+                                pixel_values=None,
+                                input_ids=next_id,
+                                attention_mask=attention_mask,
+                                image_flags=None,
+                                past_key_values=past_key_values,
+                                use_cache=True,
+                            )
+                            past_key_values = outputs.past_key_values
+                            logits = outputs.logits[:, -1, :]
+                        except Exception:
+                            # Fallback if pixel_values=None is rejected by custom model architecture
+                            try:
+                                outputs = self.model(
+                                    pixel_values=dummy,
+                                    input_ids=next_id,
+                                    attention_mask=attention_mask,
+                                    image_flags=image_flags,
+                                    past_key_values=past_key_values,
+                                    use_cache=True,
+                                )
+                                past_key_values = outputs.past_key_values
+                                logits = outputs.logits[:, -1, :]
+                            except Exception as exc:
+                                logger.warning("KV cache step failed (%s); reverting to full sequence.", exc)
+                                use_cache = False
+                                logits = self.model(
+                                    pixel_values=dummy,
+                                    input_ids=input_ids,
+                                    attention_mask=attention_mask,
+                                    image_flags=image_flags,
+                                    use_cache=False,
+                                ).logits[:, -1, :]
+                    else:
+                        logits = self.model(
+                            pixel_values=dummy,
+                            input_ids=input_ids,
+                            attention_mask=attention_mask,
+                            image_flags=image_flags,
+                            use_cache=False,
+                        ).logits[:, -1, :]
+
                 if rep_penalty != 1.0 and generated:
                     for g in set(generated):
                         logits[:, g] /= rep_penalty
+
                 if do_sample:
                     logits = logits / temp
                     probs = torch.nn.functional.softmax(logits, dim=-1)
@@ -191,14 +268,18 @@ class RCAInference:
                         top_vals, _ = torch.topk(logits, min(top_k, logits.shape[-1]))
                         logits[logits < top_vals[:, -1:]] = -float("inf")
                     next_id = torch.argmax(logits, dim=-1, keepdim=True)
+
                 next_id = next_id.to(self.model.device)
-                if int(next_id.item()) == eos_token_id:
+                curr_token = int(next_id.item())
+                if curr_token in stop_token_ids:
                     break
-                generated.append(int(next_id.item()))
+
+                generated.append(curr_token)
                 input_ids = torch.cat([input_ids, next_id], dim=-1)
                 attention_mask = torch.cat(
                     [attention_mask, torch.ones_like(next_id)], dim=-1
                 )
+
         text = self.tokenizer.decode(generated, skip_special_tokens=True)
         return text.strip()
 
