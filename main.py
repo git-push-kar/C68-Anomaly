@@ -400,13 +400,19 @@ class TEPApp:
         if self.rca is not None:
             answer = self.rca.answer_followup(event, report, history, user_question)
         else:
-            answer = (
-                f"[Deterministic fallback] The event {event_id} shows "
-                f"{len(event.get('evidence', {}).get('top_anomalous_sensors', []))} "
-                "deviating sensors. The candidate subsystem is "
-                f"'{event.get('evidence', {}).get('candidate_subsystem', 'unknown')}'. "
-                "Load the tep_rca adapter for a conversational answer."
-            )
+            from llm.inference import RCAInference
+            intent_ans = RCAInference._dispatch_operator_intent(event, report, user_question)
+            if intent_ans is not None:
+                answer = intent_ans
+            else:
+                answer = (
+                    f"[Deterministic fallback] The event {event_id} shows "
+                    f"{len(event.get('evidence', {}).get('top_anomalous_sensors', []))} "
+                    "deviating sensors. The candidate subsystem is "
+                    f"'{event.get('evidence', {}).get('candidate_subsystem', 'unknown')}'. "
+                    f"Suspected cause: {report.get('root_cause', 'Unknown')}, Severity: {report.get('severity', 'Unknown')}. "
+                    "Load the tep_rca adapter for conversational open-ended answers."
+                )
         self.event_store.add_followup(event_id, user_question, answer)
         return {"event_id": event_id, "question": user_question, "answer": answer}
 
