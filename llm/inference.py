@@ -266,7 +266,8 @@ class RCAInference:
 
                 if rep_penalty != 1.0 and generated:
                     for g in set(generated):
-                        logits[:, g] /= rep_penalty
+                        val = logits[:, g]
+                        logits[:, g] = torch.where(val < 0, val * rep_penalty, val / rep_penalty)
 
                 if do_sample:
                     logits = logits / temp
@@ -296,6 +297,8 @@ class RCAInference:
                 )
 
         text = self.tokenizer.decode(generated, skip_special_tokens=True)
+        for stop_str in (EOS, "<|im_end|>", "</s>", "<|endoftext|>"):
+            text = text.replace(stop_str, "")
         return text.strip()
 
     # ------------------------------------------------------------------
@@ -332,38 +335,46 @@ class RCAInference:
     ) -> str:
         """Answer a user question about a specific detected anomaly.
 
-        Provides immediate, 100% grounded answers for operational queries
-        (scores, severity, sensors, root cause, actions) and uses the
-        underlying base chat LLM (with LoRA disabled) for novel free-form queries.
+        Every question is processed directly by the LLM using comprehensive
+        incident telemetry context and the fine-tuned domain adapter. No
+        canned keyword templates are forced.
         """
-        # 1. Fast, exact operational intent dispatch
-        intent_answer = self._dispatch_operator_intent(event, previous_report, question)
-        if intent_answer is not None:
-            return intent_answer
-
-        # 2. Conversational LLM generation for free-form questions
         chat_system_prompt = (
-            "You are an industrial process assistant for the Tennessee Eastman Process (TEP). "
-            "An operator is asking questions about a specific detected anomaly event.\n\n"
-            "CRITICAL INSTRUCTIONS:\n"
-            "- Answer the operator's question directly, accurately, and concisely based on the incident data provided.\n"
-            "- If asked for the scores: clearly state the overall score, LSTM reconstruction score vs threshold, and CVA Q-statistic vs threshold.\n"
-            "- If asked for the severity: state the exact assessed severity level (low, medium, high, or critical) and the reason why.\n"
-            "- If asked for the root cause or subsystem: explain the physical mechanism and suspect components.\n"
-            "- Do NOT repeat the initial diagnosis paragraph unless specifically asked to explain the entire event from scratch."
+            "You are an industrial process assistant and control room diagnostic expert for the "
+            "Tennessee Eastman Process (TEP). An operator is asking questions about a specific "
+            "detected anomaly event.\n\n"
+            "You are provided with comprehensive incident telemetry, including model-level detector scores, "
+            "individual sensor scores, the 52-sensor plant baseline, and diagnostic findings.\n\n"
+            "GUIDELINES FOR ANSWERING:\n"
+            "1. Answer the operator's question directly, accurately, and concisely based on the incident data provided.\n"
+            "2. Distinguish clearly between Detector Scores and Sensor Scores:\n"
+            "   - If asked for the scores calling this an anomaly or detector scores: report the overall anomaly score, "
+            "LSTM Autoencoder reconstruction error vs threshold, and CVA Q-statistic vs threshold.\n"
+            "   - If asked for sensor scores or which sensors are anomalous: report the individual sensor z-scores, "
+            "percentage deviations, trends, and limit alerts from the sensor metrics section.\n"
+            "3. If asked which sensors are used in this system: explain that the plant monitors 52 continuous process "
+            "variables (41 measurement variables XMEAS 1 to 41 and 11 manipulated variables XMV 1 to 11), and highlight "
+            "which sensors are currently deviating in this incident.\n"
+            "4. If asked for a fix, procedure, or mitigation ('provide a fix for this', 'what should I do'): outline "
+            "specific engineering corrective actions, valves or loops to inspect, and safety precautions based on the "
+            "suspected root cause and affected subsystem.\n"
+            "5. If asked for severity: state the exact assessed level (low, medium, high, or critical) and the safety rationale.\n"
+            "6. Answer in professional, factual engineering language. Do NOT emit special tokens (such as </s>) or repeat boilerplate text."
         )
 
         context = self._render_event_context(event, previous_report)
         ev_id = event.get("event_id", "UNKNOWN")
         rc = previous_report.get("root_cause", "Unknown")
-        sev = previous_report.get("severity", "Unknown")
+        sev = str(previous_report.get("severity", "Unknown")).upper()
 
         messages: List[Tuple[str, str]] = [
-            ("user", f"Here is the telemetry and diagnostic data for anomaly {ev_id}:\n\n{context}"),
-            ("assistant", f"I have reviewed the diagnostic data for incident {ev_id}. Suspected cause: {rc}, Severity: {sev.upper()}. How can I assist you with this event?"),
+            ("user", f"Here is the telemetry, detector scores, sensor metrics, and plant context for anomaly {ev_id}:\n\n{context}"),
+            ("assistant", f"I have reviewed the diagnostic data for incident {ev_id}. Suspected cause: {rc}, Severity: {sev}. How can I assist you with this event?"),
         ]
 
-        for msg in history:
+        # Bound history to last 4 turns to keep context sharp and avoid attention drift
+        recent_history = history[-4:] if history else []
+        for msg in recent_history:
             role = msg.get("role")
             content = msg.get("content")
             if role in ("user", "assistant") and content:
@@ -372,29 +383,13 @@ class RCAInference:
         messages.append(("user", question))
         prompt = build_chat_prompt(chat_system_prompt, messages)
 
-        # Disable overfitted LoRA adapter during chat if model is PeftModel
-        # so base model's conversational intelligence is used
-        if hasattr(self.model, "disable_adapter"):
-            try:
-                with self.model.disable_adapter():
-                    return self._generate(
-                        prompt,
-                        max_new_tokens=int(self._gen_config.get("max_new_tokens", 384)),
-                        do_sample=True,
-                        temperature=0.6,
-                        top_p=0.9,
-                        repetition_penalty=1.15,
-                    )
-            except Exception as exc:
-                logger.warning("Generation with disable_adapter failed (%s); using default generate.", exc)
-
+        # Retain the fine-tuned TEP adapter for full chemical process domain knowledge.
+        # Use greedy decoding (do_sample=False) for grounded, deterministic engineering answers.
         return self._generate(
             prompt,
             max_new_tokens=int(self._gen_config.get("max_new_tokens", 384)),
-            do_sample=True,
-            temperature=0.6,
-            top_p=0.9,
-            repetition_penalty=1.15,
+            do_sample=False,
+            repetition_penalty=1.12,
         )
 
     @classmethod
@@ -404,7 +399,7 @@ class RCAInference:
         report: Dict,
         question: str,
     ) -> Optional[str]:
-        """Detect and immediately answer common operational control-room questions."""
+        """Detect and immediately answer common operational control-room questions (used in deterministic fallback)."""
         q = question.lower().strip()
         ev_id = event.get("event_id", "UNKNOWN")
         evidence = event.get("evidence", {}) or {}
@@ -416,11 +411,13 @@ class RCAInference:
         action = report.get("recommended_action", "Inspect suspect equipment on site.")
         uncertainty = report.get("uncertainty", "On-site verification required to confirm causation.")
 
-        # Keywords
-        has_score = any(w in q for w in ("score", "scores", "metric", "metrics", "reconstruction error", "q-stat", "q stat", "q-score", "threshold"))
+        # Disambiguate intents
+        has_system_sensors = any(w in q for w in ("which sensors are used", "sensors used in this system", "what sensors are in", "sensors in the system", "system sensors", "all sensors", "sensors used"))
+        has_sensor_scores = not has_system_sensors and (("sensor" in q and "score" in q) or "sensor score" in q)
+        has_detector_scores = not has_sensor_scores and not has_system_sensors and any(w in q for w in ("score", "scores", "metric", "metrics", "reconstruction error", "q-stat", "q stat", "q-score", "threshold"))
         has_severity = any(w in q for w in ("severity", "how serious", "how dangerous", "critical", "alarm level", "risk level", "danger"))
-        has_sensors = any(w in q for w in ("sensor", "sensors", "inspect", "deviat", "which sensor"))
-        has_action = any(w in q for w in ("what should i do", "what to do", "action", "recommend", "how to fix", "mitigat", "next step", "procedure"))
+        has_sensors = not has_system_sensors and not has_sensor_scores and any(w in q for w in ("sensor", "sensors", "inspect", "deviat", "which sensor"))
+        has_action = any(w in q for w in ("what should i do", "what to do", "action", "recommend", "how to fix", "provide a fix", "fix", "mitigat", "next step", "procedure"))
         has_overview = any(w in q for w in ("which anomaly", "what is this anomaly", "what anomaly", "which fault", "what fault", "fault number", "fault type", "what happened", "what is this", "overview", "root cause", "cause", "explain anomaly", "explain this anomaly", "diagnose", "summary"))
 
         lstm = det_ev.get("lstm_ae") or {}
@@ -438,8 +435,52 @@ class RCAInference:
         dom_lag = cva.get("dominant_lag", "N/A")
         slow_drift = float(cva.get("slow_drift_ratio", 0.0))
 
-        # Intent 1: Both scores and severity requested
-        if has_score and has_severity:
+        # Intent: Which sensors are used in the system
+        if has_system_sensors:
+            lines = [
+                f"### System Sensors Overview (Tennessee Eastman Plant Baseline)",
+                "The Tennessee Eastman Process monitors **52 continuous process variables**:",
+                "",
+                "- **41 Process Measurement Variables (XMEAS 1–41):**",
+                "  * Feed Streams: A Feed (Stream 1), D Feed (Stream 2), E Feed (Stream 3), Total Feed (Stream 4), Recycle Flow (Stream 8), Reactor Feed Rate (Stream 6).",
+                "  * Reactor: Pressure, Temperature, Level.",
+                "  * Separator: Temperature, Level, Pressure.",
+                "  * Stripper: Level, Pressure, Temperature, Steam Flow.",
+                "  * Other Operations: Compressor Work, Purge Gas Flow (Stream 9).",
+                "  * Process Stream Compositions: Online analyzers on Streams 6, 9, and 11 (monitoring Components A through H).",
+                "",
+                "- **11 Manipulated Variables (XMV 1–11):**",
+                "  * Feed Valves: D Feed, E Feed, A Feed, Total Feed.",
+                "  * Recycle & Purge: Compressor Recycle Valve, Purge Valve.",
+                "  * Column Valves: Separator Liquid Flow, Stripper Liquid Product, Stripper Steam Valve.",
+                "  * Heat Transfer Loops: Reactor Cooling Water Flow Valve, Condenser Cooling Water Flow Valve.",
+            ]
+            top_sensors = evidence.get("top_anomalous_sensors", [])
+            if top_sensors:
+                s_names = ", ".join(s.get("display_name", s.get("name", "Sensor")) for s in top_sensors[:5])
+                lines.append(f"\nIn this incident ({ev_id}), the active deviating sensors are: **{s_names}**.")
+            return "\n".join(lines)
+
+        # Intent: Sensor scores specifically
+        if has_sensor_scores:
+            top_sensors = evidence.get("top_anomalous_sensors", [])
+            lines = [f"### Individual Sensor Scores & Deviations for Incident {ev_id}", ""]
+            if top_sensors:
+                for s in top_sensors:
+                    name = s.get("display_name", s.get("name", "Unknown"))
+                    dev = s.get("deviation_percent", 0.0)
+                    z = s.get("z_score", s.get("zScore", 0.0))
+                    trend = s.get("trend", "unknown")
+                    contrib = s.get("contribution", 0.0)
+                    lim = s.get("limit_context", "")
+                    lim_text = f" -> **[Safety Envelope: {lim}]**" if lim else ""
+                    lines.append(f"- **{name}:** z-score = `{z:+.2f}`, Deviation = `{dev:+.1f}%`, Trend = `{trend}`, Contribution score = `{contrib:.2f}`{lim_text}")
+            else:
+                lines.append("No individual sensors showed severe univariate excursions; anomaly was detected via dynamic multi-sensor correlation.")
+            return "\n".join(lines)
+
+        # Intent: Both detector scores and severity requested
+        if has_detector_scores and has_severity:
             lines = [
                 f"### Telemetry Scores & Severity for Incident {ev_id}",
                 f"- **Assessed Severity:** **{sev}** (Evaluated against TEP process safety limits)",
@@ -454,20 +495,20 @@ class RCAInference:
             ]
             return "\n".join(lines)
 
-        # Intent 2: Scores only
-        if has_score:
+        # Intent: Detector Scores only
+        if has_detector_scores:
             lines = [
                 f"### Anomaly Detector Scores for Incident {ev_id}",
                 f"- **Overall Anomaly Score:** `{score:.3f}`",
                 "",
-                "**Detector Metrics:**",
+                "**Detector Metrics & Thresholds:**",
                 f"- **LSTM Autoencoder:** Reconstruction error = `{l_sc:.4f}` (Threshold: `{l_th:.4f}`, Margin: `{l_ratio:.2f}x` — {l_alarm})",
                 f"- **CVA Dynamics Q-Statistic:** Score = `{q_sc:.1f}` (Threshold: `{q_th:.1f}`, Margin: `{q_ratio:.2f}x` — {q_alarm})",
                 f"- **CVA Lag Profile:** Dominant lag `{dom_lag}`, Slow drift ratio `{slow_drift:.2f}`",
             ]
             return "\n".join(lines)
 
-        # Intent 3: Severity only
+        # Intent: Severity only
         if has_severity:
             sev_expl = {
                 "CRITICAL": "Exceeds major safety thresholds (high risk of reactor trip, overpressure, or equipment shutdown).",
@@ -483,7 +524,7 @@ class RCAInference:
             ]
             return "\n".join(lines)
 
-        # Intent 4: Overview / What is this anomaly
+        # Intent: Overview / What is this anomaly
         if has_overview:
             trig = det_ev.get("triggered_by", "fused")
             ctype = det_ev.get("change_type", "unspecified")
@@ -501,7 +542,7 @@ class RCAInference:
             ]
             return "\n".join(lines)
 
-        # Intent 5: Sensors to inspect
+        # Intent: Sensors to inspect
         if has_sensors:
             top_sensors = evidence.get("top_anomalous_sensors", [])
             lines = [f"### Sensors to Inspect for Incident {ev_id}", ""]
@@ -518,13 +559,13 @@ class RCAInference:
                 lines.append("No individual sensors showed severe statistical excursions; anomaly was detected via dynamic correlation.")
             return "\n".join(lines)
 
-        # Intent 6: Recommended action / mitigation
+        # Intent: Recommended action / mitigation / fix
         if has_action:
             lines = [
-                f"### Recommended Actions for Incident {ev_id}",
+                f"### Recommended Actions & Mitigations for Incident {ev_id}",
                 f"- **Direct Operator Action:** {action}",
                 f"- **Subsystem Target:** Inspect all valves and instruments in `{subsystem}`.",
-                f"- **Precaution:** {uncertainty}",
+                f"- **Safety Precaution:** {uncertainty}",
             ]
             return "\n".join(lines)
 
@@ -534,55 +575,90 @@ class RCAInference:
     def _render_event_context(event: Dict, previous_report: Dict) -> str:
         evidence = event.get("evidence", {}) or {}
         det_ev = evidence.get("detector_evidence", {}) or {}
-        sev = previous_report.get("severity") or evidence.get("severity", "unknown")
-        score = event.get("max_anomaly_score", evidence.get("anomaly_score", 0.0))
+        sev = str(previous_report.get("severity") or evidence.get("severity", "unknown")).upper()
+        score = float(event.get("max_anomaly_score", evidence.get("anomaly_score", 0.0)))
+        ev_id = event.get("event_id", "UNKNOWN")
+        root_cause = previous_report.get("root_cause", "Unknown")
+        subsystem = previous_report.get("affected_subsystem") or evidence.get("candidate_subsystem", "Unknown")
+        rec_action = previous_report.get("recommended_action") or "Inspect suspect equipment on site and verify control loops."
+        uncertainty = previous_report.get("uncertainty") or "Verify on-site sensor calibrations."
 
         lines = [
-            f"Event ID: {event.get('event_id', 'UNKNOWN')}",
-            f"Assessed Severity: {str(sev).upper()}",
-            f"Overall Anomaly Score: {float(score):.3f}",
-            f"Suspected Root Cause: {previous_report.get('root_cause', 'Unknown')}",
-            f"Affected Subsystem: {previous_report.get('affected_subsystem', 'Unknown')}",
+            f"### Incident Diagnostic Summary",
+            f"- Event ID: {ev_id}",
+            f"- Assessed Severity: {sev}",
+            f"- Suspected Root Cause: {root_cause}",
+            f"- Affected Subsystem: {subsystem}",
+            f"- Recommended Action / Fix: {rec_action}",
+            f"- Precaution: {uncertainty}",
+            "",
+            f"### Overall Anomaly Detector Scores (Model-Level Metrics)",
+            f"- Overall Combined Anomaly Score: {score:.3f}",
         ]
 
-        # Detector scores breakdown
-        if det_ev:
-            lines.append("\nDetector Metrics & Scores:")
-            trig = det_ev.get("triggered_by", "unspecified")
-            ctype = det_ev.get("change_type", "unspecified")
-            lines.append(f"- Alarm Trigger: {trig} mode ({ctype} dynamic pattern)")
+        # Detector breakdown
+        trig = det_ev.get("triggered_by", "fused")
+        ctype = det_ev.get("change_type", "unspecified")
+        lines.append(f"- Alarm Trigger: {trig} mode ({ctype} dynamic pattern)")
 
-            lstm = det_ev.get("lstm_ae") or {}
-            if lstm and "score" in lstm:
-                l_sc = float(lstm.get("score", 0.0))
-                l_th = float(lstm.get("threshold", 0.0))
-                l_ratio = l_sc / max(l_th, 1e-9)
-                lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, ratio = {l_ratio:.2f}x, alarmed = {lstm.get('is_anomalous', False)})")
+        lstm = det_ev.get("lstm_ae") or {}
+        if lstm and "score" in lstm:
+            l_sc = float(lstm.get("score", 0.0))
+            l_th = float(lstm.get("threshold", 0.0))
+            l_ratio = l_sc / max(l_th, 1e-9)
+            l_alarm = "ALARMED (Active)" if lstm.get("is_anomalous") else "Normal (Below limit)"
+            lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, margin = {l_ratio:.2f}x, status: {l_alarm})")
 
-            dyn = det_ev.get("dynamic") or {}
-            cva = dyn.get("cva") or {}
-            if cva and "score" in cva:
-                q_sc = float(cva.get("score", 0.0))
-                q_th = float(cva.get("threshold", 0.0))
-                q_ratio = q_sc / max(q_th, 1e-9)
-                lines.append(f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} (threshold = {q_th:.1f}, ratio = {q_ratio:.2f}x, alarmed = {cva.get('is_anomalous', False)})")
-                if cva.get("dominant_lag") is not None:
-                    lines.append(f"  * CVA lag metrics: dominant lag = {cva.get('dominant_lag')}, slow drift ratio = {float(cva.get('slow_drift_ratio', 0.0)):.2f}")
+        dyn = det_ev.get("dynamic") or {}
+        cva = dyn.get("cva") or {}
+        if cva and "score" in cva:
+            q_sc = float(cva.get("score", 0.0))
+            q_th = float(cva.get("threshold", 0.0))
+            q_ratio = q_sc / max(q_th, 1e-9)
+            q_alarm = "ALARMED (Active)" if cva.get("is_anomalous") else "Normal (Below limit)"
+            lines.append(f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} (threshold = {q_th:.1f}, margin = {q_ratio:.2f}x, status: {q_alarm})")
+            if cva.get("dominant_lag") is not None:
+                lines.append(f"  * CVA lag metrics: dominant lag = {cva.get('dominant_lag')}, slow drift ratio = {float(cva.get('slow_drift_ratio', 0.0)):.2f}")
 
         # Top sensor deviations
+        lines.append("")
+        lines.append("### Individual Sensor Scores & Deviations (Sensor-Level Metrics)")
         top_sensors = evidence.get("top_anomalous_sensors", [])
         if top_sensors:
-            lines.append("\nTop Deviating Sensors:")
             for s in top_sensors:
                 name = s.get("display_name", s.get("name", "Unknown"))
                 z = s.get("z_score", s.get("zScore", 0.0))
                 dev = s.get("deviation_percent", 0.0)
                 trend = s.get("trend", "unknown")
+                contrib = s.get("contribution", 0.0)
                 lim = s.get("limit_context", "")
-                lim_str = f" [Limit: {lim}]" if lim else ""
-                lines.append(f"- {name}: deviation {dev:+.1f}%, z={z:+.2f}, trend {trend}{lim_str}")
+                lim_str = f" -> [Limit: {lim}]" if lim else ""
+                lines.append(f"- {name}: z-score = {z:+.2f}, deviation = {dev:+.1f}%, trend = {trend}, contribution score = {contrib:.2f}{lim_str}")
+        else:
+            lines.append("- No individual sensors showed severe statistical excursions; anomaly was detected via multi-sensor correlation.")
 
-        if previous_report.get("recommended_action"):
-            lines.append(f"\nRecommended Action: {previous_report['recommended_action']}")
+        # Temporal sequence if present
+        seq = evidence.get("temporal_sequence", {}).get("sequence", [])
+        if seq:
+            lines.append("")
+            lines.append("### Event Timeline & Propagation Sequence")
+            for i, item in enumerate(seq, start=1):
+                dt = float(item.get("relative_time_minutes", 0.0))
+                tag = "initiating disturbance" if i == 1 and dt == 0.0 else f"+{dt:.1f} min cascade"
+                lines.append(f"{i}. {item.get('display_name')} became anomalous ({tag})")
+
+        # System Sensor Baseline Context (52 Total TEP Sensors)
+        lines.append("")
+        lines.append("### System Sensors Overview (Tennessee Eastman Plant Baseline)")
+        lines.append(
+            "- Total plant instrumentation: 52 continuous process variables.\n"
+            "- 41 Process Measurement Variables (XMEAS 1 to 41): includes A Feed (Stream 1), D Feed (Stream 2), E Feed (Stream 3), "
+            "Total Feed (Stream 4), Recycle Flow (Stream 8), Reactor Feed Rate (Stream 6), Reactor Pressure, Reactor Temperature, "
+            "Reactor Level, Separator Temperature, Separator Level, Separator Pressure, Stripper Level, Stripper Pressure, "
+            "Stripper Temperature, Compressor Work, Purge Gas Flow (Stream 9), and Component Compositions (Streams 6, 9, 11).\n"
+            "- 11 Manipulated Variables (XMV 1 to 11): D Feed Valve, E Feed Valve, A Feed Valve, Total Feed Valve, Compressor Recycle Valve, "
+            "Purge Valve, Separator Liquid Flow Valve, Stripper Liquid Product Valve, Stripper Steam Valve, Reactor Cooling Water Flow Valve, "
+            "Condenser Cooling Water Flow Valve."
+        )
 
         return "\n".join(lines)
