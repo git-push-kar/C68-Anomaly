@@ -194,7 +194,7 @@ def evaluate_grounding(
     grounded = [s for s in samples if s.get("kind") == "grounded_qa"]
     if not grounded:
         raise ValueError("No grounded_qa samples provided.")
-    sensor_re = re.compile(r"(?:^|[\s\W])([A-Za-z][A-Za-z0-9]*_[A-Za-z0-9]+|X(?:MEAS|MV|MAX|MIN|PV|CV)[0-9]+)(?:$|[\s\W])")
+    sensor_re = re.compile(r"(?:^|[\s\W])([A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+|X(?:MEAS|MV|MAX|MIN|PV|CV)[0-9]+)(?:$|[\s\W])")
     num_re = re.compile(r"\d+\.\d+")
     n = len(grounded)
     num_hits = 0
@@ -218,13 +218,22 @@ def evaluate_grounding(
         sensors = evidence.get("top_anomalous_sensors", []) or []
         mentioned = set(t.lower() for t in sensor_re.findall(raw))
         # Allow multi-underscore names (regex only captures the first two
-        # segments) and the subsystem name itself.
-        allowed = {_normalize(s.get("display_name", "")).replace(" ", "_")
-                   for s in sensors}
+        # segments), raw tag names (XMEAS_N / XMV_N as shown in context),
+        # and the subsystem name itself.
+        allowed = set()
+        for s in sensors:
+            if not isinstance(s, dict):
+                continue
+            for key in ("display_name", "name"):
+                val = s.get(key, "")
+                if val:
+                    allowed.add(_normalize(str(val)).replace(" ", "_"))
         allowed.add(_normalize(str(evidence.get("candidate_subsystem", ""))).replace(" ", "_"))
         foreign = {m for m in mentioned
                    if not any(a.startswith(m) or m.startswith(a) for a in allowed)}
         foreign_hits += int(bool(foreign))
+        table_lines = sum(1 for ln in raw.splitlines() if ln.strip().startswith("|"))
+        has_table = table_lines >= 3
         detail.append({
             "fault_id": sample.get("fault_id"),
             "intent": sample.get("intent"),
@@ -232,13 +241,21 @@ def evaluate_grounding(
             "numbers_ok": num_ok,
             "vague": vague,
             "foreign_sensors": sorted(foreign),
+            "has_table": has_table,
             "raw": raw[:800],
         })
+    table_intents = {"metrics", "evidence_why", "sensor_values"}
+    table_detail = [d for d in detail if d.get("intent") in table_intents]
     metrics = {
         "n_samples": n,
         "number_recall_rate": num_hits / n,
         "vague_boilerplate_rate": vague_hits / n,
         "foreign_sensor_rate": foreign_hits / n,
+        "format_table_rate": (
+            sum(1 for d in table_detail if d["has_table"]) / len(table_detail)
+            if table_detail else 1.0
+        ),
+        "format_table_n": len(table_detail),
     }
     return {"metrics": metrics, "detail": detail}
 

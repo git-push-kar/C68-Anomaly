@@ -457,7 +457,152 @@ class RCAInference:
             forced = cls._dispatch_with_intent(event, report, "provide the evidence for calling this an anomaly")
             if forced is not None:
                 return forced
+            return None
+        # Foreign-sensor check: invented sensor-like tokens (not in evidence
+        # display/tag names or subsystem) fail the answer even when digits
+        # are present (e.g. hallucinated "Initiation_Xmeas_.." listings).
+        if needs_numbers and isinstance(event, dict):
+            def _norm(text: str) -> str:
+                return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip().replace(" ", "_")
+            evidence = event.get("evidence", {}) if isinstance(event.get("evidence"), dict) else {}
+            sensors = evidence.get("top_anomalous_sensors", []) or []
+            allowed = set()
+            for s in sensors:
+                if not isinstance(s, dict):
+                    continue
+                for key in ("display_name", "name"):
+                    val = s.get(key, "")
+                    if val:
+                        allowed.add(_norm(str(val)))
+            allowed.add(_norm(str(evidence.get("candidate_subsystem", ""))))
+            sensor_re = re.compile(r"(?:^|[\s\W])([A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+|X(?:MEAS|MV|MAX|MIN|PV|CV)[0-9]+)(?:$|[\s\W])")
+            mentioned = set(t.lower() for t in sensor_re.findall(llm_answer))
+            foreign = {m for m in mentioned
+                       if not any(a.startswith(m) or m.startswith(a) for a in allowed if a)}
+            if foreign:
+                logger.warning("LLM answer named foreign sensors %s; using deterministic answer.",
+                               sorted(foreign))
+                hit = cls._dispatch_with_intent(event, report, question)
+                if hit is not None:
+                    return hit
+                forced = cls._dispatch_with_intent(event, report, "provide the evidence for calling this an anomaly")
+                if forced is not None:
+                    return forced
         return None
+
+    #: Intents whose answers must carry markdown tables with exact numbers.
+    NUMERIC_FORMAT_INTENTS = frozenset({
+        "sensor_values", "evidence_why", "sensor_scores",
+        "detector_scores", "detector_severity",
+    })
+
+    #: Intents whose answers must name at least one deviating sensor.
+    SENSOR_NAME_INTENTS = frozenset({
+        "overview", "overview_fallback", "sensors_inspect",
+        "system_sensors", "severity",
+    })
+
+    @classmethod
+    def _evidence_markdown_tables(cls, event: Dict, report: Dict) -> str:
+        """Build detector + sensor markdown tables straight from evidence.
+
+        Used to repair LLM answers that list sensors/scores without numbers.
+        """
+        if not isinstance(event, dict):
+            event = {}
+        if not isinstance(report, dict):
+            report = {}
+        evidence = event.get("evidence", {}) if isinstance(event.get("evidence"), dict) else {}
+        det_ev = evidence.get("detector_evidence", {}) if isinstance(evidence.get("detector_evidence"), dict) else {}
+        score = float(event.get("max_anomaly_score", evidence.get("anomaly_score", 0.0)))
+        ev_id = event.get("event_id", "UNKNOWN")
+
+        lstm = det_ev.get("lstm_ae") if isinstance(det_ev.get("lstm_ae"), dict) else {}
+        l_sc = float(lstm.get("score", 0.0))
+        l_th = float(lstm.get("threshold", 0.0))
+        l_state = "ALARMED" if (lstm.get("alarmed") or lstm.get("is_anomalous")) else "Normal (below limit)"
+        dyn = det_ev.get("dynamic") if isinstance(det_ev.get("dynamic"), dict) else {}
+        cva = dyn.get("cva") if isinstance(dyn.get("cva"), dict) else {}
+        q_sc = float(cva.get("score", 0.0))
+        q_th = float(cva.get("threshold", 0.0))
+        q_state = "ALARMED" if (cva.get("alarmed") or cva.get("is_anomalous")) else "Normal (below limit)"
+
+        lines = [
+            f"**Telemetry tables for {ev_id} (from evidence, overall score `{score:.3f}`):**",
+            "",
+            "| Detector | Score | Threshold | Status |",
+            "|---|---|---|---|",
+            f"| LSTM reconstruction error | {l_sc:.4f} | {l_th:.4f} | {l_state} |",
+            f"| CVA Q-statistic | {q_sc:.1f} | {q_th:.1f} | {q_state} |",
+            "",
+            "| Sensor | Observed | Baseline | Dev% | z | Trend |",
+            "|---|---|---|---|---|---|",
+        ]
+        top = evidence.get("top_anomalous_sensors", []) or []
+        if isinstance(top, list) and top:
+            for s in top[:5]:
+                if not isinstance(s, dict):
+                    continue
+                name = s.get("display_name", s.get("name", "Unknown"))
+                cur_v = s.get("current_value")
+                base_v = s.get("baseline_value")
+                obs = f"{float(cur_v):.4f}" if cur_v is not None else "n/a"
+                base = f"{float(base_v):.4f}" if base_v is not None else "n/a"
+                dev = float(s.get("deviation_percent", 0.0))
+                z = float(s.get("z_score", s.get("zScore", 0.0)))
+                lines.append(f"| {name} | {obs} | {base} | {dev:+.2f}% | {z:+.2f} | {s.get('trend', 'unknown')} |")
+        else:
+            lines.append("| (no sensor excursions) | n/a | n/a | n/a | n/a | n/a |")
+        return "\n".join(lines)
+
+    @classmethod
+    def format_followup_answer(
+        cls,
+        question: str,
+        llm_answer: str,
+        event: Dict,
+        report: Dict,
+    ) -> Tuple[str, Optional[str], str]:
+        """Validate and repair an LLM follow-up answer's formatting.
+
+        - Numeric intents without a markdown table get the evidence tables
+          appended (numbers come from evidence, never invented).
+        - Sensor intents naming none of the top-3 sensors get a
+          "**Primary sensors:** ..." line appended.
+        Returns (answer, intent, status) with status in
+        {"ok", "repaired", "unrepairable"}.
+        """
+        if not isinstance(llm_answer, str) or not llm_answer.strip():
+            return llm_answer, None, "unrepairable"
+        hit = cls._dispatch_with_intent(event, report, question or "")
+        intent = hit[0] if hit is not None else None
+        if intent is None:
+            return llm_answer, None, "ok"
+
+        if not isinstance(event, dict):
+            event = {}
+        evidence = event.get("evidence", {}) if isinstance(event.get("evidence"), dict) else {}
+        top = evidence.get("top_anomalous_sensors", []) or []
+        top_names = [s.get("display_name", s.get("name", ""))
+                     for s in top[:3] if isinstance(s, dict)]
+
+        table_lines = sum(1 for ln in llm_answer.splitlines()
+                          if ln.strip().startswith("|"))
+        repaired = False
+        answer = llm_answer
+        if intent in cls.NUMERIC_FORMAT_INTENTS and table_lines < 3:
+            det_ev = evidence.get("detector_evidence", {})
+            if det_ev or top:
+                answer = answer.rstrip() + "\n\n" + cls._evidence_markdown_tables(event, report)
+                repaired = True
+            else:
+                return answer, intent, "unrepairable"
+        if intent in cls.SENSOR_NAME_INTENTS and top_names:
+            low = answer.lower()
+            if not any(nm and nm.lower() in low for nm in top_names):
+                answer = answer.rstrip() + "\n\n**Primary sensors:** " + ", ".join(top_names) + "."
+                repaired = True
+        return answer, intent, ("repaired" if repaired else "ok")
 
     @classmethod
     def _dispatch_with_intent(

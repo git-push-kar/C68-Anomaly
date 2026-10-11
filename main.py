@@ -431,8 +431,14 @@ class TEPApp:
             logger.info("Followup %s route=deterministic intent=%s", event_id, intent)
         elif self.rca is not None:
             # 2) Open-ended (or all questions when prefer_llm=true): LLM,
-            # with numeric guardrail unless LLM-only testing is enabled.
+            # with format repair always on, plus numeric guardrail unless
+            # LLM-only testing is enabled.
             llm_answer = self.rca.answer_followup(event, report, history, user_question)
+            llm_answer, fmt_intent, fmt_status = RCAInference.format_followup_answer(
+                user_question, llm_answer, event, report)
+            if fmt_status == "repaired":
+                logger.info("Followup %s answer formatting repaired (intent=%s)",
+                            event_id, fmt_intent)
             guarded = (None if prefer_llm
                        else RCAInference._guard_llm_answer(event, report, user_question, llm_answer))
             if guarded is not None:
