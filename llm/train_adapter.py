@@ -30,17 +30,18 @@ def _load_tokenized_datasets(config: Dict, tokenizer):
         )
     train_hf = None
     val_hf = None
-    try:
-        from datasets import load_from_disk
-
-        if (ds_dir / "train").exists():
-            train_hf = load_from_disk(str(ds_dir / "train"))
-            val_hf = load_from_disk(str(ds_dir / "val")) if (ds_dir / "val").exists() else None
-    except ImportError:
-        pass
-    if train_hf is None and (ds_dir / "train.jsonl").exists():
+    if (ds_dir / "train.jsonl").exists():
+        logger.info("Loading instruction dataset from %s", ds_dir / "train.jsonl")
         train_hf = _read_jsonl(ds_dir / "train.jsonl")
         val_hf = _read_jsonl(ds_dir / "val.jsonl") if (ds_dir / "val.jsonl").exists() else None
+    elif (ds_dir / "train").exists():
+        try:
+            from datasets import load_from_disk
+            logger.info("Loading instruction dataset from HF disk format at %s", ds_dir / "train")
+            train_hf = load_from_disk(str(ds_dir / "train"))
+            val_hf = load_from_disk(str(ds_dir / "val")) if (ds_dir / "val").exists() else None
+        except ImportError:
+            pass
 
     max_len = int(config["llm"]["training"].get("max_sequence_length", 4096))
     dummy_size = int(config["llm"].get("dummy_image_size", 448))

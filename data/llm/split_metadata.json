@@ -29,10 +29,13 @@
       21
     ]
   },
-  "samples_per_fault": 8,
+  "samples_per_fault": 10,
   "seed": 42,
-  "n_train": 2016,
-  "n_val": 96,
-  "n_test": 96,
-  "format": "hf_datasets"
+  "counts": {
+    "train": 1260,
+    "val": 42,
+    "test": 42
+  },
+  "total_samples": 1344,
+  "format": "jsonl"
 }
