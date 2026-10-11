@@ -103,25 +103,16 @@ class AnomalyEvent:
         }
 
 
-def _severity_from_score(score: float, threshold: float, detector_evidence: Optional[Dict] = None) -> str:
-    # If dynamic CVA is alarmed with high Q or dynamics/mixed change type (e.g. valve stiction),
-    # elevate severity to critical/high
-    if detector_evidence:
-        ctype = detector_evidence.get("change_type", "")
-        dyn = detector_evidence.get("dynamic", {})
-        cva = (dyn.get("cva") if isinstance(dyn, dict) else None) or {}
-        if cva.get("is_anomalous") or ctype in ("dynamics", "mixed"):
-            q_ratio = float(cva.get("score", 0)) / max(float(cva.get("threshold", 1.0)), 1e-9)
-            if q_ratio >= 2.0 or ctype == "dynamics":
-                return "critical"
+def _severity_from_score(score: float, threshold: float, detector_evidence: Optional[Dict] = None, top_sensors: Optional[List[Dict]] = None) -> str:
+    from evidence.process_limits import compute_deterministic_severity
+
     ratio = score / max(threshold, 1e-9)
-    if ratio >= 3.0:
-        return "critical"
-    if ratio >= 1.8:
-        return "high"
-    if ratio >= 1.2:
-        return "medium"
-    return "low"
+    synthetic_evidence = {
+        "anomaly_score": ratio,
+        "top_anomalous_sensors": top_sensors or [],
+        "detector_evidence": detector_evidence or {},
+    }
+    return compute_deterministic_severity(synthetic_evidence)
 
 
 def build_event(
@@ -163,15 +154,13 @@ def build_event(
     errors = np.asarray(per_sensor_errors, dtype=np.float32)
     windows = np.asarray(event_windows, dtype=np.float32)
 
-    max_score = float(scores.max())
-    mean_score = float(scores.mean())
-    severity = _severity_from_score(max_score, threshold, detector_evidence=detector_evidence)
-
     if errors.ndim == 1:
         errors = errors[None, :]
     agg_errors = errors.max(axis=0)  # worst per-sensor error over the event
 
-    # ---- top sensors with % deviation and trend ---------------------------
+    # ---- top sensors with % deviation, trend, and operating limits -------
+    from evidence.process_limits import get_sensor_limit_context
+
     event_mean = windows.mean(axis=(0, 1))
     top_sensors = event_level_deviations(
         agg_errors, event_mean, baseline.mean, baseline.std, feature_names,
@@ -181,6 +170,13 @@ def build_event(
         idx = entry["index"]
         series = windows[:, :, idx].mean(axis=1)
         entry["trend"] = sensor_trend(series, smoothing=trend_smoothing)
+        lim = get_sensor_limit_context(entry.get("display_name", ""))
+        if lim:
+            entry["limit_context"] = lim
+
+    max_score = float(scores.max())
+    mean_score = float(scores.mean())
+    severity = _severity_from_score(max_score, threshold, detector_evidence=detector_evidence, top_sensors=top_sensors)
 
     # ---- temporal sequence ------------------------------------------------
     temporal = analyze_temporal_sequence(

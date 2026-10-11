@@ -76,11 +76,12 @@ def extract_json_object(text: str) -> Optional[Dict]:
     return None
 
 
-def sanitize_answer(answer: Dict) -> Dict:
+def sanitize_answer(answer: Dict, evidence: Optional[Dict] = None) -> Dict:
     """Fill in missing answer keys so reports always match the schema."""
     for key in ANSWER_KEYS:
         answer.setdefault(key, "" if key in ("summary", "root_cause",
                                              "affected_subsystem", "reasoning",
+                                             "reasoning_steps",
                                              "recommended_action", "uncertainty",
                                              "evidence") else ("unknown" if key == "severity" else 0.0))
     if not isinstance(answer["evidence"], list):
@@ -89,6 +90,11 @@ def sanitize_answer(answer: Dict) -> Dict:
         answer["confidence"] = 0.0
     if answer["severity"] not in ("low", "medium", "high", "critical"):
         answer["severity"] = "unknown"
+
+    # Deterministic severity guardrail: If the model failed to output valid severity or if evidence provides deterministic rating
+    if evidence and answer["severity"] in ("unknown", ""):
+        from evidence.process_limits import compute_deterministic_severity
+        answer["severity"] = evidence.get("severity") or compute_deterministic_severity(evidence)
     return answer
 
 
@@ -294,7 +300,8 @@ class RCAInference:
         prompt = build_chat_prompt(REPORT_SYSTEM_PROMPT + " " + SYSTEM_PROMPT, [("user", question)])
         raw = self._generate(prompt, max_new_tokens=int(self._gen_config.get("max_new_tokens", 768)))
         parsed = extract_json_object(raw)
-        report = sanitize_answer(parsed) if parsed else {
+        report = sanitize_answer(parsed, evidence=evidence) if parsed else {
+            "reasoning_steps": "Fallback deterministic diagnosis based on sensor limits.",
             "summary": raw,
             "root_cause": "unable_to_parse",
             "affected_subsystem": evidence.get("candidate_subsystem", "unknown"),

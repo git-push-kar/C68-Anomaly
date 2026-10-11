@@ -121,14 +121,14 @@ def evaluate_adapter(
         evidence_sensors.add(_normalize(str(evidence.get("candidate_subsystem", ""))).replace(" ", "_"))
         json_keys = {
             "summary", "root_cause", "affected_subsystem", "evidence", "reasoning",
-            "severity", "confidence", "recommended_action", "uncertainty",
+            "reasoning_steps", "severity", "confidence", "recommended_action", "uncertainty",
             "anomaly_score", "event_id", "temporal_sequence", "first_onset_minutes",
             "top_anomalous_sensors", "display_name", "current_value",
             "baseline_value", "deviation_percent", "trend", "contribution",
             "candidate_subsystem", "candidate_subsystem_score", "pre_anomaly_context",
             "duration_minutes", "status", "relative_time_minutes", "z_score",
             "dev_range", "delay_min", "fault_id", "fault_name", "kind", "question",
-            "answer", "reference", "name", "subsystem", "action",
+            "answer", "reference", "name", "subsystem", "action", "limit_context",
         }
         foreign = mentioned - evidence_sensors - json_keys
         if foreign:

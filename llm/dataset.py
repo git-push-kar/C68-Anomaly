@@ -34,15 +34,23 @@ SYSTEM_PROMPT = (
     "causes, affected subsystems, severity, and recommended actions. You never "
     "claim absolute causal certainty: correlation and temporal order are "
     "supporting evidence, not proof. Whenever evidence is insufficient you say "
-    "so explicitly and recommend verification.\n"
-    "Severity rubric: low = minor deviations, process stable; medium = moderate "
-    "deviations contained by control; high = large deviations, significant "
-    "operational impact; critical = deviations approaching safety limits, major valve sticking / actuator stiction hysteresis, or sustained rises in reactor/condenser cooling deviations. "
-    "When dynamic CVA alarms or large sensor excursions are present, classify as high or critical."
+    "so explicitly and recommend verification.\n\n"
+    "CHAIN-OF-THOUGHT INSTRUCTION: Think step-by-step before concluding. In your JSON "
+    "output, first write 'reasoning_steps' breaking down: (1) which variable deviated first "
+    "in the temporal sequence, (2) the direction and physical mechanism connecting the "
+    "deviating sensors, and (3) why alternative subsystems are ruled out.\n\n"
+    "SEVERITY RUBRIC:\n"
+    "- critical: Risk of emergency trip/shutdown, vessel overpressure approaching safety limit (Reactor Pressure > 2900 kPa), "
+    "reactor thermal runaway (> 125 °C), or unmitigated valve stiction / hysteresis in cooling loops (Faults 14, 15).\n"
+    "- high: Large process excursions, product quality degradation, significant feed loss (A feed loss, C header pressure drop), "
+    "or major cooling water step changes (Faults 4, 5, 6, 7, 11, 12, 21, 22).\n"
+    "- medium: Moderate operational disturbances contained by regulatory control loops without safety hazard (feed ratio/composition "
+    "step changes, feed temperature disturbances, random process variations) (Faults 1, 2, 3, 8, 9, 10, 16-20).\n"
+    "- low: Minor transient variations or slow catalyst reaction kinetics drift without immediate operational risk (Fault 13)."
 )
 
 ANSWER_KEYS = [
-    "summary", "root_cause", "affected_subsystem", "evidence",
+    "reasoning_steps", "summary", "root_cause", "affected_subsystem", "evidence",
     "reasoning", "severity", "confidence", "recommended_action", "uncertainty",
 ]
 
@@ -75,37 +83,47 @@ def build_chat_prompt(
 
 def format_evidence_question(evidence: Dict) -> str:
     """Render a structured event into the text prompt shown to the model."""
+    from evidence.process_limits import compute_deterministic_severity, get_sensor_limit_context
+
+    det_sev = evidence.get("severity") or compute_deterministic_severity(evidence)
+
     lines: List[str] = [
         "A new anomaly has been detected in the Tennessee Eastman Process.",
         "",
         f"Event ID: {evidence.get('event_id', 'UNKNOWN')}",
         f"Anomaly score: {evidence.get('anomaly_score', 0.0):.3f}",
+        f"Assessed baseline severity: {det_sev} (evaluated against TEP process safety limits)",
         "",
         "Top sensor deviations:",
     ]
     sensors = evidence.get("top_anomalous_sensors", [])
     if sensors:
         for s in sensors:
-            # Primary: stable z-score, secondary: percent for readability (bounded)
+            name = str(s.get("display_name", s.get("name", "")))
             z = s.get("z_score", s.get("zScore", 0.0))
-            lines.append(
-                f"- {s.get('display_name', s.get('name'))}: "
+            line = (
+                f"- {name}: "
                 f"z={z:+.2f} "
                 f"(deviation: {s.get('deviation_percent', 0.0):+.1f}%, "
                 f"trend: {s.get('trend', 'unknown')}, "
                 f"contribution: {s.get('contribution', 0.0):.2f})"
             )
+            lim = s.get("limit_context") or get_sensor_limit_context(name)
+            if lim:
+                line += f" -> [Operating Limit: {lim}]"
+            lines.append(line)
     else:
         lines.append("- (no strong sensor deviations detected)")
     lines.append("")
 
     seq = evidence.get("temporal_sequence", {}).get("sequence", [])
     if seq:
-        lines.append("Temporal sequence:")
+        lines.append("Temporal sequence (propagation timeline):")
         for i, item in enumerate(seq, start=1):
+            dt = float(item.get("relative_time_minutes", 0.0))
+            tag = "initiating disturbance" if i == 1 and dt == 0.0 else f"+{dt:.1f} min cascade"
             lines.append(
-                f"{i}. {item.get('display_name')} became anomalous "
-                f"{item.get('relative_time_minutes', 0):.1f} min after the first onset."
+                f"{i}. {item.get('display_name')} became anomalous ({tag})."
             )
     else:
         lines.append("Temporal sequence: (no clear onset ordering detected)")

@@ -128,6 +128,10 @@ def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]]
     st.info(f"**Summary:** {report.get('summary', 'No summary available.')}")
     st.warning(f"**Recommended Action:** {report.get('recommended_action', 'None')}")
     
+    if report.get("reasoning_steps"):
+        with st.expander("🧠 Physical Deduction (Chain-of-Thought)", expanded=False):
+            st.markdown(report["reasoning_steps"])
+    
     # Bar chart of top contributing variables
     if isinstance(evidence, dict) and "top_anomalous_sensors" in evidence:
         sensors = evidence["top_anomalous_sensors"]
