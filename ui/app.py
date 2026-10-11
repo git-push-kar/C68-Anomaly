@@ -268,7 +268,7 @@ with tab_history:
             if sel_ev_data:
                 st.markdown("---")
                 history = app.event_store.conversation_history(sel_ev_id)
-                show_event_details(sel_ev_data, history)
+                show_event_details(sel_ev_data, history, key_prefix="history")
                 
                 st.info("To ask the LLM about this event, go to the Event Assistant tab.")
 
@@ -293,7 +293,7 @@ with tab_chat:
         if selected:
             ev_data = options[selected]
             history = app.event_store.conversation_history(selected)
-            show_event_details(ev_data, history)
+            show_event_details(ev_data, history, key_prefix="chat")
             
             st.markdown("---")
             q = st.chat_input("Ask the LLM about this event...")

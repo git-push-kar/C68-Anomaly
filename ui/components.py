@@ -108,13 +108,14 @@ def render_live_chart(history: List[Dict[str, Any]]):
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
     
-    st.plotly_chart(fig, use_container_width=True, theme="streamlit")
+    st.plotly_chart(fig, use_container_width=True, theme="streamlit", key="monitor_live_chart")
 
-def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]] = None):
+def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]] = None, key_prefix: str = ""):
     report = event.get("report", {})
     evidence = event.get("evidence", {})
+    ev_id = event.get("event_id", "unknown")
     
-    st.markdown(f"### {event['event_id']} Details")
+    st.markdown(f"### {ev_id} Details")
     st.markdown(f"**Severity:** {severity_badge(report.get('severity', 'unknown'))}", unsafe_allow_html=True)
     st.markdown(f"**Suspected Fault:** {report.get('root_cause', 'Unknown')}", help="The AI's best guess of what failed. Verify sensors in this subsystem.")
     st.markdown(f"**Subsystem:** {report.get('affected_subsystem', 'Unknown')}")
@@ -135,7 +136,8 @@ def show_event_details(event: Dict[str, Any], chat_history: List[Dict[str, str]]
             contribs = [s.get("contribution", 0) for s in sensors]
             bar_fig = go.Figure(go.Bar(x=contribs, y=names, orientation='h'))
             bar_fig.update_layout(title="Top Contributing Variables", height=300, margin=dict(l=0, r=0, t=30, b=0))
-            st.plotly_chart(bar_fig, use_container_width=True)
+            chart_key = f"{key_prefix}_bar_{ev_id}" if key_prefix else f"bar_{ev_id}"
+            st.plotly_chart(bar_fig, use_container_width=True, key=chart_key)
             
     with st.expander("🛠 Engineer Details (Technical Evidence)"):
         st.json(event)
