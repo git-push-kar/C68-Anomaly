@@ -348,22 +348,20 @@ class RCAInference:
             "Tennessee Eastman Process (TEP). An operator is asking questions about a specific "
             "detected anomaly event.\n\n"
             "You are provided with comprehensive incident telemetry, including model-level detector scores, "
-            "individual sensor scores, the 52-sensor plant baseline, and diagnostic findings.\n\n"
+            "individual sensor values and ideal baselines, the 52-sensor plant baseline, and diagnostic findings.\n\n"
             "GUIDELINES FOR ANSWERING:\n"
-            "1. Answer the operator's question directly, accurately, and concisely based on the incident data provided.\n"
-            "2. Distinguish clearly between Detector Scores and Sensor Scores:\n"
-            "   - If asked for the scores calling this an anomaly or detector scores: report the overall anomaly score, "
-            "LSTM Autoencoder reconstruction error vs threshold, and CVA Q-statistic vs threshold.\n"
-            "   - If asked for sensor scores or which sensors are anomalous: report the individual sensor z-scores, "
-            "percentage deviations, trends, and limit alerts from the sensor metrics section.\n"
-            "3. If asked which sensors are used in this system: explain that the plant monitors 52 continuous process "
-            "variables (41 measurement variables XMEAS 1 to 41 and 11 manipulated variables XMV 1 to 11), and highlight "
-            "which sensors are currently deviating in this incident.\n"
-            "4. If asked for a fix, procedure, or mitigation ('provide a fix for this', 'what should I do'): outline "
-            "specific engineering corrective actions, valves or loops to inspect, and safety precautions based on the "
-            "suspected root cause and affected subsystem.\n"
-            "5. If asked for severity: state the exact assessed level (low, medium, high, or critical) and the safety rationale.\n"
-            "6. Answer in professional, factual engineering language. Do NOT emit special tokens (such as </s>) or repeat boilerplate text."
+            "1. Answer the operator's question directly, accurately, and concisely based strictly on the incident data provided.\n"
+            "2. When asked for 'sensor values', 'measured values', or 'ideal/normal values':\n"
+            "   - Extract and state the exact numbers directly from the 'Sensor Telemetry' section (Observed Value vs Ideal/Normal Baseline, with deviation %).\n"
+            "   - NEVER say 'as shown in the table below' or give vague non-answers; list the actual numbers.\n"
+            "3. When asked for 'scores calling this an anomaly' or detector scores:\n"
+            "   - Report the overall anomaly score, LSTM Autoencoder error vs threshold, and CVA Q-statistic vs threshold.\n"
+            "4. When asked 'what is the evidence which forces this to be an anomaly':\n"
+            "   - Clearly cite the active detector threshold exceedances (e.g. CVA Q-statistic and/or LSTM reconstruction error alarms) and list the primary deviating sensors that triggered the event.\n"
+            "5. If asked which sensors are used in this system: explain that the plant monitors 52 continuous process variables (41 measurement variables XMEAS 1 to 41 and 11 manipulated variables XMV 1 to 11), and state which sensors are currently deviating in this incident.\n"
+            "6. If asked for a fix or mitigation: outline specific engineering corrective actions, valves or loops to inspect, and safety precautions based on the suspected root cause and affected subsystem.\n"
+            "7. If asked for severity: state the exact assessed level (low, medium, high, or critical) and the safety rationale.\n"
+            "8. Answer fresh and directly in professional engineering language. Do NOT emit special tokens (such as </s>) or repeat boilerplate sentences from previous turns."
         )
 
         if not isinstance(event, dict):
@@ -381,8 +379,9 @@ class RCAInference:
             ("assistant", f"I have reviewed the diagnostic data for incident {ev_id}. Suspected cause: {rc}, Severity: {sev}. How can I assist you with this event?"),
         ]
 
-        # Bound history to last 4 turns to keep context sharp and avoid attention drift
-        recent_history = history[-4:] if isinstance(history, list) else []
+        # Bound history to last 2 turns (1 exchange) to keep context sharp, prevent token pollution,
+        # and eliminate repetition loops from previous turns.
+        recent_history = history[-2:] if isinstance(history, list) else []
         for msg in recent_history:
             if isinstance(msg, dict):
                 role = msg.get("role")
@@ -432,10 +431,12 @@ class RCAInference:
 
         # Disambiguate intents
         has_system_sensors = any(w in q for w in ("which sensors are used", "sensors used in this system", "what sensors are in", "sensors in the system", "system sensors", "all sensors", "sensors used"))
-        has_sensor_scores = not has_system_sensors and (("sensor" in q and "score" in q) or "sensor score" in q)
-        has_detector_scores = not has_sensor_scores and not has_system_sensors and any(w in q for w in ("score", "scores", "metric", "metrics", "reconstruction error", "q-stat", "q stat", "q-score", "threshold"))
+        has_sensor_values = not has_system_sensors and any(w in q for w in ("sensor value", "sensor values", "ideal value", "ideal values", "normal value", "normal values", "baseline value", "baseline values", "measured value", "measured values", "observed value", "observed values"))
+        has_evidence_why = any(w in q for w in ("evidence", "forces this to be an anomaly", "why is this an anomaly", "why was this flagged", "alarm trigger", "why this is an anomaly", "why anomaly"))
+        has_sensor_scores = not has_system_sensors and not has_sensor_values and (("sensor" in q and "score" in q) or "sensor score" in q)
+        has_detector_scores = not has_sensor_scores and not has_system_sensors and not has_sensor_values and any(w in q for w in ("score", "scores", "metric", "metrics", "reconstruction error", "q-stat", "q stat", "q-score", "threshold"))
         has_severity = any(w in q for w in ("severity", "how serious", "how dangerous", "critical", "alarm level", "risk level", "danger"))
-        has_sensors = not has_system_sensors and not has_sensor_scores and any(w in q for w in ("sensor", "sensors", "inspect", "deviat", "which sensor"))
+        has_sensors = not has_system_sensors and not has_sensor_scores and not has_sensor_values and any(w in q for w in ("sensor", "sensors", "inspect", "deviat", "which sensor"))
         has_action = any(w in q for w in ("what should i do", "what to do", "action", "recommend", "how to fix", "provide a fix", "fix", "mitigat", "next step", "procedure"))
         has_overview = any(w in q for w in ("which anomaly", "what is this anomaly", "what anomaly", "which fault", "what fault", "fault number", "fault type", "what happened", "what is this", "overview", "root cause", "cause", "explain anomaly", "explain this anomaly", "diagnose", "summary"))
 
@@ -443,16 +444,79 @@ class RCAInference:
         l_sc = float(lstm.get("score", 0.0))
         l_th = float(lstm.get("threshold", 0.0))
         l_ratio = l_sc / max(l_th, 1e-9)
-        l_alarm = "ALARMED (Active)" if lstm.get("is_anomalous") else "Normal (Below limit)"
+        is_l_alarm = bool(lstm.get("alarmed") or lstm.get("is_anomalous") or (l_sc >= l_th and l_th > 0))
+        l_alarm = f"ALARMED (Active — {l_ratio:.2f}x threshold)" if is_l_alarm else "Normal (Below limit)"
 
         dyn = det_ev.get("dynamic") if isinstance(det_ev.get("dynamic"), dict) else {}
         cva = dyn.get("cva") if isinstance(dyn.get("cva"), dict) else {}
         q_sc = float(cva.get("score", 0.0))
         q_th = float(cva.get("threshold", 0.0))
         q_ratio = q_sc / max(q_th, 1e-9)
-        q_alarm = "ALARMED (Active)" if cva.get("is_anomalous") else "Normal (Below limit)"
+        is_q_alarm = bool(cva.get("alarmed") or cva.get("is_anomalous") or (q_sc >= q_th and q_th > 0))
+        q_alarm = f"ALARMED (Active — {q_ratio:.2f}x threshold)" if is_q_alarm else "Normal (Below limit)"
         dom_lag = cva.get("dominant_lag", "N/A")
         slow_drift = float(cva.get("slow_drift_ratio", 0.0))
+
+        # Intent: Sensor values and ideal normal baselines
+        if has_sensor_values:
+            top_sensors = evidence.get("top_anomalous_sensors", [])
+            lines = [f"### Sensor Measured Values vs Ideal Normal Baseline for Incident {ev_id}", ""]
+            if top_sensors:
+                for s in top_sensors:
+                    name = s.get("display_name", s.get("name", "Unknown"))
+                    tag = s.get("name", "")
+                    tag_str = f" (`{tag}`)" if tag and tag != name else ""
+                    cur_v = s.get("current_value")
+                    base_v = s.get("baseline_value")
+                    dev = s.get("deviation_percent", 0.0)
+                    z = s.get("z_score", s.get("zScore", 0.0))
+                    trend = s.get("trend", "unknown")
+                    contrib = s.get("contribution", 0.0)
+                    lim = s.get("limit_context", "")
+                    lim_text = f" -> **[Safety Envelope: {lim}]**" if lim else ""
+
+                    if cur_v is not None and base_v is not None:
+                        lines.append(
+                            f"- **{name}**{tag_str}: Observed Value = `{float(cur_v):.4f}`, "
+                            f"Ideal Normal Baseline = `{float(base_v):.4f}`, "
+                            f"Deviation = `{dev:+.2f}%`, z-score = `{z:+.2f}`, Trend: `{trend}`{lim_text}"
+                        )
+                    else:
+                        lines.append(
+                            f"- **{name}**{tag_str}: Deviation = `{dev:+.2f}%`, "
+                            f"z-score = `{z:+.2f}`, Trend: `{trend}`, Contribution = `{contrib:.2f}`{lim_text}"
+                        )
+            else:
+                lines.append("No univariate sensor excursions; multi-sensor correlation dynamics triggered the anomaly.")
+            return "\n".join(lines)
+
+        # Intent: Why is this an anomaly / what evidence forces it
+        if has_evidence_why:
+            top_sensors = evidence.get("top_anomalous_sensors", [])
+            lines = [
+                f"### Evidence Triggering Anomaly {ev_id}",
+                f"- **Overall Anomaly Score:** `{score:.3f}`",
+                "",
+                "**1. Detector Threshold Alarms:**",
+                f"- **LSTM Autoencoder:** Reconstruction error = `{l_sc:.4f}` (Threshold: `{l_th:.4f}`, Margin: `{l_ratio:.2f}x` — {l_alarm})",
+                f"- **CVA Dynamics Q-Statistic:** Score = `{q_sc:.1f}` (Threshold: `{q_th:.1f}`, Margin: `{q_ratio:.2f}x` — {q_alarm})",
+                f"- **Dynamic Lag Profile:** Dominant lag `{dom_lag}`, Slow drift ratio `{slow_drift:.2f}`",
+                "",
+                "**2. Process Telemetry Excursions:**",
+            ]
+            if top_sensors:
+                for s in top_sensors[:4]:
+                    name = s.get("display_name", s.get("name", "Sensor"))
+                    cur_v = s.get("current_value")
+                    base_v = s.get("baseline_value")
+                    dev = s.get("deviation_percent", 0.0)
+                    z = s.get("z_score", s.get("zScore", 0.0))
+                    val_str = f" (Observed: `{float(cur_v):.3f}`, Baseline: `{float(base_v):.3f}`)" if cur_v is not None and base_v is not None else ""
+                    lines.append(f"- **{name}:** Deviation `{dev:+.2f}%`, z-score `{z:+.2f}`{val_str}")
+            else:
+                lines.append("- Multi-variable dynamic correlation anomaly across plant control loops.")
+            lines.append(f"\n**Diagnostic Cause:** {root_cause} in subsystem `{subsystem}`.")
+            return "\n".join(lines)
 
         # Intent: Which sensors are used in the system
         if has_system_sensors:
@@ -491,9 +555,12 @@ class RCAInference:
                     z = s.get("z_score", s.get("zScore", 0.0))
                     trend = s.get("trend", "unknown")
                     contrib = s.get("contribution", 0.0)
+                    cur_v = s.get("current_value")
+                    base_v = s.get("baseline_value")
+                    val_str = f", Observed = `{float(cur_v):.3f}`, Ideal = `{float(base_v):.3f}`" if cur_v is not None and base_v is not None else ""
                     lim = s.get("limit_context", "")
                     lim_text = f" -> **[Safety Envelope: {lim}]**" if lim else ""
-                    lines.append(f"- **{name}:** z-score = `{z:+.2f}`, Deviation = `{dev:+.1f}%`, Trend = `{trend}`, Contribution score = `{contrib:.2f}`{lim_text}")
+                    lines.append(f"- **{name}:** z-score = `{z:+.2f}`, Deviation = `{dev:+.1f}%`, Trend = `{trend}`, Contribution score = `{contrib:.2f}`{val_str}{lim_text}")
             else:
                 lines.append("No individual sensors showed severe univariate excursions; anomaly was detected via dynamic multi-sensor correlation.")
             return "\n".join(lines)
@@ -571,9 +638,12 @@ class RCAInference:
                     dev = s.get("deviation_percent", 0.0)
                     z = s.get("z_score", s.get("zScore", 0.0))
                     trend = s.get("trend", "unknown")
+                    cur_v = s.get("current_value")
+                    base_v = s.get("baseline_value")
+                    val_str = f" (Observed: `{float(cur_v):.3f}`, Ideal Baseline: `{float(base_v):.3f}`)" if cur_v is not None and base_v is not None else ""
                     lim = s.get("limit_context", "")
                     lim_text = f" -> **[Limit Warning: {lim}]**" if lim else ""
-                    lines.append(f"- **{name}:** Deviation `{dev:+.1f}%`, z-score `{z:+.2f}`, Trend: `{trend}`{lim_text}")
+                    lines.append(f"- **{name}:** Deviation `{dev:+.1f}%`, z-score `{z:+.2f}`, Trend: `{trend}`{val_str}{lim_text}")
             else:
                 lines.append("No individual sensors showed severe statistical excursions; anomaly was detected via dynamic correlation.")
             return "\n".join(lines)
@@ -629,7 +699,8 @@ class RCAInference:
             l_sc = float(lstm.get("score", 0.0))
             l_th = float(lstm.get("threshold", 0.0))
             l_ratio = l_sc / max(l_th, 1e-9)
-            l_alarm = "ALARMED (Active)" if lstm.get("is_anomalous") else "Normal (Below limit)"
+            is_l_alarm = bool(lstm.get("alarmed") or lstm.get("is_anomalous") or (l_sc >= l_th and l_th > 0))
+            l_alarm = f"ALARMED (Active — {l_ratio:.2f}x threshold)" if is_l_alarm else "Normal (Below limit)"
             lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, margin = {l_ratio:.2f}x, status: {l_alarm})")
 
         dyn = det_ev.get("dynamic") if isinstance(det_ev.get("dynamic"), dict) else {}
@@ -638,27 +709,44 @@ class RCAInference:
             q_sc = float(cva.get("score", 0.0))
             q_th = float(cva.get("threshold", 0.0))
             q_ratio = q_sc / max(q_th, 1e-9)
-            q_alarm = "ALARMED (Active)" if cva.get("is_anomalous") else "Normal (Below limit)"
+            is_q_alarm = bool(cva.get("alarmed") or cva.get("is_anomalous") or (q_sc >= q_th and q_th > 0))
+            q_alarm = f"ALARMED (Active — {q_ratio:.2f}x threshold)" if is_q_alarm else "Normal (Below limit)"
             lines.append(f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} (threshold = {q_th:.1f}, margin = {q_ratio:.2f}x, status: {q_alarm})")
             if cva.get("dominant_lag") is not None:
                 lines.append(f"  * CVA lag metrics: dominant lag = {cva.get('dominant_lag')}, slow drift ratio = {float(cva.get('slow_drift_ratio', 0.0)):.2f}")
 
         # Top sensor deviations
         lines.append("")
-        lines.append("### Individual Sensor Scores & Deviations (Sensor-Level Metrics)")
+        lines.append("### Individual Sensor Values, Baselines & Deviations (Sensor Telemetry)")
         top_sensors = evidence.get("top_anomalous_sensors", [])
         if isinstance(top_sensors, list) and top_sensors:
             for s in top_sensors:
                 if not isinstance(s, dict):
                     continue
                 name = s.get("display_name", s.get("name", "Unknown"))
+                tag = s.get("name", "")
+                tag_str = f" [{tag}]" if tag and tag != name else ""
+                cur_v = s.get("current_value")
+                base_v = s.get("baseline_value")
                 z = s.get("z_score", s.get("zScore", 0.0))
                 dev = s.get("deviation_percent", 0.0)
                 trend = s.get("trend", "unknown")
                 contrib = s.get("contribution", 0.0)
                 lim = s.get("limit_context", "")
-                lim_str = f" -> [Limit: {lim}]" if lim else ""
-                lines.append(f"- {name}: z-score = {z:+.2f}, deviation = {dev:+.1f}%, trend = {trend}, contribution score = {contrib:.2f}{lim_str}")
+                lim_str = f" -> [Safety Limit: {lim}]" if lim else ""
+
+                if cur_v is not None and base_v is not None:
+                    lines.append(
+                        f"- {name}{tag_str}: Observed Value = {float(cur_v):.4f}, "
+                        f"Ideal/Normal Baseline = {float(base_v):.4f}, "
+                        f"Deviation = {dev:+.2f}%, z-score = {z:+.2f}, Trend = {trend}, "
+                        f"Contribution = {contrib:.3f}{lim_str}"
+                    )
+                else:
+                    lines.append(
+                        f"- {name}{tag_str}: Deviation = {dev:+.2f}%, z-score = {z:+.2f}, "
+                        f"Trend = {trend}, Contribution = {contrib:.3f}{lim_str}"
+                    )
         else:
             lines.append("- No individual sensors showed severe statistical excursions; anomaly was detected via multi-sensor correlation.")
 

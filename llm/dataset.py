@@ -107,7 +107,8 @@ def format_evidence_question(evidence: Dict) -> str:
             l_sc = float(lstm.get("score", 0.0))
             l_th = float(lstm.get("threshold", 0.0))
             l_ratio = l_sc / max(l_th, 1e-9)
-            lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, ratio = {l_ratio:.2f}x, alarmed = {lstm.get('is_anomalous', False)})")
+            is_l_alarm = bool(lstm.get("alarmed") or lstm.get("is_anomalous") or (l_sc >= l_th and l_th > 0))
+            lines.append(f"- LSTM Autoencoder: reconstruction error = {l_sc:.4f} (threshold = {l_th:.4f}, ratio = {l_ratio:.2f}x, alarmed = {is_l_alarm})")
 
         dyn = det_ev.get("dynamic") or {}
         cva = dyn.get("cva") or {}
@@ -115,7 +116,8 @@ def format_evidence_question(evidence: Dict) -> str:
             q_sc = float(cva.get("score", 0.0))
             q_th = float(cva.get("threshold", 0.0))
             q_ratio = q_sc / max(q_th, 1e-9)
-            lines.append(f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} (threshold = {q_th:.1f}, ratio = {q_ratio:.2f}x, alarmed = {cva.get('is_anomalous', False)})")
+            is_q_alarm = bool(cva.get("alarmed") or cva.get("is_anomalous") or (q_sc >= q_th and q_th > 0))
+            lines.append(f"- CVA Dynamics Q-Statistic: score = {q_sc:.1f} (threshold = {q_th:.1f}, ratio = {q_ratio:.2f}x, alarmed = {is_q_alarm})")
             if cva.get("dominant_lag") is not None:
                 lines.append(f"  * CVA lag metrics: dominant lag = {cva.get('dominant_lag')}, slow drift ratio = {float(cva.get('slow_drift_ratio', 0.0)):.2f}")
 
@@ -126,9 +128,12 @@ def format_evidence_question(evidence: Dict) -> str:
         for s in sensors:
             name = str(s.get("display_name", s.get("name", "")))
             z = s.get("z_score", s.get("zScore", 0.0))
+            cur_v = s.get("current_value")
+            base_v = s.get("baseline_value")
+            val_str = f" [val={float(cur_v):.3f}, normal={float(base_v):.3f}]" if cur_v is not None and base_v is not None else ""
             line = (
                 f"- {name}: "
-                f"z={z:+.2f} "
+                f"z={z:+.2f}{val_str} "
                 f"(deviation: {s.get('deviation_percent', 0.0):+.1f}%, "
                 f"trend: {s.get('trend', 'unknown')}, "
                 f"contribution: {s.get('contribution', 0.0):.2f})"
