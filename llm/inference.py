@@ -139,8 +139,16 @@ class RCAInference:
             tokenizer.pad_token = tokenizer.eos_token
         return cls(model=model, tokenizer=tokenizer, config=config)
 
-    # ------------------------------------------------------------------
-    def _generate(self, prompt: str, max_new_tokens: Optional[int] = None) -> str:
+    def _generate(
+        self,
+        prompt: str,
+        max_new_tokens: Optional[int] = None,
+        do_sample: Optional[bool] = None,
+        temperature: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        repetition_penalty: Optional[float] = None,
+    ) -> str:
         """Greedy decode via repeated forward passes.
 
         The base InternVL2 remote code predates the KV-cache APIs used by the
@@ -413,7 +421,7 @@ class RCAInference:
         has_severity = any(w in q for w in ("severity", "how serious", "how dangerous", "critical", "alarm level", "risk level", "danger"))
         has_sensors = any(w in q for w in ("sensor", "sensors", "inspect", "deviat", "which sensor"))
         has_action = any(w in q for w in ("what should i do", "what to do", "action", "recommend", "how to fix", "mitigat", "next step", "procedure"))
-        has_overview = any(w in q for w in ("what is this anomaly", "what anomaly", "what happened", "what is this", "overview", "root cause", "explain anomaly", "explain this anomaly", "diagnose", "summary"))
+        has_overview = any(w in q for w in ("which anomaly", "what is this anomaly", "what anomaly", "which fault", "what fault", "fault number", "fault type", "what happened", "what is this", "overview", "root cause", "cause", "explain anomaly", "explain this anomaly", "diagnose", "summary"))
 
         lstm = det_ev.get("lstm_ae") or {}
         l_sc = float(lstm.get("score", 0.0))
