@@ -125,7 +125,7 @@ def build_chat_prompt(
     return "".join(parts)
 
 
-def format_evidence_question(evidence: Dict) -> str:
+def format_evidence_question(evidence: Dict, include_schema_hint: bool = True) -> str:
     """Render a structured event into the text prompt shown to the model."""
     from evidence.process_limits import compute_deterministic_severity, get_sensor_limit_context
 
@@ -221,11 +221,12 @@ def format_evidence_question(evidence: Dict) -> str:
         f"Pre-anomaly context: {context.get('status', 'unknown')} "
         f"(baseline duration ~{context.get('duration_minutes', '?')} min)"
     )
-    lines.append("")
-    lines.append(
-        "Determine the likely root cause and explain the evidence. "
-        "Base your reasoning only on the evidence above. " + ANSWER_SCHEMA_HINT
-    )
+    if include_schema_hint:
+        lines.append("")
+        lines.append(
+            "Determine the likely root cause and explain the evidence. "
+            "Base your reasoning only on the evidence above. " + ANSWER_SCHEMA_HINT
+        )
     return "\n".join(lines)
 
 
