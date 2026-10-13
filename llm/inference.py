@@ -73,6 +73,22 @@ def extract_json_object(text: str) -> Optional[Dict]:
                 except json.JSONDecodeError as exc:
                     logger.warning("JSON decode failed: %s", exc)
                     return None
+
+    # Fallback: attempt to recover if JSON was truncated near the end
+    if depth > 0:
+        candidate = text[start:].strip()
+        if in_string:
+            candidate += '"'
+        for _ in range(depth):
+            candidate += "}"
+        try:
+            repaired = json.loads(candidate)
+            if isinstance(repaired, dict) and "root_cause" in repaired:
+                logger.info("Successfully recovered truncated JSON object from model output.")
+                return repaired
+        except Exception:
+            pass
+
     return None
 
 

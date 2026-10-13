@@ -638,6 +638,7 @@ class TeacherLLM:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
+                "format": "json",  # Forces Ollama grammar-constrained JSON mode (no chatty markdown preamble)
                 "stream": False,
                 "keep_alive": "60m",
                 "options": {
@@ -662,6 +663,7 @@ class TeacherLLM:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
+                "response_format": {"type": "json_object"},
                 "max_tokens": max_new_tokens,
                 "temperature": 0.2,
                 "top_p": 0.9,
@@ -755,6 +757,7 @@ def generate_distillation_dataset(
     timeout: Optional[int] = None,
     no_fallback: Optional[bool] = None,
     num_ctx: Optional[int] = None,
+    max_tokens: Optional[int] = None,
 ) -> Dict[str, int]:
     """Generate the complete distilled training, validation, and test datasets.
     
@@ -780,6 +783,7 @@ def generate_distillation_dataset(
     timeout_sec = timeout or distill_cfg.get("timeout", 600)
     no_fb = bool(no_fallback if no_fallback is not None else distill_cfg.get("no_fallback", False))
     ctx_len = int(num_ctx or distill_cfg.get("num_ctx", 2048))
+    max_tok = int(max_tokens or distill_cfg.get("max_tokens", 650))
 
     lookup_mean, lookup_std = _load_baseline_lookup()
     out_dir = Path(output_dir or config["paths"]["llm_dataset_path"])
@@ -906,7 +910,7 @@ def generate_distillation_dataset(
                         try:
                             teacher_prompt = f"{report_question}\n\nProvide the complete root-cause analysis report in JSON."
                             t0 = time.time()
-                            raw_llm_out = teacher.generate(teacher_prompt, max_new_tokens=512)
+                            raw_llm_out = teacher.generate(teacher_prompt, max_new_tokens=max_tok)
                             gen_sec = time.time() - t0
                             from llm.inference import extract_json_object, sanitize_answer
                             parsed_llm = extract_json_object(raw_llm_out)
@@ -1001,6 +1005,7 @@ def main() -> None:
     parser.add_argument("--api-key", default=None, help="API key for teacher endpoint if required")
     parser.add_argument("--timeout", type=int, default=None, help="Inference timeout in seconds (default: 600)")
     parser.add_argument("--num-ctx", type=int, default=None, help="Context window size in tokens for teacher LLM (default: 2048)")
+    parser.add_argument("--max-tokens", type=int, default=None, help="Maximum tokens to generate for teacher report (default: 650)")
     parser.add_argument("--resume", action="store_true", default=True, help="Resume from existing jsonl files on disk (default: True)")
     parser.add_argument("--no-resume", action="store_false", dest="resume", help="Do not resume; start without appending to existing files")
     parser.add_argument("--overwrite", action="store_true", default=False, help="Overwrite and regenerate existing dataset files from scratch")
@@ -1035,6 +1040,7 @@ def main() -> None:
     timeout = args.timeout or distill_cfg.get("timeout", 600)
     no_fallback = args.no_fallback if args.no_fallback is not None else distill_cfg.get("no_fallback", False)
     num_ctx = args.num_ctx if args.num_ctx is not None else distill_cfg.get("num_ctx", 2048)
+    max_tokens = args.max_tokens if args.max_tokens is not None else distill_cfg.get("max_tokens", 650)
 
     if args.overwrite:
         resume_flag = False
@@ -1057,6 +1063,7 @@ def main() -> None:
         timeout=timeout,
         no_fallback=no_fallback,
         num_ctx=num_ctx,
+        max_tokens=max_tokens,
     )
 
 
