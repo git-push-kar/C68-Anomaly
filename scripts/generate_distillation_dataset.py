@@ -755,6 +755,15 @@ def generate_distillation_dataset(
         mode = "a" if resume else "w"
         target_events_per_fault = n_per_fault if split == "train" else max(2, n_per_fault // 5)
 
+        if mode == "a" and file_path.exists() and file_path.stat().st_size > 0:
+            try:
+                with open(file_path, "rb+") as check_f:
+                    check_f.seek(-1, 2)
+                    if check_f.read(1) != b"\n":
+                        check_f.write(b"\n")
+            except Exception:
+                pass
+
         with open(file_path, mode, encoding="utf-8") as handle:
             for fault_id in fault_ids:
                 if fault_id not in FAULT_KNOWLEDGE:
@@ -873,7 +882,8 @@ def main() -> None:
     parser.add_argument("--api-base", default=None, help="OpenAI-compatible API base URL (e.g. http://localhost:11434/v1)")
     parser.add_argument("--api-key", default=None, help="API key for teacher endpoint if required")
     parser.add_argument("--timeout", type=int, default=None, help="Inference timeout in seconds (default: 600)")
-    parser.add_argument("--resume", action="store_true", default=None, help="Resume from existing jsonl files on disk")
+    parser.add_argument("--resume", action="store_true", default=True, help="Resume from existing jsonl files on disk (default: True)")
+    parser.add_argument("--no-resume", action="store_false", dest="resume", help="Do not resume; start without appending to existing files")
     parser.add_argument("--overwrite", action="store_true", default=False, help="Overwrite and regenerate existing dataset files from scratch")
     parser.add_argument(
         "--no-fallback",
@@ -909,7 +919,7 @@ def main() -> None:
     if args.overwrite:
         resume_flag = False
     else:
-        resume_flag = args.resume if args.resume is not None else distill_cfg.get("resume", False)
+        resume_flag = bool(args.resume)
 
     use_all_faults = not args.holdout_faults
 
