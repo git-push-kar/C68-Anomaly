@@ -740,6 +740,45 @@ class TeacherLLM:
         return text.strip()
 
 
+def extract_and_normalize_report(raw_llm_out: str) -> Optional[Dict]:
+    """Parse JSON and normalize key names/nesting so root-cause reports are robustly extracted."""
+    from llm.inference import extract_json_object
+    parsed = extract_json_object(raw_llm_out)
+    if not isinstance(parsed, dict):
+        try:
+            parsed = json.loads(raw_llm_out.strip())
+        except Exception:
+            pass
+    if not isinstance(parsed, dict):
+        return None
+
+    # 1. Check if nested under common wrappers (e.g. {"report": {...}}, {"data": {...}})
+    for wrapper in ("report", "data", "result", "response", "diagnosis", "analysis"):
+        if wrapper in parsed and isinstance(parsed[wrapper], dict):
+            inner = parsed[wrapper]
+            if any(k in inner for k in ("root_cause", "rootCause", "cause", "fault", "likely_root_cause")):
+                parsed = inner
+                break
+
+    # 2. Map common key aliases to "root_cause"
+    if "root_cause" not in parsed or not parsed["root_cause"]:
+        for alias in ("rootCause", "cause", "likely_root_cause", "fault", "fault_name", "diagnosis", "primary_cause"):
+            if alias in parsed and parsed[alias]:
+                parsed["root_cause"] = str(parsed[alias])
+                break
+
+    # 3. Map common key aliases for other fields
+    if "reasoning_steps" not in parsed:
+        for alias in ("reasoningSteps", "steps", "thought_process", "cot"):
+            if alias in parsed and isinstance(parsed[alias], list):
+                parsed["reasoning_steps"] = parsed[alias]
+                break
+
+    if "root_cause" in parsed and str(parsed["root_cause"]).strip():
+        return parsed
+    return None
+
+
 # -----------------------------------------------------------------------------
 # Main Dataset Generation Orchestrator (with Resume & Flush Support)
 # -----------------------------------------------------------------------------
@@ -908,20 +947,37 @@ def generate_distillation_dataset(
                     teacher_status = "physics_baseline"
                     if not teacher.is_mock:
                         try:
-                            teacher_prompt = f"{report_question}\n\nProvide the complete root-cause analysis report in JSON."
+                            teacher_prompt = (
+                                f"{report_question}\n\n"
+                                "Respond with ONLY a compact JSON object. Put 'root_cause' first. Example format:\n"
+                                '{\n'
+                                '  "root_cause": "<fault name>",\n'
+                                '  "severity": "low" | "medium" | "high" | "critical",\n'
+                                '  "confidence": 0.95,\n'
+                                '  "affected_subsystem": "<subsystem>",\n'
+                                '  "summary": "<1-2 sentence summary>",\n'
+                                '  "reasoning_steps": ["step 1", "step 2", "step 3"],\n'
+                                '  "evidence": ["point 1", "point 2"],\n'
+                                '  "reasoning": "<concise explanation>",\n'
+                                '  "recommended_action": "<concrete action>",\n'
+                                '  "uncertainty": "<one line verification>"\n'
+                                '}\n'
+                                "Keep reasoning_steps to 3 concise bullet points. Output JSON only."
+                            )
                             t0 = time.time()
                             raw_llm_out = teacher.generate(teacher_prompt, max_new_tokens=max_tok)
                             gen_sec = time.time() - t0
-                            from llm.inference import extract_json_object, sanitize_answer
-                            parsed_llm = extract_json_object(raw_llm_out)
+                            from llm.inference import sanitize_answer
+                            parsed_llm = extract_and_normalize_report(raw_llm_out)
                             if parsed_llm and "root_cause" in parsed_llm:
                                 qa_data["report"] = sanitize_answer(parsed_llm, evidence=evidence)
                                 teacher_status = "teacher_llm"
                                 logger.info("  [Teacher LLM] Event %s generated successfully in %.1fs",
                                             evidence["event_id"], gen_sec)
                             else:
-                                logger.warning("Teacher output for %s did not contain valid JSON with 'root_cause' (took %.1fs).",
-                                               evidence["event_id"], gen_sec)
+                                snippet = (raw_llm_out[:250] + "...") if len(raw_llm_out) > 250 else raw_llm_out
+                                logger.warning("Teacher output for %s did not contain valid JSON with 'root_cause' (took %.1fs). Snippet: %r",
+                                               evidence["event_id"], gen_sec, snippet.strip())
                         except Exception as e:
                             if no_fb:
                                 raise RuntimeError(

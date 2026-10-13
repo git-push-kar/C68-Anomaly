@@ -83,7 +83,7 @@ def extract_json_object(text: str) -> Optional[Dict]:
             candidate += "}"
         try:
             repaired = json.loads(candidate)
-            if isinstance(repaired, dict) and "root_cause" in repaired:
+            if isinstance(repaired, dict):
                 logger.info("Successfully recovered truncated JSON object from model output.")
                 return repaired
         except Exception:
