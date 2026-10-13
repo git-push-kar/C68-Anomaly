@@ -22,6 +22,7 @@ import json
 import logging
 import random
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -458,11 +459,15 @@ class TeacherLLM:
         max_cpu_memory: str = "64GiB",
         api_base: Optional[str] = None,
         api_key: Optional[str] = None,
+        timeout: int = 600,
+        no_fallback: bool = False,
     ) -> None:
         self.model_id = model_id
         self.device = device
         self.api_base = api_base
         self.api_key = api_key or "EMPTY"
+        self.timeout = timeout
+        self.no_fallback = no_fallback
         self.is_mock = False
         self.is_api = bool(api_base)
 
@@ -472,7 +477,9 @@ class TeacherLLM:
             return
 
         if self.is_api:
-            logger.info("Initialized API-based Teacher LLM (%s) at endpoint %s", model_id, api_base)
+            logger.info("Configured API-based Teacher LLM (%s) at endpoint %s (timeout=%ds)",
+                        model_id, api_base, self.timeout)
+            self._preflight_check()
             return
 
         import torch
@@ -504,31 +511,105 @@ class TeacherLLM:
         self.model.eval()
         logger.info("Teacher LLM %s loaded successfully.", model_id)
 
+    def _preflight_check(self) -> None:
+        """Verify endpoint connectivity and perform an upfront warm-up ping to load model into RAM/VRAM."""
+        import urllib.request
+        import urllib.parse
+        import urllib.error
+
+        parsed = urllib.parse.urlparse(self.api_base)
+        base_origin = f"{parsed.scheme}://{parsed.netloc}"
+        is_ollama = "11434" in parsed.netloc or "ollama" in self.api_base.lower()
+
+        if is_ollama:
+            try:
+                tags_url = f"{base_origin}/api/tags"
+                req = urllib.request.Request(tags_url)
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    tags_data = json.loads(resp.read().decode("utf-8"))
+                    models = [m.get("name", "") for m in tags_data.get("models", [])]
+                    logger.info("Ollama server online at %s. Detected installed models: %s", base_origin, models)
+                    matched = any(self.model_id in m or m in self.model_id for m in models)
+                    if not matched:
+                        logger.warning(
+                            "Requested model '%s' not explicitly found in Ollama models list %s. "
+                            "If inference fails, verify your tag with 'ollama list' or run 'ollama pull %s'.",
+                            self.model_id, models, self.model_id
+                        )
+            except Exception as e:
+                logger.warning("Could not query Ollama tags at %s (%s). Proceeding to test chat endpoint...", base_origin, e)
+
+        # Warm-up ping to trigger model loading into memory
+        logger.info("[Pre-flight] Warming up teacher model '%s' at %s...", self.model_id, self.api_base)
+        logger.info("[Pre-flight] Cold-loading a 70B/72B model typically takes 1-3 minutes; waiting up to %ds...", self.timeout)
+        t0 = time.time()
+        try:
+            _ = self._call_api("Say 'Ready' in one word.", max_new_tokens=5, retries=1)
+            elapsed = time.time() - t0
+            logger.info("[Pre-flight] Teacher model '%s' successfully loaded and warmed up in %.1fs!", self.model_id, elapsed)
+        except Exception as e:
+            elapsed = time.time() - t0
+            logger.warning("[Pre-flight] Warm-up ping failed after %.1fs: %s", elapsed, e)
+            if self.no_fallback:
+                raise RuntimeError(
+                    f"Teacher LLM warm-up failed for model '{self.model_id}' at {self.api_base}: {e}\n"
+                    f"Make sure Ollama is running and responsive ('ollama run {self.model_id}')."
+                ) from e
+            logger.warning("Proceeding with generation (automatic retries will be attempted per event).")
+
+    def _call_api(self, prompt: str, max_new_tokens: int = 512, retries: int = 2) -> str:
+        """Call OpenAI-compatible chat completion endpoint with timeout, keep-alive, and retry logic."""
+        import urllib.request
+        import urllib.error
+
+        url = f"{self.api_base.rstrip('/')}/chat/completions"
+        payload = {
+            "model": self.model_id,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            "max_tokens": max_new_tokens,
+            "temperature": 0.2,
+            "top_p": 0.9,
+            "keep_alive": "60m",  # Ollama extension: keep weights in memory for 1 hour
+        }
+        body_bytes = json.dumps(payload).encode("utf-8")
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+
+        last_err: Optional[Exception] = None
+        for attempt in range(1 + retries):
+            try:
+                req = urllib.request.Request(url, data=body_bytes, headers=headers)
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    return data["choices"][0]["message"]["content"].strip()
+            except (urllib.error.URLError, TimeoutError, OSError) as e:
+                last_err = e
+                if attempt < retries:
+                    wait_sec = 5 * (attempt + 1)
+                    logger.warning(
+                        "Teacher API call failed on attempt %d/%d (%s). Retrying in %ds...",
+                        attempt + 1, 1 + retries, e, wait_sec
+                    )
+                    time.sleep(wait_sec)
+                else:
+                    raise last_err
+            except Exception as e:
+                raise e
+        if last_err:
+            raise last_err
+        raise RuntimeError("Teacher API call failed with unknown error.")
+
     def generate(self, prompt: str, max_new_tokens: int = 512) -> str:
         if self.is_mock:
             raise RuntimeError("Mock teacher does not run generate(); uses deterministic physics generator.")
 
         if self.is_api:
-            import urllib.request
-            url = f"{self.api_base.rstrip('/')}/chat/completions"
-            payload = {
-                "model": self.model_id,
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                "max_tokens": max_new_tokens,
-                "temperature": 0.2,
-                "top_p": 0.9,
-            }
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"},
-            )
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                return data["choices"][0]["message"]["content"].strip()
+            return self._call_api(prompt, max_new_tokens=max_new_tokens, retries=2)
 
         import torch
 
@@ -557,14 +638,20 @@ def generate_distillation_dataset(
     output_dir: Optional[str] = None,
     all_faults_in_train: bool = True,
     resume: bool = False,
+    overwrite: bool = False,
     api_base: Optional[str] = None,
     api_key: Optional[str] = None,
+    timeout: Optional[int] = None,
+    no_fallback: Optional[bool] = None,
 ) -> Dict[str, int]:
     """Generate the complete distilled training, validation, and test datasets.
     
     Supports:
-    - Qwen 70B/72B Teacher models (local 4-bit + CPU offload, API, or deterministic physics).
+    - Qwen 70B/72B Teacher models (Ollama/vLLM API, local 4-bit + CPU offload, or deterministic physics).
+    - Upfront pre-flight model check and warm-up ping to prevent cold-load timeouts.
+    - Configurable inference timeouts (default 600s) and automatic retries.
     - Incremental resume: checks existing files and continues from the exact deficit.
+    - Overwrite mode: cleanly wipes previous runs/fallbacks and regenerates from scratch.
     - Progressive disk flush: records are written and flushed immediately upon generation.
     """
     set_seed(seed)
@@ -578,10 +665,24 @@ def generate_distillation_dataset(
     load_4bit = bool(distill_cfg.get("load_in_4bit", True))
     endpoint = api_base or distill_cfg.get("api_base")
     key = api_key or distill_cfg.get("api_key")
+    timeout_sec = timeout or distill_cfg.get("timeout", 600)
+    no_fb = bool(no_fallback if no_fallback is not None else distill_cfg.get("no_fallback", False))
 
     lookup_mean, lookup_std = _load_baseline_lookup()
     out_dir = Path(output_dir or config["paths"]["llm_dataset_path"])
     ensure_dir(out_dir)
+
+    # Handle overwrite mode
+    if overwrite:
+        resume = False
+        for split_name in ("train", "val", "test"):
+            fpath = out_dir / f"{split_name}.jsonl"
+            if fpath.exists():
+                fpath.unlink()
+        meta_path = out_dir / "split_metadata.json"
+        if meta_path.exists():
+            meta_path.unlink()
+        logger.info("Overwrite mode active: cleared existing jsonl dataset files in %s", out_dir)
 
     all_22_faults = list(range(1, 23))
     if all_faults_in_train:
@@ -601,6 +702,7 @@ def generate_distillation_dataset(
     # Inspect existing records if resume is enabled
     existing_events_by_fault: Dict[str, Dict[int, set]] = {"train": {}, "val": {}, "test": {}}
     counts: Dict[str, int] = {"train": 0, "val": 0, "test": 0}
+    fallback_counts: Dict[str, int] = {"train": 0, "val": 0, "test": 0}
 
     for split in split_map.keys():
         file_path = out_dir / f"{split}.jsonl"
@@ -616,12 +718,20 @@ def generate_distillation_dataset(
                         row = json.loads(line)
                         fid = row.get("fault_id")
                         ev_id = row.get("evidence", {}).get("event_id") or row.get("event_id")
+                        if row.get("teacher_status") == "physics_baseline":
+                            fallback_counts[split] += 1
                         if fid is not None and ev_id:
                             existing_events_by_fault[split].setdefault(int(fid), set()).add(ev_id)
                     except Exception:
                         pass
             logger.info("Resume check: '%s.jsonl' has %d existing samples across %d faults.",
                         split, counts[split], len([k for k, v in existing_events_by_fault[split].items() if v]))
+            if fallback_counts[split] > 0 and t_model != "mock":
+                logger.warning(
+                    "Notice: '%s.jsonl' contains %d fallback baseline records. "
+                    "To regenerate with pure 72B teacher outputs, pass --overwrite.",
+                    split, fallback_counts[split]
+                )
 
     teacher = TeacherLLM(
         model_id=t_model,
@@ -630,10 +740,13 @@ def generate_distillation_dataset(
         max_cpu_memory=max_cpu_mem,
         api_base=endpoint,
         api_key=key,
+        timeout=timeout_sec,
+        no_fallback=no_fb,
     )
 
     logger.info("Beginning dataset distillation across 22 faults (target samples_per_fault=%d)...", n_per_fault)
-    logger.info("Teacher engine: %s | Resume: %s", t_model, resume)
+    logger.info("Teacher engine: %s | Resume: %s | Timeout: %ds | Strict: %s",
+                t_model, resume, timeout_sec, no_fb)
 
     counter = sum(counts.values())
 
@@ -665,6 +778,7 @@ def generate_distillation_dataset(
 
                     # 1. Primary RCA Report Sample with Detailed CoT
                     report_question = format_evidence_question(evidence)
+                    teacher_status = "physics_baseline"
                     if not teacher.is_mock:
                         try:
                             teacher_prompt = f"{report_question}\n\nProvide the complete root-cause analysis report in JSON."
@@ -673,7 +787,16 @@ def generate_distillation_dataset(
                             parsed_llm = extract_json_object(raw_llm_out)
                             if parsed_llm and "root_cause" in parsed_llm:
                                 qa_data["report"] = sanitize_answer(parsed_llm, evidence=evidence)
+                                teacher_status = "teacher_llm"
+                            else:
+                                logger.warning("Teacher output for %s did not contain valid JSON with 'root_cause'.",
+                                               evidence["event_id"])
                         except Exception as e:
+                            if no_fb:
+                                raise RuntimeError(
+                                    f"Teacher generation failed for event {evidence['event_id']} "
+                                    f"(strict mode --no-fallback is active): {e}"
+                                ) from e
                             logger.warning("Teacher generation failed for %s (%s); using deterministic baseline",
                                            evidence["event_id"], e)
 
@@ -691,6 +814,8 @@ def generate_distillation_dataset(
                         "answer": report_answer_json,
                         "system": SYSTEM_PROMPT,
                         "evidence": evidence,
+                        "teacher_model": t_model if teacher_status == "teacher_llm" else "physics_baseline",
+                        "teacher_status": teacher_status,
                     }
                     handle.write(json.dumps(report_sample, ensure_ascii=False) + "\n")
                     counts[split] += 1
@@ -743,11 +868,19 @@ def main() -> None:
     parser.add_argument(
         "--teacher-model",
         default=None,
-        help="Teacher model ('mock', or 'Qwen/Qwen2.5-72B-Instruct', or 'Qwen/Qwen2.5-72B-Instruct-AWQ')",
+        help="Teacher model ('mock', or 'qwen2.5:72b', or 'Qwen/Qwen2.5-72B-Instruct')",
     )
-    parser.add_argument("--api-base", default=None, help="OpenAI-compatible API base URL (e.g. http://localhost:8000/v1)")
+    parser.add_argument("--api-base", default=None, help="OpenAI-compatible API base URL (e.g. http://localhost:11434/v1)")
     parser.add_argument("--api-key", default=None, help="API key for teacher endpoint if required")
+    parser.add_argument("--timeout", type=int, default=None, help="Inference timeout in seconds (default: 600)")
     parser.add_argument("--resume", action="store_true", default=None, help="Resume from existing jsonl files on disk")
+    parser.add_argument("--overwrite", action="store_true", default=False, help="Overwrite and regenerate existing dataset files from scratch")
+    parser.add_argument(
+        "--no-fallback",
+        action="store_true",
+        default=None,
+        help="Strict mode: raise error on teacher failure instead of falling back to baseline",
+    )
     parser.add_argument("--output-dir", default=None, help="Custom output directory")
     parser.add_argument(
         "--all-faults-in-train",
@@ -770,7 +903,14 @@ def main() -> None:
     samples = args.samples_per_fault if args.samples_per_fault is not None else distill_cfg.get("samples_per_fault", 12)
     seed = args.seed if args.seed is not None else distill_cfg.get("seed", 42)
     teacher = args.teacher_model or distill_cfg.get("teacher_model", "Qwen/Qwen2.5-72B-Instruct")
-    resume_flag = args.resume if args.resume is not None else distill_cfg.get("resume", False)
+    timeout = args.timeout or distill_cfg.get("timeout", 600)
+    no_fallback = args.no_fallback if args.no_fallback is not None else distill_cfg.get("no_fallback", False)
+
+    if args.overwrite:
+        resume_flag = False
+    else:
+        resume_flag = args.resume if args.resume is not None else distill_cfg.get("resume", False)
+
     use_all_faults = not args.holdout_faults
 
     generate_distillation_dataset(
@@ -781,8 +921,11 @@ def main() -> None:
         output_dir=args.output_dir,
         all_faults_in_train=use_all_faults,
         resume=resume_flag,
+        overwrite=args.overwrite,
         api_base=args.api_base,
         api_key=args.api_key,
+        timeout=timeout,
+        no_fallback=no_fallback,
     )
 
 

@@ -198,15 +198,20 @@ def load_base_model(
 
 
 def _check_base_dir_for_adapter(base_path: str) -> None:
-    """Fail if the local base-model directory contains adapter files."""
+    """Fail if the local base-model directory is an unmerged adapter folder."""
     path = Path(base_path)
     if not path.exists():
         return  # hub id / remote path: nothing local to inspect
+    has_full_weights = (
+        any(path.glob("model*.safetensors"))
+        or any(path.glob("pytorch_model*.bin"))
+        or (path / "config.json").exists()
+    )
     for candidate in ("adapter_config.json", "adapter_model.bin", "adapter_model.safetensors"):
-        if (path / candidate).exists():
+        if (path / candidate).exists() and not has_full_weights:
             raise RuntimeError(
-                f"Unexpected adapter file '{candidate}' found in base model "
-                f"directory {path}. Base must be the original pretrained base model."
+                f"Unexpected standalone adapter file '{candidate}' found in base model "
+                f"directory {path}. Base must be a full pretrained base model or fused base model."
             )
 
 

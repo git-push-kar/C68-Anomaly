@@ -258,6 +258,8 @@ distillation:
   load_in_4bit: true                           # 4-bit quantization
   max_gpu_memory: "22GiB"
   max_cpu_memory: "64GiB"                      # CPU RAM offload for 72B on 24GB GPU
-  api_base: null                               # Optional endpoint (e.g. http://localhost:8000/v1 for vLLM/Ollama)
+  api_base: null                               # Optional endpoint (e.g. http://localhost:11434/v1 for Ollama/vLLM)
   api_key: null
+  timeout: 600                                 # Timeout in seconds for teacher LLM inference (10 mins for 72B cold load/inference)
+  no_fallback: false                           # Strict mode: if true, raise error on teacher failure instead of falling back
   resume: true                                 # Resume support enabled by default
