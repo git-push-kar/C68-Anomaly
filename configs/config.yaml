@@ -261,5 +261,6 @@ distillation:
   api_base: null                               # Optional endpoint (e.g. http://localhost:11434/v1 for Ollama/vLLM)
   api_key: null
   timeout: 600                                 # Timeout in seconds for teacher LLM inference (10 mins for 72B cold load/inference)
+  num_ctx: 2048                                # Context window size (minimizes KV cache VRAM footprint to maximize GPU layer offload)
   no_fallback: false                           # Strict mode: if true, raise error on teacher failure instead of falling back
   resume: true                                 # Resume support enabled by default
