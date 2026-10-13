@@ -130,11 +130,13 @@ class RCAInference:
         llm = config["llm"]
         base = base_model or llm["base_model"]
         adapter = adapter_path or llm["adapter_dir"]
+        adapter_name = llm.get("adapter_name", "tep_rca")
         model = load_tep_adapter(
             base,
             adapter,
             trust_remote_code=bool(llm.get("trust_remote_code", True)),
             use_flash_attn=bool(llm.get("use_flash_attn", False)),
+            adapter_name=adapter_name,
         )
         tokenizer = AutoTokenizer.from_pretrained(
             base, trust_remote_code=True, use_fast=False

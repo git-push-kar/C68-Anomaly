@@ -444,31 +444,48 @@ def synthesize_reasoning_and_answers(evidence: Dict[str, Any], kb: Dict[str, Any
 
 
 # -----------------------------------------------------------------------------
-# Live Teacher LLM Interface (for 24GB VRAM)
+# Live Teacher LLM Interface (Qwen-70B/72B / 32B / 14B / API / Mock)
 # -----------------------------------------------------------------------------
 class TeacherLLM:
-    """Wrapper to load and run 14B/32B Teacher models on 24GB VRAM."""
+    """Wrapper to load and run Teacher models (Qwen-72B/70B, 32B, or API endpoints)."""
 
-    def __init__(self, model_id: str, load_in_4bit: bool = True, device: str = "cuda") -> None:
+    def __init__(
+        self,
+        model_id: str = "Qwen/Qwen2.5-72B-Instruct",
+        load_in_4bit: bool = True,
+        device: str = "cuda",
+        max_gpu_memory: str = "22GiB",
+        max_cpu_memory: str = "64GiB",
+        api_base: Optional[str] = None,
+        api_key: Optional[str] = None,
+    ) -> None:
         self.model_id = model_id
         self.device = device
+        self.api_base = api_base
+        self.api_key = api_key or "EMPTY"
         self.is_mock = False
+        self.is_api = bool(api_base)
 
         if model_id == "mock":
             self.is_mock = True
             logger.info("Initialized High-Fidelity Deterministic Physics Teacher Engine (Zero VRAM).")
             return
 
+        if self.is_api:
+            logger.info("Initialized API-based Teacher LLM (%s) at endpoint %s", model_id, api_base)
+            return
+
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
-        logger.info("Loading Teacher LLM %s on 24GB VRAM...", model_id)
+        logger.info("Loading Teacher LLM %s (4-bit=%s, max_gpu=%s, max_cpu=%s)...",
+                    model_id, load_in_4bit, max_gpu_memory, max_cpu_memory)
         self.tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
 
         load_kwargs: Dict[str, Any] = {
             "device_map": "auto",
             "trust_remote_code": True,
-            "max_memory": {0: "22GiB", "cpu": "32GiB"},
+            "max_memory": {0: max_gpu_memory, "cpu": max_cpu_memory},
         }
 
         if load_in_4bit:
@@ -478,17 +495,40 @@ class TeacherLLM:
                     load_in_4bit=True,
                     bnb_4bit_compute_dtype=torch.float16,
                     bnb_4bit_quant_type="nf4",
+                    bnb_4bit_use_double_quant=True,
                 )
             except Exception as e:
-                logger.warning("BitsAndBytesConfig failed (%s); trying default weights", e)
+                logger.warning("BitsAndBytesConfig failed (%s); trying standard weights", e)
 
         self.model = AutoModelForCausalLM.from_pretrained(model_id, **load_kwargs)
         self.model.eval()
-        logger.info("Teacher LLM loaded successfully.")
+        logger.info("Teacher LLM %s loaded successfully.", model_id)
 
     def generate(self, prompt: str, max_new_tokens: int = 512) -> str:
         if self.is_mock:
-            raise RuntimeError("Mock teacher does not run generate(); uses synthetic generator.")
+            raise RuntimeError("Mock teacher does not run generate(); uses deterministic physics generator.")
+
+        if self.is_api:
+            import urllib.request
+            url = f"{self.api_base.rstrip('/')}/chat/completions"
+            payload = {
+                "model": self.model_id,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                "max_tokens": max_new_tokens,
+                "temperature": 0.2,
+                "top_p": 0.9,
+            }
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"},
+            )
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return data["choices"][0]["message"]["content"].strip()
 
         import torch
 
@@ -507,45 +547,50 @@ class TeacherLLM:
 
 
 # -----------------------------------------------------------------------------
-# Main Dataset Generation Orchestrator
+# Main Dataset Generation Orchestrator (with Resume & Flush Support)
 # -----------------------------------------------------------------------------
 def generate_distillation_dataset(
     config: Dict[str, Any],
-    samples_per_fault: int = 15,
+    samples_per_fault: int = 12,
     seed: int = 42,
-    teacher_model_name: str = "mock",
+    teacher_model_name: Optional[str] = None,
     output_dir: Optional[str] = None,
     all_faults_in_train: bool = True,
+    resume: bool = False,
+    api_base: Optional[str] = None,
+    api_key: Optional[str] = None,
 ) -> Dict[str, int]:
     """Generate the complete distilled training, validation, and test datasets.
     
-    Args:
-        config: System configuration dictionary.
-        samples_per_fault: Number of distinct anomaly events per fault scenario.
-        seed: Random seed for repeatability.
-        teacher_model_name: 'mock' for fast calibrated deterministic generator, or HF model ID.
-        output_dir: Target output folder.
-        all_faults_in_train: If True, includes all 22 operational faults in training so the model
-            learns the instrumentation and dynamics of every fault.
+    Supports:
+    - Qwen 70B/72B Teacher models (local 4-bit + CPU offload, API, or deterministic physics).
+    - Incremental resume: checks existing files and continues from the exact deficit.
+    - Progressive disk flush: records are written and flushed immediately upon generation.
     """
     set_seed(seed)
     rng = np.random.RandomState(seed)
+
+    distill_cfg = config.get("distillation", {})
+    t_model = teacher_model_name or distill_cfg.get("teacher_model", "Qwen/Qwen2.5-72B-Instruct")
+    n_per_fault = samples_per_fault or distill_cfg.get("samples_per_fault", 12)
+    max_gpu_mem = distill_cfg.get("max_gpu_memory", "22GiB")
+    max_cpu_mem = distill_cfg.get("max_cpu_memory", "64GiB")
+    load_4bit = bool(distill_cfg.get("load_in_4bit", True))
+    endpoint = api_base or distill_cfg.get("api_base")
+    key = api_key or distill_cfg.get("api_key")
 
     lookup_mean, lookup_std = _load_baseline_lookup()
     out_dir = Path(output_dir or config["paths"]["llm_dataset_path"])
     ensure_dir(out_dir)
 
     all_22_faults = list(range(1, 23))
-
     if all_faults_in_train:
-        # Full industrial training: all 22 faults present in train, val, and test
         split_map = {
             "train": all_22_faults,
             "val": all_22_faults,
             "test": all_22_faults,
         }
     else:
-        # Academic zero-shot split from config
         splits_cfg = config.get("llm", {}).get("training", {})
         split_map = {
             "train": splits_cfg.get("train_faults", all_22_faults),
@@ -553,80 +598,137 @@ def generate_distillation_dataset(
             "test": splits_cfg.get("test_faults", [15, 21]),
         }
 
-    records: Dict[str, List[Dict[str, Any]]] = {"train": [], "val": [], "test": []}
-    counter = 0
+    # Inspect existing records if resume is enabled
+    existing_events_by_fault: Dict[str, Dict[int, set]] = {"train": {}, "val": {}, "test": {}}
+    counts: Dict[str, int] = {"train": 0, "val": 0, "test": 0}
 
-    logger.info("Beginning dataset distillation across 22 fault scenarios (samples_per_fault=%d)...", samples_per_fault)
-    logger.info("Split configuration: Train faults (%d), Val faults (%d), Test faults (%d)",
-                len(split_map["train"]), len(split_map["val"]), len(split_map["test"]))
+    for split in split_map.keys():
+        file_path = out_dir / f"{split}.jsonl"
+        existing_events_by_fault[split] = {fid: set() for fid in all_22_faults}
+        if resume and file_path.exists():
+            with open(file_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    counts[split] += 1
+                    try:
+                        row = json.loads(line)
+                        fid = row.get("fault_id")
+                        ev_id = row.get("evidence", {}).get("event_id") or row.get("event_id")
+                        if fid is not None and ev_id:
+                            existing_events_by_fault[split].setdefault(int(fid), set()).add(ev_id)
+                    except Exception:
+                        pass
+            logger.info("Resume check: '%s.jsonl' has %d existing samples across %d faults.",
+                        split, counts[split], len([k for k, v in existing_events_by_fault[split].items() if v]))
+
+    teacher = TeacherLLM(
+        model_id=t_model,
+        load_in_4bit=load_4bit,
+        max_gpu_memory=max_gpu_mem,
+        max_cpu_memory=max_cpu_mem,
+        api_base=endpoint,
+        api_key=key,
+    )
+
+    logger.info("Beginning dataset distillation across 22 faults (target samples_per_fault=%d)...", n_per_fault)
+    logger.info("Teacher engine: %s | Resume: %s", t_model, resume)
+
+    counter = sum(counts.values())
 
     for split, fault_ids in split_map.items():
-        n = samples_per_fault if split == "train" else max(2, samples_per_fault // 5)
-        for fault_id in fault_ids:
-            if fault_id not in FAULT_KNOWLEDGE:
-                continue
-            kb = FAULT_KNOWLEDGE[fault_id]
-            for _ in range(n):
-                counter += 1
-                evidence = build_grounded_evidence(fault_id, rng, counter, lookup_mean, lookup_std)
-                qa_data = synthesize_reasoning_and_answers(evidence, kb)
+        file_path = out_dir / f"{split}.jsonl"
+        mode = "a" if resume else "w"
+        target_events_per_fault = n_per_fault if split == "train" else max(2, n_per_fault // 5)
 
-                # 1. Primary RCA Report Sample with Detailed CoT
-                report_question = format_evidence_question(evidence)
-                report_answer_json = render_answer_json(qa_data["report"])
+        with open(file_path, mode, encoding="utf-8") as handle:
+            for fault_id in fault_ids:
+                if fault_id not in FAULT_KNOWLEDGE:
+                    continue
+                kb = FAULT_KNOWLEDGE[fault_id]
+                existing_for_fault = len(existing_events_by_fault[split].get(fault_id, set()))
+                needed = target_events_per_fault - existing_for_fault
 
-                records[split].append({
-                    "kind": "report",
-                    "intent": "rca_diagnosis",
-                    "fault_id": fault_id,
-                    "fault_name": kb["name"],
-                    "severity": kb["severity"],
-                    "equipment": kb.get("equipment", []),
-                    "valves": kb.get("valves", []),
-                    "question": report_question,
-                    "answer": report_answer_json,
-                    "system": SYSTEM_PROMPT,
-                    "evidence": evidence,
-                })
+                if needed <= 0:
+                    logger.info("Split %s - Fault %02d (%s): already has %d/%d events. Skipping.",
+                                split, fault_id, kb["name"], existing_for_fault, target_events_per_fault)
+                    continue
 
-                # 2. Grounded Follow-up QA Samples (Diverse operator questions)
-                for gq in qa_data["grounded_qa"]:
-                    records[split].append({
-                        "kind": "grounded_qa",
-                        "intent": gq["intent"],
+                logger.info("Split %s - Fault %02d (%s): generating %d new events (existing %d)...",
+                            split, fault_id, kb["name"], needed, existing_for_fault)
+
+                for event_idx in range(needed):
+                    counter += 1
+                    evidence = build_grounded_evidence(fault_id, rng, counter, lookup_mean, lookup_std)
+                    qa_data = synthesize_reasoning_and_answers(evidence, kb)
+
+                    # 1. Primary RCA Report Sample with Detailed CoT
+                    report_question = format_evidence_question(evidence)
+                    if not teacher.is_mock:
+                        try:
+                            teacher_prompt = f"{report_question}\n\nProvide the complete root-cause analysis report in JSON."
+                            raw_llm_out = teacher.generate(teacher_prompt, max_new_tokens=600)
+                            from llm.inference import extract_json_object, sanitize_answer
+                            parsed_llm = extract_json_object(raw_llm_out)
+                            if parsed_llm and "root_cause" in parsed_llm:
+                                qa_data["report"] = sanitize_answer(parsed_llm, evidence=evidence)
+                        except Exception as e:
+                            logger.warning("Teacher generation failed for %s (%s); using deterministic baseline",
+                                           evidence["event_id"], e)
+
+                    report_answer_json = render_answer_json(qa_data["report"])
+
+                    report_sample = {
+                        "kind": "report",
+                        "intent": "rca_diagnosis",
                         "fault_id": fault_id,
                         "fault_name": kb["name"],
                         "severity": kb["severity"],
                         "equipment": kb.get("equipment", []),
                         "valves": kb.get("valves", []),
-                        "question": report_question + "\n\nOperator question: " + gq["question"],
-                        "answer": gq["answer"],
-                        "system": FOLLOWUP_SYSTEM_PROMPT,
+                        "question": report_question,
+                        "answer": report_answer_json,
+                        "system": SYSTEM_PROMPT,
                         "evidence": evidence,
-                    })
+                    }
+                    handle.write(json.dumps(report_sample, ensure_ascii=False) + "\n")
+                    counts[split] += 1
 
-    # Save to disk
-    counts = {}
-    for split, rows in records.items():
-        file_path = out_dir / f"{split}.jsonl"
-        with open(file_path, "w", encoding="utf-8") as handle:
-            for row in rows:
-                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-        counts[split] = len(rows)
-        logger.info("Wrote %d samples to %s", len(rows), file_path)
+                    # 2. Grounded Follow-up QA Samples (Diverse operator questions)
+                    for gq in qa_data["grounded_qa"]:
+                        qa_sample = {
+                            "kind": "grounded_qa",
+                            "intent": gq["intent"],
+                            "fault_id": fault_id,
+                            "fault_name": kb["name"],
+                            "severity": kb["severity"],
+                            "equipment": kb.get("equipment", []),
+                            "valves": kb.get("valves", []),
+                            "question": report_question + "\n\nOperator question: " + gq["question"],
+                            "answer": gq["answer"],
+                            "system": FOLLOWUP_SYSTEM_PROMPT,
+                            "evidence": evidence,
+                        }
+                        handle.write(json.dumps(qa_sample, ensure_ascii=False) + "\n")
+                        counts[split] += 1
+
+                    handle.flush()
+                    existing_events_by_fault[split].setdefault(fault_id, set()).add(evidence["event_id"])
 
     # Save metadata
     meta = {
         "splits": split_map,
+        "teacher_model": t_model,
         "all_faults_in_train": all_faults_in_train,
-        "samples_per_fault": samples_per_fault,
+        "samples_per_fault": n_per_fault,
         "seed": seed,
         "counts": counts,
         "total_samples": sum(counts.values()),
         "format": "jsonl",
     }
     save_json(out_dir / "split_metadata.json", meta)
-    logger.info("Distillation completed successfully! Total samples: %d", meta["total_samples"])
+    logger.info("Distillation completed! Total samples in dataset: %d", meta["total_samples"])
     return counts
 
 
@@ -634,15 +736,18 @@ def generate_distillation_dataset(
 # CLI Entrypoint
 # -----------------------------------------------------------------------------
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate 24GB VRAM Teacher Distillation Dataset.")
+    parser = argparse.ArgumentParser(description="Generate Teacher Distillation Dataset (Qwen 70B/32B/Mock).")
     parser.add_argument("--config", default="configs/config.yaml", help="Path to config.yaml")
-    parser.add_argument("--samples-per-fault", type=int, default=12, help="Events per fault scenario")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--samples-per-fault", type=int, default=None, help="Events per fault (default from config: 12)")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument(
         "--teacher-model",
-        default="mock",
-        help="Teacher model ('mock' for fast high-fidelity deterministic, or HF model ID like 'Qwen/Qwen2.5-32B-Instruct-AWQ')",
+        default=None,
+        help="Teacher model ('mock', or 'Qwen/Qwen2.5-72B-Instruct', or 'Qwen/Qwen2.5-72B-Instruct-AWQ')",
     )
+    parser.add_argument("--api-base", default=None, help="OpenAI-compatible API base URL (e.g. http://localhost:8000/v1)")
+    parser.add_argument("--api-key", default=None, help="API key for teacher endpoint if required")
+    parser.add_argument("--resume", action="store_true", default=None, help="Resume from existing jsonl files on disk")
     parser.add_argument("--output-dir", default=None, help="Custom output directory")
     parser.add_argument(
         "--all-faults-in-train",
@@ -660,18 +765,27 @@ def main() -> None:
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)-7s %(message)s")
     config = load_config(args.config)
-    
+    distill_cfg = config.get("distillation", {})
+
+    samples = args.samples_per_fault if args.samples_per_fault is not None else distill_cfg.get("samples_per_fault", 12)
+    seed = args.seed if args.seed is not None else distill_cfg.get("seed", 42)
+    teacher = args.teacher_model or distill_cfg.get("teacher_model", "Qwen/Qwen2.5-72B-Instruct")
+    resume_flag = args.resume if args.resume is not None else distill_cfg.get("resume", False)
     use_all_faults = not args.holdout_faults
 
     generate_distillation_dataset(
         config=config,
-        samples_per_fault=args.samples_per_fault,
-        seed=args.seed,
-        teacher_model_name=args.teacher_model,
+        samples_per_fault=samples,
+        seed=seed,
+        teacher_model_name=teacher,
         output_dir=args.output_dir,
         all_faults_in_train=use_all_faults,
+        resume=resume_flag,
+        api_base=args.api_base,
+        api_key=args.api_key,
     )
 
 
 if __name__ == "__main__":
     main()
+

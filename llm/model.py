@@ -270,10 +270,11 @@ def _drop_unused_inputs_embeds(model: Any) -> None:
 
 
 def wrap_peft(model: Any, config: Dict) -> Any:
-    """Wrap the frozen base with the ``tep_rca`` LoRA adapter."""
+    """Wrap the frozen base with the LoRA adapter."""
     from peft import get_peft_model
 
     _drop_unused_inputs_embeds(model)
     lora_config = build_lora_config(config)
-    model = get_peft_model(model, lora_config, adapter_name=ADAPTER_NAME)
+    adapter_name = config.get("llm", {}).get("adapter_name", ADAPTER_NAME)
+    model = get_peft_model(model, lora_config, adapter_name=adapter_name)
     return model
