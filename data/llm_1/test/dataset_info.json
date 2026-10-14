@@ -1,0 +1,229 @@
+{
+  "citation": "",
+  "description": "",
+  "features": {
+    "kind": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "intent": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "fault_id": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "fault_name": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "severity": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "question": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "answer": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "system": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "evidence": {
+      "event_id": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "anomaly_score": {
+        "dtype": "float64",
+        "_type": "Value"
+      },
+      "severity": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "pre_anomaly_context": {
+        "duration_minutes": {
+          "dtype": "float64",
+          "_type": "Value"
+        },
+        "status": {
+          "dtype": "string",
+          "_type": "Value"
+        }
+      },
+      "top_anomalous_sensors": {
+        "feature": {
+          "index": {
+            "dtype": "int64",
+            "_type": "Value"
+          },
+          "name": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "display_name": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "error": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "current_value": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "baseline_value": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "deviation_percent": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "z_score": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "trend": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "contribution": {
+            "dtype": "float64",
+            "_type": "Value"
+          }
+        },
+        "_type": "List"
+      },
+      "temporal_sequence": {
+        "sequence": {
+          "feature": {
+            "sensor": {
+              "dtype": "string",
+              "_type": "Value"
+            },
+            "display_name": {
+              "dtype": "string",
+              "_type": "Value"
+            },
+            "event": {
+              "dtype": "string",
+              "_type": "Value"
+            },
+            "relative_time_minutes": {
+              "dtype": "float64",
+              "_type": "Value"
+            }
+          },
+          "_type": "List"
+        },
+        "first_onset_minutes": {
+          "dtype": "float64",
+          "_type": "Value"
+        }
+      },
+      "candidate_subsystem": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "candidate_subsystem_score": {
+        "dtype": "float64",
+        "_type": "Value"
+      },
+      "reasoning_notes": {
+        "feature": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "_type": "List"
+      },
+      "evidence_type": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "uncertainty": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "detector_evidence": {
+        "triggered_by": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "change_type": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "lstm_ae": {
+          "score": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "threshold": {
+            "dtype": "float64",
+            "_type": "Value"
+          },
+          "alarmed": {
+            "dtype": "bool",
+            "_type": "Value"
+          }
+        },
+        "dynamic": {
+          "method": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "cva": {
+            "score": {
+              "dtype": "float64",
+              "_type": "Value"
+            },
+            "threshold": {
+              "dtype": "float64",
+              "_type": "Value"
+            },
+            "is_anomalous": {
+              "dtype": "bool",
+              "_type": "Value"
+            },
+            "alarmed": {
+              "dtype": "bool",
+              "_type": "Value"
+            },
+            "dominant_lag": {
+              "dtype": "int64",
+              "_type": "Value"
+            },
+            "slow_drift_ratio": {
+              "dtype": "float64",
+              "_type": "Value"
+            }
+          }
+        }
+      }
+    },
+    "reference": {
+      "name": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "subsystem": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "severity": {
+        "dtype": "string",
+        "_type": "Value"
+      }
+    }
+  },
+  "homepage": "",
+  "license": ""
+}
