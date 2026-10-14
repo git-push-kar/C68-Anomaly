@@ -198,15 +198,20 @@ def load_base_model(
 
 
 def _check_base_dir_for_adapter(base_path: str) -> None:
-    """Fail if the local base-model directory contains adapter files."""
+    """Fail if the local base-model directory is an unmerged adapter folder."""
     path = Path(base_path)
     if not path.exists():
         return  # hub id / remote path: nothing local to inspect
+    has_full_weights = (
+        any(path.glob("model*.safetensors"))
+        or any(path.glob("pytorch_model*.bin"))
+        or (path / "config.json").exists()
+    )
     for candidate in ("adapter_config.json", "adapter_model.bin", "adapter_model.safetensors"):
-        if (path / candidate).exists():
+        if (path / candidate).exists() and not has_full_weights:
             raise RuntimeError(
-                f"Unexpected adapter file '{candidate}' found in base model "
-                f"directory {path}. Base must be the original pretrained base model."
+                f"Unexpected standalone adapter file '{candidate}' found in base model "
+                f"directory {path}. Base must be a full pretrained base model or fused base model."
             )
 
 
@@ -270,10 +275,11 @@ def _drop_unused_inputs_embeds(model: Any) -> None:
 
 
 def wrap_peft(model: Any, config: Dict) -> Any:
-    """Wrap the frozen base with the ``tep_rca`` LoRA adapter."""
+    """Wrap the frozen base with the LoRA adapter."""
     from peft import get_peft_model
 
     _drop_unused_inputs_embeds(model)
     lora_config = build_lora_config(config)
-    model = get_peft_model(model, lora_config, adapter_name=ADAPTER_NAME)
+    adapter_name = config.get("llm", {}).get("adapter_name", ADAPTER_NAME)
+    model = get_peft_model(model, lora_config, adapter_name=adapter_name)
     return model

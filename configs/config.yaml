@@ -148,10 +148,9 @@ events:
 # ---------------------------------------------------------------------
 llm:
   # Base model path changed to point to your local fused model. 
-  # Note: Ensure this path exactly matches the location of the folder in your screenshot!
   base_model: "./models/internvl3_2b_lr_fused"
-  adapter_name: tep_rca
-  adapter_dir: outputs/tep_rca_adapter_grounded
+  adapter_name: intern_fused_lr
+  adapter_dir: outputs/intern_fused_lr
   trust_remote_code: true
   use_flash_attn: false          # set true on A5000 if flash-attn installed
   dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
@@ -248,3 +247,20 @@ api:
   host: 0.0.0.0
   port: 8000
   stream_fps: 10                 # simulated records per second in live mode
+
+# ---------------------------------------------------------------------
+# Dataset Distillation (Teacher LLM: Qwen-70B/72B)
+# ---------------------------------------------------------------------
+distillation:
+  teacher_model: "Qwen/Qwen2.5-72B-Instruct"    # Qwen 70B/72B Teacher model
+  samples_per_fault: 12                        # 12 samples per fault (optimal for 2B student adapter)
+  seed: 42
+  load_in_4bit: true                           # 4-bit quantization
+  max_gpu_memory: "22GiB"
+  max_cpu_memory: "64GiB"                      # CPU RAM offload for 72B on 24GB GPU
+  api_base: null                               # Optional endpoint (e.g. http://localhost:11434/v1 for Ollama/vLLM)
+  api_key: null
+  timeout: 600                                 # Timeout in seconds for teacher LLM inference (10 mins for 72B cold load/inference)
+  num_ctx: 2048                                # Context window size (minimizes KV cache VRAM footprint to maximize GPU layer offload)
+  no_fallback: false                           # Strict mode: if true, raise error on teacher failure instead of falling back
+  resume: true                                 # Resume support enabled by default

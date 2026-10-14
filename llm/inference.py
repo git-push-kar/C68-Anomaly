@@ -73,6 +73,22 @@ def extract_json_object(text: str) -> Optional[Dict]:
                 except json.JSONDecodeError as exc:
                     logger.warning("JSON decode failed: %s", exc)
                     return None
+
+    # Fallback: attempt to recover if JSON was truncated near the end
+    if depth > 0:
+        candidate = text[start:].strip()
+        if in_string:
+            candidate += '"'
+        for _ in range(depth):
+            candidate += "}"
+        try:
+            repaired = json.loads(candidate)
+            if isinstance(repaired, dict):
+                logger.info("Successfully recovered truncated JSON object from model output.")
+                return repaired
+        except Exception:
+            pass
+
     return None
 
 
@@ -130,11 +146,13 @@ class RCAInference:
         llm = config["llm"]
         base = base_model or llm["base_model"]
         adapter = adapter_path or llm["adapter_dir"]
+        adapter_name = llm.get("adapter_name", "tep_rca")
         model = load_tep_adapter(
             base,
             adapter,
             trust_remote_code=bool(llm.get("trust_remote_code", True)),
             use_flash_attn=bool(llm.get("use_flash_attn", False)),
+            adapter_name=adapter_name,
         )
         tokenizer = AutoTokenizer.from_pretrained(
             base, trust_remote_code=True, use_fast=False

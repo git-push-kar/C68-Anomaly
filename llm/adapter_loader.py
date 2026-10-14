@@ -23,18 +23,26 @@ logger = logging.getLogger(__name__)
 ADAPTER_NAME = "tep_rca"
 
 
-def resolve_adapter_dir(adapter_path: str, adapter_name: str = ADAPTER_NAME) -> Optional[Path]:
+def resolve_adapter_dir(adapter_path: str, adapter_name: Optional[str] = None) -> Optional[Path]:
     """Return the directory containing ``adapter_config.json`` or None.
 
     Canonical training output (``Trainer.save_model`` on a PeftModel) is
     ``<adapter_dir>/<adapter_name>/adapter_config.json``. A legacy flat layout
-    keeps ``<adapter_dir>/adapter_config.json``. Prefer the nested layout when
-    both exist (the flat root file may be a stale copy from an older run).
+    keeps ``<adapter_dir>/adapter_config.json``.
     """
     adapter_path = Path(adapter_path)
-    nested = adapter_path / adapter_name
-    if (nested / "adapter_config.json").exists():
-        return nested
+    if not adapter_path.exists():
+        return None
+    if adapter_name:
+        nested = adapter_path / adapter_name
+        if (nested / "adapter_config.json").exists():
+            return nested
+    try:
+        for sub in adapter_path.iterdir():
+            if sub.is_dir() and (sub / "adapter_config.json").exists():
+                return sub
+    except OSError:
+        pass
     if (adapter_path / "adapter_config.json").exists():
         return adapter_path
     return None
@@ -72,7 +80,7 @@ def load_tep_adapter(
         nested = adapter_path / adapter_name
         raise FileNotFoundError(
             f"No adapter_config.json in {adapter_path} (or {nested}); "
-            "is this a trained tep_rca adapter?"
+            f"is this a trained {adapter_name} adapter?"
         )
     dtype = torch_dtype or (torch.bfloat16 if torch.cuda.is_available() else torch.float16)
 

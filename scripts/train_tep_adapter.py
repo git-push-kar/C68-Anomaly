@@ -29,8 +29,10 @@ def main() -> None:
     parser.add_argument("--config", default=None)
     parser.add_argument("--resume", action="store_true",
                         help="Resume from the last checkpoint in the adapter dir.")
-    parser.add_argument("--no-4bit", action="store_true",
-                        help="Train with FP16 LoRA instead of 4-bit QLoRA.")
+    parser.add_argument("--4bit", action="store_true", dest="use_4bit", default=None,
+                        help="Train with 4-bit QLoRA (low VRAM usage, ~6GB).")
+    parser.add_argument("--no-4bit", action="store_false", dest="use_4bit", default=None,
+                        help="Train with standard 16-bit LoRA (~12-14GB VRAM).")
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--lr", type=float, default=None)
@@ -41,9 +43,15 @@ def main() -> None:
 
     logging.basicConfig(level=args.log_level.upper(), format="%(levelname)-7s %(message)s")
     config = load_config(args.config)
-    if args.no_4bit:
-        config["llm"]["training"]["use_4bit"] = False
-        config["llm"]["training"]["optim"] = "adamw_torch"
+    if args.use_4bit is not None:
+        config["llm"]["training"]["use_4bit"] = args.use_4bit
+        if args.use_4bit:
+            config["llm"]["training"]["optim"] = "paged_adamw_8bit"
+            if not args.batch_size:
+                config["llm"]["training"]["batch_size"] = 2
+                config["llm"]["training"]["gradient_accumulation_steps"] = 8
+        else:
+            config["llm"]["training"]["optim"] = "adamw_torch"
     if args.epochs:
         config["llm"]["training"]["num_epochs"] = args.epochs
     if args.batch_size:
