@@ -65,6 +65,12 @@ data/llm/*
 data/llm/**/*.jsonl
 data/llm/**/*.arrow
 data/llm/**/*.parquet
+# v1 holdout set mirrors the v0 convention: rows ignored, metadata tracked
+data/llm_v1/*
+!data/llm_v1/split_metadata.json
+data/llm_v1/**/*.jsonl
+data/llm_v1/**/*.arrow
+data/llm_v1/**/*.parquet
 
 # ── Checkpoints / HF cache ────────────────────────────────────────────
 checkpoints/
@@ -82,6 +88,7 @@ transformers_cache/
 
 # ── Logs ──────────────────────────────────────────────────────────────
 *.log
+*.err
 logs/
 wandb/
 mlruns/

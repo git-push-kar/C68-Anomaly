@@ -1,0 +1,43 @@
+{
+  "splits": {
+    "train": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      16,
+      17,
+      18,
+      19,
+      20,
+      22
+    ],
+    "val": [
+      4,
+      14
+    ],
+    "test": [
+      15,
+      21
+    ]
+  },
+  "teacher_model": "qwen2.5:32b",
+  "all_faults_in_train": false,
+  "samples_per_fault": 12,
+  "seed": 42,
+  "counts": {
+    "train": 1944,
+    "val": 36,
+    "test": 36
+  },
+  "total_samples": 2016,
+  "format": "jsonl"
+}
