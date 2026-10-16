@@ -79,8 +79,9 @@ The overall system architecture is organized into two primary layers connected b
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                        LAYER B: LANGUAGE DIAGNOSTIC BRAIN (SUPERVISED)                 │
 │                                                                                        │
-│   • Base Model: InternVL3-2B-LR / InternVL2-2B (2.2B Frozen Parameters)                │
-│   • Trainable Adapter: tep_rca / intern_fused_lr (LoRA Rank-16, ~24M Parameters)       │
+│   • Base Model: InternVL3-2B fused (./models/internvl3_2b_lr_fused, Qwen2 backbone,   │
+│     2.2B Frozen Parameters)                                                           │
+│   • Trainable Adapter v0: intern_fused_lr (LoRA Rank-16, 7 Qwen2 modules, ~18.5M)      │
 │   • Distillation Source: Qwen-2.5-32B/72B Process Reasoning Teacher Engine             │
 │   • Output Artifact: Validated JSON Report {root_cause, severity, confidence, actions} │
 │   • Conversational Module: Multi-Turn Grounded Operator Follow-up QA Engine            │
@@ -157,7 +158,7 @@ $$T_t^2 = \mathbf{z}_t^T \mathbf{z}_t = \mathbf{p}_t^T \mathbf{J}^T \mathbf{J} \
 $$Q_t = \mathbf{e}_t^T \mathbf{e}_t = \mathbf{p}_t^T \mathbf{L}^T \mathbf{L} \mathbf{p}_t$$
 To detect subtle persistent oscillations (such as valve stiction in Fault 15), the residual metric $Q_t$ is filtered using an Exponentially Weighted Moving Average (EWMA) with smoothing factor $\lambda = 0.1$:
 $$\bar{Q}_t = (1 - \lambda) \bar{Q}_{t-1} + \lambda Q_t$$
-The window-level dynamic score is taken as the maximum filtered residual over the window: $\mathcal{S}_{\text{CVA}}(\mathbf{X}_k) = \max_{t \in [W-s, W]} \bar{Q}_t$. The threshold $\theta_{\text{CVA}} = 204.53$ is fitted to guarantee $\text{FAR} \le 0.01$ on normal holdout data.
+The window-level dynamic score is taken as the maximum filtered residual over the window: $\mathcal{S}_{\text{CVA}}(\mathbf{X}_k) = \max_{t \in [W-s, W]} \bar{Q}_t$. The threshold $\theta_{\text{CVA}} = 239.75$ (Q-statistic, `outputs/anomaly_detector/dynamic/dynamic_thresholds.json`) is fitted for a $\text{FAR} \approx 0.01$ target on normal holdout data.
 
 ### 3.4 Dynamic Fusion & Event Aggregation State Machine
 To leverage both heads simultaneously without inflating false alarms:
@@ -264,14 +265,22 @@ The trainable parameters total **~24,000,000** (only **~1.08%** of the model), p
 
 ```
 ======================================================================
-Base model:           ./models/internvl3_2b_lr_fused (Frozen)
+Base model:           ./models/internvl3_2b_lr_fused (Frozen, Qwen2:
+                      hidden 1536 / inter 8960 / 28 layers)
 Adapters loaded:      NONE
-Training adapter:     intern_fused_lr / tep_rca
+Training adapter:     intern_fused_lr (v0)
 Total parameters:     2,218,452,992
-Trainable parameters: 24,117,248
-Trainable percentage: 1.0871%
+Trainable parameters: ~18,500,000 (7 Qwen2 modules:
+                      q/k/v/o/gate/up/down_proj only)
+Trainable percentage: ~0.83%
 ======================================================================
 ```
+v0 audit note: the legacy target list also named `wqkv/wo/w1/w2/w3`
+(InternLM2-era), which do not exist in this Qwen2 backbone. Verified
+read-only across all three safetensors (392 keys = 7 modules x 28 layers
+x 2): those 5 names never materialized as weights at train or load time.
+The v0 `adapter_config.json` and `configs/config.yaml` now list only the
+7 live modules, so `PeftModel.from_pretrained` attaches warning-free.
 
 ### 5.3 Teacher-Student Distillation Pipeline
 To train the student adapter without requiring costly manual human annotation of thousands of chemical failure runs, we created an automated Teacher-Student Distillation Pipeline:
@@ -327,10 +336,16 @@ In production, the model serves two operational modes:
 1. **Initial Forensic RCA Report:** Emitted automatically upon event confirmation, providing the full structured diagnosis in JSON.
 2. **Conversational Multi-Turn QA:** Allows control room operators to query specific telemetry values, compare operating limits, or ask counterfactual questions.
 
-A strict post-generation **Grounding Guardrail** (`llm/inference.py:sanitize_answer`) inspects all model outputs:
-* If the model quotes a sensor value that deviates by more than $0.1\%$ from the evidence block, the guardrail overwrites the value with the verified telemetry record.
-* Missing keys are automatically imputed with conservative defaults.
-* Severity levels are deterministically cross-validated against physical process limits.
+Follow-up answers use intent-first routing (`main.py:answer_followup`, live config
+`llm.followup.prefer_llm: false` since the v0 gate of 2026-10-15): deterministic
+operator intents (metrics / evidence / sensor values / severity) are answered
+directly from stored evidence so numbers are exact, and the v0 adapter is
+reserved for open-ended questions. Two further nets protect LLM output —
+`format_followup_answer` (appends canonical evidence tables when numeric
+answers lack them) and `_guard_llm_answer` (replaces digit-less/vague or
+foreign-sensor answers with the deterministic intent answer). `sanitize_answer`
+fills missing report keys with conservative defaults and falls back severity to
+the deterministic evidence rating.
 
 ---
 
@@ -442,18 +457,30 @@ Our system achieves **2.1% (Fault 3)** and **2.9% (Fault 9)**, exactly matching 
 
 ---
 
-### 6.5 LLM Adapter Reasoning & Grounding Evaluation
-The fine-tuned language adapter (`intern_fused_lr`) was evaluated on the held-out test split using automated multi-metric verification:
+### 6.5 LLM Adapter Reasoning & Grounding Evaluation (v0 live, v1 comparison)
+v0 (`intern_fused_lr` in `outputs/intern_fused_lr_v0/`, trained on the full-coverage
+v0 set: 22 faults in every split, 2376/396/396) is the live adapter. Its scores
+below are **in-distribution** by construction and must not be cited as zero-shot.
+v1 (`outputs/intern_fused_lr_v1/`, fault-disjoint holdout 1944/36/36) is the
+comparison model for generalization claims. Both measured with
+`scripts/benchmark_tep_adapter.py` on their respective `test.jsonl` report rows:
 
-| Evaluation Metric | Score | Evaluation Method & Verification Criteria |
+| Evaluation Metric | v0 (in-distribution, n=44) | v1 (zero-shot faults 15/21, n=4) |
 |---|---|---|
-| **JSON Schema Conformance** | **100.0%** | Zero syntax errors; all 10 schema keys present and typed. |
-| **Subsystem Identification Accuracy** | **100.0%** | Correctly maps incident to primary affected chemical unit. |
-| **Exact Fault Classification Accuracy** | **100.0%** (Train) / **85.0%** (Zero-Shot) | Identifies exact physical failure mechanism. |
-| **Evidence Consistency Score** | **100.0%** | 100% of numerical values match Layer A telemetry block exactly. |
-| **Numerical Hallucination Rate** | **0.00%** | Zero fabricated sensor tags or out-of-thin-air numbers. |
-| **Hedging & Uncertainty Rate** | **100.0%** | Consistently states correlation $\neq$ causation and suggests verification. |
-| **Actionable Mitigation Rate** | **100.0%** | Proposes concrete, safe control valve checks and setpoint adjustments. |
+| **JSON Schema Conformance** | **100%** | **100%** |
+| **Fault Classification Accuracy** | **100%** | **100%** |
+| **Severity Accuracy** | **100%** | **100%** |
+| **Evidence Consistency Score** | **100%** | **100%** |
+| **Numerical Hallucination Rate** | **0%** | **0%** |
+| **Actionable Mitigation Rate** | **100%** | **100%** |
+| **Exact Root-Cause Name Match** | **15.9%** (strict string match; subsystem always correct) | **50%** |
+| **Hedged-Reasoning Rate** | 61.4% | 0% |
+
+v0 detail (`outputs/intern_fused_lr_v0/evaluation.json`): valid JSON on 44/44
+samples across all 22 faults; no fabricated sensor tags. v1 detail
+(`outputs/intern_fused_lr_v1/evaluation.json`): 4/4 valid
+(Fault 15 x2 -> `condenser_cooling_system`, Fault 21 x2 -> `feed_system`).
+v1's n=4 is preliminary — expand held-out sampling before citing tight bounds.
 
 ---
 

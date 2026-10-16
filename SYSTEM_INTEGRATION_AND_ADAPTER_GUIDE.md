@@ -3,7 +3,7 @@
 **Target System:** Industrial Cyber-Physical Process Monitoring & Grounded Diagnostic Framework  
 **Primary Reference Artifact:** Tennessee Eastman Process (TEP) Neuro-Symbolic Dual-Brain Engine  
 **Document Type:** Technical Integration Architecture, Multi-Model Adaptation, and Enterprise Deployment Manual  
-**Repository Source:** `C:\Users\Dell\Desktop\anomaly`  
+**Repository Source:** `C:\Users\Admin\Desktop\anomaly`  
 
 ---
 
@@ -109,23 +109,23 @@ This guide provides step-by-step instructions for:
 
 ### 2.1 Layer A: Sensor Perception Brain
 
-The perception layer is encapsulated within [`AnomalyDetector`](file:///C:/Users/Dell/Desktop/anomaly/anomaly_detection.py) and [`DynamicDetectorRunner`](file:///C:/Users/Dell/Desktop/anomaly/models/cva.py).
+The perception layer is encapsulated within `AnomalyDetector` (`anomaly_detection/inference.py`) and `DynamicDetectorRunner` (`anomaly_detection/dynamic/runner.py`, CVA in `anomaly_detection/dynamic/cva.py`).
 
 #### 2.1.1 Data Preprocessing & Non-Contaminating Scaler
-* **Implementation:** [`preprocessing/scaler.py`](file:///C:/Users/Dell/Desktop/anomaly/preprocessing/scaler.py)
+* **Implementation:** [`preprocessing/scaler.py`](file:///C:/Users/Admin/Desktop/anomaly/preprocessing/scaler.py)
 * **Mathematical Contract:**
   $$\tilde{\mathbf{x}}_t = (\mathbf{x}_t - \boldsymbol{\mu}_{\text{train}}) \oslash \boldsymbol{\sigma}_{\text{train}}$$
   Scalers are strictly fitted on the 350 normal training runs and serialized to `outputs/preprocessing/scaler.pkl`. Under no circumstances are test or fault data included during fitting.
-* **Sliding Window Generation:** [`preprocessing/windowing.py`](file:///C:/Users/Dell/Desktop/anomaly/preprocessing/windowing.py) buffers samples into slices of dimension $(60, 52)$ with a step stride of 5 samples.
+* **Sliding Window Generation:** [`preprocessing/windowing.py`](file:///C:/Users/Admin/Desktop/anomaly/preprocessing/windowing.py) buffers samples into slices of dimension $(60, 52)$ with a step stride of 5 samples.
 
 #### 2.1.2 Dual-Head Execution Details
-* **LSTM Autoencoder Head:** Defined in [`models/autoencoder.py`](file:///C:/Users/Dell/Desktop/anomaly/models/autoencoder.py). Uses an encoder-decoder LSTM structure with a 64-dimensional bottleneck. Global MSE error is compared against $\theta_{\text{LSTM}} = 0.687363$.
-* **Canonical Variate Analysis (CVA) Dynamic Head:** Defined in [`models/cva.py`](file:///C:/Users/Dell/Desktop/anomaly/models/cva.py). Constructs past vector $\mathbf{p}_t \in \mathbb{R}^{260}$ and future vector $\mathbf{f}_t \in \mathbb{R}^{260}$ ($p=5, f=5$). Performs SVD on the normalized Hankel cross-covariance matrix $\mathbf{H}$ to extract $r=20$ state variables. Dynamic residuals are monitored via squared prediction error $Q_t = \mathbf{e}_t^T \mathbf{e}_t$ and smoothed using recursive EWMA:
+* **LSTM Autoencoder Head:** Defined in `anomaly_detection/lstm_autoencoder.py`. Uses an encoder-decoder LSTM structure with a 64-dimensional bottleneck. Global MSE error is compared against $\theta_{\text{LSTM}} = 0.687363$.
+* **Canonical Variate Analysis (CVA) Dynamic Head:** Defined in `anomaly_detection/dynamic/cva.py`. Constructs past vector $\mathbf{p}_t \in \mathbb{R}^{260}$ and future vector $\mathbf{f}_t \in \mathbb{R}^{260}$ ($p=5, f=5$). Performs SVD on the normalized Hankel cross-covariance matrix $\mathbf{H}$ to extract $r=20$ state variables. Dynamic residuals are monitored via squared prediction error $Q_t = \mathbf{e}_t^T \mathbf{e}_t$ and smoothed using recursive EWMA:
   $$\bar{Q}_t = 0.9 \bar{Q}_{t-1} + 0.1 Q_t$$
-  Alarmed if $\bar{Q}_t > \theta_{\text{CVA}} = 204.53$.
+  Alarmed if $\bar{Q}_t > \theta_{\text{CVA}} = 239.75$ (Q-statistic, `outputs/anomaly_detector/dynamic/dynamic_thresholds.json`).
 
 #### 2.1.3 Event State Machine
-Implemented in [`events/event_aggregator.py`](file:///C:/Users/Dell/Desktop/anomaly/events/event_aggregator.py):
+Implemented in `main.py:TEPApp` with persistence in `events/event_store.py` (SQLite `outputs/events.db`):
 * Prevents transient single-window noise from firing alarms.
 * Requires **3 consecutive anomalous windows** to instantiate a new `AnomalyEvent`.
 * Maintains an active event until **20 consecutive normal windows** confirm system recovery.
@@ -135,7 +135,7 @@ Implemented in [`events/event_aggregator.py`](file:///C:/Users/Dell/Desktop/anom
 
 ### 2.2 The Evidence Extraction Bridge
 
-The bridge is implemented in [`evidence/event_builder.py`](file:///C:/Users/Dell/Desktop/anomaly/evidence/event_builder.py), [`evidence/sensor_contribution.py`](file:///C:/Users/Dell/Desktop/anomaly/evidence/sensor_contribution.py), and [`evidence/process_limits.py`](file:///C:/Users/Dell/Desktop/anomaly/evidence/process_limits.py).
+The bridge is implemented in [`evidence/event_builder.py`](file:///C:/Users/Admin/Desktop/anomaly/evidence/event_builder.py), [`evidence/sensor_contribution.py`](file:///C:/Users/Admin/Desktop/anomaly/evidence/sensor_contribution.py), and [`evidence/process_limits.py`](file:///C:/Users/Admin/Desktop/anomaly/evidence/process_limits.py).
 
 #### Symbolic Data Contract (Emitted Event Schema)
 When an event triggers, Layer A emits a structured evidence dictionary conforming to the following JSON schema:
@@ -208,7 +208,7 @@ When an event triggers, Layer A emits a structured evidence dictionary conformin
 
 ### 2.3 Layer B: Grounded Language Adapter (`tep_rca`)
 
-The language layer is implemented in [`llm/model.py`](file:///C:/Users/Dell/Desktop/anomaly/llm/model.py), [`llm/adapter_loader.py`](file:///C:/Users/Dell/Desktop/anomaly/llm/adapter_loader.py), and [`llm/inference.py`](file:///C:/Users/Dell/Desktop/anomaly/llm/inference.py).
+The language layer is implemented in [`llm/model.py`](file:///C:/Users/Admin/Desktop/anomaly/llm/model.py), [`llm/adapter_loader.py`](file:///C:/Users/Admin/Desktop/anomaly/llm/adapter_loader.py), and [`llm/inference.py`](file:///C:/Users/Admin/Desktop/anomaly/llm/inference.py).
 
 #### 2.3.1 LoRA Configuration & Parameter Footprint
 The adapter attaches exclusively to the linear projection weights of the transformer language model:
@@ -221,10 +221,12 @@ lora_config = LoraConfig(
     lora_alpha=32,
     lora_dropout=0.05,
     bias="none",
+    # v0 CORRECTED 2026-10-15: Qwen2 backbone exposes only these 7.
+    # Legacy names (wqkv/wo/w1/w2/w3) never materialized as weights
+    # (verified: 392 safetensor keys = 7 modules x 28 layers x 2).
     target_modules=[
         "q_proj", "k_proj", "v_proj", "o_proj",
         "gate_proj", "up_proj", "down_proj",
-        "wqkv", "wo", "w1", "w2", "w3"
     ],
     task_type=TaskType.CAUSAL_LM
 )
@@ -232,9 +234,10 @@ lora_config = LoraConfig(
 
 | Component | Count | Parameter Share |
 |---|---|---|
-| **Base Model Parameters (InternVL3-2B-LR)** | 2,218,452,992 | 98.91% (Strictly Frozen) |
-| **LoRA Trainable Parameters (`tep_rca`)** | 24,117,248 | 1.09% (Trained Weights) |
-| **Precision** | bfloat16 / fp16 | ~48 MB safetensors footprint |
+| **Base Model Parameters (InternVL3-2B fused, Qwen2)** | 2,218,452,992 | ~99.17% (Strictly Frozen) |
+| **LoRA Trainable Parameters (v0 `intern_fused_lr`)** | ~18,500,000 | ~0.83% (7 modules x 28 layers x 2, r=16) |
+| **Precision** | bfloat16 / fp16 | 74 MB safetensors footprint |
+| **Comparison model v1** | same 7-module geometry | trained on fault-disjoint holdout (1944/36/36); see §6.5 of the research paper |
 
 #### 2.3.2 Vision Bypass & Prompt Ingestion
 InternVL's vision module is bypassed for sensor reasoning by passing a zero tensor with `image_flags = 0`.
@@ -273,7 +276,7 @@ The adapter is trained to emit JSON containing ten mandatory fields:
 9. `recommended_action`: Concrete corrective protocol for control room operators.
 10. `uncertainty`: Explicit statement on evidence bounds and verification advice.
 
-**Grounding Guardrail:** [`llm/inference.py:sanitize_answer`](file:///C:/Users/Dell/Desktop/anomaly/llm/inference.py#L95-L120) programmatically intercepts generated JSON:
+**Grounding Guardrail:** [`llm/inference.py:sanitize_answer`](file:///C:/Users/Admin/Desktop/anomaly/llm/inference.py#L95-L120) programmatically intercepts generated JSON:
 * Ensures all ten keys are populated.
 * Cross-validates numbers against the input evidence block (flags deviations $>0.1\%$).
 * Imputes deterministic severity bounds if the language model outputs `unknown`.
@@ -303,7 +306,9 @@ sensor_telemetry = {
 result = app.process_sensor_stream(sensor_telemetry)
 
 # 3. Check for confirmed anomaly and automatic RCA report
-if result.get("confirmed"):
+# (real keys: anomaly_detected/event_id/report/event/window_id/window_score/
+#  is_anomalous/detector_evidence; +latency_ms via the REST layer)
+if result.get("anomaly_detected"):
     print(f"Incident Triggered: {result['event_id']}")
     print(f"Root Cause: {result['report']['root_cause']}")
     print(f"Recommended Action: {result['report']['recommended_action']}")
@@ -320,7 +325,7 @@ print(answer["answer"])
 
 ### 3.2 REST API Server Integration
 
-The repository includes a production-ready FastAPI microservice in [`api/server.py`](file:///C:/Users/Dell/Desktop/anomaly/api/server.py).
+The repository includes a production-ready FastAPI microservice in [`api/server.py`](file:///C:/Users/Admin/Desktop/anomaly/api/server.py).
 
 #### Starting the Server
 ```powershell
@@ -353,14 +358,20 @@ curl -X POST "http://localhost:8000/api/stream/sample" \
 **Response:**
 ```json
 {
-  "sample_index": 482,
-  "score": 0.612,
-  "threshold": 0.687,
-  "alarmed": false,
-  "confirmed": false,
+  "anomaly_detected": false,
+  "event_id": null,
+  "report": null,
+  "window_id": 11,
+  "window_score": 0.612,
+  "is_anomalous": false,
+  "detector_evidence": {"triggered_by": "lstm_ae", "change_type": "level"},
+  "open_event": false,
   "latency_ms": 0.842
 }
 ```
+Note: `api/server.py` currently calls `record.dict()` (pydantic v2 prefers
+`model_dump()`); follow-up QA is intent-routed unless
+`llm.followup.prefer_llm` is true (v0 gate restored it to `false`).
 
 ---
 
@@ -370,15 +381,15 @@ The `tep_rca` / `intern_fused_lr` adapter is an independent artifact containing 
 
 ### 4.1 Scenario A: Loading the Adapter onto Other InternVL Variants
 
-The adapter is directly compatible with any base model sharing the `InternLM2` causal language backbone (e.g., `InternVL2-1B`, `InternVL2-4B`, `InternVL2-8B`, `InternVL3-2B`).
+The v0 adapter attaches **only** to its exact training base (`./models/internvl3_2b_lr_fused`, Qwen2: hidden 1536 / inter 8960 / 28 layers). LoRA shapes are locked to those dimensions, so loading onto any other-sized backbone (`InternVL2-1B/4B/8B`, larger InternVL3 variants) fails with `RuntimeError: size mismatch`. Cross-backbone reuse = retrain per §4.2.
 
 ```python
 import torch
 from transformers import AutoModel, AutoTokenizer
 from peft import PeftModel
 
-base_model_path = "OpenGVLab/InternVL2-8B"  # Scaled-up backbone
-adapter_dir = "outputs/intern_fused_lr/tep_rca"
+base_model_path = "./models/internvl3_2b_lr_fused"  # v0's exact base — do NOT substitute sizes
+adapter_dir = "outputs/intern_fused_lr_v0/intern_fused_lr"
 
 # 1. Load scaled base model
 model = AutoModel.from_pretrained(
@@ -388,24 +399,26 @@ model = AutoModel.from_pretrained(
     device_map="auto"
 )
 
-# 2. Attach our pre-trained TEP RCA LoRA adapter
+# 2. Attach the v0 TEP RCA LoRA adapter (same base only)
 model = PeftModel.from_pretrained(
     model,
     adapter_dir,
-    adapter_name="tep_rca",
+    adapter_name="intern_fused_lr",
     is_trainable=False
 )
 model.eval()
 
 # 3. Execute inference
-# (The adapter handles reasoning while the 8B base provides richer linguistic expression)
+# (v0 scores on its own distribution are in-distribution; see research paper §6.5.
+#  The v1 holdout adapter in outputs/intern_fused_lr_v1/ is the comparison model
+#  for zero-shot claims.)
 ```
 
 ---
 
 ### 4.2 Scenario B: Adapting Pure Text Foundation Models (LLaMA-3, Qwen-2.5, Mistral, Gemma)
 
-If you prefer to deploy a pure text LLM (avoiding InternVL's dummy vision overhead), the modular training pipeline in [`llm/train_adapter.py`](file:///C:/Users/Dell/Desktop/anomaly/llm/train_adapter.py) can adapt any HuggingFace causal LM.
+If you prefer to deploy a pure text LLM (avoiding InternVL's dummy vision overhead), the modular training pipeline in [`llm/train_adapter.py`](file:///C:/Users/Admin/Desktop/anomaly/llm/train_adapter.py) can adapt any HuggingFace causal LM.
 
 #### Advantages of Text-Only Backbones
 * Eliminates the dummy image tensor (`dummy_image_size = 448`) and `image_flags = 0`.
@@ -476,7 +489,7 @@ from transformers import AutoModel, AutoTokenizer
 from peft import PeftModel
 
 base_path = "./models/internvl3_2b_lr_fused"
-adapter_path = "outputs/intern_fused_lr/tep_rca"
+adapter_path = "outputs/intern_fused_lr_v0/intern_fused_lr"
 export_path = "outputs/internvl_tep_standalone"
 
 print(f"Loading base model from {base_path}...")
@@ -592,8 +605,8 @@ scaler = fit_scaler(normal_telemetry_dataframe, save_path="custom_domain/scaler.
 ```
 
 #### Stage 2: Train Layer A Perception Heads
-1. **Train LSTM-AE:** Run [`scripts/train_anomaly_detector.py`](file:///C:/Users/Dell/Desktop/anomaly/scripts/train_anomaly_detector.py) on normal windows. Calibrate threshold $\theta_{\text{LSTM}}$ to guarantee $\text{FAR} \le 0.01$.
-2. **Train CVA Dynamic Subspace:** Run [`scripts/train_dynamic_detector.py`](file:///C:/Users/Dell/Desktop/anomaly/scripts/train_dynamic_detector.py). Set past/future horizons ($p=5, f=5$) and compute projection matrices $\mathbf{J}$ and $\mathbf{L}$. Calibrate threshold $\theta_{\text{CVA}}$.
+1. **Train LSTM-AE:** Run [`scripts/train_anomaly_detector.py`](file:///C:/Users/Admin/Desktop/anomaly/scripts/train_anomaly_detector.py) on normal windows. Calibrate threshold $\theta_{\text{LSTM}}$ to guarantee $\text{FAR} \le 0.01$.
+2. **Train CVA Dynamic Subspace:** Run [`scripts/train_dynamic_detector.py`](file:///C:/Users/Admin/Desktop/anomaly/scripts/train_dynamic_detector.py). Set past/future horizons ($p=5, f=5$) and compute projection matrices $\mathbf{J}$ and $\mathbf{L}$. Calibrate threshold $\theta_{\text{CVA}}$.
 
 #### Stage 3: Configure Domain Evidence Bridge
 Define the domain dictionary in `custom_domain/knowledge.py`:
@@ -708,7 +721,7 @@ def run_telemetry_loop():
                 "sample_index": sample_idx
             })
             
-            if out.get("confirmed"):
+            if out.get("anomaly_detected"):
                 print(f"[ALARM] Incident {out['event_id']} confirmed!")
                 print(f"Diagnosis: {out['report']['root_cause']}")
                 # Optionally trigger DCS alarm bit
@@ -761,12 +774,14 @@ python scripts/test_end_to_end.py
 | Artifact | Repository Path | Description |
 |---|---|---|
 | **Base Model Weights** | `./models/internvl3_2b_lr_fused` | Frozen 2.2B vision-language foundation backbone |
-| **Fine-Tuned Adapter** | `outputs/intern_fused_lr/tep_rca` | Learned LoRA adapter weights (`adapter_model.safetensors`) |
+| **Fine-Tuned Adapter v0 (live)** | `outputs/intern_fused_lr_v0/intern_fused_lr/` | Learned LoRA weights (`adapter_config.json` + `adapter_model.safetensors`), 7 Qwen2 modules |
+| **Comparison Adapter v1** | `outputs/intern_fused_lr_v1/intern_fused_lr/` | Same geometry, trained on fault-disjoint holdout (zero-shot reference) |
+| **LLM Data v0 / v1** | `data/llm/` / `data/llm_v1/` | v0: full-coverage in-distribution (2376/396/396); v1: holdout (1944/36/36) |
 | **Preprocessing Scaler** | `outputs/preprocessing/scaler.pkl` | Non-contaminating normal training distribution mean/variance |
 | **LSTM Autoencoder** | `outputs/anomaly_detector/model.pt` | Trained weights for static level-shift detection |
-| **CVA Dynamic Matrices** | `outputs/dynamic_detector/cva_matrices.npz` | State projection matrix $\mathbf{J}$ and residual matrix $\mathbf{L}$ |
+| **CVA Dynamic Matrices** | `outputs/anomaly_detector/dynamic/cva_model.npz` (+ `dpca_model.npz`, `dynamic_thresholds.json` with Q=239.75) | State projection matrix $\mathbf{J}$ and residual matrix $\mathbf{L}$ |
 | **Distilled LLM Dataset**| `outputs/llm_dataset_v2/` | Distilled reasoning datasets generated via Qwen-2.5 |
 | **SQLite Event Database**| `outputs/events.db` | Real-time persisted incident reports and conversation histories |
-| **Unified Orchestrator**| [`main.py`](file:///C:/Users/Dell/Desktop/anomaly/main.py) | `TEPApp` single high-level interface class |
-| **REST API Server**     | [`api/server.py`](file:///C:/Users/Dell/Desktop/anomaly/api/server.py) | Production FastAPI backend microservice |
-| **Streamlit Dashboard** | [`ui/app.py`](file:///C:/Users/Dell/Desktop/anomaly/ui/app.py) | Interactive control room operator UI |
+| **Unified Orchestrator**| [`main.py`](file:///C:/Users/Admin/Desktop/anomaly/main.py) | `TEPApp` single high-level interface class |
+| **REST API Server**     | [`api/server.py`](file:///C:/Users/Admin/Desktop/anomaly/api/server.py) | Production FastAPI backend microservice |
+| **Streamlit Dashboard** | [`ui/app.py`](file:///C:/Users/Admin/Desktop/anomaly/ui/app.py) | Interactive control room operator UI |
