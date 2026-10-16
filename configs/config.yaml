@@ -150,14 +150,14 @@ llm:
   # Base model path changed to point to your local fused model. 
   base_model: "./models/internvl3_2b_lr_fused"
   adapter_name: intern_fused_lr
-  adapter_dir: outputs/intern_fused_lr
+  adapter_dir: outputs/intern_fused_lr_v0
   trust_remote_code: true
   use_flash_attn: false          # set true on A5000 if flash-attn installed
   dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
   followup:
-    # TEMPORARY test switch: true = LLM-only (Plan 3 alone, Plan 2 router +
-    # guardrail bypassed). Set back to false to restore combined routing.
-    prefer_llm: true
+    # v0 gated 2026-10-15 (load warning-free, JSON 100%, grounding 100%):
+    # combined routing restored — deterministic intents first, LLM open-ended.
+    prefer_llm: false
   lora:
     r: 16
     alpha: 32
@@ -171,11 +171,6 @@ llm:
       - gate_proj
       - up_proj
       - down_proj
-      - wqkv
-      - wo
-      - w1
-      - w2
-      - w3
   training:
     use_4bit: false               # Disabled 4-bit for standard 16-bit LoRA
     bnb_4bit_quant_type: nf4
