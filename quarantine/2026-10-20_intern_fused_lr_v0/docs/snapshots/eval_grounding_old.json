@@ -1,0 +1,113 @@
+{
+ "metrics": {
+  "n_samples": 8,
+  "number_recall_rate": 0.25,
+  "vague_boilerplate_rate": 0.0,
+  "foreign_sensor_rate": 1.0
+ },
+ "detail": [
+  {
+   "fault_id": 15,
+   "intent": "metrics",
+   "number_recall": "1/8",
+   "numbers_ok": false,
+   "vague": false,
+   "foreign_sensors": [
+    "affected_subsystem",
+    "detector_metrics",
+    "recommended_action",
+    "root_cause"
+   ],
+   "raw": "{\"detector_metrics\": [\"condenser_cooling_water_flow\", \"separator_pressure\", \"separator_temperature\"], \"score\": 2.515, \"root_cause\": \"condenser_cooling_system\", \"affected_subsystem\": \"condenser_cooling_system\", \"evidence\": [\"Condenser_Cooling_Water_Flow changed by +14.3% (trend increasing).\", \"Separator_Pressure changed by +12.0% (trend increasing).\", \"Separator_Temperature changed by +7.3% (trend increasing).\"], \"reasoning\": \"The condenser cooling water flow changed first, followed by separator and pressure, consistent with a condenser cooling-system abnormality.\", \"severity\": \"critical\", \"confidence\": 0.84, \"recommended_action\": \"Inspect the condenser cooling water supply and treatment.\", \"uncertainty\": \"The root cause is inferred from"
+  },
+  {
+   "fault_id": 15,
+   "intent": "evidence_why",
+   "number_recall": "1/16",
+   "numbers_ok": false,
+   "vague": false,
+   "foreign_sensors": [
+    "affected_subsystem",
+    "reasoning_steps",
+    "root_cause"
+   ],
+   "raw": "{\"reasoning_steps\": \"The overall anomaly score is 2.52. The initiating variable Condenser_Cooling_Water_Flow increased first, consistent with A condenser cooling-water inlet quality disturbance reduces condenser duty. The condenser duty increased first, followed by separator duty, consistent with a condenser cooling-system abnormality.\", \"summary\": \"An anomaly was detected in the Tennessee Eastman Process with Overall anomaly score 2.52. The initiating variable Condenser_Cooling_Water_Flow increased first, consistent with A condenser cooling-water inlet quality disturbance reduces condenser duty.\", \"root_cause\": \"Condenser cooling water inlet quality step 1\", \"affected_subsystem\": \"condenser_cooling_system\", \"evidence\": [\"Condenser_Cooling_Water_Flow changed by +14.3% (trend increasing).\","
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensor_values",
+   "number_recall": "4/12",
+   "numbers_ok": false,
+   "vague": false,
+   "foreign_sensors": [
+    "affected_subsystem",
+    "baseline_values",
+    "sensor_values"
+   ],
+   "raw": "{\"sensor_values\": [\"Condenser_Cooling_Water_Flow\", \"Separator_Pressure\", \"Separator_Temperature\"], \"baseline_values\": [\"107.740\", 88.010, 67.3%)], \"reasoning\": \"The condenser cooling water flow changed first, followed by separator temperature and pressure, consistent with a condenser cooling-system disturbance.\", \"affected_subsystem\": \"condenser_cooling_system\", \"evidence\": [\"Condenser_Cooling_Water_Flow changed by +14.3% (trend increasing).\", \"Separator_Pressure changed by +12.0% (trend increasing).\", \"Separator_Temperature changed by +7.3% (trend increasing).\"], \"reasoning\": \"The condenser cooling water flow changed first, followed by separator temperature and pressure, consistent with a condenser cooling system abnormality.\","
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensors_inspect",
+   "number_recall": "0/12",
+   "numbers_ok": false,
+   "vague": false,
+   "foreign_sensors": [
+    "affected_subsystem",
+    "reasoning_steps",
+    "root_cause"
+   ],
+   "raw": "{\"reasoning_steps\": [\"C header pressure changed first, followed by separator pressure and temperature, consistent with a feed-temperature disturbance.\", \"Check the condenser cooling water inlet and temperature control.\", \"Inspect the condenser cooling water flow, temperature, and pressure.\", \"Check the separator temperature and pressure.\", \"Condenser cooling water flow changed first, followed by separator flow and pressure, consistent with a condenser cooling-system disturbance..\"], \"summary\": \"The main abnormality is in the condenser_cooling_system. Condenser cooling water flow changed first, followed by separator temperature and pressure, consistent with a condenser cooling system disturbance.\", \"root_cause\": \"Condenser cooling water inlet temperature control\", \"affected_subsystem\": \"con"
+  },
+  {
+   "fault_id": 15,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [
+    "affected_subsystem",
+    "reasoning_steps",
+    "root_cause"
+   ],
+   "raw": "{\"reasoning_steps\": \"The evidence is not sufficient to isolate a single known fault. Separator-side variables changed without a clear initiating variable; the root cause remains unclassified.\", \"summary\": \"An anomaly was detected in the Tennessee Eastman Process with Overall anomaly score 2.52. The dominant deviations are in Condenser_Cooling_Water_Flow, Separator_Pressure, Separator_Temperature.\", \"root_cause\": \"Condenser cooling water inlet temperature step, no single initiating variable dominates.\", \"affected_subsystem\": \"condenser_cooling_system\", \"evidence\": [\"Condenser_Cooling_Water_Flow changed without a clear initiating variable; the root cause remains unclassified.\", \"Separator_Pressure changed by 239.8 psi (the largest deviation magnitude 14.3%).\", \"Separator_Temperature changed "
+  },
+  {
+   "fault_id": 15,
+   "intent": "severity",
+   "number_recall": "0/12",
+   "numbers_ok": false,
+   "vague": false,
+   "foreign_sensors": [
+    "recommended_action"
+   ],
+   "raw": "{\"severity\": \"high\", \"confidence\": 0.72, \"recommended_action\": \"Check condenser cooling water inlet and temperature, and condenser duty.\"}"
+  },
+  {
+   "fault_id": 15,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [
+    "affected_subsystem",
+    "root_cause"
+   ],
+   "raw": "{\"action\": \"Inspect condenser cooling water inlet and temperature, pressure, and condenser duty.\", \"severity\": \"high\", \"confidence\": 0.72, \"root_cause\": \"Condenser cooling water inlet temperature step\", \"affected_subsystem\": \"condenser_cooling_system\", \"evidence\": [\"Condenser_Cooling_Water_Flow changed by +14.3% (trend increasing).\", \"Separator_Pressure changed by +12.0% (trend increasing).\", \"Separator_Temperature changed by +7.3% (trend increasing).\"]}"
+  },
+  {
+   "fault_id": 15,
+   "intent": "metrics",
+   "number_recall": "0/8",
+   "numbers_ok": false,
+   "vague": false,
+   "foreign_sensors": [
+    "affected_subsystem",
+    "detector_metrics",
+    "recommended_action",
+    "root_cause"
+   ],
+   "raw": "{\"detector_metrics\": [\"condenser_cooling_water_flow\", \"separator_temperature\", \"separator_pressure\"], \"score\": 1211, \"root_cause\": \"condenser_cooling_system\", \"affected_subsystem\": \"condenser_cooling_system\", \"evidence\": [\"Condenser_Cooling_Water_Flow changed by +13.7% (trend decreasing).\", \"Separator_Temperature changed by +13.6% (trend increasing).\", \"Separator_Pressure changed by +17.8% (trend increasing).\"], \"reasoning\": \"The condenser cooling water flow changed first, followed by separator temperature and pressure, consistent with a condenser cooling-system abnormality.\", \"severity\": \"critical\", \"confidence\": 0.86, \"recommended_action\": \"Inspect the condenser cooling water supply and treatment.\", \"uncertainty\": \"The root cause is inferred"
+  }
+ ]
+}

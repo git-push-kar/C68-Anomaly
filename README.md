@@ -2,21 +2,29 @@
 
 Industrial sensor anomaly detection and **automatic root-cause analysis** for the
 Tennessee Eastman Process (TEP) using an **LSTM autoencoder** (unsupervised) and
-**InternVL2-2B** fine-tuned with **ONE LoRA/QLoRA adapter** named **`tep_rca`**.
+**InternVL3-2B** fine-tuned with **ONE LoRA/QLoRA adapter** named
+**`internvl3_2b_pristine_rca`**.
+
+> **Current deployment (2026-10-20):** the active adapter was retrained on the
+> pristine InternVL3-2B base at
+> `C:/Users/Admin/Desktop/LY_C68/deepfake_project/models/InternVL3-2B`.
+> The previous `intern_fused_lr` adapter and its adapter-specific docs are
+> quarantined in `quarantine/2026-10-20_intern_fused_lr_v0/`.
+> Full report: [docs/POST_TRAINING_INTERNL3_2B_PRISTINE_2026-10-20.md](docs/POST_TRAINING_INTERNL3_2B_PRISTINE_2026-10-20.md).
 
 ```
 Continuous sensor stream
    -> preprocessor -> unsupervised anomaly detector
    -> event aggregation -> evidence extraction
-   -> InternVL2-2B + tep_rca adapter -> automatic RCA report
+   -> InternVL3-2B + internvl3_2b_pristine_rca adapter -> automatic RCA report
    -> event store -> user follow-up questions -> conversational answers
 ```
 
 The trained artifact is:
 
 ```
-ORIGINAL InternVL2-2B   (frozen, untouched)
-+  tep_rca LoRA/QLoRA adapter   (independently saveable / loadable)
+PRISTINE InternVL3-2B   (frozen, untouched)
++  internvl3_2b_pristine_rca LoRA/QLoRA adapter   (independently saveable / loadable)
 ```
 
 Everything else (scaler, LSTM autoencoder, threshold, evidence builder, event
@@ -31,7 +39,7 @@ Three intelligence layers (dynamic added additive, LSTM untouched):
 | Layer | Module(s) | Responsibility |
 |-------|-----------|----------------|
 | **A. Sensor / time-series pipeline** | `preprocessing/`, `anomaly_detection/lstm`, `anomaly_detection/dynamic`, `evidence/`, `streaming/`, `events/` | raw stream, normal-only scaler, LSTM AE + **CVA/DPCA lag-aware** (parallel), fusion, per-sensor + `lag_profile` evidence, event aggregation |
-| **B. InternVL2-2B TEP adapter** | `llm/` | understands `detector_evidence` + `change_type` (level vs dynamics) + `lag_profile`, root-cause reasoning |
+| **B. InternVL3-2B TEP adapter** | `llm/` | understands `detector_evidence` + `change_type` (level vs dynamics) + `lag_profile`, root-cause reasoning |
 | **Dynamic details** | `anomaly_detection/dynamic/{lag_builder,cva,dpca,statistics,contributions}` | CVA primary, DPCA baseline, `T2/Q/Tr` + `SPE`, empirical `FAR 0.01` thresholds, `or` fusion |
 
 The adapter weights contain **only** learned InternVL LoRA parameters. No sensor
@@ -46,7 +54,7 @@ sensor_stream
     |                                          |-> fusion (OR / weighted, per-detector FAR) -> event_aggregator
   ->+- DPCA / CVA (lag-aware, T2/Q/Tr) -------+   (never straddles simulationRun)
   -> evidence_generator (top sensors + detector_evidence {triggered_by, change_type: level|dynamics|mixed, lag_profile})
-  -> InternVL2-2B + tep_rca adapter -> automatic report (JSON)
+  -> InternVL3-2B + internvl3_2b_pristine_rca adapter -> automatic report (JSON)
   -> event_store (SQLite) -> user_follow_up -> adapter -> answer
 ```
 **What the dynamic stage does:** The LSTM AE sees *level* shifts (MSE). Faults 3 (D-feed temp step absorbed by controller), 9 (random variance, mean 0), and 15 (valve sticking, autocorrelation) change *temporal/second-order* structure, not level, so MSE is blind. CVA (primary) builds past `P=[y_{t-1}..y_{t-5}]` / future `F=[y_t..y_{t+4}]` Hankel per `simulationRun` (never straddling, `lag_builder.py`), fits `Spp/Sff/Sfp` streaming, `H=Sff^{-1/2}SfpSpp^{-1/2}`, SVD, keeps `r` via `energy 0.90` (`state_order 20`), then emits `T2=z^Tz`, `Q=e^Te`, `Tr` per sample. `Q` is most sensitive for 3/9/15 (literature). DPCA (`n_lags 3`, PCA `90% var`) is the cheap baseline — if CVA does not beat DPCA, the inverse-sqrt conditioning or past/future ordering is wrong. Thresholds are empirical percentiles on *held-out* fault-free `100` runs (not chi-square), with optional `EWMA 0.1`/`CUSUM` smoothing. `fusion` `or` (each at `per_detector_far 0.005` → combined `0.01`) or `weighted` (percentile-rank normalisation). Evidence now carries `detector_evidence` + `lag_profile` so the LLM can distinguish `level` vs `dynamics` change.
@@ -102,8 +110,8 @@ The loader isolates all format-specific logic in `preprocessing/tep_loader.py` a
    store, streaming, API/UI.
 10. **Save adapter**: training writes `adapter_config.json` +
     `adapter_model.safetensors` (+ tokenizer/config + remote-code files).
-11. **Load adapter**: `load_tep_adapter()` reloads a FRESH original InternVL2-2B
-    and attaches only `tep_rca` (see `scripts/test_adapter.py`).
+11. **Load adapter**: `load_tep_adapter()` reloads a FRESH pristine InternVL3-2B
+    and attaches only `internvl3_2b_pristine_rca` (see `scripts/test_adapter.py`).
 12. **Run**: commands below.
 
 ## 4. Training process (what is trained, how, and where)
@@ -137,13 +145,17 @@ Stage 1b: DYNAMIC DETECTOR (CVA primary + DPCA baseline — NEW, additive, paral
 Fusion: `dynamic_detector.fusion.mode or` (each at `per_detector_far 0.005` → combined `0.01`, verified on fault_free_testing) or `weighted` (percentile-rank normalisation). Fused alarm feeds existing `event_aggregator` unchanged; first `n_past+n_future-1` samples return `warming_up` not null alarm.
 
 Stage 2: LLM ADAPTER (supervised instruction-tuning)
-  What is trained: ONE LoRA/QLoRA adapter "tep_rca" on FROZEN InternVL2-2B
+  What is trained: ONE LoRA/QLoRA adapter "internvl3_2b_pristine_rca" on FROZEN
+                   pristine InternVL3-2B (no merged LR adapter)
   Input:  structured evidence JSON (top sensors, deviations, temporal order)
   Target: JSON {summary, root_cause, affected_subsystem, evidence, reasoning,
            severity, confidence, recommended_action, uncertainty}
-  Splits: by fault scenario (train 1,2,3,5,6,7,8,9,10,11,12,13,16,17,18,19,20,22
-          / val 4,14 / test 15,21) — no leakage of overlapping windows
-  Outputs: outputs/tep_rca_adapter/adapter_config.json + adapter_model.safetensors
+  Data:   data/llm v0: 2,376 train / 396 val / 396 test, 12 samples/fault.
+          v0 contains all 22 faults in every split, so v0 metrics are
+          IN-DISTRIBUTION, not zero-shot.
+          Fault-disjoint holdout: data/llm_v1 (test faults 15,21; 4 report samples).
+  Outputs: outputs/tep_rca_internvl3_2b/internvl3_2b_pristine_rca/adapter_config.json
+           + adapter_model.safetensors; best checkpoint-400 (eval loss 0.0529)
 ```
 
 **Full command sequence (RTX A5000 — see §5 for VRAM notes):**
@@ -192,17 +204,18 @@ python scripts/generate_llm_dataset.py --config configs/config.yaml --samples-pe
 # Uses fault knowledge base, not fault_id→name mapping
 # A5000 recommended: --samples-per-fault 20-30 for better category accuracy
 
-# 5. Fine-tune InternVL2-2B adapter (RUN ON RTX A5000 — not in smoke env)
-# QLoRA (any GPU ≥8GB, 6-8GB VRAM):
+# 5. Fine-tune the InternVL3-2B adapter (RUN ON RTX A5000 — not in smoke env)
+# Active config: pristine base + internvl3_2b_pristine_rca, BF16 LoRA
 python scripts/train_tep_adapter.py --config configs/config.yaml
-# A5000 BF16 LoRA (recommended, 12-14GB, ~2× faster):
+# A5000 profile (same base/adapter, A5000 hyperparameters):
 python scripts/train_tep_adapter.py --config configs/config_a5000.yaml
 # Explicit: --no-4bit --batch-size 4 --lr 2e-4 --lora-r 16 --resume
-# Prints: Base model, Adapters loaded: NONE, Training adapter: tep_rca, total/trainable/%
-# Fails if any adapter already on base; saves to outputs/tep_rca_adapter/
+# Prints: Base model, Adapters loaded: NONE, Training adapter: internvl3_2b_pristine_rca
+# Fails if any adapter already on base; saves to outputs/tep_rca_internvl3_2b/
+# Current run: 447 steps, 3 epochs, best checkpoint-400 (eval loss 0.0529)
 ```
 
-InternVL2-2B is loaded as `AutoModel.from_pretrained(..., trust_remote_code=True)` — LLM backbone is `InternLM2-Chat-1.8B`; text-only TEP uses dummy `pixel_values` + `image_flags=0` (official InternVL pattern).
+InternVL3-2B is loaded as `AutoModel.from_pretrained(..., trust_remote_code=True)` — LLM backbone is `Qwen2ForCausalLM`; text-only TEP uses dummy `pixel_values` + `image_flags=0` (official InternVL pattern). The pristine base is used directly; do not load the quarantined fused-base adapter against it.
 
 ### 4.7 Inference with fused detectors + follow-up
 
@@ -213,8 +226,9 @@ After both detectors trained, streaming fuses `lstm_ae OR cva` (or `weighted`) b
 python scripts/test_adapter.py --config configs/config.yaml
 
 # End-to-end stream with fused alarm (dynamic in parallel)
-python scripts/test_end_to_end.py --config configs/config.yaml --inject-at 800
-python scripts/test_end_to_end.py --config configs/config.yaml --no-llm --inject-at 800  # deterministic fallback
+# Documented acceptance case for the current adapter (event ANOM-0487):
+python scripts/test_end_to_end.py --config configs/config.yaml --inject-at 200 --fault-number 15 --fault-run 1 --normal-run 1
+python scripts/test_end_to_end.py --config configs/config.yaml --no-llm --inject-at 200 --fault-number 15 --fault-run 1 --normal-run 1  # deterministic fallback
 # With explicit fault/run selection (per-split onset 20 vs 160 handled)
 python scripts/test_end_to_end.py --config configs/config.yaml --fault-number 9 --fault-run 5 --normal-run 1
 
@@ -261,13 +275,13 @@ pipeline. Single-GPU only; no multi-GPU assumptions. For A5000 prefer
 
 ## 6. Tested package versions
 
-InternVL2-2B remote code requires `transformers >= 4.37.0`. This project was
+InternVL remote code requires `transformers >= 4.37.0`. This project was
 written and validated against:
 
 ```
-Python 3.10/3.11 · torch 2.5.1 · transformers 4.46.3 · peft 0.14.0
-accelerate 0.33.0 · bitsandbytes 0.45.1 · datasets 3.0.0
-scikit-learn 1.4+ · pandas 2.1+ · fastapi/uvicorn/streamlit (latest)
+Python 3.11.5 | torch 2.13.0+cu130 | transformers 4.57.6 | peft 0.20.0
+accelerate (installed) | bitsandbytes (not used in active BF16 run) | datasets 3.0.0
+scikit-learn 1.4+ | pandas 2.1+ | fastapi/uvicorn/streamlit (latest)
 ```
 
 ## 7. Project layout

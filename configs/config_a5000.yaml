@@ -95,9 +95,9 @@ events:
   max_event_windows: 200
 
 llm:
-  base_model: OpenGVLab/InternVL3-2B
-  adapter_name: tep_rca
-  adapter_dir: outputs/tep_rca_adapter
+  base_model: "C:/Users/Admin/Desktop/LY_C68/deepfake_project/models/InternVL3-2B"
+  adapter_name: internvl3_2b_pristine_rca
+  adapter_dir: outputs/tep_rca_internvl3_2b
   trust_remote_code: true
   use_flash_attn: false
   dummy_image_size: 448

@@ -1,141 +1,210 @@
 # Training and Inference Guide: TEP Anomaly Detection System
 
-This document outlines the training status, retraining requirements, execution procedures, and benchmark conclusions for the **TEP Unsupervised Anomaly Detection & RCA Module** within the broader **Polyvalent** multi-adapter architecture.
+**Current model date:** 2026-10-20
+**Active LLM adapter:** `internvl3_2b_pristine_rca`
+**Active base:** `C:/Users/Admin/Desktop/LY_C68/deepfake_project/models/InternVL3-2B`
+
+The previous fused-base adapter (`intern_fused_lr`) and its adapter-specific
+docs are quarantined in `quarantine/2026-10-20_intern_fused_lr_v0/`.
+See `docs/POST_TRAINING_INTERNL3_2B_PRISTINE_2026-10-20.md` for the full
+post-training report, metrics, hashes, and rollback steps.
 
 ---
 
-## 1. Do You Need to Retrain the Whole Model?
+## 1. What needs retraining after a base-model change?
 
-### **Short Answer: NO, retraining the whole model is NOT required.**
+LoRA deltas are tied to the exact base weights. Changing `llm.base_model` means
+the adapter must be retrained, even when the architecture and tokenizer match.
 
-The fixes implemented were strictly structural and mathematical integrations rather than breaking weight changes. Here is the module-by-module breakdown:
-
-| Component | Status After Fixes | Retraining Required? | Notes & Execution Time |
-| :--- | :--- | :--- | :--- |
-| **0. Scaler & Normal Baseline** (`outputs/preprocessing/`) | Intact | **NO** | Already fitted strictly on fault-free normal training data. |
-| **1. LSTM Autoencoder** (`outputs/anomaly_detector/model.pt`) | Compatible | **NO** | Sensor brain operates directly on 52-D time series. Calibrated threshold is `1.85`. |
-| **2. Dynamic Detector (CVA / DPCA)** (`outputs/anomaly_detector/dynamic/`) | Trained & Saved | **NO** (Already completed locally) | Trained with per-run EWMA smoothing ($\lambda = 0.1$). Closed-form SVD takes **~25s on CPU**. |
-| **3. InternVL3-2B LoRA Adapter** (`outputs/tep_rca_adapter/`) | Target for Upgrade | **YES (for LLM Adapter only)** | Base model changed to `OpenGVLab/InternVL3-2B`. LoRA delta weights are base-model specific. Takes **~12 min on GPU**. Sensor detector continues to run deterministically with fallback reports if LLM is disabled. |
-
----
-
-## 2. Final Conclusions for Faults 3, 9, and 15
-
-### **Fault 15 (Condenser Cooling Water Valve Sticking): FULLY RESOLVED**
-* **The Fault Mechanism**: Stiction in the condenser cooling water valve introduces hysteresis and periodic oscillations. Steady-state sensor means barely deviate, rendering static PCA and LSTM reconstruction MSE completely blind (previously had $\approx 0\%$ detection / $1.04\%$ false alarm level).
-* **The Fix**: Canonical Variate Analysis (CVA) state residual $Q$ with EWMA smoothing ($\lambda = 0.1$).
-* **Results**:
-  - Fault Detection Rate (FDR) jumped to **$83.26\%$** post-onset.
-  - Run Detection Rate: **$100\%$ ($5/5$ test runs detected)** in validation.
-  - Normal operation false alarm rate: **$0\%$ (10/10 normal runs clean)**.
-
-### **Faults 3 and 9 (D Feed Temperature Step & Random Variation): BENCHMARK LIMITATION**
-* **The Fault Mechanism**: 
-  - **Fault 3**: Step change in the D feed inlet temperature.
-  - **Fault 9**: Random variation in the D feed temperature (variance shift, zero mean shift).
-* **Physical & Literature Reality**:
-  - In the Tennessee Eastman Process benchmark (Downs & Vogel 1993), the reactor cooling water loop acts under high-gain feedback control. The control valve immediately compensates for the inlet temperature disturbance.
-  - In standard plant measurements (52 variables), the resulting steady-state mean shifts are $< 0.15\,\sigma$, and variance ratios are $\approx 1.018$ (virtually indistinguishable from normal plant noise).
-  - Published benchmarks confirm this behavior across all unsupervised algorithms:
-    - **Russell, Chiang, & Braatz (2000)**: DPCA achieved $2.3\%$ (Fault 3) and $3.8\%$ (Fault 9); CVA achieved $3.1\%$ (Fault 3) and $4.2\%$ (Fault 9).
-    - **Yin et al. (2012)**: DPCA achieved $1.8\%$ (Fault 3) and $2.1\%$ (Fault 9); CVA achieved $2.2\%$ (Fault 3) and $2.6\%$ (Fault 9).
-* **Conclusion**:
-  - Faults 3 and 9 are physically compensated by the control system; their low detection rate in standard sensor measurements is an inherent feature of closed-loop regulation.
-  - Any paper claiming $>80\%$ detection on Faults 3 or 9 in standard TEP usually suffers from dataset leakage (e.g. scaler fitted across test data, or test thresholding).
+| Component | Status | Retraining required? |
+|---|---|---|
+| Scaler and normal baseline (`outputs/preprocessing/`) | Intact | No |
+| LSTM autoencoder (`outputs/anomaly_detector/model.pt`) | Intact | No |
+| Dynamic detector CVA/DPCA (`outputs/anomaly_detector/dynamic/`) | Intact | No |
+| InternVL3-2B LoRA adapter (`outputs/tep_rca_internvl3_2b/`) | Retrained 2026-10-20 | Yes, on every base change |
+| Evidence / event / streaming / API / UI | Intact | No |
 
 ---
 
-## 3. Step-by-Step Training Instructions (Local or Google Colab GPU)
+## 2. Current adapter status
 
-If you clone this project to a fresh machine or a Google Colab GPU instance, follow these instructions to set up and train the pipeline.
-
-### Prerequisites (Colab Setup)
-Select **Runtime** $\to$ **Change runtime type** $\to$ **T4 GPU** (or **A100 GPU**).
-```bash
-# 1. Clone repository
-git clone -b new https://github.com/git-push-kar/C68-Anomaly.git /content/anomaly
-cd /content/anomaly
-
-# 2. Install PyTorch matching CUDA and project dependencies
-pip install -q torch --index-url https://download.pytorch.org/whl/cu121
-pip install -q -r requirements.txt
-pip install -q bitsandbytes accelerate peft transformers datasets
-```
+| Item | Value |
+|---|---|
+| Base | Pristine InternVL3-2B (no merged adapter) |
+| Adapter name | `internvl3_2b_pristine_rca` |
+| Adapter directory | `outputs/tep_rca_internvl3_2b` |
+| LoRA | `r=16`, `alpha=32`, `dropout=0.05`, 7 Qwen2 projection modules |
+| Trainable parameters | 18,464,768 (0.8762% of 2.107B) |
+| Training data | `data/llm` v0, 2,376 train / 396 val |
+| Training precision | BF16 16-bit LoRA (`use_4bit=false`) |
+| Epochs / steps | 3 / 447 |
+| Active adapter | Final step-447 save in `internvl3_2b_pristine_rca/` |
+| Best checkpoint | `checkpoint-400` (eval loss 0.0529) |
+| Adapter SHA256 | `050EE467E58B303708BD39EE7AB025B7721E43533E0CB9DC600FAAFB716C848F` |
 
 ---
 
-### Step 1: Preprocessing & Scaler (Normal Only)
-Fits the standard scaler **strictly** on normal operating data (`TEP_FaultFree_Training.csv`) and generates non-straddling sliding windows.
-```bash
+## 3. Commands
+
+### 3.1 Preprocessing and detector
+
+The sensor pipeline is unchanged by the adapter retrain.
+
+```powershell
 python scripts/prepare_tep.py --config configs/config.yaml --full
-```
-* **Execution Time**: $\sim 45$ seconds.
-* **Output**: `outputs/preprocessing/scaler.pkl`, `baseline_stats.json`, `data/processed/normal_values.npy`.
-
----
-
-### Step 2: Train Dynamic Detector (CVA + DPCA)
-Fits the Hankel cross-covariance matrices streaming on normal training data and sets empirical thresholds on 100 holdout runs with per-run EWMA smoothing.
-```bash
-python scripts/train_dynamic_detector.py --config configs/config.yaml --method both
-```
-* **Execution Time**: **$\sim 25$ seconds on CPU**.
-* **Output**:
-  - `outputs/anomaly_detector/dynamic/cva_model.npz`
-  - `outputs/anomaly_detector/dynamic/dpca_model.npz`
-  - `outputs/anomaly_detector/dynamic/dynamic_thresholds.json`
-  - `outputs/anomaly_detector/dynamic/fit_metadata.json`
-
----
-
-### Step 3 (Optional): Train LSTM Autoencoder
-*(Only needed if `outputs/anomaly_detector/model.pt` is missing or you wish to retrain the level-shift detector from scratch).*
-```bash
 python scripts/train_anomaly_detector.py --config configs/config.yaml
+python scripts/train_dynamic_detector.py --config configs/config.yaml --method both
+python scripts/evaluate_anomaly_detector.py --config configs/config.yaml
 ```
-* **Execution Time**:
-  - **Google Colab T4 GPU**: $\sim 3.5$ minutes (100 epochs, batch size 64).
-  - **RTX A5000 / A100 GPU**: $\sim 1.5$ minutes (batch size 128).
-* **Output**: `outputs/anomaly_detector/model.pt`, `threshold.json`.
+
+### 3.2 Train the LLM adapter
+
+```powershell
+.\venv\Scripts\python.exe scripts\train_tep_adapter.py --config configs\config.yaml
+```
+
+Options:
+
+```powershell
+# Resume from the latest checkpoint in the output directory
+python scripts/train_tep_adapter.py --config configs/config.yaml --resume
+
+# Low-VRAM QLoRA fallback
+python scripts/train_tep_adapter.py --config configs/config.yaml --4bit
+
+# Override LoRA rank / epochs / learning rate
+python scripts/train_tep_adapter.py --config configs/config.yaml --lora-r 16 --epochs 3 --lr 2e-4
+```
+
+Outputs:
+
+```
+outputs/tep_rca_internvl3_2b/
+  internvl3_2b_pristine_rca/adapter_config.json
+  internvl3_2b_pristine_rca/adapter_model.safetensors
+  checkpoint-400/
+  checkpoint-447/
+  training_summary.json
+```
+
+### 3.3 Validate and evaluate
+
+```powershell
+# Fresh-base load + one generated report
+.\venv\Scripts\python.exe scripts\test_adapter.py --config configs\config.yaml
+
+# v0 in-distribution benchmark (44 report samples)
+.\venv\Scripts\python.exe scripts\benchmark_tep_adapter.py --config configs\config.yaml --top-k 3
+
+# v1 fault-disjoint holdout (4 report samples)
+.\venv\Scripts\python.exe scripts\benchmark_tep_adapter.py --config configs\config.yaml --dataset-dir data\llm_v1 --top-k 3
+
+# End-to-end Fault 15 acceptance case
+.\venv\Scripts\python.exe scripts\test_end_to_end.py --config configs\config.yaml --inject-at 200 --fault-number 15 --fault-run 1 --normal-run 1
+```
+
+Note: the v1 command overwrites `outputs/tep_rca_internvl3_2b/evaluation.json`.
+The v0 result is preserved as `evaluation_v0_indist.json`; restore it after the
+v1 run if v0 should remain the default evaluation artifact.
+
+### 3.4 Live inference
+
+```powershell
+uvicorn api.server:app --host 0.0.0.0 --port 8000
+streamlit run ui/app.py
+```
+
+Both load `configs/config.yaml`, so they automatically use the pristine base and
+the new adapter.
 
 ---
 
-### Step 4: Fine-Tune InternVL3-2B LoRA Adapter (`tep_rca`)
-*(Required to update the LLM adapter to InternVL3-2B).*
-```bash
-# 1. Generate instruction dataset from real fault evidence (if not already generated)
-python scripts/generate_llm_dataset.py --config configs/config.yaml --samples-per-fault 8
+## 4. Current evaluation summary
 
-# 2. Fine-tune the tep_rca adapter on InternVL3-2B (4-bit QLoRA)
-python scripts/train_tep_adapter.py --config configs/config.yaml
-```
-* **Execution Time**: $\sim 12 - 14$ minutes on Colab T4 GPU ($\sim 5$ minutes on A100 / RTX A5000).
-* **Output**: `outputs/tep_rca_adapter/adapter_config.json`, `adapter_model.safetensors`.
+### v0 in-distribution (44 report samples)
+
+| Metric | Quarantined v0 | New adapter |
+|---|---:|---:|
+| Exact root-cause accuracy | 0.1591 | **0.2500** |
+| Fault classification accuracy | 1.0000 | 1.0000 |
+| Severity accuracy | 1.0000 | 1.0000 |
+| Evidence consistency | 1.0000 | 1.0000 |
+| Hallucination rate | 0.0000 | 0.0000 |
+| Hedged reasoning rate | 0.6136 | 0.4545 |
+| Recommendation rate | 1.0000 | 1.0000 |
+| JSON validity rate | 1.0000 | 1.0000 |
+| Overclaiming rate | 0.0000 | 0.0000 |
+
+### v1 fault-disjoint holdout (4 report samples)
+
+| Metric | Value |
+|---|---:|
+| Exact root-cause accuracy | 0.5000 |
+| Fault classification accuracy | 1.0000 |
+| Severity accuracy | 1.0000 |
+| Evidence consistency | 1.0000 |
+| Hallucination rate | 0.0000 |
+| Hedged reasoning rate | 0.2500 |
+| Recommendation rate | 1.0000 |
+| JSON validity rate | 1.0000 |
+| Overclaiming rate | 0.0000 |
+
+The v1 set is too small for a strong claim. The v0 result is in-distribution and
+must not be cited as zero-shot.
 
 ---
 
-## 4. How to Run Validation and Live Inference
+## 5. Quarantine and rollback
 
-### A. Run Validation Suite
-Verifies that normal runs produce **0 false alarms** and checks detection across Faults 1, 4, 14, 15:
-```bash
-python scripts/validate_detection.py --no-llm
-```
-* **Expected Output**:
-  - `PART 1: Normal validation (no false alarms) -> Result: PASS (0 false alarms)`
-  - `PART 2: Fault 1: DETECTED (5/5 runs)`
-  - `PART 2: Fault 4: DETECTED (5/5 runs)`
-  - `PART 2: Fault 14: DETECTED (5/5 runs)`
-  - `PART 2: Fault 15: DETECTED (5/5 runs)`
-* **Total Time**: $\sim 20$ seconds on CPU.
+The old adapter and stale adapter-specific docs are here:
 
-### B. Run End-to-End Streaming Simulation
-Simulates continuous sensor stream replay, injects Fault 15 at sample 200, aggregates events, and produces the RCA report:
-```bash
-python scripts/test_end_to_end.py --config configs/config.yaml --no-llm --inject-at 200 --fault-number 15 --fault-run 1 --normal-run 1
 ```
-* **Expected Output**:
-  - `Closed anomaly events: 1`
-  - `!!! ANOMALY DETECTED !!!`
-  - Outputs severity, anomaly score, top deviating sensors, and recommended action.
-* **Per-Record Latency**: $< 1.5\text{ ms}$ on CPU ($> 650\text{ samples/sec}$).
+quarantine/2026-10-20_intern_fused_lr_v0/
+  MANIFEST.md
+  adapter/intern_fused_lr_v0/
+  docs/SYSTEM_INTEGRATION_AND_ADAPTER_GUIDE.md
+  docs/training_instructions.md
+  docs/snapshots/
+```
+
+To roll back, restore the old adapter directory and set:
+
+```yaml
+llm:
+  base_model: "./models/internvl3_2b_lr_fused"
+  adapter_name: intern_fused_lr
+  adapter_dir: outputs/intern_fused_lr_v0
+```
+
+Do not attach the old adapter to the pristine base.
+
+---
+
+## 6. Troubleshooting
+
+| Symptom | Likely cause | Action |
+|---|---|---|
+| `No adapter_config.json` | Adapter not trained or wrong directory | Check `outputs/tep_rca_internvl3_2b/internvl3_2b_pristine_rca/` |
+| CUDA OOM | 16-bit LoRA too large with other GPU users | Retrain with `--4bit`, or reduce `batch_size` and increase gradient accumulation |
+| Adapter loads but output is incoherent | Adapter/base mismatch | Confirm `adapter_config.json` `base_model_name_or_path` matches `llm.base_model` |
+| `Size mismatch` | LoRA rank/layer geometry differs | Retrain on the current base; do not reuse another base's adapter |
+| No end-to-end event | Injection sample / detector threshold mismatch | Use the Fault 15 at sample 200 acceptance command above |
+| `trust_remote_code` prompt | InternVL remote code not cached | Accept/allow the prompt or pin the local base directory |
+
+---
+
+## 7. References
+
+- Full post-training report:
+  `docs/POST_TRAINING_INTERNL3_2B_PRISTINE_2026-10-20.md`
+- Quarantine manifest:
+  `quarantine/2026-10-20_intern_fused_lr_v0/MANIFEST.md`
+- Training logs:
+  `logs/train_internvl3_2b_pristine.out`,
+  `logs/train_internvl3_2b_pristine.err`
+- Evaluation logs:
+  `logs/benchmark_v0_internvl3_2b_pristine.log`,
+  `logs/benchmark_v1_holdout_internvl3_2b_pristine.log`
+- End-to-end logs:
+  `logs/e2e_fault15_internvl3_2b_pristine.log`,
+  `logs/e2e_internvl3_2b_pristine.log`

@@ -46,6 +46,16 @@ outputs/*_smoke/
 data/processed_smoke/
 data/*_smoke/
 
+# Quarantine: keep manifest/docs/provenance, never commit model weights/checkpoints
+quarantine/**/checkpoint-*/
+quarantine/**/*.safetensors
+quarantine/**/*.pt
+quarantine/**/*.pth
+quarantine/**/*.bin
+quarantine/**/tokenizer.json
+quarantine/**/vocab.json
+quarantine/**/merges.txt
+
 
 !data/raw/.gitkeep
 !data/raw/**/.gitkeep

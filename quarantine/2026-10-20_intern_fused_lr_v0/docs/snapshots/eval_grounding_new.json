@@ -1,0 +1,514 @@
+{
+ "metrics": {
+  "n_samples": 56,
+  "number_recall_rate": 1.0,
+  "vague_boilerplate_rate": 0.0,
+  "foreign_sensor_rate": 0.0
+ },
+ "detail": [
+  {
+   "fault_id": 15,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 2.515 for ANOM-T0153. LSTM autoencoder reconstruction error = 2.4001 (threshold = 0.6874, ratio = 3.49x, ALARMED). CVA dynamics Q-statistic = 1525.0 (threshold = 239.8, ratio = 6.36x, ALARMED). Dominant lag 1, slow drift ratio 0.19."
+  },
+  {
+   "fault_id": 15,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 2.4001 vs 0.6874 (ALARMED); CVA Q 1525.0 vs 239.8 (ALARMED). Telemetry excursions: Condenser_Cooling_Water_Flow -39.6% (val=107.370, normal=107.740, z=+5.15, trend decreasing); Separator_Pressure +14.3% (val=88.010, normal=76.170, z=+4.50, trend increasing); Separator_Temperature +7.3% (val=67.090, normal=91.860, z=+3.54, trend increasing). Diagnostic cause: Condenser cooling water inlet temperature step in subsystem condenser_c"
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0153: Condenser_Cooling_Water_Flow -39.6% (val=107.370, normal=107.740, z=+5.15, trend decreasing); Separator_Pressure +14.3% (val=88.010, normal=76.170, z=+4.50, trend increasing); Separator_Temperature +7.3% (val=67.090, normal=91.860, z=+3.54, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: Condenser_Cooling_Water_Flow, Separator_Pressure, Separator_Temperature. Details: Condenser_Cooling_Water_Flow -39.6% (val=107.370, normal=107.740, z=+5.15, trend decreasing); Separator_Pressure +14.3% (val=88.010, normal=76.170, z=+4.50, trend increasing); Separator_Temperature +7.3% (val=67.090, normal=91.860, z=+3.54, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0153 is a critical anomaly in subsystem condenser_cooling_system. Likely root cause: Condenser cooling water inlet temperature step. The condenser cooling water inlet temperature step reduces condenser duty. The condenser cooling-water flow decreased first, followed by separator temperature and pressure, consistent with a condenser cooling-system abnormality. Temporal order: Condenser_Cooling_Water_Flow, then Separator_Pressure, then Separator_Temperature (initiating: Condenser_Cooling_Water_Flow). Top sensors: Condenser_Cooling_Water_Flow, Separator_Pressure, Separator_Temperature. Recommended action: Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is critical. This is based on the sensor deviation magnitudes (Condenser_Cooling_Water_Flow -39.6% (val=107.370, normal=107.740, z=+5.15, trend decreasing); Separator_Pressure +14.3% (val=88.010, normal=76.170, z=+4.50, trend increasing); Separator_Temperature +7.3% (val=67.090, normal=91.860, z=+3.54, trend increasing)) and subsystem condenser_cooling_system. Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Inspect the condenser cooling water supply and heat-exchanger performance. Target subsystem: condenser_cooling_system. Safety precaution: correlation does not prove causation; verify on site. Severity: critical."
+  },
+  {
+   "fault_id": 15,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 1.211 for ANOM-T0154. LSTM autoencoder reconstruction error = 0.6994 (threshold = 0.6874, ratio = 1.02x, ALARMED). CVA dynamics Q-statistic = 863.7 (threshold = 239.8, ratio = 3.60x, ALARMED). Dominant lag 3, slow drift ratio 0.15."
+  },
+  {
+   "fault_id": 15,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 0.6994 vs 0.6874 (ALARMED); CVA Q 863.7 vs 239.8 (ALARMED). Telemetry excursions: Condenser_Cooling_Water_Flow -33.7% (val=95.190, normal=53.190, z=+5.78, trend decreasing); Separator_Temperature +13.6% (val=55.400, normal=61.890, z=+2.51, trend increasing); Separator_Pressure +17.8% (val=75.070, normal=119.270, z=+4.74, trend increasing). Diagnostic cause: Condenser cooling water inlet temperature step in subsystem condenser_cool"
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0154: Condenser_Cooling_Water_Flow -33.7% (val=95.190, normal=53.190, z=+5.78, trend decreasing); Separator_Temperature +13.6% (val=55.400, normal=61.890, z=+2.51, trend increasing); Separator_Pressure +17.8% (val=75.070, normal=119.270, z=+4.74, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: Condenser_Cooling_Water_Flow, Separator_Temperature, Separator_Pressure. Details: Condenser_Cooling_Water_Flow -33.7% (val=95.190, normal=53.190, z=+5.78, trend decreasing); Separator_Temperature +13.6% (val=55.400, normal=61.890, z=+2.51, trend increasing); Separator_Pressure +17.8% (val=75.070, normal=119.270, z=+4.74, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0154 is a critical anomaly in subsystem condenser_cooling_system. Likely root cause: Condenser cooling water inlet temperature step. The condenser cooling water inlet temperature step reduces condenser duty. The condenser cooling-water flow decreased first, followed by separator temperature and pressure, consistent with a condenser cooling-system abnormality. Temporal order: Condenser_Cooling_Water_Flow, then Separator_Temperature, then Separator_Pressure (initiating: Condenser_Cooling_Water_Flow). Top sensors: Condenser_Cooling_Water_Flow, Separator_Temperature, Separator_Pressure. Recommended action: Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is critical. This is based on the sensor deviation magnitudes (Condenser_Cooling_Water_Flow -33.7% (val=95.190, normal=53.190, z=+5.78, trend decreasing); Separator_Temperature +13.6% (val=55.400, normal=61.890, z=+2.51, trend increasing); Separator_Pressure +17.8% (val=75.070, normal=119.270, z=+4.74, trend increasing)) and subsystem condenser_cooling_system. Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Inspect the condenser cooling water supply and heat-exchanger performance. Target subsystem: condenser_cooling_system. Safety precaution: correlation does not prove causation; verify on site. Severity: critical."
+  },
+  {
+   "fault_id": 15,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 2.238 for ANOM-T0155. LSTM autoencoder reconstruction error = 0.9054 (threshold = 0.6874, ratio = 1.32x, ALARMED). CVA dynamics Q-statistic = 1512.8 (threshold = 239.8, ratio = 6.31x, ALARMED). Dominant lag 4, slow drift ratio 0.23."
+  },
+  {
+   "fault_id": 15,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 0.9054 vs 0.6874 (ALARMED); CVA Q 1512.8 vs 239.8 (ALARMED). Telemetry excursions: Condenser_Cooling_Water_Flow -42.0% (val=72.080, normal=77.520, z=+2.95, trend decreasing); Separator_Temperature +6.9% (val=105.830, normal=97.430, z=+4.19, trend increasing); Separator_Pressure +23.8% (val=69.640, normal=74.500, z=+5.13, trend increasing). Diagnostic cause: Condenser cooling water inlet temperature step in subsystem condenser_cool"
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0155: Condenser_Cooling_Water_Flow -42.0% (val=72.080, normal=77.520, z=+2.95, trend decreasing); Separator_Temperature +6.9% (val=105.830, normal=97.430, z=+4.19, trend increasing); Separator_Pressure +23.8% (val=69.640, normal=74.500, z=+5.13, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: Condenser_Cooling_Water_Flow, Separator_Temperature, Separator_Pressure. Details: Condenser_Cooling_Water_Flow -42.0% (val=72.080, normal=77.520, z=+2.95, trend decreasing); Separator_Temperature +6.9% (val=105.830, normal=97.430, z=+4.19, trend increasing); Separator_Pressure +23.8% (val=69.640, normal=74.500, z=+5.13, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0155 is a critical anomaly in subsystem condenser_cooling_system. Likely root cause: Condenser cooling water inlet temperature step. The condenser cooling water inlet temperature step reduces condenser duty. The condenser cooling-water flow decreased first, followed by separator temperature and pressure, consistent with a condenser cooling-system abnormality. Temporal order: Condenser_Cooling_Water_Flow, then Separator_Temperature, then Separator_Pressure (initiating: Condenser_Cooling_Water_Flow). Top sensors: Condenser_Cooling_Water_Flow, Separator_Temperature, Separator_Pressure. Recommended action: Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is critical. This is based on the sensor deviation magnitudes (Condenser_Cooling_Water_Flow -42.0% (val=72.080, normal=77.520, z=+2.95, trend decreasing); Separator_Temperature +6.9% (val=105.830, normal=97.430, z=+4.19, trend increasing); Separator_Pressure +23.8% (val=69.640, normal=74.500, z=+5.13, trend increasing)) and subsystem condenser_cooling_system. Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Inspect the condenser cooling water supply and heat-exchanger performance. Target subsystem: condenser_cooling_system. Safety precaution: correlation does not prove causation; verify on site. Severity: critical."
+  },
+  {
+   "fault_id": 15,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 2.458 for ANOM-T0156. LSTM autoencoder reconstruction error = 2.4822 (threshold = 0.6874, ratio = 3.61x, ALARMED). CVA dynamics Q-statistic = 634.4 (threshold = 239.8, ratio = 2.65x, ALARMED). Dominant lag 2, slow drift ratio 0.50."
+  },
+  {
+   "fault_id": 15,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 2.4822 vs 0.6874 (ALARMED); CVA Q 634.4 vs 239.8 (ALARMED). Telemetry excursions: Condenser_Cooling_Water_Flow -47.3% (val=98.440, normal=59.800, z=+3.66, trend decreasing); Separator_Temperature +10.9% (val=86.370, normal=119.760, z=+2.54, trend increasing); Separator_Pressure +15.9% (val=61.110, normal=116.450, z=+5.52, trend increasing). Diagnostic cause: Condenser cooling water inlet temperature step in subsystem condenser_c"
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0156: Condenser_Cooling_Water_Flow -47.3% (val=98.440, normal=59.800, z=+3.66, trend decreasing); Separator_Temperature +10.9% (val=86.370, normal=119.760, z=+2.54, trend increasing); Separator_Pressure +15.9% (val=61.110, normal=116.450, z=+5.52, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: Condenser_Cooling_Water_Flow, Separator_Temperature, Separator_Pressure. Details: Condenser_Cooling_Water_Flow -47.3% (val=98.440, normal=59.800, z=+3.66, trend decreasing); Separator_Temperature +10.9% (val=86.370, normal=119.760, z=+2.54, trend increasing); Separator_Pressure +15.9% (val=61.110, normal=116.450, z=+5.52, trend increasing)."
+  },
+  {
+   "fault_id": 15,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0156 is a critical anomaly in subsystem condenser_cooling_system. Likely root cause: Condenser cooling water inlet temperature step. The condenser cooling water inlet temperature step reduces condenser duty. The condenser cooling-water flow decreased first, followed by separator temperature and pressure, consistent with a condenser cooling-system abnormality. Temporal order: Condenser_Cooling_Water_Flow, then Separator_Temperature, then Separator_Pressure (initiating: Condenser_Cooling_Water_Flow). Top sensors: Condenser_Cooling_Water_Flow, Separator_Temperature, Separator_Pressure. Recommended action: Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is critical. This is based on the sensor deviation magnitudes (Condenser_Cooling_Water_Flow -47.3% (val=98.440, normal=59.800, z=+3.66, trend decreasing); Separator_Temperature +10.9% (val=86.370, normal=119.760, z=+2.54, trend increasing); Separator_Pressure +15.9% (val=61.110, normal=116.450, z=+5.52, trend increasing)) and subsystem condenser_cooling_system. Inspect the condenser cooling water supply and heat-exchanger performance."
+  },
+  {
+   "fault_id": 15,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Inspect the condenser cooling water supply and heat-exchanger performance. Target subsystem: condenser_cooling_system. Safety precaution: correlation does not prove causation; verify on site. Severity: critical."
+  },
+  {
+   "fault_id": 21,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 1.437 for ANOM-T0157. LSTM autoencoder reconstruction error = 0.4136 (threshold = 0.6874, ratio = 0.60x, Normal (below limit)). CVA dynamics Q-statistic = 1014.2 (threshold = 239.8, ratio = 4.23x, ALARMED). Dominant lag 0, slow drift ratio 0.25."
+  },
+  {
+   "fault_id": 21,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 0.4136 vs 0.6874 (Normal (below limit)); CVA Q 1014.2 vs 239.8 (ALARMED). Telemetry excursions: A_C_Feed_Flow -20.5% (val=104.610, normal=89.470, z=+3.04, trend decreasing); Reactor_Pressure -9.6% (val=105.740, normal=101.450, z=+4.44, trend decreasing); Reactor_Feed_Rate -9.3% (val=79.340, normal=91.950, z=+4.05, trend decreasing). Diagnostic cause: C header pressure loss (reduced availability) in"
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0157: A_C_Feed_Flow -20.5% (val=104.610, normal=89.470, z=+3.04, trend decreasing); Reactor_Pressure -9.6% (val=105.740, normal=101.450, z=+4.44, trend decreasing); Reactor_Feed_Rate -9.3% (val=79.340, normal=91.950, z=+4.05, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: A_C_Feed_Flow, Reactor_Pressure, Reactor_Feed_Rate. Details: A_C_Feed_Flow -20.5% (val=104.610, normal=89.470, z=+3.04, trend decreasing); Reactor_Pressure -9.6% (val=105.740, normal=101.450, z=+4.44, trend decreasing); Reactor_Feed_Rate -9.3% (val=79.340, normal=91.950, z=+4.05, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0157 is a high anomaly in subsystem feed_system. Likely root cause: C header pressure loss (reduced availability). C header pressure loss reduces C availability. The A/C feed flow dropped first, followed by reactor feed rate and pressure, consistent with a feed-supply pressure loss. Temporal order: A_C_Feed_Flow, then Reactor_Pressure, then Reactor_Feed_Rate (initiating: A_C_Feed_Flow). Top sensors: A_C_Feed_Flow, Reactor_Pressure, Reactor_Feed_Rate. Recommended action: Check the C header pressure, supply compressors, and isolation valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is high. This is based on the sensor deviation magnitudes (A_C_Feed_Flow -20.5% (val=104.610, normal=89.470, z=+3.04, trend decreasing); Reactor_Pressure -9.6% (val=105.740, normal=101.450, z=+4.44, trend decreasing); Reactor_Feed_Rate -9.3% (val=79.340, normal=91.950, z=+4.05, trend decreasing)) and subsystem feed_system. Check the C header pressure, supply compressors, and isolation valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Check the C header pressure, supply compressors, and isolation valves. Target subsystem: feed_system. Safety precaution: correlation does not prove causation; verify on site. Severity: high."
+  },
+  {
+   "fault_id": 21,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 1.428 for ANOM-T0158. LSTM autoencoder reconstruction error = 1.6475 (threshold = 0.6874, ratio = 2.40x, ALARMED). CVA dynamics Q-statistic = 1137.4 (threshold = 239.8, ratio = 4.74x, ALARMED). Dominant lag 0, slow drift ratio 0.15."
+  },
+  {
+   "fault_id": 21,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 1.6475 vs 0.6874 (ALARMED); CVA Q 1137.4 vs 239.8 (ALARMED). Telemetry excursions: A_C_Feed_Flow -32.8% (val=84.620, normal=58.520, z=+4.35, trend decreasing); Reactor_Feed_Rate -11.2% (val=106.590, normal=92.820, z=+3.18, trend decreasing); Reactor_Pressure -6.6% (val=62.680, normal=105.350, z=+3.54, trend decreasing). Diagnostic cause: C header pressure loss (reduced availability) in subsystem"
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0158: A_C_Feed_Flow -32.8% (val=84.620, normal=58.520, z=+4.35, trend decreasing); Reactor_Feed_Rate -11.2% (val=106.590, normal=92.820, z=+3.18, trend decreasing); Reactor_Pressure -6.6% (val=62.680, normal=105.350, z=+3.54, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: A_C_Feed_Flow, Reactor_Feed_Rate, Reactor_Pressure. Details: A_C_Feed_Flow -32.8% (val=84.620, normal=58.520, z=+4.35, trend decreasing); Reactor_Feed_Rate -11.2% (val=106.590, normal=92.820, z=+3.18, trend decreasing); Reactor_Pressure -6.6% (val=62.680, normal=105.350, z=+3.54, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0158 is a high anomaly in subsystem feed_system. Likely root cause: A/C feed ratio step change. The A/C feed ratio step changes the composition delivered to the reactor. The A/C feed flow changed first, followed by the reactor feed rate and then reactor pressure. This ordering is consistent with a feed-system disturbance. Temporal order: A_C_Feed_Flow, then Reactor_Feed_Rate, then Reactor_Pressure (initiating: A_C_Feed_Flow). Top sensors: A_C_Feed_Flow, Reactor_Feed_Rate, Reactor_Pressure. Recommended action: Inspect the A/C feed ratio controller setpoint and the feed control valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is high. This is based on the sensor deviation magnitudes (A_C_Feed_Flow -32.8% (val=84.620, normal=58.520, z=+4.35, trend decreasing); Reactor_Feed_Rate -11.2% (val=106.590, normal=92.820, z=+3.18, trend decreasing); Reactor_Pressure -6.6% (val=62.680, normal=105.350, z=+3.54, trend decreasing)) and subsystem feed_system. Check the C header pressure, supply compressors, and isolation valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Check the C header pressure, supply compressors, and isolation valves. Target subsystem: feed_system. Safety precaution: correlation does not prove causation; verify on site. Severity: high."
+  },
+  {
+   "fault_id": 21,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 2.282 for ANOM-T0159. LSTM autoencoder reconstruction error = 0.8634 (threshold = 0.6874, ratio = 1.26x, ALARMED). CVA dynamics Q-statistic = 541.9 (threshold = 239.8, ratio = 2.26x, ALARMED). Dominant lag 4, slow drift ratio 0.23."
+  },
+  {
+   "fault_id": 21,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 0.8634 vs 0.6874 (ALARMED); CVA Q 541.9 vs 239.8 (ALARMED). Telemetry excursions: A_C_Feed_Flow -38.7% (val=60.760, normal=112.030, z=+3.83, trend decreasing); Reactor_Feed_Rate -13.6% (val=97.530, normal=115.220, z=+5.99, trend decreasing); Reactor_Pressure -6.3% (val=53.450, normal=66.180, z=+5.59, trend decreasing). Diagnostic cause: C header pressure loss (reduced availability) in subsystem feed"
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0159: A_C_Feed_Flow -38.7% (val=60.760, normal=112.030, z=+3.83, trend decreasing); Reactor_Feed_Rate -13.6% (val=97.530, normal=115.220, z=+5.99, trend decreasing); Reactor_Pressure -6.3% (val=53.450, normal=66.180, z=+5.59, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: A_C_Feed_Flow, Reactor_Feed_Rate, Reactor_Pressure. Details: A_C_Feed_Flow -38.7% (val=60.760, normal=112.030, z=+3.83, trend decreasing); Reactor_Feed_Rate -13.6% (val=97.530, normal=115.220, z=+5.99, trend decreasing); Reactor_Pressure -6.3% (val=53.450, normal=66.180, z=+5.59, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0159 is a high anomaly in subsystem feed_system. Likely root cause: A/C feed ratio step change. The A/C feed ratio step changes the composition delivered to the reactor. The A/C feed flow changed first, followed by the reactor feed rate and then reactor pressure. This ordering is consistent with a feed-system disturbance. Temporal order: A_C_Feed_Flow, then Reactor_Feed_Rate, then Reactor_Pressure (initiating: A_C_Feed_Flow). Top sensors: A_C_Feed_Flow, Reactor_Feed_Rate, Reactor_Pressure. Recommended action: Inspect the A/C feed ratio controller setpoint and the feed control valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is high. This is based on the sensor deviation magnitudes (A_C_Feed_Flow -38.7% (val=60.760, normal=112.030, z=+3.83, trend decreasing); Reactor_Feed_Rate -13.6% (val=97.530, normal=115.220, z=+5.99, trend decreasing); Reactor_Pressure -6.3% (val=53.450, normal=66.180, z=+5.59, trend decreasing)) and subsystem feed_system. Check the C header pressure, supply compressors, and isolation valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Inspect the A/C feed ratio controller setpoint and the feed control valves. Target subsystem: feed_system. Safety precaution: correlation does not prove causation; verify on site. Severity: high."
+  },
+  {
+   "fault_id": 21,
+   "intent": "metrics",
+   "number_recall": "8/8",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Overall anomaly score 3.153 for ANOM-T0160. LSTM autoencoder reconstruction error = 0.4143 (threshold = 0.6874, ratio = 0.60x, Normal (below limit)). CVA dynamics Q-statistic = 1050.0 (threshold = 239.8, ratio = 4.38x, ALARMED). Dominant lag 0, slow drift ratio 0.32."
+  },
+  {
+   "fault_id": 21,
+   "intent": "evidence_why",
+   "number_recall": "16/16",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Threshold exceedance: LSTM 0.4143 vs 0.6874 (Normal (below limit)); CVA Q 1050.0 vs 239.8 (ALARMED). Telemetry excursions: A_C_Feed_Flow -27.5% (val=60.600, normal=60.630, z=+3.31, trend decreasing); Reactor_Feed_Rate -8.5% (val=117.560, normal=79.970, z=+4.53, trend decreasing); Reactor_Pressure -6.9% (val=64.460, normal=71.930, z=+4.54, trend decreasing). Diagnostic cause: C header pressure loss (reduced availability) in subsystem feed"
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensor_values",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "For ANOM-T0160: A_C_Feed_Flow -27.5% (val=60.600, normal=60.630, z=+3.31, trend decreasing); Reactor_Feed_Rate -8.5% (val=117.560, normal=79.970, z=+4.53, trend decreasing); Reactor_Pressure -6.9% (val=64.460, normal=71.930, z=+4.54, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "sensors_inspect",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Inspect the sensors that deviated first and most strongly: A_C_Feed_Flow, Reactor_Feed_Rate, Reactor_Pressure. Details: A_C_Feed_Flow -27.5% (val=60.600, normal=60.630, z=+3.31, trend decreasing); Reactor_Feed_Rate -8.5% (val=117.560, normal=79.970, z=+4.53, trend decreasing); Reactor_Pressure -6.9% (val=64.460, normal=71.930, z=+4.54, trend decreasing)."
+  },
+  {
+   "fault_id": 21,
+   "intent": "overview_cause",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "ANOM-T0160 is a high anomaly in subsystem feed_system. Likely root cause: C header pressure loss (reduced availability). C header pressure loss reduces C availability. The A/C feed flow dropped first, followed by reactor feed rate and pressure, consistent with a feed-supply pressure loss. Temporal order: A_C_Feed_Flow, then Reactor_Feed_Rate, then Reactor_Pressure (initiating: A_C_Feed_Flow). Top sensors: A_C_Feed_Flow, Reactor_Feed_Rate, Reactor_Pressure. Recommended action: Check the C header pressure, supply compressors, and isolation valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "severity",
+   "number_recall": "12/12",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Severity is high. This is based on the sensor deviation magnitudes (A_C_Feed_Flow -27.5% (val=60.600, normal=60.630, z=+3.31, trend decreasing); Reactor_Feed_Rate -8.5% (val=117.560, normal=79.970, z=+4.53, trend decreasing); Reactor_Pressure -6.9% (val=64.460, normal=71.930, z=+4.54, trend decreasing)) and subsystem feed_system. Check the C header pressure, supply compressors, and isolation valves."
+  },
+  {
+   "fault_id": 21,
+   "intent": "action",
+   "number_recall": "0/0",
+   "numbers_ok": true,
+   "vague": false,
+   "foreign_sensors": [],
+   "raw": "Direct action: Check the C header pressure, supply compressors, and isolation valves. Target subsystem: feed_system. Safety precaution: correlation does not prove causation; verify on site. Severity: high."
+  }
+ ]
+}

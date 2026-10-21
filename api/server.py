@@ -53,6 +53,8 @@ def status() -> Dict:
         "status": "ok",
         "detector": tep.detector.describe(),
         "llm_loaded": tep.rca is not None,
+        "llm_base_model": _CONFIG["llm"]["base_model"],
+        "llm_adapter": _CONFIG["llm"]["adapter_name"],
         "events": len(tep.event_store.list_events(limit=5)),
     }
 
@@ -98,8 +100,12 @@ def model_info() -> Dict:
         "dynamic_thresholds": tep.dynamic_runner.thresholds,
         "fusion_mode": tep.dynamic_runner.fusion_mode,
         "llm_loaded": tep.rca is not None,
+        "llm_base_model": _CONFIG["llm"]["base_model"],
+        "llm_adapter": _CONFIG["llm"]["adapter_name"],
+        "llm_adapter_dir": _CONFIG["llm"]["adapter_dir"],
     }
-    for p in ["outputs/tep_rca_adapter/training_summary.json",
+    for p in ["outputs/tep_rca_internvl3_2b/training_summary.json",
+              "outputs/tep_rca_internvl3_2b/evaluation.json",
               "outputs/llm_dataset_v2/llm_20x1_metrics.json",
               "data/processed/c68_full_20_validation_1.85.json"]:
         fp = _P(p)

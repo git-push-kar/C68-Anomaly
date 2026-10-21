@@ -54,7 +54,7 @@ if not events_list and get_state("sim_history") and get_state("sim_history")[-1]
 
 latest_score = "0.000"
 if get_state("sim_history"):
-    latest_score = f"{get_state('sim_history')[-1].get('lstm_score', 0.0):.3f}"
+    latest_score = f"{float(get_state('sim_history')[-1].get('lstm_score') or 0.0):.3f}"
 
 llm_status = "Online" if app.rca is not None else "Fallback"
 
@@ -77,7 +77,7 @@ try:
     st.sidebar.markdown(f"**CVA Threshold:** {_q:.1f}", help="Canonical Variate Analysis limit. Detects slow drifts and sticky valves.")
 except Exception:
     pass
-st.sidebar.markdown(f"**LLM Adapter:** {llm_status}")
+st.sidebar.markdown(f"**LLM Adapter:** `{CONFIG['llm']['adapter_name']}` ({llm_status})")
 
 with st.sidebar.expander("Known Limitations"):
     st.markdown("- Faults 3 and 9 are physically undetectable due to closed-loop controller compensation.")
@@ -157,15 +157,15 @@ with tab_monitor:
                 
                 # Extract CVA from detector_evidence if present
                 det_ev = result.get("detector_evidence", {}) or {}
-                lstm_score = result.get("window_score", 0.0)
+                lstm_score = result.get("window_score") or 0.0
                 lstm_thr = app.detector.threshold.threshold
                 
                 cva_score = 0.0
                 cva_thr = 0.0
                 if det_ev:
                     cva_s = (det_ev.get("dynamic", {}) or {}).get("cva", {}) or {}
-                    cva_score = cva_s.get("score", 0.0)
-                    cva_thr = cva_s.get("threshold", 0.0)
+                    cva_score = cva_s.get("score") or 0.0
+                    cva_thr = cva_s.get("threshold") or 0.0
                 
                 history.append({
                     "step": step,
