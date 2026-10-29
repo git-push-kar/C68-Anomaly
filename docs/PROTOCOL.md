@@ -47,14 +47,22 @@ the *in-distribution* number and must always be labelled as such.
 
 ### Protocol B — leave-faults-out (generalisation)
 
-| Fold | Held out (test, all 500 runs) | Train / val faults | Test keys |
-|---|---|---|---|
-| `fold_1_cooling_loop_holdout` | 4, 11, 15 | 1,2,3,5,6,7,8,9,10,12,13,14,16–20 (runs 1–300 / 301–400) | 1,500 |
-| `fold_2_valve_sticking_family` | 14, 15 | 1–13, 16–20 minus nothing (runs 1–300 / 301–400) | 1,000 |
+| Fold | Unseen `test` (held out, all 500 runs) | `test_seen` (kept faults, runs 401–500) | Train / val (kept faults) | Keys (test / test_seen) |
+|---|---|---|---|---|
+| `fold_1_cooling_loop_holdout` | 4, 11, 15 | 1,2,3,5,6,7,8,9,10,12,13,14,16–20 | 1–300 / 301–400 | 1,500 / 1,700 |
+| `fold_2_valve_sticking_family` | 14, 15 | 1–13, 16–20 | 1–300 / 301–400 | 1,000 / 1,800 |
 
-Held-out faults are excluded from train and val entirely. Seen faults keep runs
-401–500 unused so that test contains only held-out faults; the validator
-enforces fault disjointness for these folds.
+Held-out faults are excluded from train and val entirely and form the **unseen**
+component `test`. Runs 401–500 of the kept faults form **`test_seen`**, the seen
+component. `test_seen` faults must be a subset of the fold's train faults and
+its runs (401–500) are disjoint from train (1–300) and val (301–400); the
+validator enforces both rules, and `test` stays fault-disjoint from every other
+component.
+
+**Abstention is scored on `test`** — declining to name a fault on an unseen fault
+is correct behaviour. **False abstention is scored on `test_seen`** — declining
+on a fault the model has trained on is an error. Both components are reported,
+and `test` remains the generalisation number.
 
 KB support for the fold design: faults 4 ↔ 14 and 5 ↔ 15 are explicit
 differential pairs in the KB (each names the other as "CRITICAL DIFFERENTIAL").
@@ -72,6 +80,8 @@ so that 14 (the KB sibling of 4) and 5 (the KB sibling of 15) remain seen.
 | Split seed | 42 (the split is fixed and hashed; it does not vary per training seed) |
 | Decoding | **greedy**: `do_sample=False`, `temperature/top_p/top_k` inert, `repetition_penalty=1.12` (matches `llm/inference.py:436-443`) |
 | Max new tokens | 512 for follow-ups, 768 for reports (current code defaults) |
+| Events per run | **one event per simulation run** |
+| Training budget | **100–150 runs per fault** → 2,000–3,000 events (Protocol A), 1,700–2,550 (fold 1), 1,800–2,700 (fold 2) |
 | Checkpoint rule | select on **validation macro-F1 measured by generation on the seen faults of that fold's train set**; the held-out faults are reported, never used for selection or early stopping |
 | Precision | out of scope for Phase 0 (no GPU); record whatever the training run uses |
 
@@ -83,20 +93,25 @@ validation loss and say so in the report.
 
 ## 4. Research questions
 
-Every criterion below is a placeholder pending approval.
+Every criterion below is a **placeholder until Phase 4**. They will then be
+replaced by relative gates calibrated on validation only — never on `test`, and
+never on `test_seen`.
 
 ### RQ1 — Does the adapter name seen faults correctly under run-level holdout?
 
-- **Metric:** exact fault-match accuracy on the mapped label space (faults 16–20
-  scored against `UNCLASSIFIED_OPEN_SET`; 21/22 excluded); macro-F1 over faults
-  1–15 as a secondary.
+- **Metric:** macro-F1 as the headline, computed over the **observable set**
+  (faults whose fused-detector FDR ≥ 5% on Protocol A validation); exact
+  fault-match accuracy on the mapped label space as a secondary (faults 16–20
+  scored against `UNCLASSIFIED_OPEN_SET`; 21/22 excluded). All-fault numbers are
+  reported alongside the observable-set number, never instead of it.
 - **Data:** Protocol A `test` (faults 1–20, runs 401–500).
 - **Success criterion:** `PROPOSED: exact match ≥ 0.70 and macro-F1 ≥ 0.65 (macro).`
 
 ### RQ2 — Does it generalise to faults never seen in training?
 
 - **Metric:** macro-F1 over the held-out faults of each fold, plus per-fault
-  exact-match, reported for fold 1 and fold 2 separately (never pooled).
+  exact-match, reported for fold 1 and fold 2 separately (never pooled);
+  `test_seen` accuracy is reported next to it so false abstention is visible.
 - **Data:** Protocol B `test` for both folds.
 - **Success criterion:** `PROPOSED: macro-F1 ≥ 0.40 on each fold, and fold-1 exact match on faults 4 and 15 ≥ 0.30.`
 
@@ -154,3 +169,28 @@ Item generation must use the operator question only — the live router receives
 grounded_qa questions verbatim routes 100% to `sensor_scores` because the
 telemetry text itself contains "sensor" and "score"; that is a dataset artefact,
 not a router bug.
+
+---
+
+## 7. Owner decisions (recorded 2026-10-29)
+
+These are decisions, not proposals. Phase 0 recorded them; they are open to
+revision only by explicit change of mind.
+
+1. **Success criteria stay placeholders until Phase 4.** They will then be set as
+   relative gates calibrated on validation only — never on `test` or `test_seen`.
+2. **Headline macro-F1 is computed over the observable set**: faults whose
+   fused-detector FDR is ≥ 5% on Protocol A validation. All-fault numbers are
+   reported alongside, never instead.
+3. **One event per simulation run**, and a **training budget of 100–150 runs per
+   fault** (2,000–3,000 events for Protocol A; 1,700–2,550 fold 1; 1,800–2,700
+   fold 2). The budget is a cap, not a target to exceed.
+4. **Open-set scoring is per variant.** When a candidate menu entry is present in
+   the prompt, the fault ID is scored; when it is removed, `UNCLASSIFIED_OPEN_SET`
+   is scored. For faults 16–20 a specific number is **wrong**; "adjacent" credit
+   is reported as a separate secondary column only, never in the headline.
+5. **Severity is computed in code**, not emitted by the adapter. The
+   fault-number severity rubric in the prompt is removed in dataset v2.
+6. **`window_size 60 / stride 5` is kept** for comparability with the existing
+   detector and recorded as a limitation: it was calibrated on the 500-sample
+   Training runs, not the 960-sample benchmark runs.
