@@ -44,10 +44,18 @@ OPEN_SET_FAULTS = [16, 17, 18, 19, 20]
 UNOBSERVABLE_FAULTS = [3, 9]
 
 
-def _split_block(ranges: Dict[str, tuple], faults: List[int], note: str) -> Dict:
-    """Build one protocol's train/val/test blocks and record their fingerprints."""
+COMPONENT_ORDER = ("train", "val", "test", "test_seen")
+
+
+def _split_block(ranges: Dict[str, tuple], faults: Dict[str, List[int]], note: str) -> Dict:
+    """Build a protocol's components (train/val/test and optional test_seen).
+
+    Every component records its own SHA-256, plus an ``all`` fingerprint over
+    the union, so a component can be added without invalidating the others.
+    """
+    present = [name for name in COMPONENT_ORDER if name in ranges]
     splits: Dict[str, Dict] = {}
-    for name in ("train", "val", "test"):
+    for name in present:
         start, end = ranges[name]
         splits[name] = {
             "source_file": SOURCE_FILE,
@@ -58,9 +66,9 @@ def _split_block(ranges: Dict[str, tuple], faults: List[int], note: str) -> Dict
             ],
         }
     union = [key for block in splits.values() for key in expand_split(block)]
-    fingerprint = {name: key_digest(expand_split(splits[name])) for name in splits}
+    fingerprint = {name: key_digest(expand_split(splits[name])) for name in present}
     fingerprint["all"] = key_digest(union)
-    for name in splits:
+    for name in present:
         splits[name]["sha256"] = fingerprint
     return splits
 
@@ -80,32 +88,32 @@ def build() -> Dict:
             {name: all_faults for name in ("train", "val", "test")},
             "All faults 1-20, run-disjoint blocks.",
         ),
-        "unused_runs": [],
     }
 
     def leave_out_fold(held: List[int], fold_note: str) -> Dict:
         seen = [f for f in all_faults if f not in held]
         splits = _split_block(
-            {"train": (1, 300), "val": (301, 400), "test": (1, 500)},
-            {"train": seen, "val": seen, "test": held},
-            "Seen faults: train 1-300, val 301-400. Held-out faults: all 500 runs in test only.",
+            {"train": (1, 300), "val": (301, 400), "test": (1, 500), "test_seen": (401, 500)},
+            {"train": seen, "val": seen, "test": held, "test_seen": seen},
+            "Seen faults: train 1-300, val 301-400, test_seen 401-500. Held-out faults: all 500 runs in test only.",
         )
         return {
             "held_out_faults": held,
             "note": fold_note,
             "constraints": {"fault_disjoint_across_splits": True},
+            "components": {
+                "test": "UNSEEN component: held-out faults, all 500 runs. Abstention is scored here.",
+                "test_seen": "SEEN component: kept faults, runs 401-500. False abstention is scored here.",
+            },
             "splits": splits,
-            "unused_runs": [
-                {"faultNumber": fault, "simulationRunRange": [401, 500], "reason": "reserved so test holds only held-out faults"}
-                for fault in seen
-            ],
         }
 
     protocol_b = {
         "description": (
             "Leave-faults-out. Held-out faults are removed from train and val entirely and evaluated "
-            "in test over all 500 runs. Seen faults keep runs 401-500 unused so that test contains "
-            "only held-out faults."
+            "in test over all 500 runs (the UNSEEN component). Seen faults' runs 401-500 form "
+            "test_seen (the SEEN component), which measures false abstention while test stays "
+            "fault-disjoint from train/val."
         ),
         "constraints": {"fault_disjoint_across_splits": True},
         "folds": {

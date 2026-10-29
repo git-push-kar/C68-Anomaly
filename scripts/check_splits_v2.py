@@ -4,11 +4,12 @@ Contract
 --------
 * unique key: ``(source_file, faultNumber, simulationRun)``;
 * every expanded key is unique inside a protocol/fold;
-* train, val and test never share a key -- so nothing from train appears in
-  test;
+* no two components of a protocol/fold share a key -- so nothing from train
+  appears in test, and nothing from train appears in ``test_seen``;
 * protocols that declare ``constraints.fault_disjoint_across_splits`` (the
-  leave-faults-out folds) also require the fault sets of train/val and test to
-  be disjoint;
+  leave-faults-out folds) also require the held-out ``test`` faults to be
+  disjoint from every other component's faults;
+* ``test_seen``, when present, may only contain faults that are in ``train``;
 * headline splits contain real faults only; synthetic-only faults 21/22 never
   appear in a split;
 * each protocol/fold records a SHA-256 of its expanded sorted key list, and the
@@ -28,6 +29,7 @@ import hashlib
 import json
 import sys
 from collections import Counter, defaultdict
+from itertools import combinations
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
@@ -35,6 +37,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SPLITS = REPO_ROOT / "data" / "splits_v2.json"
 EXPECTED_KEY = ["source_file", "faultNumber", "simulationRun"]
 SPLIT_NAMES = ("train", "val", "test")
+#: Optional extra components. ``test_seen`` holds runs of the *seen* faults so
+#: that false abstention can be measured without breaking fault disjointness.
+OPTIONAL_SPLITS = ("test_seen",)
 SYNTHETIC_FAULTS = [21, 22]
 REAL_FAULTS = list(range(1, 21))
 
@@ -103,7 +108,8 @@ def check_document(doc: Dict, verify_source: bool = False) -> List[str]:
         if any(name not in splits for name in SPLIT_NAMES):
             continue
 
-        keys_by_split = {name: expand_split(splits[name]) for name in SPLIT_NAMES}
+        present = [name for name in SPLIT_NAMES + OPTIONAL_SPLITS if name in splits]
+        keys_by_split = {name: expand_split(splits[name]) for name in present}
 
         for name, keys in keys_by_split.items():
             duplicates = [key for key, count in Counter(keys).items() if count > 1]
@@ -111,7 +117,7 @@ def check_document(doc: Dict, verify_source: bool = False) -> List[str]:
                 failures.append(f"{label}/{name}: {len(duplicates)} duplicate keys, e.g. {duplicates[:3]}")
 
         # cross-split key overlap, reported per pair so train/test is explicit
-        for left, right in (("train", "val"), ("train", "test"), ("val", "test")):
+        for left, right in combinations(present, 2):
             shared = set(keys_by_split[left]) & set(keys_by_split[right])
             if shared:
                 failures.append(
@@ -133,14 +139,28 @@ def check_document(doc: Dict, verify_source: bool = False) -> List[str]:
         # fault disjointness where the protocol demands it
         if constraints.get("fault_disjoint_across_splits"):
             held = {fault for _, fault, _ in keys_by_split["test"]}
-            reference = {fault for _, fault, _ in keys_by_split["train"]} | {
-                fault for _, fault, _ in keys_by_split["val"]
+            reference = {
+                fault
+                for name in present
+                if name != "test"
+                for _, fault, _ in keys_by_split[name]
             }
             overlap = held & reference
             if overlap:
                 failures.append(
-                    f"{label}: test faults {sorted(overlap)} also appear in train/val "
-                    f"(fault_disjoint_across_splits=true)"
+                    f"{label}: held-out test faults {sorted(overlap)} also appear in "
+                    f"train/val/test_seen (fault_disjoint_across_splits=true)"
+                )
+
+        # test_seen may only contain faults the model has actually seen in train
+        if "test_seen" in present:
+            seen_in_test = {fault for _, fault, _ in keys_by_split["test_seen"]}
+            train_faults = {fault for _, fault, _ in keys_by_split["train"]}
+            stray = sorted(seen_in_test - train_faults)
+            if stray:
+                failures.append(
+                    f"{label}: test_seen contains faults not present in train: {stray} "
+                    f"(test_seen must be a subset of the train faults)"
                 )
 
         # scope, bounds, source
@@ -167,12 +187,12 @@ def check_document(doc: Dict, verify_source: bool = False) -> List[str]:
         if not isinstance(declared, dict):
             failures.append(f"{label}: missing sha256 block on the train split")
         else:
-            for name in SPLIT_NAMES:
+            for name in present:
                 expected = key_digest(keys_by_split[name])
                 recorded = declared.get(name)
                 if recorded != expected:
                     failures.append(f"{label}/{name}: sha256 drift (recorded {recorded}, computed {expected})")
-            union = [key for name in SPLIT_NAMES for key in keys_by_split[name]]
+            union = [key for name in present for key in keys_by_split[name]]
             if declared.get("all") != key_digest(union):
                 failures.append(f"{label}: sha256 'all' does not match the union of the three splits")
 
@@ -249,15 +269,16 @@ def summarise(doc: Dict) -> None:
     print()
     for label, splits, constraints in _units(doc):
         print(f"{label}  (fault_disjoint={bool(constraints.get('fault_disjoint_across_splits'))})")
-        print(f"  {'split':<6}{'faults':<8}{'runs':<7}sha256[:12]")
-        for name in SPLIT_NAMES:
+        print(f"  {'split':<10}{'faults':<8}{'runs':<7}sha256[:12]")
+        present = [name for name in SPLIT_NAMES + OPTIONAL_SPLITS if name in splits]
+        for name in present:
             block = splits[name]
             n_faults = len(block.get("faults") or [])
             n_runs = sum(int(e.get("runCount", 0)) for e in block.get("faults") or [])
             digest = (block.get("sha256") or {}).get(name, "")[:12]
-            print(f"  {name:<6}{n_faults:<8}{n_runs:<7}{digest}")
+            print(f"  {name:<10}{n_faults:<8}{n_runs:<7}{digest}")
         faults = ", ".join(
-            f"{name}: {[e['faultNumber'] for e in splits[name].get('faults') or []]}" for name in SPLIT_NAMES
+            f"{name}: {[e['faultNumber'] for e in splits[name].get('faults') or []]}" for name in present
         )
         print(f"  faults -> {faults}\n")
 

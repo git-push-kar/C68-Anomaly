@@ -66,6 +66,30 @@ def test_protocol_b_fault_disjointness(doc):
         assert held.isdisjoint(seen)
 
 
+def test_protocol_b_test_seen_component(doc):
+    """test_seen = runs 401-500 of the kept faults; test stays the unseen component."""
+    folds = doc["protocols"]["B_leave_faults_out"]["folds"]
+    expected = {
+        "fold_1_cooling_loop_holdout": {"faults": 17, "keys": 1700},
+        "fold_2_valve_sticking_family": {"faults": 18, "keys": 1800},
+    }
+    for name, want in expected.items():
+        splits = folds[name]["splits"]
+        train_faults = {e["faultNumber"] for e in splits["train"]["faults"]}
+        seen_entries = splits["test_seen"]["faults"]
+        assert len(seen_entries) == want["faults"]
+        assert sum(e["runCount"] for e in seen_entries) == want["keys"]
+        for entry in seen_entries:
+            assert entry["simulationRunRange"] == [401, 500]
+            assert entry["faultNumber"] in train_faults  # subset of train faults
+        # run-disjoint from train and val
+        train_runs = {(e["faultNumber"], r) for e in splits["train"]["faults"] for r in range(1, 301)}
+        seen_runs = {(e["faultNumber"], r) for e in seen_entries for r in range(401, 501)}
+        assert train_runs.isdisjoint(seen_runs)
+        # the unseen component is unchanged
+        assert {e["faultNumber"] for e in splits["test"]["faults"]} == set(folds[name]["held_out_faults"])
+
+
 def test_synthetic_faults_are_absent_from_every_split(doc):
     for label, splits, _ in [
         (name, p["splits"], {})
@@ -108,6 +132,26 @@ def test_rejects_duplicate_split_keys(doc):
         {"faultNumber": 3, "simulationRunRange": [301, 400], "runCount": 100}
     )
     assert "duplicate keys" in failures(bad)
+
+
+def test_rejects_seen_fault_run_in_both_train_and_test_seen(doc):
+    bad = copy.deepcopy(doc)
+    bad["protocols"]["B_leave_faults_out"]["folds"]["fold_1_cooling_loop_holdout"]["splits"]["test_seen"][
+        "faults"
+    ].append({"faultNumber": 1, "simulationRunRange": [1, 300], "runCount": 300})
+    text = failures(bad)
+    assert "both train and test_seen" in text
+
+
+def test_rejects_held_out_fault_inside_test_seen(doc):
+    bad = copy.deepcopy(doc)
+    bad["protocols"]["B_leave_faults_out"]["folds"]["fold_1_cooling_loop_holdout"]["splits"]["test_seen"][
+        "faults"
+    ].append({"faultNumber": 4, "simulationRunRange": [401, 500], "runCount": 100})
+    text = failures(bad)
+    # held-out fault 4 is neither a train fault nor allowed in a seen component
+    assert "test_seen contains faults not present in train: [4]" in text
+    assert "held-out test faults [4] also appear in train/val/test_seen" in text
 
 
 def test_rejects_fault_leak_into_fold_train(doc):
