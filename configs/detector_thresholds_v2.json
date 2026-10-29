@@ -1,0 +1,27 @@
+{
+  "_note": "Explicit thresholds for scripts/evaluate_detector_v2.py. Recorded here because the LSTM threshold artifact is missing from outputs/anomaly_detector (threshold.json was deleted in commit 49b006b), and because the dynamic thresholds stored in the artifacts were fit with smoothing='none' while configs/config.yaml requests EWMA for runtime. Passing them explicitly keeps the evaluation reproducible and stops it depending on a path or on silent defaults.",
+  "lstm_ae": {
+    "threshold": 0.687,
+    "provenance": "Frozen value used to produce outputs/evaluation/all_faults_detector_summary.json; documented in the docstring of scripts/evaluate_all_faults_full.py ('Frozen detector, no retraining, threshold 0.687'). Not recomputable from the current artifacts.",
+    "alt_historical": {
+      "value": 1.0472214221954346,
+      "provenance": "outputs/anomaly_detector/threshold.json at 49b006b^ (percentile 99.0 over 69 normal scores) - a smoke-sized calibration, superseded."
+    }
+  },
+  "dynamic": {
+    "source": "outputs/anomaly_detector/dynamic/dynamic_thresholds.json (matches dynamic/fit_metadata.json)",
+    "calibration_runs": "TEP_FaultFree_Training simulationRun 1-400 (fit) / 401-500 (threshold holdout, p99, target_far 0.01)",
+    "smoothing_at_calibration": "none",
+    "cva": {
+      "T2": 127.53668805682571,
+      "Q": 239.7537585586526,
+      "Tr": 239.7537585586509,
+      "primary": "Q"
+    },
+    "dpca": {
+      "T2": 124.2545043110347,
+      "SPE": 40.90695453194048,
+      "primary": "SPE"
+    }
+  }
+}
