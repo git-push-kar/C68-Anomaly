@@ -1,7 +1,7 @@
 ## Rendered report
 
 ## ANOM-0488 — Condenser cooling water valve sticking
-**Severity:** High (code-computed, score 0.43)  
+**Severity:** Low (authoritative, computed in code)  
 **Subsystem:** condenser_cooling_system  
 **Confidence:** 0.71
 
@@ -34,14 +34,14 @@ Inspect the condenser cooling-water valve actuator and verify the positioner res
 ### Uncertainty
 A fouled condenser would produce a similar signature; on-site verification is required.
 
-_Severity basis:_ High severity from detector margin 1.04x, 2 window(s) at 97% of peak, max |z| 0.3; KB base for FAULT_15 is critical.
+_Severity basis:_ Low severity from the authoritative production rule; detector margin 1.04x, 2 window(s) at 97% of peak, max |z| 0.3; KB base for FAULT_15 is critical.
 
 _Citations:_ `detector.dynamic.score`, `detector.dynamic.threshold`, `subsystem.candidate`
 
 ## Rendered follow-up
 
 ### Severity
-Severity is HIGH, computed in code from a detector margin of 1.04x over 2 window(s); the knowledge-base floor for FAULT_15 is critical. The event store carries LOW from the older rule.
+Severity is LOW, set by the production severity rule in code; detector margin 1.04x, the event spanned 2 window(s), and the knowledge-base base for FAULT_15 is critical.
 
 | Detector | Score | Threshold | Margin | Status |
 |---|---|---|---|---|
@@ -49,8 +49,21 @@ Severity is HIGH, computed in code from a detector margin of 1.04x over 2 window
 | CVA Q-statistic | 248.2991 | 239.75 | 1.04x | ALARMED |
 | Overall event score | 0.7577 | — | — | ALARMED |
 
+---
+
+### Severity Assessment for Incident ANOM-0488
+- **Assessed Severity Level:** **LOW**
+- **Safety Context:** Minor drift within operational safety margins.
+- **Suspected Cause:** FAULT_15 affecting `condenser_cooling_system`.
+
 **You might also ask:**
 - What are the detector scores?
 - What is the recommended action?
 
 _Citations:_ `detector.lstm.score`, `detector.lstm.threshold`, `detector.dynamic.score`, `detector.dynamic.threshold`
+
+## Validation
+
+- report validator: `{"ok": true, "codes": [], "issues": []}`
+- severity authority: `evidence.process_limits.compute_deterministic_severity`
+- cross-check level (not displayed): `high` — agreement `False`

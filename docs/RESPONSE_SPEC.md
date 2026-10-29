@@ -250,3 +250,49 @@ Consequences to plan for (Phase 1+, not Phase 0):
   would leave the labels and the prompt disagreeing.
 * The synthetic faults 21 and 22 disappear from the prompt, removing the last
   place where they appear in headline-adjacent text.
+
+## 8. Status of the proposed pieces (Phase 1 patch, B3)
+
+Recorded so a later reader cannot mistake a proposal for shipped behaviour.
+
+**Benchmark answers are schema-shaped.** A scored answer is a `Report` or a
+`FollowupAnswer` (1-4 sentences, at most 3 suggested follow-ups, at most 1
+clarifying question, a table id from the allowed catalog). **Tables are rendered
+by code** from citation keys resolved through `StoreAccess`; the model never
+writes a table cell, a detector row or a severity word. Anything outside the
+schema is a validation failure (`schema`), not a scoring variant.
+
+**Proposed intents stay benchmark-only.** `hypothesis_comparison`,
+`out_of_scope_refusal` and `clarification_reply` are specified and routed behind
+`ResponseRouter(enable_proposed_intents=True)`. **The live flag is off.**
+`llm/inference.py` keeps its 11 intents untouched; the router mirrors the live
+dispatcher on live-format questions, and a test fails if the mirror drifts.
+
+**Trigger thresholds are placeholders.** `ambiguous_hypotheses` fires when the
+top-2 confidence margin is below `0.15`. That number is a guess about adapter
+behaviour: it cannot be calibrated until a trained adapter produces confidence
+distributions, and it must be revisited against measured margin histograms
+before any abstention number is quoted. `unclassified`, `ambiguous_question`
+and `context_not_in_store` fire on deterministic conditions, not thresholds.
+
+**Severity is code-computed, and the authority is the production rule.**
+`evidence.process_limits.compute_deterministic_severity` decides the level.
+`llm/response/severity.py` keeps its own rule only as a cross-check and exposes
+`components['severity_agreement']` and `components['severity_gap']`. The model
+still must not emit severity (`extra="forbid"`, a `severity_from_model`
+failure). On all 489 stored events the cross-check agrees with the authoritative
+rule on **79 (16.2%)** and is systematically lower — 218 events sit two levels
+below, 205 of them `critical -> medium` — so it was not adopted; see
+`outputs/evaluation/severity_agreement.md`. The renderer and the lookup answers
+show the authoritative level only.
+
+**Integer claims in prose.** A bare integer is accepted only when it equals a
+stored count (`event.n_windows`, `count.top_sensors`, `count.timeline`,
+`count.sensors_total`) or when it reads as a fault identifier ("Fault 15",
+`FAULT_15`). Tag indices (11, 41, 52) are accepted only inside a tag
+(`XMV_52`), and enumerated-list markers ("1.", "2.") are not treated as claims.
+The previous rule accepted every integer 1-22 unconditionally, which let
+"17 windows" pass on a two-window event.
+
+The SYSTEM_PROMPT rubric replacement in §7 remains PROPOSED and unimplemented:
+`llm/dataset.py` is unchanged in this patch.
