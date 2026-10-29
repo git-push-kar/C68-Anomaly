@@ -1,0 +1,3965 @@
+{
+  "created": "2026-10-29T21:34:04",
+  "protocol": "A",
+  "component": "val",
+  "split": "faulty_testing",
+  "onset": 160,
+  "window_size": 60,
+  "stride": 5,
+  "confirm": 3,
+  "min_separation": 20,
+  "max_event_windows": 200,
+  "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+  "component_sha256": {
+    "train": "92b957f62d0e3f1feaa8b20880ee0bc605a76fa67a2f121b72371d9ff343bac4",
+    "val": "a19c647a4b29d8c0e45324bf5cb85fe4bf394c092eb3df62636698d85011cc53",
+    "test": "b82892ad4f73b9265d653dcd22e1358fc3aa76e7c40dfbc3b87b849b26951087",
+    "all": "cbf1c20bb98c6a2ff22b30de71efb926997dbde28b7e5639c96064962f7e6569"
+  },
+  "devices": {
+    "detector": "cpu"
+  },
+  "thresholds": {
+    "lstm_ae": 0.687,
+    "fused": 1.0,
+    "cva_Q": 239.7537585586526,
+    "cva_T2": 127.53668805682571,
+    "cva_Tr": 239.7537585586509,
+    "dpca_SPE": 40.90695453194048,
+    "dpca_T2": 124.2545043110347,
+    "pca_t2": 52.080309471403034,
+    "pca_spe": 11.870328093296951,
+    "iforest": 0.5104408454232716
+  },
+  "threshold_source": "configs\\detector_thresholds_v2.json",
+  "n_runs_scored": 2000,
+  "runtime_seconds": 253.70646953582764,
+  "per_fault": {
+    "1": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9945,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9985015476190476,
+        "pr_auc": 0.999813636964141,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9991060714285714,
+        "pr_auc": 0.9998871129074465,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9999526785714286,
+        "pr_auc": 0.999993827059914,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9999526785714286,
+        "pr_auc": 0.999993827059914,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.984125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9971396726190476,
+        "pr_auc": 0.9996477357643778,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.983875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9991325595238094,
+        "pr_auc": 0.9998901343347961,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.9875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.997982470238095,
+        "pr_auc": 0.9997494749509273,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.9875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9996597916666666,
+        "pr_auc": 0.9999566133419402,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.7689375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9940503273809523,
+        "pr_auc": 0.9991406611091893,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9945,
+        "run_detection_rate": 1.0,
+        "delay_mean": 8.4,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9985015476190477,
+        "pr_auc": 0.999813636964141,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "2": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.983,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9936643452380953,
+        "pr_auc": 0.9992243985970517,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9730625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9956964583333335,
+        "pr_auc": 0.9994652071025814,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.969625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.99467875,
+        "pr_auc": 0.9993442777115742,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.969625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.99467875,
+        "pr_auc": 0.9993442777115742,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.9723125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9936337797619048,
+        "pr_auc": 0.9992167566329562,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.9539375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9926241964285714,
+        "pr_auc": 0.9990929298744904,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.9746875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9948797023809524,
+        "pr_auc": 0.9993652676415272,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.9603125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9946377678571429,
+        "pr_auc": 0.9993387904492999,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.9368125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9915947321428573,
+        "pr_auc": 0.9989343324732747,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.983,
+        "run_detection_rate": 1.0,
+        "delay_mean": 17.6,
+        "delay_median": 19.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9936643452380953,
+        "pr_auc": 0.9992243985970517,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "3": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.0235625,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.5405590476190476,
+        "pr_auc": 0.8978643731150941,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.0,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.7008592261904762,
+        "pr_auc": 0.9397718381593114,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.0,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6729419642857144,
+        "pr_auc": 0.9346077844479855,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.0,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6729419642857144,
+        "pr_auc": 0.9346077844479855,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.0,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.5997147619047618,
+        "pr_auc": 0.913189725298586,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.0,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.5881549404761905,
+        "pr_auc": 0.9098966370446212,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.0,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6410330952380953,
+        "pr_auc": 0.9207486331188576,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.0,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6080797023809524,
+        "pr_auc": 0.9199026695572845,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 6.25e-05,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6468660714285714,
+        "pr_auc": 0.9167994048439762,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.0235625,
+        "run_detection_rate": 0.39,
+        "delay_mean": 370.4102564102564,
+        "delay_median": 349.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.5405590476190476,
+        "pr_auc": 0.8978643731150941,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 0.49,
+        "runs_with_event": 41
+      }
+    },
+    "4": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9995,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9999786904761905,
+        "pr_auc": 0.9999972127966635,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9664247916666666,
+        "pr_auc": 0.9945785310782298,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 6.25e-05,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9890676190476191,
+        "pr_auc": 0.9983407557605251,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.1905625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.998846369047619,
+        "pr_auc": 0.9998474152425532,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.982375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9998104761904761,
+        "pr_auc": 0.99997576984724,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.0043125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8911948511904761,
+        "pr_auc": 0.9716532478208575,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9995,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.4,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9999786904761905,
+        "pr_auc": 0.9999972127966636,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "5": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.999625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.999956369047619,
+        "pr_auc": 0.9999942579735827,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9946875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.2385625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.851521279761905,
+        "pr_auc": 0.977257167613262,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.075625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9998384821428571,
+        "pr_auc": 0.9999790058266809,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.240625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8190180654761905,
+        "pr_auc": 0.971246919943308,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.160125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9989462797619048,
+        "pr_auc": 0.9998582942785776,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.204375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8418618154761904,
+        "pr_auc": 0.9731944053194523,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "6": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9888125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9998363095238094,
+        "pr_auc": 0.9999787947108276,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.9784375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9960615476190475,
+        "pr_auc": 0.9995143841534757,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.9998125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.9796875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9966930654761904,
+        "pr_auc": 0.9995883174923144,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.9999375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.95675,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9957327083333333,
+        "pr_auc": 0.9994554728999403,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "7": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.39025,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9430409226190475,
+        "pr_auc": 0.9918815217638344,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.9991875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.9955,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.999998869047619,
+        "pr_auc": 0.9999998515566202,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.9961875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.37325,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8651991666666666,
+        "pr_auc": 0.9793806895350772,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "8": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9745625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9889800892857143,
+        "pr_auc": 0.9986540796314219,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.971625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.993286011904762,
+        "pr_auc": 0.9991713168903034,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.9695625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9913746428571428,
+        "pr_auc": 0.9989440012056998,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.9695625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9913746428571428,
+        "pr_auc": 0.9989440012056998,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.9539375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9887010119047619,
+        "pr_auc": 0.9986088457680888,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.9290625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9900346428571429,
+        "pr_auc": 0.9987800318324334,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.95725,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.990741369047619,
+        "pr_auc": 0.9988528191032446,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.941875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9915145238095238,
+        "pr_auc": 0.9989550091744819,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.928375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9881177976190476,
+        "pr_auc": 0.9985032618986669,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9749375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 24.2,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9890330059523809,
+        "pr_auc": 0.998660777478116,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "9": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.02475,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.546555,
+        "pr_auc": 0.8996597738595937,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.0,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.721563005952381,
+        "pr_auc": 0.9453229197728075,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.0,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.7105864880952381,
+        "pr_auc": 0.9453010288805175,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.0,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.7105864880952381,
+        "pr_auc": 0.9453010288805175,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.0,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6078497619047619,
+        "pr_auc": 0.9155599901572862,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.0,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.5996708035714287,
+        "pr_auc": 0.9134534124257344,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.0,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6485491666666667,
+        "pr_auc": 0.9228811400440224,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.0,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6178642261904762,
+        "pr_auc": 0.9226879383194346,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.0003125,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6597619047619048,
+        "pr_auc": 0.9200015092317481,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.02475,
+        "run_detection_rate": 0.4,
+        "delay_mean": 339.125,
+        "delay_median": 254.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.546555,
+        "pr_auc": 0.8996597738595937,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 0.49,
+        "runs_with_event": 42
+      }
+    },
+    "10": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.756375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9461437648809524,
+        "pr_auc": 0.992920131875875,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.964125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9909791369047619,
+        "pr_auc": 0.9988832887345698,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.962,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9877910416666665,
+        "pr_auc": 0.9985046079581161,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.962,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9877910416666665,
+        "pr_auc": 0.9985046079581161,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.056875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9130731845238095,
+        "pr_auc": 0.9879274808088045,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.1755625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9757377380952381,
+        "pr_auc": 0.9969742580276915,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.1023125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9194564583333333,
+        "pr_auc": 0.9884616162551212,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.2508125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9792039285714287,
+        "pr_auc": 0.9973880968476996,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.0784375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9037799404761903,
+        "pr_auc": 0.9830044270489123,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9630625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 33.1,
+        "delay_median": 29.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.982541994047619,
+        "pr_auc": 0.9978636817396469,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.02,
+        "runs_with_event": 100
+      }
+    },
+    "11": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.98825,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9955582291666666,
+        "pr_auc": 0.9994570449396897,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.0635625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9903891666666667,
+        "pr_auc": 0.9987815694426487,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.9829375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9958289583333334,
+        "pr_auc": 0.9994899697599251,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.9829375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9958289583333334,
+        "pr_auc": 0.9994899697599251,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.3163125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9900784226190477,
+        "pr_auc": 0.9987642691228313,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.9825,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9967942261904761,
+        "pr_auc": 0.9996088315561833,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.8861875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9953309226190477,
+        "pr_auc": 0.9994151978271812,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.9436875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9954840773809523,
+        "pr_auc": 0.999446146890512,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.006875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.904665386904762,
+        "pr_auc": 0.9758348396092204,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9883125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 13.35,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9955721874999999,
+        "pr_auc": 0.9994587736637051,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "12": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9895,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.995856919642857,
+        "pr_auc": 0.9994944867149604,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9868125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9972009523809524,
+        "pr_auc": 0.9996541979599174,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.992125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9975428869047619,
+        "pr_auc": 0.9997001422330973,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.992125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9975428869047619,
+        "pr_auc": 0.9997001422330973,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.977,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9953521130952381,
+        "pr_auc": 0.9994289501757638,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.9675625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9953159523809523,
+        "pr_auc": 0.9994260489726954,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.9720625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9960104464285713,
+        "pr_auc": 0.9995046346930687,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.96825,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9955169047619048,
+        "pr_auc": 0.9994514894758537,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.9370625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9919017559523808,
+        "pr_auc": 0.998973127520723,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.99225,
+        "run_detection_rate": 1.0,
+        "delay_mean": 10.2,
+        "delay_median": 9.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9965268154761905,
+        "pr_auc": 0.9995784155976607,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "13": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.94425,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9748766369047619,
+        "pr_auc": 0.9969025145316104,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9365,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9834772619047618,
+        "pr_auc": 0.9979425603151462,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.9420625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9800399702380952,
+        "pr_auc": 0.9975414972894376,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.9420625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9800399702380952,
+        "pr_auc": 0.9975414972894376,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.9239375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9761291071428572,
+        "pr_auc": 0.9970403233301504,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.9254375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9768409226190476,
+        "pr_auc": 0.9971524227360138,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.920375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.978103005952381,
+        "pr_auc": 0.9972624163850676,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.9326875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9807852083333334,
+        "pr_auc": 0.9976262844455992,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.9029375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9775687202380952,
+        "pr_auc": 0.9971635480249417,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9458125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 47.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9750925595238095,
+        "pr_auc": 0.9969310967236227,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.03,
+        "runs_with_event": 100
+      }
+    },
+    "14": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9999991964285714,
+        "pr_auc": 0.9999998946719085,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9918125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9996993154761905,
+        "pr_auc": 0.9999614097125096,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.99,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9997057142857143,
+        "pr_auc": 0.999962574783724,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.99,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9997057142857143,
+        "pr_auc": 0.999962574783724,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.99375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9998899107142858,
+        "pr_auc": 0.9999858493841742,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.981,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9999711904761904,
+        "pr_auc": 0.9999962432721712,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.9935,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9998566071428572,
+        "pr_auc": 0.9999814227765886,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.990625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9998516666666667,
+        "pr_auc": 0.9999815419104976,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.014875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9472688690476191,
+        "pr_auc": 0.9867824232272683,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 4.0,
+        "delay_median": 4.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9999991964285714,
+        "pr_auc": 0.9999998946719085,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "15": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.033,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.5885980803571429,
+        "pr_auc": 0.9123576730895493,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.0,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.813707738095238,
+        "pr_auc": 0.9668456165138712,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.0498125,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9936810119047619,
+        "pr_auc": 0.9992135253140111,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.0498125,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9936810119047619,
+        "pr_auc": 0.9992135253140111,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.0,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6455443452380952,
+        "pr_auc": 0.9264040840910791,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.0,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6058967261904762,
+        "pr_auc": 0.9149157369565135,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.0,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.67327,
+        "pr_auc": 0.929412957157129,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.0,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6311591666666667,
+        "pr_auc": 0.9262799387336041,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.0005,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.6707224404761905,
+        "pr_auc": 0.923144449506149,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.0769375,
+        "run_detection_rate": 0.84,
+        "delay_mean": 315.1904761904762,
+        "delay_median": 289.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.7259566517857143,
+        "pr_auc": 0.9463852276813262,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.28,
+        "runs_with_event": 85
+      }
+    },
+    "16": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.752625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9579744940476191,
+        "pr_auc": 0.9944199610302312,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.98075,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9954036309523809,
+        "pr_auc": 0.9994313218746147,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.971625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9927247321428572,
+        "pr_auc": 0.9991078712679446,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.971625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9927247321428572,
+        "pr_auc": 0.9991078712679446,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.0010625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8347992261904762,
+        "pr_auc": 0.9738777914632752,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.14,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9879616964285713,
+        "pr_auc": 0.998510758701247,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.005125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8588452976190477,
+        "pr_auc": 0.9767621883213203,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.102125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.988881755952381,
+        "pr_auc": 0.998615247972241,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.0114375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8439215476190477,
+        "pr_auc": 0.9676160410248507,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9726875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 25.5,
+        "delay_median": 24.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9876490773809523,
+        "pr_auc": 0.9984916342667769,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "17": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9573125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9792225446428572,
+        "pr_auc": 0.9974544453470984,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9530625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9852900297619048,
+        "pr_auc": 0.9981816708835078,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.9566875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9822453869047619,
+        "pr_auc": 0.9978185486455617,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.9566875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9822453869047619,
+        "pr_auc": 0.9978185486455617,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.940875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9792157738095237,
+        "pr_auc": 0.9974315526328474,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.952625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9814008928571429,
+        "pr_auc": 0.9977196640713888,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.9416875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9819329464285714,
+        "pr_auc": 0.9977516779137947,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.952625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9847219345238096,
+        "pr_auc": 0.9981179522636752,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.0146875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9366430952380952,
+        "pr_auc": 0.9859444076964002,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.95825,
+        "run_detection_rate": 1.0,
+        "delay_mean": 37.35,
+        "delay_median": 34.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9794062946428572,
+        "pr_auc": 0.9974782946252803,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.02,
+        "runs_with_event": 100
+      }
+    },
+    "18": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9305625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9689286458333334,
+        "pr_auc": 0.996149104649653,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9249375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.977943630952381,
+        "pr_auc": 0.9972413379575742,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.93325,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9739248214285715,
+        "pr_auc": 0.9967742256586609,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.93325,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9739248214285715,
+        "pr_auc": 0.9967742256586609,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.907,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9681132738095238,
+        "pr_auc": 0.9960170158409483,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.92225,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9721312797619048,
+        "pr_auc": 0.9965556135820701,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.907375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9719897619047619,
+        "pr_auc": 0.9964742171072205,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.920375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9745069047619047,
+        "pr_auc": 0.996835556313352,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.8885,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9692206845238095,
+        "pr_auc": 0.9960793458854371,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9350625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 55.3,
+        "delay_median": 49.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9700773363095238,
+        "pr_auc": 0.9962976092703403,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.01,
+        "runs_with_event": 100
+      }
+    },
+    "19": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9746875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9936217559523809,
+        "pr_auc": 0.9992066886915962,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.212125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9943919047619048,
+        "pr_auc": 0.9992953882369251,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.9901875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9995567857142857,
+        "pr_auc": 0.9999445695666955,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.9901875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9995567857142857,
+        "pr_auc": 0.9999445695666955,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.0624375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9927680952380953,
+        "pr_auc": 0.9990950997787671,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9960779761904761,
+        "pr_auc": 0.99950848082903,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.0006875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9736006845238095,
+        "pr_auc": 0.9949340664921904,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.0,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9953634226190476,
+        "pr_auc": 0.9994149141815496,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.0018125,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.8324057440476191,
+        "pr_auc": 0.9572769456161748,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9905625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 11.55,
+        "delay_median": 14.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9970155654761905,
+        "pr_auc": 0.9996329241386381,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.0,
+        "runs_with_event": 100
+      }
+    },
+    "20": {
+      "lstm_ae": {
+        "threshold": 0.687,
+        "fdr": 0.9386875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9724310714285714,
+        "pr_auc": 0.9965940587490891,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_T2": {
+        "threshold": 127.53668805682571,
+        "fdr": 0.9286875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9809730059523809,
+        "pr_auc": 0.9976234363609129,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Q": {
+        "threshold": 239.7537585586526,
+        "fdr": 0.9480625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9796563095238096,
+        "pr_auc": 0.997494292815571,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "cva_Tr": {
+        "threshold": 239.7537585586509,
+        "fdr": 0.9480625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9796563095238096,
+        "pr_auc": 0.997494292815571,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_T2": {
+        "threshold": 124.2545043110347,
+        "fdr": 0.6310625,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9717544047619047,
+        "pr_auc": 0.996481358238847,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "dpca_SPE": {
+        "threshold": 40.90695453194048,
+        "fdr": 0.9301875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9766768452380952,
+        "pr_auc": 0.9971232271907493,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_t2": {
+        "threshold": 52.080309471403034,
+        "fdr": 0.10575,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9702622023809523,
+        "pr_auc": 0.9960634926024208,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "pca_spe": {
+        "threshold": 11.870328093296951,
+        "fdr": 0.9311875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9788344642857143,
+        "pr_auc": 0.9973801803645885,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "iforest": {
+        "threshold": 0.5104408454232716,
+        "fdr": 0.016375,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9136147916666666,
+        "pr_auc": 0.9813781517048549,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9491875,
+        "run_detection_rate": 1.0,
+        "delay_mean": 44.6,
+        "delay_median": 44.0,
+        "false_before_onset_rate": 0.06,
+        "auroc": 0.9756261904761905,
+        "pr_auc": 0.9970042919414537,
+        "n_windows": 18100,
+        "n_runs": 100
+      },
+      "events": {
+        "events_per_run": 1.02,
+        "runs_with_event": 100
+      }
+    }
+  },
+  "per_fault_window_calibrated": {
+    "1": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.994375,
+        "auroc": 0.9985015476190476,
+        "pr_auc": 0.999813636964141
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9939375,
+        "auroc": 0.9991060714285714,
+        "pr_auc": 0.9998871129074465
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9983125,
+        "auroc": 0.9999526785714286,
+        "pr_auc": 0.999993827059914
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9983125,
+        "auroc": 0.9999526785714286,
+        "pr_auc": 0.999993827059914
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.9893125,
+        "auroc": 0.9971396726190476,
+        "pr_auc": 0.9996477357643778
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9945,
+        "auroc": 0.9991325595238094,
+        "pr_auc": 0.9998901343347961
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.990875,
+        "auroc": 0.997982470238095,
+        "pr_auc": 0.9997494749509273
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.9955,
+        "auroc": 0.9996597916666666,
+        "pr_auc": 0.9999566133419402
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.97175,
+        "auroc": 0.9940503273809523,
+        "pr_auc": 0.9991406611091893
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9983125,
+        "auroc": 0.9999127678571429,
+        "pr_auc": 0.9999886216302378,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "2": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9826875,
+        "auroc": 0.9936643452380953,
+        "pr_auc": 0.9992243985970517
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9810625,
+        "auroc": 0.9956964583333335,
+        "pr_auc": 0.9994652071025814
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.98325,
+        "auroc": 0.99467875,
+        "pr_auc": 0.9993442777115742
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.98325,
+        "auroc": 0.99467875,
+        "pr_auc": 0.9993442777115742
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.981125,
+        "auroc": 0.9936337797619048,
+        "pr_auc": 0.9992167566329562
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9774375,
+        "auroc": 0.9926241964285714,
+        "pr_auc": 0.9990929298744904
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.981625,
+        "auroc": 0.9948797023809524,
+        "pr_auc": 0.9993652676415272
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.9811875,
+        "auroc": 0.9946377678571429,
+        "pr_auc": 0.9993387904492999
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.9525,
+        "auroc": 0.9915947321428573,
+        "pr_auc": 0.9989343324732747
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9840625,
+        "auroc": 0.9945423214285715,
+        "pr_auc": 0.9993280260414796,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "3": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.018,
+        "auroc": 0.5405590476190476,
+        "pr_auc": 0.8978643731150941
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.0160625,
+        "auroc": 0.7008592261904762,
+        "pr_auc": 0.9397718381593114
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.0339375,
+        "auroc": 0.6729419642857144,
+        "pr_auc": 0.9346077844479855
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.0339375,
+        "auroc": 0.6729419642857144,
+        "pr_auc": 0.9346077844479855
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.0163125,
+        "auroc": 0.5997147619047618,
+        "pr_auc": 0.913189725298586
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.00975,
+        "auroc": 0.5881549404761905,
+        "pr_auc": 0.9098966370446212
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.0200625,
+        "auroc": 0.6410330952380953,
+        "pr_auc": 0.9207486331188576
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.018875,
+        "auroc": 0.6080797023809524,
+        "pr_auc": 0.9199026695572845
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.01475,
+        "auroc": 0.6468660714285714,
+        "pr_auc": 0.9167994048439762
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.0441875,
+        "auroc": 0.6541066071428572,
+        "pr_auc": 0.9278788648246652,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "4": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9995,
+        "auroc": 0.9999786904761905,
+        "pr_auc": 0.9999972127966635
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.21475,
+        "auroc": 0.9664247916666666,
+        "pr_auc": 0.9945785310782298
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.7355625,
+        "auroc": 0.9890676190476191,
+        "pr_auc": 0.9983407557605251
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.9823125,
+        "auroc": 0.998846369047619,
+        "pr_auc": 0.9998474152425532
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.9965625,
+        "auroc": 0.9998104761904761,
+        "pr_auc": 0.99997576984724
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.0521875,
+        "auroc": 0.8911948511904761,
+        "pr_auc": 0.9716532478208575
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "auroc": 0.9999998214285715,
+        "pr_auc": 0.9999999765639647,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "5": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9994375,
+        "auroc": 0.999956369047619,
+        "pr_auc": 0.9999942579735827
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.3515625,
+        "auroc": 0.851521279761905,
+        "pr_auc": 0.977257167613262
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.996625,
+        "auroc": 0.9998384821428571,
+        "pr_auc": 0.9999790058266809
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.322875,
+        "auroc": 0.8190180654761905,
+        "pr_auc": 0.971246919943308
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.9580625,
+        "auroc": 0.9989462797619048,
+        "pr_auc": 0.9998582942785776
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.27275,
+        "auroc": 0.8418618154761904,
+        "pr_auc": 0.9731944053194523
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "6": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.995625,
+        "auroc": 0.9998363095238094,
+        "pr_auc": 0.9999787947108276
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.9863125,
+        "auroc": 0.9960615476190475,
+        "pr_auc": 0.9995143841534757
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.98625,
+        "auroc": 0.9966930654761904,
+        "pr_auc": 0.9995883174923144
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.9695,
+        "auroc": 0.9957327083333333,
+        "pr_auc": 0.9994554728999403
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "7": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.5120625,
+        "auroc": 0.9430409226190475,
+        "pr_auc": 0.9918815217638344
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 1.0,
+        "auroc": 0.999998869047619,
+        "pr_auc": 0.9999998515566202
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.4340625,
+        "auroc": 0.8651991666666666,
+        "pr_auc": 0.9793806895350772
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 1.0,
+        "auroc": 1.0,
+        "pr_auc": 1.0,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "8": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.974,
+        "auroc": 0.9889800892857143,
+        "pr_auc": 0.9986540796314219
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.977,
+        "auroc": 0.993286011904762,
+        "pr_auc": 0.9991713168903034
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.978875,
+        "auroc": 0.9913746428571428,
+        "pr_auc": 0.9989440012056998
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.978875,
+        "auroc": 0.9913746428571428,
+        "pr_auc": 0.9989440012056998
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.96775,
+        "auroc": 0.9887010119047619,
+        "pr_auc": 0.9986088457680888
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9728125,
+        "auroc": 0.9900346428571429,
+        "pr_auc": 0.9987800318324334
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.9689375,
+        "auroc": 0.990741369047619,
+        "pr_auc": 0.9988528191032446
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.974125,
+        "auroc": 0.9915145238095238,
+        "pr_auc": 0.9989550091744819
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.946375,
+        "auroc": 0.9881177976190476,
+        "pr_auc": 0.9985032618986669
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.978875,
+        "auroc": 0.9911629761904761,
+        "pr_auc": 0.9989183322338504,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "9": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.019,
+        "auroc": 0.546555,
+        "pr_auc": 0.8996597738595937
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.0205625,
+        "auroc": 0.721563005952381,
+        "pr_auc": 0.9453229197728075
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.0566875,
+        "auroc": 0.7105864880952381,
+        "pr_auc": 0.9453010288805175
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.0566875,
+        "auroc": 0.7105864880952381,
+        "pr_auc": 0.9453010288805175
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.018125,
+        "auroc": 0.6078497619047619,
+        "pr_auc": 0.9155599901572862
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.010875,
+        "auroc": 0.5996708035714287,
+        "pr_auc": 0.9134534124257344
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.0216875,
+        "auroc": 0.6485491666666667,
+        "pr_auc": 0.9228811400440224
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.0223125,
+        "auroc": 0.6178642261904762,
+        "pr_auc": 0.9226879383194346
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.015125,
+        "auroc": 0.6597619047619048,
+        "pr_auc": 0.9200015092317481
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.0664375,
+        "auroc": 0.6909361458333334,
+        "pr_auc": 0.9385425789706774,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "10": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.7363125,
+        "auroc": 0.9461437648809524,
+        "pr_auc": 0.992920131875875
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9698125,
+        "auroc": 0.9909791369047619,
+        "pr_auc": 0.9988832887345698
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9701875,
+        "auroc": 0.9877910416666665,
+        "pr_auc": 0.9985046079581161
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9701875,
+        "auroc": 0.9877910416666665,
+        "pr_auc": 0.9985046079581161
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.542875,
+        "auroc": 0.9130731845238095,
+        "pr_auc": 0.9879274808088045
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9034375,
+        "auroc": 0.9757377380952381,
+        "pr_auc": 0.9969742580276915
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.527625,
+        "auroc": 0.9194564583333333,
+        "pr_auc": 0.9884616162551212
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.9083125,
+        "auroc": 0.9792039285714287,
+        "pr_auc": 0.9973880968476996
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.259625,
+        "auroc": 0.9037799404761903,
+        "pr_auc": 0.9830044270489123
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9705625,
+        "auroc": 0.987602619047619,
+        "pr_auc": 0.9984806297468569,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "11": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.987875,
+        "auroc": 0.9955582291666666,
+        "pr_auc": 0.9994570449396897
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.8811875,
+        "auroc": 0.9903891666666667,
+        "pr_auc": 0.9987815694426487
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.989375,
+        "auroc": 0.9958289583333334,
+        "pr_auc": 0.9994899697599251
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.989375,
+        "auroc": 0.9958289583333334,
+        "pr_auc": 0.9994899697599251
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.952125,
+        "auroc": 0.9900784226190477,
+        "pr_auc": 0.9987642691228313
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9915,
+        "auroc": 0.9967942261904761,
+        "pr_auc": 0.9996088315561833
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.9760625,
+        "auroc": 0.9953309226190477,
+        "pr_auc": 0.9994151978271812
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.985,
+        "auroc": 0.9954840773809523,
+        "pr_auc": 0.999446146890512
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.06625,
+        "auroc": 0.904665386904762,
+        "pr_auc": 0.9758348396092204
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.99,
+        "auroc": 0.9960822023809525,
+        "pr_auc": 0.9995212510286862,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "12": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9893125,
+        "auroc": 0.995856919642857,
+        "pr_auc": 0.9994944867149604
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9900625,
+        "auroc": 0.9972009523809524,
+        "pr_auc": 0.9996541979599174
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9936875,
+        "auroc": 0.9975428869047619,
+        "pr_auc": 0.9997001422330973
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9936875,
+        "auroc": 0.9975428869047619,
+        "pr_auc": 0.9997001422330973
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.9859375,
+        "auroc": 0.9953521130952381,
+        "pr_auc": 0.9994289501757638
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.98625,
+        "auroc": 0.9953159523809523,
+        "pr_auc": 0.9994260489726954
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.9840625,
+        "auroc": 0.9960104464285713,
+        "pr_auc": 0.9995046346930687
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.985875,
+        "auroc": 0.9955169047619048,
+        "pr_auc": 0.9994514894758537
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.9546875,
+        "auroc": 0.9919017559523808,
+        "pr_auc": 0.998973127520723
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9936875,
+        "auroc": 0.9974956845238095,
+        "pr_auc": 0.9996944162460071,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "13": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.94375,
+        "auroc": 0.9748766369047619,
+        "pr_auc": 0.9969025145316104
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9468125,
+        "auroc": 0.9834772619047618,
+        "pr_auc": 0.9979425603151462
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9530625,
+        "auroc": 0.9800399702380952,
+        "pr_auc": 0.9975414972894376
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9530625,
+        "auroc": 0.9800399702380952,
+        "pr_auc": 0.9975414972894376
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.938375,
+        "auroc": 0.9761291071428572,
+        "pr_auc": 0.9970403233301504
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9459375,
+        "auroc": 0.9768409226190476,
+        "pr_auc": 0.9971524227360138
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.9355625,
+        "auroc": 0.978103005952381,
+        "pr_auc": 0.9972624163850676
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.95,
+        "auroc": 0.9807852083333334,
+        "pr_auc": 0.9976262844455992
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.9196875,
+        "auroc": 0.9775687202380952,
+        "pr_auc": 0.9971635480249417
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9533125,
+        "auroc": 0.9796886607142857,
+        "pr_auc": 0.9974974188412572,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "14": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9999375,
+        "auroc": 0.9999991964285714,
+        "pr_auc": 0.9999998946719085
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9953125,
+        "auroc": 0.9996993154761905,
+        "pr_auc": 0.9999614097125096
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.996625,
+        "auroc": 0.9997057142857143,
+        "pr_auc": 0.999962574783724
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.996625,
+        "auroc": 0.9997057142857143,
+        "pr_auc": 0.999962574783724
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.9986875,
+        "auroc": 0.9998899107142858,
+        "pr_auc": 0.9999858493841742
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9990625,
+        "auroc": 0.9999711904761904,
+        "pr_auc": 0.9999962432721712
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.99775,
+        "auroc": 0.9998566071428572,
+        "pr_auc": 0.9999814227765886
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.999,
+        "auroc": 0.9998516666666667,
+        "pr_auc": 0.9999815419104976
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.1391875,
+        "auroc": 0.9472688690476191,
+        "pr_auc": 0.9867824232272683
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9999375,
+        "auroc": 0.9999988988095238,
+        "pr_auc": 0.9999998557506222,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "15": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.025875,
+        "auroc": 0.5885980803571429,
+        "pr_auc": 0.9123576730895493
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.0495625,
+        "auroc": 0.813707738095238,
+        "pr_auc": 0.9668456165138712
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9721875,
+        "auroc": 0.9936810119047619,
+        "pr_auc": 0.9992135253140111
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9721875,
+        "auroc": 0.9936810119047619,
+        "pr_auc": 0.9992135253140111
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.02325,
+        "auroc": 0.6455443452380952,
+        "pr_auc": 0.9264040840910791
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.0119375,
+        "auroc": 0.6058967261904762,
+        "pr_auc": 0.9149157369565135
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.0246875,
+        "auroc": 0.67327,
+        "pr_auc": 0.929412957157129
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.0234375,
+        "auroc": 0.6311591666666667,
+        "pr_auc": 0.9262799387336041
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.016625,
+        "auroc": 0.6707224404761905,
+        "pr_auc": 0.923144449506149
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.97225,
+        "auroc": 0.9929640773809525,
+        "pr_auc": 0.999122836659321,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "16": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.7295,
+        "auroc": 0.9579744940476191,
+        "pr_auc": 0.9944199610302312
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9835625,
+        "auroc": 0.9954036309523809,
+        "pr_auc": 0.9994313218746147
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9814375,
+        "auroc": 0.9927247321428572,
+        "pr_auc": 0.9991078712679446
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9814375,
+        "auroc": 0.9927247321428572,
+        "pr_auc": 0.9991078712679446
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.2450625,
+        "auroc": 0.8347992261904762,
+        "pr_auc": 0.9738777914632752
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9534375,
+        "auroc": 0.9879616964285713,
+        "pr_auc": 0.998510758701247
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.2448125,
+        "auroc": 0.8588452976190477,
+        "pr_auc": 0.9767621883213203
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.9435,
+        "auroc": 0.988881755952381,
+        "pr_auc": 0.998615247972241
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.0921875,
+        "auroc": 0.8439215476190477,
+        "pr_auc": 0.9676160410248507
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9815,
+        "auroc": 0.9924735119047619,
+        "pr_auc": 0.9990773689760437,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "17": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9566875,
+        "auroc": 0.9792225446428572,
+        "pr_auc": 0.9974544453470984
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.95775,
+        "auroc": 0.9852900297619048,
+        "pr_auc": 0.9981816708835078
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9610625,
+        "auroc": 0.9822453869047619,
+        "pr_auc": 0.9978185486455617
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9610625,
+        "auroc": 0.9822453869047619,
+        "pr_auc": 0.9978185486455617
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.9484375,
+        "auroc": 0.9792157738095237,
+        "pr_auc": 0.9974315526328474
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.959375,
+        "auroc": 0.9814008928571429,
+        "pr_auc": 0.9977196640713888
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.949125,
+        "auroc": 0.9819329464285714,
+        "pr_auc": 0.9977516779137947
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.9613125,
+        "auroc": 0.9847219345238096,
+        "pr_auc": 0.9981179522636752
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.15425,
+        "auroc": 0.9366430952380952,
+        "pr_auc": 0.9859444076964002
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.961375,
+        "auroc": 0.9821020238095237,
+        "pr_auc": 0.9978009243894577,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "18": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9295625,
+        "auroc": 0.9689286458333334,
+        "pr_auc": 0.996149104649653
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9323125,
+        "auroc": 0.977943630952381,
+        "pr_auc": 0.9972413379575742
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9404375,
+        "auroc": 0.9739248214285715,
+        "pr_auc": 0.9967742256586609
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9404375,
+        "auroc": 0.9739248214285715,
+        "pr_auc": 0.9967742256586609
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.9186875,
+        "auroc": 0.9681132738095238,
+        "pr_auc": 0.9960170158409483
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.93425,
+        "auroc": 0.9721312797619048,
+        "pr_auc": 0.9965556135820701
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.919125,
+        "auroc": 0.9719897619047619,
+        "pr_auc": 0.9964742171072205
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.93425,
+        "auroc": 0.9745069047619047,
+        "pr_auc": 0.996835556313352
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.8999375,
+        "auroc": 0.9692206845238095,
+        "pr_auc": 0.9960793458854371
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.941375,
+        "auroc": 0.9740072321428572,
+        "pr_auc": 0.9967827566653762,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "19": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9730625,
+        "auroc": 0.9936217559523809,
+        "pr_auc": 0.9992066886915962
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.9435625,
+        "auroc": 0.9943919047619048,
+        "pr_auc": 0.9992953882369251
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.9965625,
+        "auroc": 0.9995567857142857,
+        "pr_auc": 0.9999445695666955
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.9965625,
+        "auroc": 0.9995567857142857,
+        "pr_auc": 0.9999445695666955
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.9620625,
+        "auroc": 0.9927680952380953,
+        "pr_auc": 0.9990950997787671
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9774375,
+        "auroc": 0.9960779761904761,
+        "pr_auc": 0.99950848082903
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.483375,
+        "auroc": 0.9736006845238095,
+        "pr_auc": 0.9949340664921904
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.96175,
+        "auroc": 0.9953634226190476,
+        "pr_auc": 0.9994149141815496
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.031,
+        "auroc": 0.8324057440476191,
+        "pr_auc": 0.9572769456161748
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.9965625,
+        "auroc": 0.999502767857143,
+        "pr_auc": 0.9999373923142747,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    },
+    "20": {
+      "lstm_ae": {
+        "threshold": 0.690877351164818,
+        "fdr": 0.9375,
+        "auroc": 0.9724310714285714,
+        "pr_auc": 0.9965940587490891
+      },
+      "cva_T2": {
+        "threshold": 88.81379985394132,
+        "fdr": 0.937625,
+        "auroc": 0.9809730059523809,
+        "pr_auc": 0.9976234363609129
+      },
+      "cva_Q": {
+        "threshold": 194.63167693675416,
+        "fdr": 0.95425,
+        "auroc": 0.9796563095238096,
+        "pr_auc": 0.997494292815571
+      },
+      "cva_Tr": {
+        "threshold": 194.6316769367534,
+        "fdr": 0.95425,
+        "auroc": 0.9796563095238096,
+        "pr_auc": 0.997494292815571
+      },
+      "dpca_T2": {
+        "threshold": 99.31889062324608,
+        "fdr": 0.925,
+        "auroc": 0.9717544047619047,
+        "pr_auc": 0.996481358238847
+      },
+      "dpca_SPE": {
+        "threshold": 24.042937904574583,
+        "fdr": 0.9434375,
+        "auroc": 0.9766768452380952,
+        "pr_auc": 0.9971232271907493
+      },
+      "pca_t2": {
+        "threshold": 38.684314453063564,
+        "fdr": 0.8338125,
+        "auroc": 0.9702622023809523,
+        "pr_auc": 0.9960634926024208
+      },
+      "pca_spe": {
+        "threshold": 6.33119388733703,
+        "fdr": 0.944,
+        "auroc": 0.9788344642857143,
+        "pr_auc": 0.9973801803645885
+      },
+      "iforest": {
+        "threshold": 0.485393019221434,
+        "fdr": 0.134,
+        "auroc": 0.9136147916666666,
+        "pr_auc": 0.9813781517048549
+      },
+      "fused": {
+        "threshold": 1.0,
+        "fdr": 0.95475,
+        "auroc": 0.9795769047619048,
+        "pr_auc": 0.997484619436942,
+        "note": "OR of lstm_ae and cva_Q at their 1% window thresholds"
+      }
+    }
+  },
+  "window_calibrated_thresholds": {
+    "lstm_ae": 0.690877351164818,
+    "cva_T2": 88.81379985394132,
+    "cva_Q": 194.63167693675416,
+    "cva_Tr": 194.6316769367534,
+    "dpca_T2": 99.31889062324608,
+    "dpca_SPE": 24.042937904574583,
+    "pca_t2": 38.684314453063564,
+    "pca_spe": 6.33119388733703,
+    "iforest": 0.485393019221434,
+    "fused": 1.0056438881583958
+  },
+  "window_calibration": {
+    "source": "data\\raw\\normal\\TEP_FaultFree_Training.csv",
+    "run_range": [
+      401,
+      500
+    ],
+    "target_far": 0.01,
+    "note": "Quantile 0.99 of per-detector window scores on the dynamic threshold holdout runs. Used only for the secondary operating point; the headline numbers use the stored artifact thresholds."
+  },
+  "far": {
+    "n_runs": 500,
+    "runs": [
+      1,
+      500
+    ],
+    "lstm_ae": {
+      "threshold": 0.687,
+      "far_window": 0.01656353591160221,
+      "far_run": 0.306,
+      "events_per_run": 0.346,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.012198895027624309
+    },
+    "cva_T2": {
+      "threshold": 127.53668805682571,
+      "far_window": 0.0,
+      "far_run": 0.0,
+      "events_per_run": 0.0,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.009756906077348066,
+      "far_sample": 0.009760252365930599,
+      "n_samples": 475500
+    },
+    "cva_Q": {
+      "threshold": 239.7537585586526,
+      "far_window": 0.0,
+      "far_run": 0.0,
+      "events_per_run": 0.0,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.010243093922651934,
+      "far_sample": 0.009400630914826498,
+      "n_samples": 475500
+    },
+    "cva_Tr": {
+      "threshold": 239.7537585586509,
+      "far_window": 0.0,
+      "far_run": 0.0,
+      "events_per_run": 0.0,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.010243093922651934,
+      "far_sample": 0.009400630914826498,
+      "n_samples": 475500
+    },
+    "dpca_T2": {
+      "threshold": 124.2545043110347,
+      "far_window": 0.0,
+      "far_run": 0.0,
+      "events_per_run": 0.0,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.010011049723756906,
+      "far_sample": 0.010077324973876698,
+      "n_samples": 478500
+    },
+    "dpca_SPE": {
+      "threshold": 40.90695453194048,
+      "far_window": 0.0,
+      "far_run": 0.0,
+      "events_per_run": 0.0,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.006861878453038674,
+      "far_sample": 0.009575757575757576,
+      "n_samples": 478500
+    },
+    "pca_t2": {
+      "threshold": 52.080309471403034,
+      "far_window": 0.0,
+      "far_run": 0.0,
+      "events_per_run": 0.0,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.012143646408839779,
+      "far_sample": 0.010710416666666667,
+      "n_samples": 480000
+    },
+    "pca_spe": {
+      "threshold": 11.870328093296951,
+      "far_window": 0.0,
+      "far_run": 0.0,
+      "events_per_run": 0.0,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.012441988950276242,
+      "far_sample": 0.01005625,
+      "n_samples": 480000
+    },
+    "iforest": {
+      "threshold": 0.5104408454232716,
+      "far_window": 0.000430939226519337,
+      "far_run": 0.008,
+      "events_per_run": 0.008,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.010176795580110497,
+      "far_sample": 0.01131875,
+      "n_samples": 480000
+    },
+    "fused": {
+      "threshold": 1.0,
+      "far_window": 0.01656353591160221,
+      "far_run": 0.306,
+      "events_per_run": 0.346,
+      "n_windows": 90500,
+      "far_window_at_recal": 0.012198895027624309
+    }
+  },
+  "far_disjoint_from_calibration": {
+    "far_source_file": "data\\raw\\normal\\TEP_FaultFree_Testing.csv",
+    "far_runs": [
+      1,
+      500
+    ],
+    "n_far_runs": 500,
+    "calibration_sources": {
+      "data\\raw\\normal\\TEP_FaultFree_Training.csv": 500
+    },
+    "overlapping_files": [],
+    "overlapping_runs": [],
+    "ok": true
+  },
+  "baselines": {
+    "fit_source": "data\\raw\\normal\\TEP_FaultFree_Training.csv",
+    "n_fit_samples": 100000,
+    "pca_components": 31,
+    "target_far": 0.01
+  }
+}

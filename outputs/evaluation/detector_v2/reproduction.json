@@ -1,0 +1,163 @@
+{
+  "threshold": 0.687,
+  "source": "data\\raw\\faults\\TEP_Faulty_Training.csv",
+  "faults": [
+    1,
+    3,
+    4,
+    9,
+    15
+  ],
+  "comparison": {
+    "1": {
+      "computed": {
+        "runs": 500,
+        "mean_max": 34.96317284011841,
+        "median_max": 34.854248046875,
+        "std_max": 1.7672107530646832,
+        "window_rate": 1.0,
+        "event_rate": 1.0,
+        "mean_delay_windows": 0.0,
+        "mean_false_before": 21.0
+      },
+      "published": {
+        "runs": 500,
+        "mean_max": 34.96337433624267,
+        "median_max": 34.854042053222656,
+        "std_max": 1.7675216612537241,
+        "window_rate": 1.0,
+        "event_rate": 1.0,
+        "mean_delay_windows": 0.0,
+        "mean_false_before": null
+      },
+      "delta": {
+        "mean_max": -0.00020149612426223484,
+        "median_max": 0.00020599365234375,
+        "std_max": -0.0003109081890408927,
+        "window_rate": 0.0,
+        "event_rate": 0.0,
+        "mean_delay_windows": 0.0
+      }
+    },
+    "3": {
+      "computed": {
+        "runs": 500,
+        "mean_max": 0.6779105814695359,
+        "median_max": 0.6771964430809021,
+        "std_max": 0.01931645705627952,
+        "window_rate": 0.294,
+        "event_rate": 0.12,
+        "mean_delay_windows": 41.224489795918366,
+        "mean_false_before": 0.198
+      },
+      "published": {
+        "runs": 500,
+        "mean_max": 0.6779100556373596,
+        "median_max": 0.6771936416625977,
+        "std_max": 0.01931660454088196,
+        "window_rate": 0.294,
+        "event_rate": 0.118,
+        "mean_delay_windows": 41.25850340136054,
+        "mean_false_before": null
+      },
+      "delta": {
+        "mean_max": 5.258321762457996e-07,
+        "median_max": 2.8014183044433594e-06,
+        "std_max": -1.4748460243699246e-07,
+        "window_rate": 0.0,
+        "event_rate": 0.0020000000000000018,
+        "mean_delay_windows": -0.03401360544217624
+      }
+    },
+    "4": {
+      "computed": {
+        "runs": 500,
+        "mean_max": 1.5870843131542205,
+        "median_max": 1.585458219051361,
+        "std_max": 0.022743392546007737,
+        "window_rate": 1.0,
+        "event_rate": 1.0,
+        "mean_delay_windows": 0.0,
+        "mean_false_before": 21.0
+      },
+      "published": {
+        "runs": 500,
+        "mean_max": 1.587077805519104,
+        "median_max": 1.5854508876800537,
+        "std_max": 0.022743656991739525,
+        "window_rate": 1.0,
+        "event_rate": 1.0,
+        "mean_delay_windows": 0.0,
+        "mean_false_before": null
+      },
+      "delta": {
+        "mean_max": 6.507635116559385e-06,
+        "median_max": 7.331371307373047e-06,
+        "std_max": -2.644457317881044e-07,
+        "window_rate": 0.0,
+        "event_rate": 0.0,
+        "mean_delay_windows": 0.0
+      }
+    },
+    "9": {
+      "computed": {
+        "runs": 500,
+        "mean_max": 0.6787875497341156,
+        "median_max": 0.6777898073196411,
+        "std_max": 0.01929361130840458,
+        "window_rate": 0.304,
+        "event_rate": 0.132,
+        "mean_delay_windows": 40.32236842105263,
+        "mean_false_before": 0.21
+      },
+      "published": {
+        "runs": 500,
+        "mean_max": 0.6787876143455506,
+        "median_max": 0.677791565656662,
+        "std_max": 0.01929354152042819,
+        "window_rate": 0.298,
+        "event_rate": 0.126,
+        "mean_delay_windows": 40.281879194630875,
+        "mean_false_before": null
+      },
+      "delta": {
+        "mean_max": -6.461143498004418e-08,
+        "median_max": -1.7583370208740234e-06,
+        "std_max": 6.978797638737544e-08,
+        "window_rate": 0.006000000000000005,
+        "event_rate": 0.006000000000000005,
+        "mean_delay_windows": 0.04048922642175512
+      }
+    },
+    "15": {
+      "computed": {
+        "runs": 500,
+        "mean_max": 0.6844899171590805,
+        "median_max": 0.683037668466568,
+        "std_max": 0.019915955395145287,
+        "window_rate": 0.41,
+        "event_rate": 0.204,
+        "mean_delay_windows": 39.292682926829265,
+        "mean_false_before": 0.364
+      },
+      "published": {
+        "runs": 500,
+        "mean_max": 0.684489742398262,
+        "median_max": 0.6830354034900665,
+        "std_max": 0.019916269796822542,
+        "window_rate": 0.406,
+        "event_rate": 0.196,
+        "mean_delay_windows": 39.16256157635468,
+        "mean_false_before": null
+      },
+      "delta": {
+        "mean_max": 1.7476081848322167e-07,
+        "median_max": 2.2649765014648438e-06,
+        "std_max": -3.1440167725521606e-07,
+        "window_rate": 0.003999999999999948,
+        "event_rate": 0.00799999999999998,
+        "mean_delay_windows": 0.13012135047458173
+      }
+    }
+  }
+}

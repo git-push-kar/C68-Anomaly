@@ -194,3 +194,66 @@ revision only by explicit change of mind.
 6. **`window_size 60 / stride 5` is kept** for comparability with the existing
    detector and recorded as a limitation: it was calibrated on the 500-sample
    Training runs, not the 960-sample benchmark runs.
+
+---
+
+## 8. Detector operating point and the observable set (Phase 1)
+
+Measured by `scripts/evaluate_detector_v2.py` on Protocol A (`val` = runs
+301–400, `test` = runs 401–500, one run per fault, 960 samples, onset 160).
+Full numbers: `docs/reports/phase_1_report.md` and
+`outputs/evaluation/detector_v2/`.
+
+### 8.1 Definitions used here
+
+- **Window label:** a window is positive if it *contains* a post-onset sample
+  (`start + 60 > 160`). The legacy evaluator labelled by `start >= 160`, which
+  counts 12 windows per run as negatives while they already contain fault data,
+  and then books their alarms as pre-onset false alarms. That is why the
+  published `false_before_onset` was 21 for every strong fault.
+- **FDR:** fraction of labelled-positive windows above threshold. This is a
+  window-level detection fraction, not a run-level detection rate; both are
+  recorded per fault.
+- **Delay:** samples from onset to the completing sample of the first confirmed
+  alarm (3 consecutive windows above threshold). The legacy delay was measured
+  to the window *start*, so it is smaller by up to 59 samples.
+
+### 8.2 The frozen detector's operating point
+
+| Quantity | LSTM | CVA Q | DPCA SPE | PCA T² | Isolation Forest |
+|---|---|---|---|---|---|
+| FAR, window | 1.66% | 0.00% | 0.00% | 0.00% | 0.04% |
+| FAR, sample | – | 0.94% | 0.96% | 1.07% | 1.13% |
+| FAR, run (event) | 30.6% | 0.0% | 0.0% | 0.0% | 0.8% |
+
+FAR is measured on all 500 `TEP_FaultFree_Testing` runs, which are disjoint from
+every calibration run (`far_disjoint_from_calibration.ok = true`, verified by
+the script, not by assumption).
+
+**Consequence for the benchmark:** at the frozen thresholds the fused detector
+raises an event on **30.6% of fault-free runs** (0.35 events per normal run).
+The dynamic detectors and the baselines were thresholded per *sample* at p99;
+with a 60-sample window mean their window FAR collapses to ~0, so the OR-gate is
+in practice the LSTM alone. Fault 15 swings from 7.7% to 97.2% fused FDR when
+the same detectors are put at a common 1% *window* FAR (thresholds fitted on
+the dynamic threshold holdout, `TEP_FaultFree_Training` runs 401–500 — never on
+the FAR set).
+
+### 8.3 Proposed observable set (PROPOSED — owner to approve)
+
+Rule (owner decision 2): observable = fused-detector FDR ≥ 5% on Protocol A
+`val`.
+
+- Applying the rule to the **frozen artifacts** gives **observable = 18 faults,
+excluded = {3, 9}** (fused FDR 2.4% and 2.5%). `test` agrees exactly: 1.8% and
+2.0%, same two faults. Fault 15 sits just above the line at 7.7% (`test` 8.0%).
+- At the **window-calibrated** operating point the set is **observable = 19,
+excluded = {3}**: fault 9 rises to 6.6% and fault 15 to 97.2%, so the 5% rule
+no longer excludes 9 even though its AUROC stays at 0.54 and it is detected in
+only 40% of runs.
+
+Recommendation: keep `{3, 9}` excluded and report fault 15 with a note, but fix
+the threshold chain (re-fit the dynamic thresholds at window level on the
+holdout runs) before Phase 2A generates events, because a 30.6% run-level FAR
+means roughly one in three normal runs would produce an event for the adapter
+to explain. Both the set and the FAR are owner decisions, not silent defaults.
