@@ -1,0 +1,1621 @@
+{
+  "version": "v2",
+  "repo": "C:/Users/Admin/Desktop/anomaly",
+  "base_commit": "4d4b3be",
+  "created": "2026-10-29",
+  "built_by": "scripts/build_splits_v2.py",
+  "unique_key": [
+    "source_file",
+    "faultNumber",
+    "simulationRun"
+  ],
+  "key_note": "Every scored item is identified by this triple. source_file is part of the key because the two faulty CSVs use different run lengths and onsets and must never be pooled.",
+  "source": {
+    "file": "data/raw/faults/TEP_Faulty_Testing.csv",
+    "samplesPerRun": 960,
+    "faultOnsetIndex": 160,
+    "runsPerFault": 500,
+    "simulationRunMin": 1,
+    "simulationRunMax": 500,
+    "faults": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "measured": "Verified on 2026-10-29 by scanning the raw CSV: 500 runs/fault, 960 samples/run, fault-free baseline from TEP_FaultFree_Testing.csv, and the first sustained >=4-sigma departure of the across-run mean at sample 161 for the step faults (faults 4/5/6/7), i.e. the documented 0-based onset 160.",
+    "not_used": {
+      "data/raw/faults/TEP_Faulty_Training.csv": "500 samples/run and onset 20 -- a different run shape. Pumping both files into one benchmark would make run length and pre-anomaly context depend on the file, and windowing.block_samples=500 assumes this shape."
+    }
+  },
+  "fault_scope": {
+    "headline": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "open_set": [
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "unobservable": [
+      3,
+      9
+    ],
+    "synthetic_only": [
+      21,
+      22
+    ]
+  },
+  "label_policy": {
+    "FAULT_01..FAULT_15": "the adapter must name the fault",
+    "UNCLASSIFIED_OPEN_SET": "faults 16-20: their KB names are 'Unknown disturbance in ...', so the accepted label is the open-set label, not the specific number",
+    "FAULT_03/FAULT_09": "flagged unobservable; scored and reported separately, not dropped",
+    "synthetic": "faults 21/22 are synthetic-only, non-headline, and labelled 'synthetic' wherever shown"
+  },
+  "protocols": {
+    "A_seen_faults_run_disjoint": {
+      "description": "Seen faults, run-disjoint. Every real fault 1-20 appears in train, val and test, but each split uses a disjoint block of simulation runs (1-300 / 301-400 / 401-500), so no run is shared. This measures in-distribution diagnosis with run-level holdout.",
+      "constraints": {
+        "fault_disjoint_across_splits": false
+      },
+      "splits": {
+        "train": {
+          "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+          "assignment": "All faults 1-20, run-disjoint blocks.",
+          "faults": [
+            {
+              "faultNumber": 1,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 2,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 3,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 4,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 5,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 6,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 7,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 8,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 9,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 10,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 11,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 12,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 13,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 14,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 15,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 16,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 17,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 18,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 19,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            },
+            {
+              "faultNumber": 20,
+              "simulationRunRange": [
+                1,
+                300
+              ],
+              "runCount": 300
+            }
+          ],
+          "sha256": {
+            "train": "92b957f62d0e3f1feaa8b20880ee0bc605a76fa67a2f121b72371d9ff343bac4",
+            "val": "a19c647a4b29d8c0e45324bf5cb85fe4bf394c092eb3df62636698d85011cc53",
+            "test": "b82892ad4f73b9265d653dcd22e1358fc3aa76e7c40dfbc3b87b849b26951087",
+            "all": "cbf1c20bb98c6a2ff22b30de71efb926997dbde28b7e5639c96064962f7e6569"
+          }
+        },
+        "val": {
+          "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+          "assignment": "All faults 1-20, run-disjoint blocks.",
+          "faults": [
+            {
+              "faultNumber": 1,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 2,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 3,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 4,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 5,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 6,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 7,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 8,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 9,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 10,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 11,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 12,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 13,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 14,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 15,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 16,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 17,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 18,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 19,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 20,
+              "simulationRunRange": [
+                301,
+                400
+              ],
+              "runCount": 100
+            }
+          ],
+          "sha256": {
+            "train": "92b957f62d0e3f1feaa8b20880ee0bc605a76fa67a2f121b72371d9ff343bac4",
+            "val": "a19c647a4b29d8c0e45324bf5cb85fe4bf394c092eb3df62636698d85011cc53",
+            "test": "b82892ad4f73b9265d653dcd22e1358fc3aa76e7c40dfbc3b87b849b26951087",
+            "all": "cbf1c20bb98c6a2ff22b30de71efb926997dbde28b7e5639c96064962f7e6569"
+          }
+        },
+        "test": {
+          "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+          "assignment": "All faults 1-20, run-disjoint blocks.",
+          "faults": [
+            {
+              "faultNumber": 1,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 2,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 3,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 4,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 5,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 6,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 7,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 8,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 9,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 10,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 11,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 12,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 13,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 14,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 15,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 16,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 17,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 18,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 19,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            },
+            {
+              "faultNumber": 20,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "runCount": 100
+            }
+          ],
+          "sha256": {
+            "train": "92b957f62d0e3f1feaa8b20880ee0bc605a76fa67a2f121b72371d9ff343bac4",
+            "val": "a19c647a4b29d8c0e45324bf5cb85fe4bf394c092eb3df62636698d85011cc53",
+            "test": "b82892ad4f73b9265d653dcd22e1358fc3aa76e7c40dfbc3b87b849b26951087",
+            "all": "cbf1c20bb98c6a2ff22b30de71efb926997dbde28b7e5639c96064962f7e6569"
+          }
+        }
+      },
+      "unused_runs": []
+    },
+    "B_leave_faults_out": {
+      "description": "Leave-faults-out. Held-out faults are removed from train and val entirely and evaluated in test over all 500 runs. Seen faults keep runs 401-500 unused so that test contains only held-out faults.",
+      "constraints": {
+        "fault_disjoint_across_splits": true
+      },
+      "folds": {
+        "fold_1_cooling_loop_holdout": {
+          "held_out_faults": [
+            4,
+            11,
+            15
+          ],
+          "note": "Holds out the reactor-cooling step fault (4), its random-variation analogue (11) and the condenser sticking fault (15). Their KB differential siblings stay in train: 14 (sibling of 4), 5 (sibling of 15) and 12 (condenser-loop counterpart of 11). The KB links 11 to 4/14, not to 12; 12 is kept for structural symmetry only.",
+          "constraints": {
+            "fault_disjoint_across_splits": true
+          },
+          "splits": {
+            "train": {
+              "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+              "assignment": "Seen faults: train 1-300, val 301-400. Held-out faults: all 500 runs in test only.",
+              "faults": [
+                {
+                  "faultNumber": 1,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 2,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 3,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 5,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 6,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 7,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 8,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 9,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 10,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 12,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 13,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 14,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 16,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 17,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 18,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 19,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 20,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                }
+              ],
+              "sha256": {
+                "train": "deee7839bc6217a8c0e853d8beaf0275431a38a910c3e8d2709fd005f02b59c7",
+                "val": "62e7a88624779611d6d51e8e56e848bffd5718aa26200b90e37d5d955248f72d",
+                "test": "64383da1e031e9972f6a6e013fd8faac4328d4f22d9b13c16b80055f77b5d099",
+                "all": "e056c5657c55a4b0a7e3b0f924e24fdf317e6ecec57739ee05824d00dc05431d"
+              }
+            },
+            "val": {
+              "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+              "assignment": "Seen faults: train 1-300, val 301-400. Held-out faults: all 500 runs in test only.",
+              "faults": [
+                {
+                  "faultNumber": 1,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 2,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 3,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 5,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 6,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 7,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 8,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 9,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 10,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 12,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 13,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 14,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 16,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 17,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 18,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 19,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 20,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                }
+              ],
+              "sha256": {
+                "train": "deee7839bc6217a8c0e853d8beaf0275431a38a910c3e8d2709fd005f02b59c7",
+                "val": "62e7a88624779611d6d51e8e56e848bffd5718aa26200b90e37d5d955248f72d",
+                "test": "64383da1e031e9972f6a6e013fd8faac4328d4f22d9b13c16b80055f77b5d099",
+                "all": "e056c5657c55a4b0a7e3b0f924e24fdf317e6ecec57739ee05824d00dc05431d"
+              }
+            },
+            "test": {
+              "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+              "assignment": "Seen faults: train 1-300, val 301-400. Held-out faults: all 500 runs in test only.",
+              "faults": [
+                {
+                  "faultNumber": 4,
+                  "simulationRunRange": [
+                    1,
+                    500
+                  ],
+                  "runCount": 500
+                },
+                {
+                  "faultNumber": 11,
+                  "simulationRunRange": [
+                    1,
+                    500
+                  ],
+                  "runCount": 500
+                },
+                {
+                  "faultNumber": 15,
+                  "simulationRunRange": [
+                    1,
+                    500
+                  ],
+                  "runCount": 500
+                }
+              ],
+              "sha256": {
+                "train": "deee7839bc6217a8c0e853d8beaf0275431a38a910c3e8d2709fd005f02b59c7",
+                "val": "62e7a88624779611d6d51e8e56e848bffd5718aa26200b90e37d5d955248f72d",
+                "test": "64383da1e031e9972f6a6e013fd8faac4328d4f22d9b13c16b80055f77b5d099",
+                "all": "e056c5657c55a4b0a7e3b0f924e24fdf317e6ecec57739ee05824d00dc05431d"
+              }
+            }
+          },
+          "unused_runs": [
+            {
+              "faultNumber": 1,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 2,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 3,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 5,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 6,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 7,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 8,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 9,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 10,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 12,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 13,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 14,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 16,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 17,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 18,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 19,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 20,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            }
+          ]
+        },
+        "fold_2_valve_sticking_family": {
+          "held_out_faults": [
+            14,
+            15
+          ],
+          "note": "Holds out the valve-sticking family (14, 15) so both members of the stiction pair are unseen while their step-change siblings 4 and 5 remain in train.",
+          "constraints": {
+            "fault_disjoint_across_splits": true
+          },
+          "splits": {
+            "train": {
+              "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+              "assignment": "Seen faults: train 1-300, val 301-400. Held-out faults: all 500 runs in test only.",
+              "faults": [
+                {
+                  "faultNumber": 1,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 2,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 3,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 4,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 5,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 6,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 7,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 8,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 9,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 10,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 11,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 12,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 13,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 16,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 17,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 18,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 19,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                },
+                {
+                  "faultNumber": 20,
+                  "simulationRunRange": [
+                    1,
+                    300
+                  ],
+                  "runCount": 300
+                }
+              ],
+              "sha256": {
+                "train": "185efd2dd1bee0216ea9dd5f942f8e915e5ae152de4ee6e3c02c2fb83a065cf9",
+                "val": "12930060c87305c73bb2fc0759bb751adfc15b759e26a6c1d9f979bccdf6e886",
+                "test": "b65240cd63cd5b49bdb11de60b2cc12d25b3f8981d64184dd80adbf92d27a9e0",
+                "all": "add7f16498ca5fc5070837391b2a4fd17b29b5127eb89e7745b565db80ca63f8"
+              }
+            },
+            "val": {
+              "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+              "assignment": "Seen faults: train 1-300, val 301-400. Held-out faults: all 500 runs in test only.",
+              "faults": [
+                {
+                  "faultNumber": 1,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 2,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 3,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 4,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 5,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 6,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 7,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 8,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 9,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 10,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 11,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 12,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 13,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 16,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 17,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 18,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 19,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                },
+                {
+                  "faultNumber": 20,
+                  "simulationRunRange": [
+                    301,
+                    400
+                  ],
+                  "runCount": 100
+                }
+              ],
+              "sha256": {
+                "train": "185efd2dd1bee0216ea9dd5f942f8e915e5ae152de4ee6e3c02c2fb83a065cf9",
+                "val": "12930060c87305c73bb2fc0759bb751adfc15b759e26a6c1d9f979bccdf6e886",
+                "test": "b65240cd63cd5b49bdb11de60b2cc12d25b3f8981d64184dd80adbf92d27a9e0",
+                "all": "add7f16498ca5fc5070837391b2a4fd17b29b5127eb89e7745b565db80ca63f8"
+              }
+            },
+            "test": {
+              "source_file": "data/raw/faults/TEP_Faulty_Testing.csv",
+              "assignment": "Seen faults: train 1-300, val 301-400. Held-out faults: all 500 runs in test only.",
+              "faults": [
+                {
+                  "faultNumber": 14,
+                  "simulationRunRange": [
+                    1,
+                    500
+                  ],
+                  "runCount": 500
+                },
+                {
+                  "faultNumber": 15,
+                  "simulationRunRange": [
+                    1,
+                    500
+                  ],
+                  "runCount": 500
+                }
+              ],
+              "sha256": {
+                "train": "185efd2dd1bee0216ea9dd5f942f8e915e5ae152de4ee6e3c02c2fb83a065cf9",
+                "val": "12930060c87305c73bb2fc0759bb751adfc15b759e26a6c1d9f979bccdf6e886",
+                "test": "b65240cd63cd5b49bdb11de60b2cc12d25b3f8981d64184dd80adbf92d27a9e0",
+                "all": "add7f16498ca5fc5070837391b2a4fd17b29b5127eb89e7745b565db80ca63f8"
+              }
+            }
+          },
+          "unused_runs": [
+            {
+              "faultNumber": 1,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 2,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 3,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 4,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 5,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 6,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 7,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 8,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 9,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 10,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 11,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 12,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 13,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 16,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 17,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 18,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 19,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            },
+            {
+              "faultNumber": 20,
+              "simulationRunRange": [
+                401,
+                500
+              ],
+              "reason": "reserved so test holds only held-out faults"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "synthetic": {
+    "faults": [
+      21,
+      22
+    ],
+    "headline_eligible": false,
+    "label_required": "synthetic",
+    "note": "These faults exist only in generated data and in no split above. If scored at all, the row, table cell and caption must say synthetic.",
+    "provenance": {
+      "data/llm": "v0 distillation: all 22 fault IDs in train/val/test (all_faults_in_train=true).",
+      "data/llm_v1": "v1 fault-disjoint holdout: train includes 22, test includes 21, so its test set mixes real fault 15 with synthetic 21."
+    }
+  }
+}
