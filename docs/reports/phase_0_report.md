@@ -248,28 +248,194 @@ KB tag audit (inside `tests/test_tags.py`): 22 faults, 0 invalid tags,
 
 ---
 
-## 8. Estimated cost of Phases 1 and 2A
+## 8. Estimated cost of Phases 1 and 2A *(revised 2026-10-29)*
 
-Estimates, not measurements. The only measured anchor is the existing training
-run: 8,877 s (≈2 h 28 m) per seed on the A5000.
+Definitions (owner decision):
 
-**Phase 1 — event extraction, retrain, evaluate under A and B**
+* **Phase 1 = detector evaluation + baselines. No LLM training.**
+* **Phase 2A = response-layer code, CPU only.**
+* LLM training is a separate line item below, not part of Phase 1.
 
-| Work | Estimate |
-|---|---|
-| Event extraction from the Testing CSV (9.6 M rows, 20 faults) | 1–2 h CPU, no GPU |
-| Training, 3 seeds × 2 h 28 m | ≈ 7.5 GPU-hours |
-| Evaluation: A test 2,000 + B fold_1 1,500 + B fold_2 1,000 = 4,500 items per seed × 3 = 13,500 generations | 7–15 GPU-hours at an assumed 2–4 s/item (must be measured) |
-| **Total** | **≈ 15–23 GPU-hours**, roughly 1–2 days wall-clock with review |
-| Optional severity fix (regenerate answers + retrain) | +2–3 days wall-clock, +7.5 GPU-hours |
+Measured anchor: **8,877 s for 2,376 training examples** (3 epochs) → 3.736 s
+per example for a full run.
 
-**Phase 2A — evaluator rewrite, item generation, routing evaluation**
+**Phase 1 — detector evaluation and baselines (no LLM training)**
 
 | Work | Estimate |
 |---|---|
-| Evaluator rewrite (exact label matching, tag-aware allowed set, table check) + item generator + tests | 1–2 days CPU |
-| Routing/format evaluation, 200-item sample × 3 seeds | < 1 GPU-hour |
-| Adversarial items per intent (11 + 3 proposed) | 0.5 day CPU |
+| Window/feature prep on the Testing file (2,000 runs × 181 windows ≈ 362k windows) | 1–2 h CPU |
+| Fused detector scoring (LSTM AE + CVA/DPCA) over Protocol A val/test | < 1 GPU-hour, batched |
+| Threshold fitting on 100 fault-free runs | minutes |
+| Baseline comparison (PCA/DPCA/CVA plus smoothing sweeps) | 2–4 h GPU |
+| **Total** | **≈ 2–4 GPU-hours**, roughly 0.5–1 day wall-clock |
 
-Costs scale linearly with events per run (open question 3); one event per run is
-the cheapest defensible setting.
+**Phase 2A — response layer (CPU only)**
+
+| Work | Estimate |
+|---|---|
+| Evaluator rewrite (exact labels, tag-aware allowed set, table checks) + item generator + tests | 1–2 days CPU |
+| Routing/format harness + adversarial items (11 live + 3 proposed intents) | 0.5–1 day CPU |
+| **Total** | **0 GPU-hours** |
+
+**LLM training (separate)** — per-run time scales linearly from the measured
+anchor: `t(N) = 8,877 s × N / 2,376`, with one event per run and a budget of
+100–150 runs per fault.
+
+| Configuration | Events | Hours per run | × 3 seeds |
+|---|---|---|---|
+| Protocol A | 2,000–3,000 | 2.1–3.1 | 6.2–9.3 |
+| fold_1 | 1,700–2,550 | 1.8–2.7 | 5.3–7.9 |
+| fold_2 | 1,800–2,700 | 1.9–2.8 | 5.6–8.4 |
+| **Total** | | | **≈ 17–26 GPU-hours** |
+
+Evaluation generation adds 8,000 items per seed (A `test` 2,000 + fold_1 `test`
+1,500 + `test_seen` 1,700 + fold_2 `test` 1,000 + `test_seen` 1,800) = 24,000
+generations across three seeds. **Inference speed is an assumption to be
+measured**: at 2–4 s/item that is 13–27 GPU-hours; under 1 s/item with batching
+it is ≈ 7 GPU-hours.
+
+---
+
+## 9. Addendum — Phase 0 patch (2026-10-29)
+
+### 9.1 Summary
+
+`test_seen` is added to both leave-faults-out folds; the three requested
+verifications are resolved; the owner decisions are recorded in
+`docs/PROTOCOL.md`; and the Phase 1 / 2A cost section is replaced. No model,
+prompt or training change was made.
+
+### 9.2 Verifications
+
+#### 2a — Are the 730,000-row fault arrays Training + Testing? **VERIFIED (order corrected)**
+
+Yes — but **Testing comes first**: the arrays are `Testing (480,000 rows)` then
+`Training (250,000 rows)`.
+
+| Check | Result |
+|---|---|
+| `fault_01.npy` shape | `(730000, 52)` = 480,000 + 250,000 |
+| rows `0:960` vs Testing fault 01 run 1 | **equal**, max abs diff **0.0** |
+| rows `480000:480500` vs Training fault 01 run 1 | **equal**, max abs diff **0.0** |
+| rebuilt array from the raw CSVs vs stored `fault_01.npy` | `np.array_equal` → **True** |
+| step response, Testing block (`xmv_4` = XMV_45) | offset < 160 → **61.30**, offset ≥ 170 → **57.64** (onset 160) |
+| step response, Training block | offset < 20 → **61.29**, offset ≥ 30 → **57.61** (onset 20) |
+| join at row 480,000 | **57.76** (Testing run 500, fault active) → **61.04** (Training run 1, fault-free) |
+
+Correction to §2 of this report: the arrays are not "stale/inconsistent". They
+are deliberate Testing+Training concatenations. The real inconsistency is that
+they pool two run shapes while `normal_values.npy` is Training-only — which is
+exactly why the benchmark takes events from the Testing file alone.
+
+#### 2b — Does `generate_real_rca_dataset.py:70-71` shift the onset? **VERIFIED: yes, by +20 samples**
+
+For Training fault 4 run 1, with `normal[:20] + df[:480]`:
+
+| Measure | Value |
+|---|---|
+| Raw Training fault 4 run 1: first sustained \|z\| ≥ 4 | **sample 20** |
+| Assembled stream: first sustained \|z\| ≥ 4 | **sample 40** |
+| Stream rows 20–39 vs faulty run rows 0–19 | **identical** (`allclose`) — i.e. pre-onset data |
+| Stream length vs faulty run | 500 vs 500; faulty run rows 480–499 (20 samples) dropped |
+
+The code declares `onset = 20`, but the stream keeps 20 fault-free samples from
+the normal prefix *plus* the faulty run's own 20 pre-onset samples, so the true
+onset is 40. Consequence: **detection delay measured against the declared onset
+is inflated by 20 samples (1 hour at 3-min sampling)**, the first 20 "post-onset"
+samples are fault-free noise, and every run loses its last 20 samples. The fault
+signal itself is not distorted, only displaced.
+
+#### 2c — Call sites of `resolve_onset_for_path` **VERIFIED: two, both filename-dependent**
+
+| Site | Role | Silent-default exposure |
+|---|---|---|
+| `preprocessing/tep_loader.py:256` | per-file onset while loading fault CSVs; files come from a `TEP_Faulty*` glob | names contain `Training`/`Testing`, so correct — but a renamed/copied file silently gets `faulty_training` (20) |
+| `main.py:520` | onset for a streaming-injected fault file (`inject_fault_file`) | ambiguous name → silent 20; `ValueError` → explicit fallback to `faulty_training` |
+
+Neither call site passes an explicit split, so neither *relies* on the default by
+design, but both can reach it silently. `resolve_onset_for_path` defaults any
+unrecognised path to `faulty_training` (`utils.py:366-372`).
+
+### 9.3 Changes
+
+| Commit | Change |
+|---|---|
+| `e723759` | `test_seen` component in both folds; builder, checker, split file, tests |
+| `7177e30` | PROTOCOL: owner decisions, abstention rule, observable-set headline, training budget |
+| this addendum | report + revised cost section |
+
+Split contents after the patch:
+
+| Fold | train | val | `test` (unseen) | `test_seen` (seen) |
+|---|---|---|---|---|
+| `fold_1_cooling_loop_holdout` | 17 × 300 = 5,100 | 17 × 100 = 1,700 | 3 × 500 = 1,500 | 17 × 100 = 1,700 |
+| `fold_2_valve_sticking_family` | 18 × 300 = 5,400 | 18 × 100 = 1,800 | 2 × 500 = 1,000 | 18 × 100 = 1,800 |
+
+Protocol A is unchanged. Every component records its own SHA-256, plus an `all`
+fingerprint; `test_seen` holds runs 401–500 of the fold's train faults.
+
+### 9.4 Commands and outputs
+
+```text
+$ python scripts/build_splits_v2.py --check
+UP TO DATE: ...\data\splits_v2.json
+
+$ python scripts/check_splits_v2.py
+B_leave_faults_out/fold_1_cooling_loop_holdout  (fault_disjoint=True)
+  train 17 5100 | val 17 1700 | test 3 1500 | test_seen 17 1700
+B_leave_faults_out/fold_2_valve_sticking_family  (fault_disjoint=True)
+  train 18 5400 | val 18 1800 | test 2 1000 | test_seen 18 1800
+PASS: unique keys, no train/val/test overlap, fault-disjoint where required,
+      faults 1-20 only, recorded sha256 matches.
+exit 0
+
+$ python -m pytest tests -q
+76 passed in 2.83s
+```
+
+New negative cases, both rejected as required:
+
+* a seen-fault run present in **both train and test_seen** → `both train and test_seen`
+* a **held-out fault inside test_seen** → `test_seen contains faults not present in train: [4]` **and** `held-out test faults [4] also appear in train/val/test_seen`
+
+### 9.5 Gate table
+
+| Gate | Result | Evidence |
+|---|---|---|
+| `test_seen` added to both folds, 17×100 / 18×100 | **PASS** | checker summary |
+| `test_seen` faults ⊆ train faults | **PASS** | enforced + positive test |
+| `test_seen` run-disjoint from train/val | **PASS** | pair-wise key checks |
+| held-out `test` faults disjoint from every other component | **PASS** | `fault_disjoint_across_splits` |
+| SHA-256 per component, rebuilt via builder | **PASS** | `--check` up to date, hashes recomputed |
+| Negative test: run in train and test_seen | **PASS** | rejected |
+| Negative test: held-out fault in test_seen | **PASS** | rejected |
+| Test suite | **PASS** | 76 passed, 0 failed |
+| PROTOCOL.md abstention + owner decisions | **PASS** | §2, §7 |
+| Verifications 2a / 2b / 2c | **PASS** | §9.2 |
+| LLM training / RQ numbers | **NOT VERIFIED** | no GPU, no training in Phase 0 |
+
+### 9.6 Deviations and one incident (disclosed)
+
+1. **Branch-switch artifact loss.** Switching to `check` (earlier request)
+   deleted files tracked there but absent on `benchmark-upgrade`:
+   `fault_values/fault_04.npy`, `fault_14.npy`, `normal_values.npy`,
+   `normal_*.npy`, `fault_metadata.json`, `window_metadata.json`. My restore
+   from `check` brought back **old 2,400-row** versions of `fault_04/14` and also
+   overwrote tracked files (`anomaly_detector_eval.json`, `manifests/`).
+   Repair: the tracked files were restored from `HEAD`; `fault_04`/`fault_14`
+   were rebuilt as Testing+Training (730,000 rows) using a rule proven exact on
+   the intact `fault_01.npy` (`np.array_equal` → True). All 20 arrays are now
+   730,000 rows. Committed work was never affected.
+2. **`unused_runs` removed** from the folds: those runs are now `test_seen`.
+3. **Checker wording changed** for fault disjointness, now naming `test_seen`.
+4. **No prompt, dataset or model change**; the rubric removal is recorded as an
+   owner decision to be applied in dataset v2.
+
+### 9.7 Open questions
+
+1. Observable-set headline needs the fused-detector FDR numbers — available only
+   after Phase 1.
+2. Inference speed is still an assumption; Phase 1 should measure it on the
+   actual event prompts.
+3. Phase 2A must define what counts as a refusal (empty answer, `unclassified`,
+   or an explicit decline) before `test_seen` false-abstention is scored.
