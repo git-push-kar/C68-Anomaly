@@ -38,6 +38,7 @@ outputs/**/*.pth
 outputs/**/*.safetensors
 outputs/**/*.bin
 outputs/**/*.pkl
+outputs/**/*.npz
 outputs/**/*.db
 outputs/**/*.sqlite
 # Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)

@@ -1,0 +1,53 @@
+{
+  "_note": "Frozen window-level operating point (Phase 1 patch, A3). Deployed v1 numbers keep using configs/detector_thresholds_v2.json; this file is the v2 point and is never mixed into a v1 table.",
+  "operating_point_id": "detector_v2_window_op_2026-10-30",
+  "smoothing": "none",
+  "fusion": "or",
+  "fusion_primary_dynamic": "cva_Q",
+  "window_size": 60,
+  "stride": 5,
+  "target_window_far": 0.01,
+  "persistence_windows": 12,
+  "thresholds": {
+    "lstm_ae": 0.6870414805412293,
+    "cva_Q": 194.63167266845704,
+    "dpca_SPE": 24.042938613891604
+  },
+  "selection_rule": "run-level FAR <= 5% on fault-free Testing 1-250, then smallest mean delay on Protocol A val (18 observable faults)",
+  "selection_evidence": {
+    "run_far_selection_half_1_250": 0.024,
+    "run_far_reporting_half_251_500": 0.016,
+    "mean_fdr_observable_18": 0.9821979166666667,
+    "mean_delay_observable_18": 18.349999999999998
+  },
+  "calibration_sources": {
+    "lstm_ae": "TEP_FaultFree_Training validation_runs (75 runs), detector_split.json",
+    "cva_Q": "TEP_FaultFree_Training runs 401-500 (dynamic threshold holdout)",
+    "dpca_SPE": "TEP_FaultFree_Training runs 401-500 (dynamic threshold holdout)",
+    "far_set": "TEP_FaultFree_Testing runs 1-500"
+  },
+  "secondary_statistics_not_recalibrated": [
+    "cva_T2",
+    "cva_Tr",
+    "dpca_T2"
+  ],
+  "secondary_note": "cva_T2, cva_Tr and dpca_T2 are diagnostic only: they never enter the OR-gate (primary dynamic = CVA Q) and never appear in a headline table. They stay at their v1 per-sample values so this file defines exactly the three statistics that are quoted, rather than a half-recalibrated detector.",
+  "not_used_for_selection": [
+    "TEP_FaultFree_Testing runs 251-500 (reporting only)",
+    "Protocol A test component",
+    "Protocol A validation FDR (reported as trade-off, not used to choose)"
+  ],
+  "provenance": {
+    "lstm_threshold_derivation": "scripts/derive_lstm_threshold.py -> outputs/evaluation/detector_v2/lstm_threshold_derivation.json",
+    "sweep": "scripts/fit_operating_point_v2.py -> outputs/evaluation/detector_v2/operating_point_sweep.json"
+  },
+  "artifact_sha256": {
+    "lstm_model": "d0ec3f386f1119c4278d81ef09a7a48a38c0c04a073c6b4782599ae804c76b77",
+    "cva_model": "97f27ae9ab10fd87effa9d1fe43de7de7229dccd73495d4f06d684556ef238bd",
+    "dpca_model": "a1b29a5b086ac891652502379f4996e73a11a0fb08b23cffce33b3a8b861d816",
+    "dynamic_thresholds_v1": "dc73a8798271f4093acf72fa4e785fcc260eaa1f03c8672fa970248a393bf32b",
+    "detector_split": "8c25e5d7ec906e8660ddc705efb8754297b97a9194b607a19ea643ffdc6c5480",
+    "splits_v2": "54adc4d19c57cac012459818d719047f9babd1c21911bf2b13f930b6199dbc83",
+    "sweep_results": "42fba8e5c93dccc669d77be0f0d6dfc8cd7b501f636c52e49ba2f1f6e2facc71"
+  }
+}
