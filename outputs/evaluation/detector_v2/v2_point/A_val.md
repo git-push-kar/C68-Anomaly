@@ -1,7 +1,7 @@
 # Detector evaluation v2 - protocol A / val
 
 Source: `data/raw/faults/TEP_Faulty_Testing.csv` (2000 runs, onset 160, window 60/stride 5)
-Operating point: {'id': 'detector_v2_window_op_2026-10-30', 'sha256': 'e7fe73eb0b75b4d5703136e6c997e223d2a878c7e36764ed8d6ccf00e559624b', 'source': 'configs/detector_v2_operating_point.json', 'target_window_far': 0.01, 'persistence_windows': 12, 'thresholds': {'lstm_ae': 0.6870414805412293, 'cva_Q': 194.63167266845704, 'dpca_SPE': 24.042938613891604}, 'smoothing': 'none', 'secondary_statistics_at_v1': ['cva_T2', 'cva_Tr', 'dpca_T2']}
+Operating point: `detector_v2_window_op_2026-10-30` (sha256 `e7fe73eb0b75`, target window FAR 1.0%, smoothing none): LSTM 0.6870, CVA Q 194.63, DPCA SPE 24.04
 Persistence (consecutive alarmed windows): 12
 Split label: `faulty_testing` (explicit, not path-inferred)
 

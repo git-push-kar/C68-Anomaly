@@ -992,13 +992,25 @@ def evaluate_component(
     return result
 
 
+def _operating_point_line(result: Dict) -> str:
+    op = result.get("operating_point")
+    if not op:
+        return "Operating point: deployed v1 (per-sample thresholds)"
+    thr = op["thresholds"]
+    return (
+        f"Operating point: `{op['id']}` (sha256 `{str(op.get('sha256'))[:12]}`, "
+        f"target window FAR {op['target_window_far']*100:.1f}%, smoothing {op.get('smoothing')}): "
+        f"LSTM {thr['lstm_ae']:.4f}, CVA Q {thr['cva_Q']:.2f}, DPCA SPE {thr['dpca_SPE']:.2f}"
+    )
+
+
 def render_markdown(result: Dict) -> str:
     lines = [
         f"# Detector evaluation v2 - protocol {result['protocol']} / {result['component']}",
         "",
         f"Source: `{result['source_file']}` ({result['n_runs_scored']} runs, onset {result['onset']}, "
         f"window {result['window_size']}/stride {result['stride']})",
-        f"Operating point: {result.get('operating_point') or 'deployed v1 (per-sample thresholds)'}",
+        _operating_point_line(result),
         f"Persistence (consecutive alarmed windows): {result['confirm']}",
         f"Split label: `{result['split']}` (explicit, not path-inferred)",
         "",
