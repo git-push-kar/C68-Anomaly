@@ -405,6 +405,17 @@ class DetectorBundle:
         model, stat = key.split("_", 1)
         return float(self.dyn_thresholds[model][stat])
 
+    def apply_thresholds(self, lstm_threshold: float, dynamic: Optional[Dict[str, float]] = None) -> None:
+        """Override the operating point in place (used for a frozen v2 point).
+
+        ``fused_series`` reads ``self.lstm_threshold`` and ``dynamic_threshold``,
+        so both have to move together or the OR-gate keeps mixing v1 and v2.
+        """
+        self.lstm_threshold = float(lstm_threshold)
+        for key, value in (dynamic or {}).items():
+            model, stat = key.split("_", 1)
+            self.dyn_thresholds.setdefault(model, {})[stat] = float(value)
+
 
 class BaselineBundle:
     """Static PCA (T2/SPE) and Isolation Forest fitted on normal TRAINING data only."""
@@ -698,6 +709,7 @@ def evaluate_component(
     max_faults: Optional[int] = None,
     max_runs: Optional[int] = None,
     skip_baselines: bool = False,
+    op_point: Optional[Dict] = None,
 ) -> Dict[str, object]:
     thresholds = json.loads(Path(thresholds_path).read_text(encoding="utf-8"))
     comp = load_split_component(splits_path, protocol, component)
@@ -709,6 +721,9 @@ def evaluate_component(
     confirm = int(ev.get("consecutive_windows_to_confirm", 3))
     separate = int(ev.get("min_separation_windows", 20))
     max_event_windows = int(ev.get("max_event_windows", 200))
+    if op_point is not None:
+        confirm = int(op_point["persistence_windows"])
+        logger.info("frozen operating point %s: persistence=%d", op_point["operating_point_id"], confirm)
 
     logger.info("protocol=%s component=%s faults=%d onset=%d ws=%d stride=%d device=%s",
                 protocol, component, len(faults), onset, window_size, stride, device)
@@ -732,6 +747,29 @@ def evaluate_component(
         th[k] = bundle.dynamic_threshold(k)
     if baselines is not None:
         th.update({"pca_t2": baselines.t2_threshold, "pca_spe": baselines.spe_threshold, "iforest": baselines.if_threshold})
+
+    baseline_window_calibration: Optional[Dict[str, float]] = None
+    if op_point is not None:
+        frozen_thr = {"lstm_ae": float(op_point["thresholds"]["lstm_ae"]),
+                      "cva_Q": float(op_point["thresholds"]["cva_Q"]),
+                      "dpca_SPE": float(op_point["thresholds"]["dpca_SPE"])}
+        bundle.apply_thresholds(frozen_thr["lstm_ae"], {k: v for k, v in frozen_thr.items() if k != "lstm_ae"})
+        th.update(frozen_thr)
+        # Baselines get the SAME window-level FAR as the frozen point, otherwise
+        # the comparison would grade them at a different operating point.
+        if baselines is not None:
+            baseline_window_calibration = calibrate_window_thresholds(
+                bundle, baselines, config, target_far=float(op_point["target_window_far"])
+            )
+            baselines.t2_threshold = baseline_window_calibration["pca_t2"]
+            baselines.spe_threshold = baseline_window_calibration["pca_spe"]
+            baselines.if_threshold = baseline_window_calibration["iforest"]
+            th.update({"pca_t2": baselines.t2_threshold, "pca_spe": baselines.spe_threshold,
+                       "iforest": baselines.if_threshold})
+            logger.info("baselines recalibrated to %.1f%% window FAR: %s",
+                        float(op_point["target_window_far"]) * 100,
+                        {k: round(v, 4) for k, v in baseline_window_calibration.items()
+                         if k in ("pca_t2", "pca_spe", "iforest")})
 
     runs_path = Path(comp["source_file"])
     if not runs_path.is_absolute():
@@ -849,9 +887,12 @@ def evaluate_component(
 
     # Secondary operating point: all detectors at 1% window FAR, thresholds set
     # on the calibration holdout (Training 401-500), not on the FAR set.
-    win_thr = calibrate_window_thresholds(bundle, baselines, config)
+    # Skipped when a frozen point is supplied: the frozen point IS the
+    # window-calibrated one, and printing a second, differently-derived
+    # "1% window" column next to it invites quoting the wrong number.
+    win_thr = {} if op_point is not None else calibrate_window_thresholds(bundle, baselines, config)
     per_fault_recal: Dict[str, Dict] = {}
-    for fault in faults:
+    for fault in ([] if op_point is not None else faults):
         rows = rows_by_fault[fault]
         labels = np.concatenate(fault_labels[fault]) if rows else np.array([])
         if labels.size == 0:
@@ -888,7 +929,7 @@ def evaluate_component(
     far_range = (1, 500)
     far = evaluate_normal_far(
         bundle, baselines, config, far_range, confirm, separate, max_event_windows,
-        max_runs=max_runs, alt_thresholds=win_thr,
+        max_runs=max_runs, alt_thresholds=win_thr or None,
     )
     calibration = load_calibration_sets(config)
     disjoint = verify_far_disjoint(str(Path(config["paths"]["normal_data_path"]) / "TEP_FaultFree_Testing.csv"), list(range(far_range[0], far_range[1] + 1)), calibration)
@@ -911,6 +952,17 @@ def evaluate_component(
         "threshold_source": str(thresholds_path),
         "n_runs_scored": n_runs,
         "runtime_seconds": elapsed,
+        "operating_point": None if op_point is None else {
+            "id": op_point["operating_point_id"],
+            "sha256": op_point.get("sha256"),
+            "source": str(op_point.get("_source")),
+            "target_window_far": op_point["target_window_far"],
+            "persistence_windows": op_point["persistence_windows"],
+            "thresholds": op_point["thresholds"],
+            "smoothing": op_point.get("smoothing"),
+            "secondary_statistics_at_v1": [k for k in dyn_keys if k not in op_point["thresholds"]],
+        },
+        "baseline_window_calibration": baseline_window_calibration,
         "per_fault": per_fault,
         "per_fault_window_calibrated": per_fault_recal,
         "window_calibrated_thresholds": win_thr,
@@ -946,6 +998,8 @@ def render_markdown(result: Dict) -> str:
         "",
         f"Source: `{result['source_file']}` ({result['n_runs_scored']} runs, onset {result['onset']}, "
         f"window {result['window_size']}/stride {result['stride']})",
+        f"Operating point: {result.get('operating_point') or 'deployed v1 (per-sample thresholds)'}",
+        f"Persistence (consecutive alarmed windows): {result['confirm']}",
         f"Split label: `{result['split']}` (explicit, not path-inferred)",
         "",
         "FDR is the legacy definition: fraction of post-onset windows above threshold.",
@@ -1015,6 +1069,8 @@ def main() -> None:
     ap.add_argument("--component", default="val", choices=["val", "test", "test_seen"])
     ap.add_argument("--splits", default="data/splits_v2.json")
     ap.add_argument("--thresholds", default="configs/detector_thresholds_v2.json")
+    ap.add_argument("--operating-point", default=None,
+                    help="frozen v2 operating point JSON; overrides thresholds and persistence")
     ap.add_argument("--out-dir", default="outputs/evaluation/detector_v2")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--max-faults", type=int, default=None)
@@ -1025,6 +1081,15 @@ def main() -> None:
     logging.basicConfig(level=args.log_level.upper(), format="%(levelname)-7s %(message)s")
 
     config = load_config(args.config)
+    op_point = None
+    if args.operating_point:
+        op_point = json.loads(Path(args.operating_point).read_text(encoding="utf-8"))
+        op_point["_source"] = args.operating_point
+        sha_path = Path(args.operating_point).with_suffix(".sha256.json")
+        op_point["sha256"] = (
+            json.loads(sha_path.read_text(encoding="utf-8"))["sha256"] if sha_path.exists() else None
+        )
+        print(f"operating point {op_point['operating_point_id']} sha256={op_point['sha256']}")
     t0 = time.time()
     result = evaluate_component(
         config,
@@ -1037,6 +1102,7 @@ def main() -> None:
         max_faults=args.max_faults,
         max_runs=args.max_runs,
         skip_baselines=args.skip_baselines,
+        op_point=op_point,
     )
     print(f"\nwrote {args.out_dir}/{args.protocol}_{args.component}.json in {time.time()-t0:.1f}s")
     for fid, dets in result["per_fault"].items():
