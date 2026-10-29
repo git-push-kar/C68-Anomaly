@@ -30,7 +30,10 @@ from scripts.evaluate_detector_v2 import (  # noqa: E402
 def test_window_starts_and_labels():
     starts = window_starts(5, 5)
     assert list(starts) == [0, 5, 10, 15, 20]
+    # window_size 1: label by start
     assert list(window_labels(starts, 10)) == [0, 0, 1, 1, 1]
+    # window_size 6: the window starting at 5 already contains sample 10
+    assert list(window_labels(starts, 10, window_size=6)) == [0, 1, 1, 1, 1]
 
 
 def test_rate_above_strict():
@@ -45,21 +48,28 @@ def test_detection_index_requires_consecutive():
     assert detection_index([], 3) is None
 
 
-def test_detection_delay_is_post_onset():
+def test_detection_delay_uses_window_end():
     starts = np.arange(5) * 5
     alarm = [0, 1, 1, 1, 1]
-    assert detection_delay(starts, alarm, onset=10, confirm=3) == 0
-    assert first_alarm_at_or_after(starts, alarm, onset=10, confirm=3) == 2
-    # not enough post-onset alarms even though the run is alarmed at the end
-    assert detection_delay(starts, [1, 1, 0, 1, 0], onset=10, confirm=3) is None
+    # window_size 5: the window at start 5 covers 5..9, which ends before the
+    # onset, so the first eligible window starts at 10 and completes at 14.
+    assert detection_delay(starts, alarm, onset=10, confirm=3, window_size=5) == 4
+    assert first_alarm_at_or_after(starts, alarm, onset=10, confirm=3, window_size=5) == 2
+    # window_size 6: the window at start 5 already covers sample 10
+    assert detection_delay(starts, alarm, onset=10, confirm=3, window_size=6) == 0
+    # not enough eligible alarms even though the run is alarmed at the end
+    assert detection_delay(starts, [1, 1, 0, 1, 0], onset=10, confirm=3, window_size=5) is None
 
 
 def test_pre_onset_alarm_is_flagged_not_credited_as_detection():
     starts = np.arange(3) * 5
     alarm = [1, 1, 0]
-    assert detection_delay(starts, alarm, onset=10, confirm=2) is None
-    assert false_alarm_before_onset(starts, alarm, onset=10, confirm=2) is True
-    assert false_alarm_before_onset(starts, [0, 1, 1], onset=10, confirm=2) is False
+    # window_size 5: only the window at start 0 ends before onset 10
+    assert false_alarm_before_onset(starts, [1, 0, 1], onset=10, confirm=2, window_size=5) is False
+    starts_long = np.arange(4) * 5
+    assert false_alarm_before_onset(starts_long, [1, 1, 0, 1], onset=10, confirm=2, window_size=5) is True
+    # only two eligible windows and they are not alarmed
+    assert detection_delay(np.arange(4) * 5, [1, 1, 0, 0], onset=10, confirm=2, window_size=5) is None
 
 
 def test_segment_events_merges_alarms_and_splits_on_separation():
@@ -116,3 +126,14 @@ def test_verify_far_disjoint_detects_overlap():
     assert bad["ok"] is False
     assert bad["overlapping_runs"] == [2, 3]
     assert bad["overlapping_files"] == [far_file]
+
+
+def test_verify_far_disjoint_matches_basenames_with_other_path_prefix():
+    # same file, different path prefix / separator must still be detected
+    bad = verify_far_disjoint(
+        "data/raw/normal/TEP_FaultFree_Testing.csv",
+        [10, 11],
+        {"C:\\work\\data\\raw\\normal\\TEP_FaultFree_Testing.csv": [11, 12]},
+    )
+    assert bad["ok"] is False
+    assert bad["overlapping_runs"] == [11]

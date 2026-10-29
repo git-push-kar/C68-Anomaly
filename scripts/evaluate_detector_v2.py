@@ -14,12 +14,20 @@ Why a second evaluator instead of extending scripts/evaluate_anomaly_detector.py
 
 Metric definitions (kept comparable with the legacy numbers):
   window start  = i * stride, windows built by preprocessing.windowing.to_windows
-  window label  = 1 if window start >= onset, else 0
-  FDR           = fraction of post-onset windows above threshold (legacy
-                  definition; NOT run-level detection rate)
-  delay         = first window start with `consecutive_windows_to_confirm`
-                  consecutive alarms, minus onset, in samples. Windows that
-                  start before onset contribute their sample offset as-is.
+  window end    = start + window_size - 1
+  window label  = 1 if the window CONTAINS any post-onset sample
+                  (start + window_size > onset), else 0. The legacy evaluator
+                  labelled by start >= onset, which counts a window that
+                  already contains fault samples as a negative and then reports
+                  its alarm as a pre-onset false alarm (with a 60-sample window
+                  and stride 5 that is 12 windows per run, and it is why the
+                  published 'mean false_before' is 21 for every strong fault).
+  FDR           = fraction of labelled-positive windows above threshold
+                  (the legacy window-level definition; NOT run-level detection)
+  delay         = (end of the first confirmed alarm window) - onset, in
+                  samples. A windowed detector cannot report earlier than the
+                  sample that completes its window, so the legacy
+                  (start - onset) delay is smaller by up to window_size - 1.
   events        = main.py's aggregator semantics: an event opens when the last
                   `confirm` windows are all anomalous, closes after `separate`
                   consecutive normal windows or at `max_event_windows`.
@@ -69,8 +77,9 @@ def window_starts(n_windows: int, stride: int) -> np.ndarray:
     return np.arange(int(n_windows), dtype=np.int64) * int(stride)
 
 
-def window_labels(starts: np.ndarray, onset: int) -> np.ndarray:
-    return (np.asarray(starts) >= int(onset)).astype(int)
+def window_labels(starts: np.ndarray, onset: int, window_size: int = 1) -> np.ndarray:
+    """1 if the window contains at least one post-onset sample."""
+    return (np.asarray(starts, dtype=np.int64) + int(window_size) > int(onset)).astype(int)
 
 
 def rate_above(scores: np.ndarray, threshold: float) -> float:
@@ -91,34 +100,44 @@ def detection_index(alarm: Sequence[int], confirm: int) -> Optional[int]:
     return int(hits[0]) if hits.size else None
 
 
-def first_alarm_at_or_after(
-    starts: np.ndarray, alarm: Sequence[int], onset: int, confirm: int
-) -> Optional[int]:
-    """Index of the first confirmed alarm among windows starting at/after onset.
+def _eligible_mask(starts: np.ndarray, onset: int, window_size: int) -> np.ndarray:
+    """Windows that contain data from the fault (can legitimately detect it)."""
+    return np.asarray(starts, dtype=np.int64) + int(window_size) > int(onset)
 
-    Matching the legacy evaluator, detection is only credited post-onset; a
-    monitor that is already alarmed when the fault starts therefore has delay 0
-    rather than a negative delay.
+
+def first_alarm_at_or_after(
+    starts: np.ndarray, alarm: Sequence[int], onset: int, confirm: int, window_size: int = 1
+) -> Optional[int]:
+    """Index of the first confirmed alarm in a window that contains the fault.
+
+    Windows that end before the onset cannot have seen the fault, so their
+    alarms are false alarms, never detections.
     """
     starts = np.asarray(starts)
     flags = np.asarray(alarm, dtype=int)
-    first = int(np.searchsorted(starts, int(onset), side="left"))
+    first = int(np.flatnonzero(_eligible_mask(starts, onset, window_size))[0]) if np.any(
+        _eligible_mask(starts, onset, window_size)
+    ) else len(flags)
     idx = detection_index(flags[first:], confirm)
     return None if idx is None else first + idx
 
 
-def detection_delay(starts: np.ndarray, alarm: Sequence[int], onset: int, confirm: int) -> Optional[int]:
-    """Sample delay of the first post-onset confirmed alarm relative to onset."""
-    idx = first_alarm_at_or_after(starts, alarm, onset, confirm)
+def detection_delay(
+    starts: np.ndarray, alarm: Sequence[int], onset: int, confirm: int, window_size: int = 1
+) -> Optional[int]:
+    """Samples from onset to the completing sample of the first confirmed alarm."""
+    idx = first_alarm_at_or_after(starts, alarm, onset, confirm, window_size)
     if idx is None:
         return None
-    return int(np.asarray(starts)[idx]) - int(onset)
+    return int(np.asarray(starts)[idx]) + int(window_size) - 1 - int(onset)
 
 
-def false_alarm_before_onset(starts: np.ndarray, alarm: Sequence[int], onset: int, confirm: int) -> bool:
+def false_alarm_before_onset(
+    starts: np.ndarray, alarm: Sequence[int], onset: int, confirm: int, window_size: int = 1
+) -> bool:
     starts = np.asarray(starts)
     flags = np.asarray(alarm, dtype=int)
-    pre = starts < int(onset)
+    pre = ~_eligible_mask(starts, onset, window_size)
     return detection_index(flags[pre], confirm) is not None
 
 
@@ -213,25 +232,26 @@ def summarise_series(
     confirm: int,
     separate: int,
     max_event_windows: int,
+    window_size: int = 1,
 ) -> Dict[str, object]:
     """Per-run summary for one detector series."""
     scores = np.asarray(scores, dtype=np.float64)
-    labels = window_labels(starts, onset)
+    labels = window_labels(starts, onset, window_size)
     alarm = (scores > float(threshold)).astype(int)
     events = segment_events(alarm, starts, confirm, separate, max_event_windows)
-    delay = detection_delay(starts, alarm, onset, confirm)
-    alarm_idx = first_alarm_at_or_after(starts, alarm, onset, confirm)
+    delay = detection_delay(starts, alarm, onset, confirm, window_size)
+    alarm_idx = first_alarm_at_or_after(starts, alarm, onset, confirm, window_size)
     post = labels == 1
     return {
         "fdr": rate_above(scores[post], threshold),
         "delay": delay,
         "detected": delay is not None,
-        "false_before_onset": false_alarm_before_onset(starts, alarm, onset, confirm),
+        "false_before_onset": false_alarm_before_onset(starts, alarm, onset, confirm, window_size),
         "n_events": len(events),
-        "n_events_post_onset": sum(1 for o, _ in events if int(starts[o]) >= int(onset)),
+        "n_events_post_onset": sum(1 for o, _ in events if int(starts[o]) + int(window_size) > int(onset)),
         "event_windows": [[int(starts[o]), int(starts[c])] for o, c in events],
         "max_score": float(np.nanmax(scores)) if scores.size else 0.0,
-        "alarm_sample": int(starts[alarm_idx]) if alarm_idx is not None else None,
+        "alarm_sample": (int(starts[alarm_idx]) + int(window_size) - 1) if alarm_idx is not None else None,
     }
 
 
@@ -624,7 +644,7 @@ def evaluate_normal_far(
             if name not in thresholds:
                 continue
             series.setdefault(name, []).append(np.asarray(vals, dtype=np.float64))
-            s = summarise_series(vals, starts, thresholds[name], 0, confirm, separate, max_event_windows)
+            s = summarise_series(vals, starts, thresholds[name], 0, confirm, separate, max_event_windows, bundle.window_size)
             run_summaries.setdefault(name, []).append({"run": run, "alarm": s["alarm_sample"], "events": s["n_events"]})
         # per-sample FAR, the level at which the dynamic/baseline thresholds were calibrated
         for name, (_t, vals) in bundle.score_dynamic_samples(scaled).items():
@@ -741,7 +761,7 @@ def evaluate_component(
         n_runs += 1
         scaled = bundle.scale(raw)
         starts, lstm_scores = bundle.score_lstm(scaled)
-        labels = window_labels(starts, onset)
+        labels = window_labels(starts, onset, window_size)
         row: Dict[str, np.ndarray] = {"lstm_ae": lstm_scores}
         row.update(bundle.score_dynamic(scaled, starts))
         if baselines is not None:
@@ -756,13 +776,15 @@ def evaluate_component(
         fault_labels[fault].append(labels)
 
         summaries = {
-            name: summarise_series(vals, starts, th[name], onset, confirm, separate, max_event_windows)
+            name: summarise_series(
+                vals, starts, th[name], onset, confirm, separate, max_event_windows, window_size
+            )
             for name, vals in row.items()
         }
         fused = summaries["fused"]
         fired = "none"
         if fused["alarm_sample"] is not None:
-            idx = first_alarm_at_or_after(starts, (row["fused"] > 1.0).astype(int), onset, confirm)
+            idx = first_alarm_at_or_after(starts, (row["fused"] > 1.0).astype(int), onset, confirm, window_size)
             fired_lstm = bool(idx is not None and lstm_scores[idx] > bundle.lstm_threshold)
             fired_dyn = bool(idx is not None and row[prim][idx] > bundle.dynamic_threshold(prim))
             fired = "both" if fired_lstm and fired_dyn else ("lstm_ae" if fired_lstm else "dynamic")
@@ -773,7 +795,9 @@ def evaluate_component(
             "simulationRun": run,
             "onset": onset,
             "alarm_sample": fused["alarm_sample"],
-            "alarm_window": (fused["alarm_sample"] // stride) if fused["alarm_sample"] is not None else None,
+            "alarm_window": ((fused["alarm_sample"] - window_size + 1) // stride)
+            if fused["alarm_sample"] is not None
+            else None,
             "delay_samples": fused["delay"],
             "detector": fired,
             "n_events": fused["n_events"],
