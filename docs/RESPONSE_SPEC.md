@@ -122,6 +122,13 @@ Placing `hypothesis_comparison` before `overview` is what makes it reachable;
 placing the refusal last keeps it from stealing any in-domain question. These
 are proposals for approval, not descriptions of current behaviour.
 
+**Status:** the live dispatcher is unchanged. The three intents exist only as
+candidates in [`llm/response/router.py`](../llm/response/router.py) behind
+`ResponseRouter(enable_proposed=True)`; with the flag off (the default) the
+router's candidate list stops at the 11 real intents. `clarification_reply`
+needs an explicit clarification ask or a stub too short to route — a short real
+question such as "What happened?" keeps its own intent.
+
 ---
 
 ## 3. Report generation
