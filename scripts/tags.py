@@ -59,6 +59,15 @@ _TAG_RE = re.compile(r"(?<![A-Za-z0-9])(XMEAS|XMV)[ _-]?(\d{1,2})(?![0-9])", re.
 _DISPLAY_TO_CANONICAL: Dict[str, str] = {v: k for k, v in SENSOR_NAMES.items()}
 
 
+def _name_key(text: str) -> str:
+    """Case- and separator-insensitive key for a display name."""
+    return re.sub(r"[^a-z0-9]+", "_", str(text).strip().lower()).strip("_")
+
+
+#: Display name -> canonical tag, keyed the same way for tolerant lookup.
+_DISPLAY_KEYS: Dict[str, str] = {_name_key(name): tag for name, tag in _DISPLAY_TO_CANONICAL.items()}
+
+
 def _canonicalize_family(family: str, number: int) -> Optional[str]:
     if family == "XMEAS":
         if 1 <= number <= MEASUREMENT_COUNT:
@@ -85,7 +94,11 @@ def canonical_tag(text: object) -> Optional[str]:
         return None
     match = _TAG_RE.search(text)
     if match is None:
-        return None
+        # The knowledge base names some variables by display name only
+        # (``A_C_Feed_Flow``, ``Condenser_Cooling_Water_Flow``). They are the same
+        # variables, so they resolve to the same canonical tag; without this the
+        # menu would print a name that the validator could not resolve.
+        return _DISPLAY_KEYS.get(_name_key(text))
     return _canonicalize_family(match.group(1).upper(), int(match.group(2)))
 
 
