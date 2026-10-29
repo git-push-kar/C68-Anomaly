@@ -19,7 +19,7 @@ pandas>=2.1
 scikit-learn>=1.4
 pyyaml>=6.0
 tqdm>=4.66
-sentencepiece>=0.2.0
+sentencepiece>=0.2.0,<0.2.2  # 0.2.2 breaks InternVL2 tokenizer loading (returns bool)
 
 # deep learning / InternVL2-2B
 # RTX A5000 (Ampere, CUDA 11.8 / 12.1): install torch matching your CUDA:

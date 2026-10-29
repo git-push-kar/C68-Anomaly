@@ -16,7 +16,7 @@ from typing import Dict, List, Optional
 import torch
 
 from llm.dataset import TEPInstructionDataset, make_collator
-from llm.model import load_base_model, print_training_header, wrap_peft
+from llm.model import load_base_model, load_tokenizer, print_training_header, wrap_peft
 from utils import ensure_dir, get_device, load_json, save_json, set_seed
 
 logger = logging.getLogger(__name__)
@@ -86,13 +86,7 @@ def train_tep_adapter(
     model = wrap_peft(model, config)
     print_training_header(config, model)
 
-    from transformers import AutoTokenizer
-
-    tokenizer = AutoTokenizer.from_pretrained(
-        llm_cfg["base_model"], trust_remote_code=True, use_fast=False
-    )
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+    tokenizer = load_tokenizer(llm_cfg["base_model"])
 
     train_dataset, val_dataset = _load_tokenized_datasets(config, tokenizer)
     collator = make_collator(tokenizer.pad_token_id)
@@ -111,11 +105,11 @@ def train_tep_adapter(
         logging_steps=int(training.get("logging_steps", 10)),
         save_steps=int(training.get("save_steps", 200)),
         eval_steps=int(training.get("eval_steps", 200)),
-        evaluation_strategy="steps" if val_dataset is not None else "no",
+        eval_strategy="steps" if val_dataset is not None else "no",
         save_total_limit=int(training.get("save_total_limit", 2)),
         dataloader_num_workers=int(training.get("dataloader_num_workers", 2)),
-        fp16=bool(training.get("fp16", False)),
-        bf16=bool(training.get("bf16", False)),
+        fp16=bool(training.get("fp16", False) and torch.cuda.is_available()),
+        bf16=bool(training.get("bf16", False) and torch.cuda.is_available()),
         optim=training.get("optim") or ("paged_adamw_8bit" if training.get("use_4bit", True) else "adamw_torch"),
         gradient_checkpointing=bool(training.get("gradient_checkpointing", True)),
         report_to=[],

@@ -196,7 +196,7 @@ class TEPInstructionDataset(torch.utils.data.Dataset):
                 1, 3, self.dummy_image_size, self.dummy_image_size,
                 dtype=self.pixel_dtype,
             ),
-            "image_flags": torch.tensor([[0]], dtype=torch.long),
+            "image_flags": torch.tensor([0], dtype=torch.long),
         }
 
 
@@ -234,10 +234,18 @@ def _pad_batch(
     return padded
 
 
-def make_collator(pad_token_id: int):
-    """Factory that injects the tokenizer pad id into the collator."""
+class TEPCollator:
+    """Picklable data collator for InternVL2-2B text-only training.
 
-    def collator(batch: List[Dict]) -> Dict[str, torch.Tensor]:
+    Unlike a closure-based collator, this class can be pickled by
+    Windows multiprocessing (spawn), avoiding the ``Can't get local object``
+    error with ``dataloader_num_workers > 0``.
+    """
+
+    def __init__(self, pad_token_id: int) -> None:
+        self.pad_token_id = pad_token_id
+
+    def __call__(self, batch: List[Dict]) -> Dict[str, torch.Tensor]:
         max_len = max(b["input_ids"].shape[0] for b in batch)
         return _pad_batch(
             [b["input_ids"] for b in batch],
@@ -246,7 +254,10 @@ def make_collator(pad_token_id: int):
             [b["pixel_values"] for b in batch],
             [b["image_flags"] for b in batch],
             max_len=max_len,
-            pad_token_id=pad_token_id,
+            pad_token_id=self.pad_token_id,
         )
 
-    return collator
+
+def make_collator(pad_token_id: int) -> TEPCollator:
+    """Factory that returns a picklable collator."""
+    return TEPCollator(pad_token_id)

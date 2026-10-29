@@ -104,7 +104,7 @@ class RCAInference:
         adapter_path: Optional[str] = None,
         config: Optional[Dict] = None,
     ) -> "RCAInference":
-        from transformers import AutoTokenizer
+        from llm.model import load_tokenizer
 
         config = config or load_config()
         llm = config["llm"]
@@ -116,11 +116,7 @@ class RCAInference:
             trust_remote_code=bool(llm.get("trust_remote_code", True)),
             use_flash_attn=bool(llm.get("use_flash_attn", False)),
         )
-        tokenizer = AutoTokenizer.from_pretrained(
-            base, trust_remote_code=True, use_fast=False
-        )
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+        tokenizer = load_tokenizer(base)
         return cls(model=model, tokenizer=tokenizer, config=config)
 
     # ------------------------------------------------------------------

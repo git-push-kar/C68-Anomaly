@@ -22,9 +22,14 @@ ADAPTER_NAME = "tep_rca"
 # InternVL2-2B's LLM backbone is InternLM2-Chat-1.8B (verified from
 # config.json: llm_config.architectures == ["InternLM2ForCausalLM"]). These are
 # the exact linear layer names that receive LoRA adapters.
+# InternLM2 uses fused QKV (wqkv) and different MLP names (w1/w2/w3)
+# compared to standard LLaMA (q/k/v_proj, gate/up/down_proj).
 INTERNLM2_LORA_TARGETS = [
-    "q_proj", "k_proj", "v_proj", "o_proj",
-    "gate_proj", "up_proj", "down_proj",
+    "wqkv",   # fused Q/K/V projection (replaces q_proj, k_proj, v_proj)
+    "wo",     # attention output projection (replaces o_proj)
+    "w1",     # MLP gate projection (replaces gate_proj)
+    "w2",     # MLP down projection (replaces down_proj)
+    "w3",     # MLP up projection (replaces up_proj)
 ]
 
 # Adapter markers used by assert_no_adapter (fail on unexpected adapters).
@@ -144,13 +149,8 @@ def load_base_model(
 
     # Set the image-context token id: forward()/generate() require it. For
     # text-only data image_flags are 0 so no vision embeddings are injected.
-    tokenizer = None
     try:
-        from transformers import AutoTokenizer
-
-        tokenizer = AutoTokenizer.from_pretrained(
-            base_path, trust_remote_code=True, use_fast=False
-        )
+        tokenizer = load_tokenizer(base_path)
         model.img_context_token_id = tokenizer.convert_tokens_to_ids("<IMG_CONTEXT>")
     except Exception as exc:  # pragma: no cover
         logger.warning("Could not set img_context_token_id: %s", exc)
@@ -212,10 +212,72 @@ def build_lora_config(config: Dict) -> Any:
     )
 
 
+def load_tokenizer(model_path: str) -> Any:
+    """Load the InternVL2-2B tokenizer robustly.
+
+    ``AutoTokenizer.from_pretrained`` can return ``False`` (a bool) when
+    the remote-code loading fails (e.g. sentencepiece version mismatch).
+    This helper falls back to manually loading ``InternLM2Tokenizer`` from
+    the cached remote code.
+    """
+    from transformers import AutoTokenizer
+
+    tok = AutoTokenizer.from_pretrained(
+        model_path, trust_remote_code=True, use_fast=False
+    )
+    if tok is None or isinstance(tok, bool):
+        # Auto-mapping failed — load the slow tokenizer from remote code.
+        import importlib.util
+        import os
+
+        from huggingface_hub import try_to_load_from_cache
+
+        snapshot_dir = Path(model_path) if Path(model_path).exists() else None
+        if snapshot_dir is None:
+            # Hub model — find the cached snapshot.
+            cached = try_to_load_from_cache(model_path, "tokenization_internlm2.py")
+            if cached is not None and Path(cached).exists():
+                snapshot_dir = Path(cached).parent
+        if snapshot_dir is not None:
+            sys_path_saved = list(__import__("sys").path)
+            try:
+                __import__("sys").path.insert(0, str(snapshot_dir))
+                mod = importlib.util.module_from_spec(
+                    importlib.util.spec_from_file_location(
+                        "tokenization_internlm2",
+                        snapshot_dir / "tokenization_internlm2.py",
+                    )
+                )
+                importlib.util.spec_from_file_location(
+                    "tokenization_internlm2",
+                    snapshot_dir / "tokenization_internlm2.py",
+                ).loader.exec_module(mod)
+                tok = mod.InternLM2Tokenizer(
+                    str(snapshot_dir / "tokenizer.model")
+                )
+            finally:
+                __import__("sys").path = sys_path_saved
+        if tok is None or isinstance(tok, bool):
+            raise RuntimeError(
+                "Failed to load tokenizer for "
+                f"{model_path}. Check sentencepiece version "
+                "(`pip install sentencepiece==0.2.0`)."
+            )
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    return tok
+
+
 def wrap_peft(model: Any, config: Dict) -> Any:
-    """Wrap the frozen base with the ``tep_rca`` LoRA adapter."""
-    from peft import get_peft_model
+    """Inject the ``tep_rca`` LoRA adapter into the frozen base model.
+
+    Uses ``inject_adapter_in_model`` (rather than ``get_peft_model``) to add
+    LoRA layers directly to the target modules without wrapping the model in
+    ``PeftModelForCausalLM``.  The wrapper passes ``inputs_embeds`` to the
+    forward call, which ``InternVLChatModel`` does not accept.
+    """
+    from peft import inject_adapter_in_model
 
     lora_config = build_lora_config(config)
-    model = get_peft_model(model, lora_config, adapter_name=ADAPTER_NAME)
+    model = inject_adapter_in_model(lora_config, model, adapter_name=ADAPTER_NAME)
     return model

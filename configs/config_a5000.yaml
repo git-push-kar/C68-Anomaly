@@ -35,7 +35,7 @@ llm:
     alpha: 32
     dropout: 0.05
     bias: none
-    target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+    target_modules: [wqkv, wo, w1, w2, w3]
   training:
     use_4bit: false              # FP16/BF16 LoRA on A5000 - faster, fits in 24GB
     bnb_4bit_quant_type: nf4
