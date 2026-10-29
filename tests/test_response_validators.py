@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from llm.response import ResponseRouter, StoreAccess, build_report, validate_followup
+from llm.response.validators import number_supported
 from llm.response.lookup_answers import suggestions_for
 from llm.response.schemas import Intent, TableID
 
@@ -112,6 +113,61 @@ def test_number_rounded_from_store_is_accepted(event, report):
     score = store.resolve("detector.dynamic.score")
     payload = valid_answer(answer=f"The Q-statistic is {score:.1f}, above its limit.")
     assert "number_not_in_store" not in codes(event, report, payload)
+
+
+def test_bare_integer_equal_to_a_stored_count_passes(event, report):
+    # classified fixture: n_windows=2, top_sensors=5, timeline=6, sensors_total=52
+    payload = valid_answer(answer="The event spans 2 windows of the alarm window stream.")
+    assert "number_not_in_store" not in codes(event, report, payload)
+
+
+def test_bare_integer_not_matching_any_count_is_rejected(event, report):
+    # The Phase 2A hole: "17 windows" used to pass on a two-window event because
+    # every integer 1-22 was accepted unconditionally.
+    payload = valid_answer(answer="The event spans 17 windows of the alarm window stream.")
+    assert "number_not_in_store" in codes(event, report, payload)
+
+
+def test_sensor_total_is_still_quotable_as_a_count(event, report):
+    payload = valid_answer(answer="The plant exposes 52 continuous process variables in total.")
+    assert "number_not_in_store" not in codes(event, report, payload)
+
+
+def test_tag_index_outside_a_tag_is_not_a_label(event, report):
+    bare = valid_answer(answer="The plant records 41 measurement variables in this file.")
+    assert "number_not_in_store" in codes(event, report, bare)
+    inside = valid_answer(answer="XMEAS_12 is drifting away from its baseline for this event.")
+    found = codes(event, report, inside)
+    assert "number_not_in_store" not in found
+    assert "unknown_tag" not in found
+
+
+def test_fault_identifier_passes_without_a_store_value(event, report):
+    payload = valid_answer(answer="FAULT_15 is the closest match to this lag signature.")
+    assert "number_not_in_store" not in codes(event, report, payload)
+
+
+def test_fault_identifier_list_passes(event, report):
+    payload = valid_answer(answer="Faults 4 and 11 both remain plausible given the lag energy.")
+    assert "number_not_in_store" not in codes(event, report, payload)
+
+
+def test_fault_identifier_does_not_license_a_neighbouring_claim(event, report):
+    # 15 is an identifier; 17 is a measurement claim about the window count.
+    payload = valid_answer(answer="Fault 15 produced 17 alarmed windows in this event.")
+    assert "number_not_in_store" in codes(event, report, payload)
+
+
+def test_enumerated_list_markers_are_not_measurements(event, report):
+    payload = valid_answer(answer="1. Compare the detector margins. 2. Rank the sensor contributions.")
+    assert "number_not_in_store" not in codes(event, report, payload)
+
+
+def test_number_supported_needs_a_label_or_a_value():
+    assert number_supported(2.0, 0, [], label_integers={2})
+    assert not number_supported(2.0, 0, [], label_integers={5})
+    assert number_supported(0.6352, 4, [0.63521])
+    assert not number_supported(0.6352, 4, [0.6359], label_integers={2})
 
 
 def test_clarify_not_triggered_rule(event, report):

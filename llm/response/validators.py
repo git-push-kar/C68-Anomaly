@@ -41,10 +41,28 @@ from llm.response.schemas import (
 from llm.response.severity import assess
 from llm.response.store_access import StoreAccess, UnknownKeyError
 
-#: Integers that are labels or counts, not measurements.
-LABEL_INTEGERS = set(range(1, 23)) | {41, 52, 11}
+#: Citation keys whose value is a count of something the event really contains.
+#: A bare integer in prose is accepted only when it equals one of these, or when
+#: it reads as a fault identifier ("Fault 15", "FAULT_15"). The previous rule
+#: accepted every integer 1-22 plus the tag indices 11/41/52 unconditionally,
+#: which let "17 windows" pass on a two-window event.
+STORE_COUNT_KEYS = (
+    "event.n_windows",
+    "count.top_sensors",
+    "count.timeline",
+    "count.sensors_total",
+)
 _NUMBER_RE = re.compile(r"-?\d+(?:\.\d+)?")
 _TAG_NUMBER_RE = re.compile(r"(?:XMEAS|XMV)[ _-]?\d{1,2}", re.IGNORECASE)
+#: "fault 15", "faults 4 and 11", "FAULT_14" -> the numbers that follow are
+#: identifiers, not measurements.
+_FAULT_ID_RE = re.compile(
+    r"\bfaults?(?:\s+|_)(\d{1,2}(?:\s*(?:,|and|or|&|\+)\s*\d{1,2})*)",
+    re.IGNORECASE,
+)
+#: A leading "1. " / "2) " is a list marker, not a claim about the plant.
+_LIST_MARKER_RE_HEAD = re.compile(r"^\s*\d{1,2}[.)]\s+")
+_LIST_MARKER_RE_INLINE = re.compile(r"(?<=[.;])\s+\d{1,2}[.)]\s+")
 
 
 @dataclass
@@ -85,6 +103,10 @@ def numbers_in(text: str) -> List[tuple]:
     if not isinstance(text, str):
         return []
     cleaned = _TAG_NUMBER_RE.sub(" ", text)
+    # Strip enumerated-list markers so "1. Compare ... 2. Rank ..." is judged on
+    # its claims, not on its formatting.
+    cleaned = _LIST_MARKER_RE_HEAD.sub("", cleaned, count=1)
+    cleaned = _LIST_MARKER_RE_INLINE.sub(" ", cleaned)
     out = []
     for match in _NUMBER_RE.finditer(cleaned):
         token = match.group(0)
@@ -96,9 +118,40 @@ def numbers_in(text: str) -> List[tuple]:
     return out
 
 
-def number_supported(value: float, decimals: int, store_numbers: Sequence[float]) -> bool:
-    """True when some store value rounds to the printed number."""
-    if float(value).is_integer() and int(value) in LABEL_INTEGERS:
+def fault_ids_in(text: str) -> Set[int]:
+    """Fault identifiers referenced by ``text`` ("fault 15", "FAULT_14")."""
+    found: Set[int] = set()
+    if not isinstance(text, str):
+        return found
+    for match in _FAULT_ID_RE.finditer(text):
+        for token in re.findall(r"\d{1,2}", match.group(1)):
+            found.add(int(token))
+    return found
+
+
+def stored_counts(store: StoreAccess) -> Set[int]:
+    """The integer counts this event can legitimately quote."""
+    counts: Set[int] = set()
+    for key in STORE_COUNT_KEYS:
+        try:
+            counts.add(int(round(float(store.resolve(key)))))
+        except (UnknownKeyError, TypeError, ValueError):
+            continue
+    return counts
+
+
+def number_supported(
+    value: float,
+    decimals: int,
+    store_numbers: Sequence[float],
+    label_integers: Sequence[int] = (),
+) -> bool:
+    """True when some store value rounds to the printed number.
+
+    ``label_integers`` are the integers that are allowed without a matching
+    value: the event's stored counts plus any fault identifiers in the text.
+    """
+    if float(value).is_integer() and int(value) in set(label_integers):
         return True
     for candidate in store_numbers:
         try:
@@ -115,11 +168,13 @@ def _check_text(
     path: str,
     allowed: AllowedSet,
     store_numbers: Sequence[float],
+    label_integers: Sequence[int] = (),
 ) -> None:
     for token in allowed.unknown_tag_like(text):
         result.add("unknown_tag", f"unresolvable tag-shaped token {token!r}", path)
+    permitted = set(label_integers) | fault_ids_in(text)
     for value, decimals in numbers_in(text):
-        if not number_supported(value, decimals, store_numbers):
+        if not number_supported(value, decimals, store_numbers, permitted):
             result.add("number_not_in_store", f"number {value} does not match any stored value", path)
 
 
@@ -188,6 +243,7 @@ def build_report(
             result.add(code, err.get("msg", "invalid"), loc)
 
     numbers = store.numeric_values()
+    counts = stored_counts(store)
     if body is not None:
         for path, text in (
             ("summary", body.summary),
@@ -196,11 +252,11 @@ def build_report(
             ("recommended_action", body.recommended_action),
             ("uncertainty", body.uncertainty),
         ):
-            _check_text(result, text, path, allowed, numbers)
+            _check_text(result, text, path, allowed, numbers, counts)
         for index, bullet in enumerate(body.evidence):
-            _check_text(result, bullet, f"evidence[{index}]", allowed, numbers)
+            _check_text(result, bullet, f"evidence[{index}]", allowed, numbers, counts)
         for index, hypothesis in enumerate(body.hypotheses):
-            _check_text(result, hypothesis.rationale, f"hypotheses[{index}].rationale", allowed, numbers)
+            _check_text(result, hypothesis.rationale, f"hypotheses[{index}].rationale", allowed, numbers, counts)
             for tag in hypothesis.supporting_tags:
                 if allowed.resolve_tag(tag) is None:
                     result.add("unknown_tag", f"hypothesis tag {tag!r} is not in the allowed set", f"hypotheses[{index}].supporting_tags")
@@ -272,7 +328,7 @@ def validate_followup(
 
     _check_citations(result, answer.citations, store, "citations")
     numbers = store.numeric_values()
-    _check_text(result, answer.answer, "answer", allowed, numbers)
+    _check_text(result, answer.answer, "answer", allowed, numbers, stored_counts(store))
 
     seen = set()
     for index, suggestion in enumerate(answer.suggestions):
@@ -312,5 +368,7 @@ __all__ = [
     "validate_followup",
     "numbers_in",
     "number_supported",
-    "LABEL_INTEGERS",
+    "fault_ids_in",
+    "stored_counts",
+    "STORE_COUNT_KEYS",
 ]
