@@ -1,0 +1,260 @@
+{
+  "operating_point": "detector_v2_window_op_2026-10-30",
+  "thresholds": {
+    "lstm_ae": 0.6870414805412293,
+    "cva_Q": 194.63167266845704,
+    "dpca_SPE": 24.042938613891604
+  },
+  "persistence_windows": 12,
+  "min_separation": 20,
+  "max_event_windows": 200,
+  "onset_sample": 160,
+  "window_size": 60,
+  "fault_free": {
+    "n_runs": 500,
+    "events_per_run": 0.02,
+    "runs_with_event": 10,
+    "run_far": 0.02,
+    "event_count_histogram": {
+      "0": 490,
+      "1": 10
+    }
+  },
+  "faulty": {
+    "n_runs": 2000,
+    "events_per_run": 0.912,
+    "n_events": 1824,
+    "n_pre_onset": 0,
+    "n_post_onset": 1824,
+    "fraction_pre_onset": 0.0,
+    "runs_with_event": 2000,
+    "per_fault": {
+      "1": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "2": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "3": {
+        "runs": 100,
+        "events": 8,
+        "pre": 0,
+        "post": 8,
+        "runs_with_post": 8,
+        "runs_with_pre": 0,
+        "events_per_run": 0.08,
+        "post_onset_run_rate": 0.08,
+        "pre_onset_event_fraction": 0.0
+      },
+      "4": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "5": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "6": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "7": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "8": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "9": {
+        "runs": 100,
+        "events": 16,
+        "pre": 0,
+        "post": 16,
+        "runs_with_post": 16,
+        "runs_with_pre": 0,
+        "events_per_run": 0.16,
+        "post_onset_run_rate": 0.16,
+        "pre_onset_event_fraction": 0.0
+      },
+      "10": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "11": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "12": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "13": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "14": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "15": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "16": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "17": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "18": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "19": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      },
+      "20": {
+        "runs": 100,
+        "events": 100,
+        "pre": 0,
+        "post": 100,
+        "runs_with_post": 100,
+        "runs_with_pre": 0,
+        "events_per_run": 1.0,
+        "post_onset_run_rate": 1.0,
+        "pre_onset_event_fraction": 0.0
+      }
+    }
+  },
+  "fault_15": {
+    "runs": 100,
+    "runs_with_post_onset_event": 100,
+    "post_onset_run_rate": 1.0,
+    "events_per_run": 1.0
+  }
+}
