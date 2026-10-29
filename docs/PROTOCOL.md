@@ -104,6 +104,10 @@ never on `test_seen`.
   fault-match accuracy on the mapped label space as a secondary (faults 16–20
   scored against `UNCLASSIFIED_OPEN_SET`; 21/22 excluded). All-fault numbers are
   reported alongside the observable-set number, never instead of it.
+- **Headline set (Phase 2B owner instruction):** the **v2** set — 19 faults,
+  fault **3** excluded. The deployed-v1 set (18 faults, {3, 9}) is reported as a
+  labelled comparison row. Fault **9** is marked `marginal` wherever it appears
+  in a table (7.0% at v2, the weakest member of the set). See §8.3.
 - **Data:** Protocol A `test` (faults 1–20, runs 401–500).
 - **Success criterion:** `PROPOSED: exact match ≥ 0.70 and macro-F1 ≥ 0.65 (macro).`
 
@@ -239,25 +243,41 @@ the same detectors are put at a common 1% *window* FAR (thresholds fitted on
 the dynamic threshold holdout, `TEP_FaultFree_Training` runs 401–500 — never on
 the FAR set).
 
-### 8.3 Observable set — HEADLINE is the deployed (v1) point
+### 8.3 Observable set — HEADLINE is the frozen v2 point (superseded 2026-10-30)
 
 Rule (owner decision 2): observable = fused-detector FDR >= 5% on Protocol A
-`val`. **The headline set is the one at the deployed operating point** (the
-thresholds that produced every published Phase 1 number):
+`val`.
+
+> **Supersedes the Phase 1 wording.** Until Phase 2B this section made the
+> deployed (v1) point the headline, because every Phase 1 table had been produced
+> at v1. The Phase 2B instruction sets the **v2** set as the RQ1 headline and
+> demotes v1 to a labelled comparison row. The reason is the same evidence, read
+> the other way round: v1 was not a *chosen* operating point but the residual of a
+> deleted threshold artifact, and its fault-9 result (2.5%) is below any
+> defensible sensitivity floor. Reporting v2 as headline while quoting v1 beside
+> it keeps both facts visible.
 
 | Operating point | Observable set | Excluded | Fault 9 | Fault 15 |
 |---|---|---|---|---|
-| **v1, deployed (HEADLINE)** | **18 faults** | **{3, 9}** | 2.5% | 7.7% |
-| v2, window-calibrated (SECONDARY) | 19 faults | {3} | 7.0% | 97.2% |
+| **v2, frozen (HEADLINE, Phase 2B onward)** | **19 faults** | **{3}** | 7.0% `marginal` | 97.2% |
+| v1, deployed (comparison row only) | 18 faults | {3, 9} | 2.5% | 7.7% |
 
 Fault 15 sits just above the line at v1 (7.7%, `test` 8.0%) and is fully
-observable at v2. Fault 3 fails the rule at both points (2.4% / 4.8%). The v2
-row is reported beside the headline and never replaces it: the Phase 1 evidence,
-the LSTM reproduction check and every published table were produced at v1.
+observable at v2; its v1 number was the weakest justification for excluding it.
+Fault 3 fails the rule at both points (2.4% / 4.8%) and is the only exclusion
+left. Fault 9 is in the headline set but is marked `marginal` everywhere: at
+7.0% it clears the floor by 2 points and its detection is concentrated in the
+late portion of each run (median event-open delay 369 samples for faults 3/9
+versus 59-99 for the observable families), so a reader should treat its per-fault
+number as the least stable cell in the table.
 
 The two sets differ only in faults 9 and 15, which are exactly the faults whose
-detector path (dynamic vs LSTM) was mis-thresholded. That is the argument for
-v2, not a change of scope.
+detector path (dynamic vs LSTM) was mis-thresholded.
+
+**Severity is not a benchmark metric.** `llm/response/severity.py` exists only as
+a cross-check of `evidence/process_limits.compute_deterministic_severity`; the
+agreement rate between the two rules is a diagnostic of the code path, is never
+computed from model output, and is not reported in any RQ table.
 
 ### 8.4 Frozen v2 operating point (A3) — SECONDARY, never mixed into v1 tables
 
@@ -390,3 +410,73 @@ python scripts/train_anomaly_detector.py --config configs/seeds/config_a5000_see
 
 Estimated 20-35 min per seed on CPU (phase 1 report §7), 1-1.75 h for three,
 plus a threshold re-derivation and a v2 re-evaluation per seed (~4 min each).
+
+---
+
+## 9. Response-dataset record (Phase 2B)
+
+### 9.1 What the dataset is built from
+
+| Property | Value |
+|---|---|
+| Source | `TEP_Faulty_Testing.csv`, 960 samples/run, onset 160 (0-based) |
+| Detector | frozen v2 operating point (`configs/detector_v2_operating_point.json`, SHA-256 `e7fe73eb…`) |
+| Aggregation | persistence 12, no smoothing, one event per run (first closed event after onset) |
+| Events built | 4,438 real (train 2,168 / val 456 / test 1,814) + 20 oracle + 204 NORMAL_TRANSIENT |
+| Splits | `data/splits_v2.json` (run ranges expanded and checked pairwise during the build) |
+
+### 9.2 Event shape — a limitation, stated plainly
+
+Events are **long by construction**: median 735 samples (147 windows), p10 705,
+p90 745, max 760. The reason is mechanical. An event closes only after
+`separate` quiet windows, and a 960-sample run that alarms near sample 220 has no
+room to close before the stream ends. So "event length" here measures *how much
+run is left*, not how long the disturbance lasted, and the model sees a window
+that spans most of the run. Resolving real disturbance duration needs the longer
+runs the detector was not calibrated on; it is not available in this dataset.
+
+Event-open delay (open minus onset 160), median by family: step/level faults
+69 samples (p90 99), dynamics faults 14/15 59 (p90 94), unobservable faults 3/9
+396 (p90 716). Faults 3 and 9 are late and rare (16 and 30 events from 245 runs
+each); every other fault produces an event in 244/245 runs, the missing one being
+the run that ends while an event is still open.
+
+### 9.3 Misses, oracles and NORMAL_TRANSIENT
+
+- 462 runs produced no closed event: 442 are `detector_miss` (228 fault 3, 214
+  fault 9) and 20 are `unclosed_at_run_end` (exactly one per fault).
+- Oracle windows are built **only** for the 20 unclosed runs. Their offset is the
+  median event-open sample over the **train** split (229, i.e. +69 after onset),
+  so a test-range oracle is patched with training timing. Faults 3 and 9 get no
+  oracles: manufacturing events for faults the detector cannot see would make the
+  response benchmark claim coverage it does not have.
+- NORMAL_TRANSIENT supply: 117 train / 47 val / 40 test events from fault-free
+  `TEP_FaultFree_Testing` runs, 10 of them confirmed false alarms (8 train, 2
+  val, 0 test), the rest unconfirmed excursions harvested at persistence 3.
+  These runs overlap the FAR selection/reporting halves; that is acceptable
+  because LLM training cannot change a detector result.
+
+### 9.4 Open-set construction
+
+Removal is a stable function of the event id (SHA-256 of the id, 12% threshold),
+so an event is an open-set episode or not regardless of which fold selects it.
+Over train events of classifiable faults the rate is 12.3% (195 episodes); over
+all faulty train events it is 8.9%, because faults 16-20 have no entry to remove.
+Evaluation items carry **both** variants (`menu` and `removed`) for every
+classifiable fault, so recall and abstention are always paired.
+
+### 9.5 Prompt invariants (script-checked)
+
+Every generated prompt passes `assert_prompt_clean`: 6,932/6,932 prompts contain
+no `Candidate affected subsystem`, no `candidate_subsystem`, and no `severity`
+fragment. Severity is absent from the prompt *and* from the target; it is
+computed by the production rule at render time.
+
+### 9.6 Teacher
+
+Measured on this machine with `qwen3:30b` (the tag actually installed — the
+expected `qwen2.5:32b` is not present, and the client refuses to substitute a
+near-match): 7.8-9.2 s per call, 44/50 pilot answers accepted under the final
+filter (88%). The 6 rejections are genuine: 2 invented sensor/valve names, 1
+ungrounded sensor, 3 invented numbers. Teacher prose exists for **train only**;
+val/test are scored against deterministic targets.
