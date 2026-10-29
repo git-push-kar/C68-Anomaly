@@ -21,5 +21,13 @@
     "p99.0": 4.1e-05,
     "p99.5": 0.006365,
     "p99.9": 0.02029
+  },
+  "artifact": {
+    "path": "outputs/anomaly_detector/threshold.json",
+    "threshold": 0.6870414805412293,
+    "method": "percentile",
+    "percentile": 99.0,
+    "n_normal_scores": 6675,
+    "written_by": "scripts/derive_lstm_threshold.py --write-artifact"
   }
 }

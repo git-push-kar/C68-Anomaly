@@ -9,10 +9,17 @@ TEP_FaultFree_Training), so the number has a provenance that can be checked
 instead of a comment that cannot.
 
 It reports window-level percentiles 99.0 / 99.5 / 99.9 and compares them with
-0.687. Nothing is retrained and nothing is written into the live detector: the
-output is a JSON record plus stdout.
+0.687. Nothing is retrained.
 
-    python scripts/derive_lstm_threshold.py
+``--write-artifact`` additionally regenerates
+``outputs/anomaly_detector/threshold.json`` through
+``anomaly_detection.threshold.save_threshold``, which is the artifact
+``AnomalyDetector.from_artifacts`` loads. That file was deleted in ``49b006b``
+and its absence makes the deployed app fail to start (Phase 1 patch, A0).
+Writing it is an explicit, owner-authorized step, not a side effect.
+
+    python scripts/derive_lstm_threshold.py                  # report only
+    python scripts/derive_lstm_threshold.py --write-artifact  # restore artifact
 """
 from __future__ import annotations
 
@@ -40,8 +47,16 @@ OUT = ROOT / "outputs" / "evaluation" / "detector_v2" / "lstm_threshold_derivati
 
 
 def main() -> None:
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--write-artifact", action="store_true",
+                    help="regenerate outputs/anomaly_detector/threshold.json")
+    ap.add_argument("--config", default="configs/config_a5000.yaml")
+    args = ap.parse_args()
+
     logging.basicConfig(level="INFO", format="%(levelname)-7s %(message)s")
-    config = load_config("configs/config_a5000.yaml")
+    config = load_config(args.config)
     window_size = int(config["windowing"]["window_size"])
     stride = int(config["windowing"]["stride"])
 
@@ -109,6 +124,32 @@ def main() -> None:
         v = record["percentiles"][f"p{p}"]
         print(f"{'p'+format(p,'.1f'):>12} {v:>10.5f} {v-FROZEN_THRESHOLD:>+10.5f}")
     print(f"{'frozen':>12} {FROZEN_THRESHOLD:>10.5f}")
+
+    if args.write_artifact:
+        from anomaly_detection.threshold import ThresholdConfig, save_threshold
+
+        pct = record["percentiles"]["p99.0"]
+        artifact = ThresholdConfig(
+            method="percentile",
+            percentile=99.0,
+            k_std=6.0,
+            threshold=pct,
+            n_normal_scores=record["n_windows"],
+            mean=record["mean"],
+            std=record["std"],
+        )
+        path = save_threshold(artifact, Path(config["anomaly_detector"]["model_dir"]))
+        record["artifact"] = {
+            "path": str(Path(path).as_posix()),
+            "threshold": pct,
+            "method": "percentile",
+            "percentile": 99.0,
+            "n_normal_scores": record["n_windows"],
+            "written_by": "scripts/derive_lstm_threshold.py --write-artifact",
+        }
+        save_json(OUT, record)
+        print(f"\nwrote threshold artifact {path} (threshold={pct:.5f})")
+
     print(f"\nwrote {OUT} in {elapsed:.1f}s")
 
 

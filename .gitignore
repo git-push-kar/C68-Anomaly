@@ -39,6 +39,13 @@ outputs/**/*.safetensors
 outputs/**/*.bin
 outputs/**/*.pkl
 outputs/**/*.npz
+# The live detector's threshold artifact: small, hand-restorable, and its
+# absence stops the app from starting (Phase 1 patch A0). Everything else
+# next to it stays ignored.
+!outputs/anomaly_detector/
+outputs/anomaly_detector/*
+!outputs/anomaly_detector/threshold.json
+!outputs/anomaly_detector/config.json
 outputs/**/*.db
 outputs/**/*.sqlite
 # Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)

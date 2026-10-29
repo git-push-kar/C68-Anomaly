@@ -1,0 +1,9 @@
+{
+  "method": "percentile",
+  "percentile": 99.0,
+  "k_std": 6.0,
+  "threshold": 0.6870414805412293,
+  "n_normal_scores": 6675,
+  "mean": 0.6192311950480001,
+  "std": 0.02831526308949321
+}
