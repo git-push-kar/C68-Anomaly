@@ -325,7 +325,7 @@ def render_report(report: Report, store: StoreAccess, include_timeline: bool = T
 
     header = [
         f"## {title}" + (" _(synthetic)_" if synthetic else ""),
-        f"**Severity:** {severity.level.value.capitalize()} (code-computed, score {severity.score:.2f})  ",
+        f"**Severity:** {severity.level.value.capitalize()} (authoritative, computed in code)  ",
         f"**Subsystem:** {report.affected_subsystem}  ",
         f"**Confidence:** {report.confidence:.2f}",
         "",

@@ -212,7 +212,8 @@ def test_severity_from_model_rule(event):
     report, result = build_report(raw, event)
     assert "severity_from_model" in result.codes()
     assert report is not None  # the payload still parses; severity is computed regardless
-    assert report.severity.level.value != "critical" or report.severity.rule_version.startswith("severity-rule-")
+    assert report.severity.components["authoritative_level"] == report.severity.level.value
+    assert report.severity.components["authoritative_rule"].endswith("compute_deterministic_severity")
 
 
 def test_report_from_fixture_is_valid_and_severity_matches_root_cause(event):

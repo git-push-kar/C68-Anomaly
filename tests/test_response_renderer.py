@@ -93,7 +93,8 @@ def test_detector_table_matches_store_numbers(fixture):
 
 def test_severity_is_computed_not_read_from_the_fixture(fixture):
     report = _report_for(fixture)
-    assert report.severity.rule_version.startswith("severity-rule-")
+    assert report.severity.rule_version == "severity-crosscheck-v2"
+    assert report.severity.components["authoritative_rule"].endswith("compute_deterministic_severity")
     assert report.severity.components["diagnosed_fault"] == report.root_cause.value
     assert "severity" not in fixture["report"], "fixtures must not carry a model-authored severity"
 

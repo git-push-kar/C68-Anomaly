@@ -256,8 +256,9 @@ class StoreAccess:
             if field == "stored":
                 return str(self.evidence.get("severity", ""))
             if field in ("computed", "computed_score", "kb_base", "rule"):
-                # The response layer's own code-computed assessment, which is a
-                # different rule from the one that wrote severity.stored.
+                # The authoritative code-computed assessment. Its level is the
+                # production rule (evidence.process_limits); the module's own
+                # rule is only a cross-check and never surfaces here.
                 from llm.response.severity import assess
 
                 assessment = assess(self.event, report=self.report)

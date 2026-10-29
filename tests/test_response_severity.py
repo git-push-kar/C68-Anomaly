@@ -1,9 +1,11 @@
-"""Severity rule tests.
+"""Severity tests.
 
-The rule is a **proposal**: these tests lock its shape (monotone in detector
-margin, floored by the KB, capped for normal transients) rather than any
-particular level, because the thresholds are not approved and were deliberately
-not fitted to Phase 1 test numbers.
+The quoted level is the **authoritative** production rule
+(`evidence.process_limits.compute_deterministic_severity`). The rule inside
+`llm/response/severity.py` is a cross-check: these tests lock *its* shape
+(monotone in detector margin, floored by the KB, capped for normal transients)
+via ``components['proposed_level']``, and separately assert that the returned
+level is always the authoritative one.
 """
 from __future__ import annotations
 
@@ -18,7 +20,15 @@ if str(ROOT) not in sys.path:
 
 from llm.response import StoreAccess
 from llm.response.schemas import SeverityLevel
-from llm.response.severity import RULE_VERSION, assess
+from evidence.process_limits import compute_deterministic_severity
+from llm.response.severity import (
+    AUTHORITATIVE_RULE,
+    PROPOSED_RULE,
+    RULE_VERSION,
+    assess,
+    authoritative_level,
+    severity_agreement,
+)
 
 ORDER = [SeverityLevel.LOW, SeverityLevel.MEDIUM, SeverityLevel.HIGH, SeverityLevel.CRITICAL]
 
@@ -59,34 +69,74 @@ def event(
     }
 
 
-def test_rule_version_is_marked_proposed():
-    assert RULE_VERSION.endswith("proposed")
+def test_rule_versions_name_their_roles():
+    assert AUTHORITATIVE_RULE == "evidence.process_limits.compute_deterministic_severity"
+    assert PROPOSED_RULE.endswith("proposed")
+    assert RULE_VERSION == "severity-crosscheck-v2"
 
 
-def test_severity_is_monotone_in_detector_margin():
+def test_authoritative_level_matches_the_production_function():
+    ev = event()
+    assert authoritative_level(ev).value == compute_deterministic_severity(ev["evidence"])
+    assert assess(ev, fault="FAULT_15").level is authoritative_level(ev)
+
+
+def test_cross_check_is_monotone_in_detector_margin():
     weak = assess(event(lstm=(0.61, 0.60), cva=(241.0, 240.0), z=2.1), fault="FAULT_13")
     strong = assess(event(lstm=(1.8, 0.60), cva=(600.0, 240.0), z=6.5), fault="FAULT_13")
-    assert ORDER.index(strong.level) >= ORDER.index(weak.level)
+    assert ORDER.index(SeverityLevel(strong.components["proposed_level"])) >= ORDER.index(
+        SeverityLevel(weak.components["proposed_level"])
+    )
     assert strong.score > weak.score
 
 
 def test_kb_floor_applies_for_a_sustained_event():
     # weak detector evidence on a critical KB fault, but a long sustained event:
-    # the KB floor keeps it at the family's level.
+    # the cross-check's KB floor keeps it at the family's level.
     assessment = assess(event(lstm=(0.61, 0.60), cva=(241.0, 240.0), z=0.2), fault="FAULT_15")
     assert assessment.kb_base is SeverityLevel.CRITICAL
-    assert ORDER.index(assessment.level) >= ORDER.index(SeverityLevel.HIGH)
+    assert ORDER.index(SeverityLevel(assessment.components["proposed_level"])) >= ORDER.index(
+        SeverityLevel.HIGH
+    )
 
 
 def test_short_decaying_event_is_stepped_down_from_the_kb_floor():
     short = assess(event(n_windows=2, mean_score=0.2, max_score=0.9), fault="FAULT_15")
     assert short.components["floor"] == SeverityLevel.HIGH.value
-    assert ORDER.index(short.level) < ORDER.index(SeverityLevel.CRITICAL)
+    assert ORDER.index(SeverityLevel(short.components["proposed_level"])) < ORDER.index(
+        SeverityLevel.CRITICAL
+    )
 
 
-def test_normal_transient_is_never_critical():
+def test_normal_transient_is_never_critical_in_the_cross_check():
     assessment = assess(event(lstm=(3.0, 0.6), cva=(900.0, 240.0), z=9.0), fault="NORMAL_TRANSIENT")
-    assert ORDER.index(assessment.level) <= ORDER.index(SeverityLevel.MEDIUM)
+    assert ORDER.index(SeverityLevel(assessment.components["proposed_level"])) <= ORDER.index(
+        SeverityLevel.MEDIUM
+    )
+
+
+def test_agreement_flag_is_recorded_and_never_displayed():
+    ev = event()
+    assessment = assess(ev, fault="FAULT_15")
+    comp = assessment.components
+    assert comp["authoritative_level"] == assessment.level.value
+    assert comp["proposed_level"] in {level.value for level in ORDER}
+    assert isinstance(comp["severity_agreement"], bool)
+    assert comp["severity_gap"] == (
+        ORDER.index(SeverityLevel(comp["proposed_level"])) - ORDER.index(assessment.level)
+    )
+    # the rationale quotes only the authoritative rule, never the cross-check
+    assert "authoritative production rule" in assessment.rationale
+    assert "proposed" not in assessment.rationale
+    assert "cross-check" not in assessment.rationale
+
+
+def test_agreement_helper_reports_a_signed_gap():
+    assert severity_agreement(SeverityLevel.LOW, SeverityLevel.LOW) == {
+        "agree": True, "authoritative": "low", "proposed": "low", "gap": 0
+    }
+    above = severity_agreement(SeverityLevel.MEDIUM, SeverityLevel.CRITICAL)
+    assert above == {"agree": False, "authoritative": "medium", "proposed": "critical", "gap": 2}
 
 
 def test_open_set_has_a_medium_base_and_no_kb_floor():

@@ -131,10 +131,14 @@ def _lead_for(intent: Intent, store: StoreAccess, report: Dict, detail: str) -> 
         assessment = assess(store.event, report=report)
         ratio = float(_get(store, "detector.dynamic.ratio") or 0.0)
         windows = int(_get(store, "event.n_windows") or 0)
+        # The rule id lives in severity.rule / the citation keys, not in prose:
+        # a snake_case module path in an answer would trip the tag check and is
+        # not something an operator needs to read.
         lead = (
-            f"Severity is {assessment.level.value.upper()}, computed in code from a detector margin of "
-            f"{ratio:.2f}x over {windows} window(s); the knowledge-base floor for "
-            f"{assessment.components.get('diagnosed_fault')} is {assessment.kb_base.value}."
+            f"Severity is {assessment.level.value.upper()}, set by the production severity rule "
+            f"in code; detector margin {ratio:.2f}x, the event spanned {windows} window(s), "
+            f"and the knowledge-base base for {assessment.components.get('diagnosed_fault')} "
+            f"is {assessment.kb_base.value}."
         )
         stored = str(_get(store, "severity.stored") or "")
         if stored and stored.lower() != assessment.level.value:

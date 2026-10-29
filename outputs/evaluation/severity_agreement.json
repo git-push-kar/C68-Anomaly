@@ -1,0 +1,4955 @@
+{
+  "n_events": 489,
+  "authoritative_rule": "evidence.process_limits.compute_deterministic_severity",
+  "proposed_rule": "severity-rule-v1-proposed",
+  "agreement_rate": 0.16155419222903886,
+  "n_agree": 79,
+  "n_disagree": 410,
+  "confusion": {
+    "critical": {
+      "medium": 205,
+      "critical": 22,
+      "high": 29,
+      "low": 70
+    },
+    "high": {
+      "high": 3,
+      "medium": 51,
+      "low": 13
+    },
+    "low": {
+      "low": 54,
+      "high": 4,
+      "medium": 22,
+      "critical": 3
+    },
+    "medium": {
+      "low": 13
+    }
+  },
+  "gap_distribution": {
+    "-3": 70,
+    "-2": 218,
+    "-1": 93,
+    "0": 79,
+    "1": 22,
+    "2": 4,
+    "3": 3
+  },
+  "stored_matches_authoritative": 413,
+  "stored_vs_authoritative": {
+    "n_differ": 76,
+    "confusion": {
+      "critical": {
+        "low": 8,
+        "medium": 1
+      },
+      "high": {
+        "critical": 16
+      },
+      "low": {
+        "medium": 40,
+        "critical": 5
+      },
+      "medium": {
+        "high": 6
+      }
+    },
+    "events": [
+      {
+        "event_id": "ANOM-0005",
+        "stored": "low",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0046",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0047",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0048",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0049",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0050",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0052",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0053",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0054",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0055",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0057",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0067",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0106",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0117",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0118",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0120",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0128",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0139",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0140",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0142",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0143",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0144",
+        "stored": "high",
+        "authoritative": "medium"
+      },
+      {
+        "event_id": "ANOM-0152",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0163",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0164",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0166",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0167",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0180",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0191",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0211",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0222",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0223",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0225",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0226",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0227",
+        "stored": "high",
+        "authoritative": "medium"
+      },
+      {
+        "event_id": "ANOM-0246",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0247",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0248",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0250",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0254",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0275",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0277",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0279",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0281",
+        "stored": "high",
+        "authoritative": "medium"
+      },
+      {
+        "event_id": "ANOM-0282",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0283",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0285",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0286",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0304",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0305",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0306",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0307",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0308",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0309",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0310",
+        "stored": "high",
+        "authoritative": "medium"
+      },
+      {
+        "event_id": "ANOM-0311",
+        "stored": "high",
+        "authoritative": "medium"
+      },
+      {
+        "event_id": "ANOM-0312",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0324",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0326",
+        "stored": "high",
+        "authoritative": "medium"
+      },
+      {
+        "event_id": "ANOM-0327",
+        "stored": "medium",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0330",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0332",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0333",
+        "stored": "critical",
+        "authoritative": "high"
+      },
+      {
+        "event_id": "ANOM-0336",
+        "stored": "low",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0337",
+        "stored": "low",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0345",
+        "stored": "low",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0351",
+        "stored": "medium",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0380",
+        "stored": "low",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0381",
+        "stored": "critical",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0383",
+        "stored": "critical",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0384",
+        "stored": "critical",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0385",
+        "stored": "critical",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0386",
+        "stored": "critical",
+        "authoritative": "low"
+      },
+      {
+        "event_id": "ANOM-0404",
+        "stored": "low",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0427",
+        "stored": "low",
+        "authoritative": "critical"
+      },
+      {
+        "event_id": "ANOM-0451",
+        "stored": "low",
+        "authoritative": "critical"
+      }
+    ],
+    "note": "The stored column was written when the event was ingested; it is not recomputed later, so a change to the production rule shows up here. The response layer quotes the recomputed value and discloses the stored one."
+  },
+  "events_without_fault_label": 469,
+  "disagreements": [
+    {
+      "event_id": "ANOM-0004",
+      "fault_label": 21,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 66,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0009",
+      "fault_label": 21,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 66,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0200",
+      "fault_label": 21,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 66,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0357",
+      "fault_label": 15,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "dynamics: condenser_cooling_system (CVA Q alarmed, LSTM quiet) \u2014 check condenser cooling water valve stiction; candidate from CVA lag-profile",
+      "n_windows": 14,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0433",
+      "fault_label": 15,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 14,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0457",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0458",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 8,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0459",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 18,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0460",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0461",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 8,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0462",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 18,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0463",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0464",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 8,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0465",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0467",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 8,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0468",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0469",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0470",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0473",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0474",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0476",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0477",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0478",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0479",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0481",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 16,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0482",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0483",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 38,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0484",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 8,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0487",
+      "fault_label": 15,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "high",
+      "gap": -1,
+      "root_cause": "A_Feed_Stream1",
+      "n_windows": 14,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0005",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 9,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0068",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0069",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0070",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0071",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0072",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0073",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0074",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0075",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0076",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0077",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0111",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0112",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0113",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0114",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0115",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0116",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0133",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0134",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0135",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0136",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0137",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0138",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0157",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0158",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0159",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0160",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0161",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0162",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0196",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0216",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0217",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0218",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0219",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0220",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0221",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0255",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0256",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0257",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0258",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0269",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0270",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0271",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0272",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0273",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0289",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0290",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0291",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0292",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0293",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0294",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0296",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0298",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0299",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0300",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0301",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0302",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0303",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0336",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 3,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0337",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "dynamics: feed_system (CVA Q alarmed, LSTM quiet) \u2014 check condenser cooling water valve stiction; candidate from CVA lag-profile",
+      "n_windows": 1,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0345",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 10,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0351",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: condenser_cooling_system",
+      "n_windows": 101,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0352",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 150,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0405",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 151,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0428",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 151,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0452",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 151,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0466",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 9,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0472",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 12,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0485",
+      "fault_label": 15,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 14,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0486",
+      "fault_label": 15,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "low",
+      "gap": -3,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 14,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0001",
+      "fault_label": 1,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 66,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0006",
+      "fault_label": 1,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 66,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0010",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0011",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0012",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0013",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0014",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0015",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0016",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0017",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0018",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0019",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0020",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0021",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0022",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0023",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0024",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0025",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0026",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0027",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0028",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0029",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0030",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0031",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0032",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0033",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0034",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0035",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0036",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0037",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0038",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0039",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0040",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0041",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0042",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0043",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0044",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0078",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0079",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0080",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0081",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0082",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0083",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0084",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0085",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0086",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0087",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0088",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0089",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0090",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0091",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0092",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0093",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0094",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0095",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0096",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0097",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0098",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0099",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0100",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0101",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0102",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0103",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0104",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0121",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0122",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0123",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0124",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0125",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0126",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0145",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0146",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0147",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0148",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0149",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0150",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0168",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0169",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0170",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0171",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0172",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0173",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0174",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0175",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0176",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0177",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0178",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0184",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0185",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0186",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0187",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0188",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0189",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0197",
+      "fault_label": 1,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 66,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0204",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0205",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0206",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0207",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0208",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0209",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0228",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0229",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0230",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0231",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0232",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0233",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0234",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0235",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0236",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0237",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0238",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0239",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0240",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0241",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0242",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0243",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: purge_compressor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0259",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0260",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0261",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0262",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0263",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0264",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0265",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0266",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0267",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0268",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0295",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0297",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0314",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0315",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0316",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0317",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0318",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0319",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0320",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0321",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: condenser_cooling_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0322",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0323",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0334",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0335",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 155,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0339",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0340",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: condenser_cooling_system",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0341",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: condenser_cooling_system",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0342",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0343",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 154,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0346",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 151,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0347",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 156,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0348",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: condenser_cooling_system",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0349",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 149,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0350",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0353",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 144,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0354",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: condenser_cooling_system",
+      "n_windows": 148,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0355",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0356",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 152,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0368",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0369",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0370",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0371",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0374",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0375",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0376",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0377",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0378",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0380",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 22,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0392",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0393",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0394",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0398",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 154,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0399",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 156,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0400",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0401",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 148,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0402",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0404",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 22,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0406",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 144,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0407",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 147,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0408",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0409",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 151,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0415",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0416",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0417",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0421",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 154,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0422",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 156,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0423",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0424",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 148,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0425",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0427",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 22,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0429",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 144,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0430",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 147,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0431",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0432",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 151,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0439",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0440",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0441",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0445",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 154,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0446",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 156,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0447",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0448",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Stripper steam heating or column operating disturbance",
+      "n_windows": 148,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0449",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 158,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0451",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 22,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0453",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 144,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0454",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 147,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0455",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 157,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0456",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Reactor cooling water inlet temperature disturbance or valve sticking",
+      "n_windows": 151,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0475",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "Process disturbance in feed_system",
+      "n_windows": 8,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0480",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "critical",
+      "proposed": "medium",
+      "gap": -2,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0067",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0254",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0279",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0284",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0285",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0286",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0287",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0288",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0329",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0330",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0331",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0332",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0333",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "low",
+      "gap": -2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0056",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0057",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0058",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0059",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0060",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0061",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0062",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0063",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0064",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0065",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0066",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0105",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0106",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0107",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0108",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0109",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0110",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0127",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0128",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0129",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0130",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0131",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0132",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0151",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0152",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0153",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0154",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0155",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0156",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0179",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0180",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0181",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0182",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0183",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0190",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0191",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0192",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0193",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0194",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0195",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0210",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0211",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0212",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0213",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0214",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0215",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0249",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0250",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0251",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0252",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0253",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "high",
+      "proposed": "medium",
+      "gap": -1,
+      "root_cause": "candidate: product_composition_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0383",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "low",
+      "proposed": "critical",
+      "gap": 3,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 11,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0384",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "low",
+      "proposed": "critical",
+      "gap": 3,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 13,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0385",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "low",
+      "proposed": "critical",
+      "gap": 3,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 25,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0202",
+      "fault_label": 15,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "high",
+      "gap": 2,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 2,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0203",
+      "fault_label": 15,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "high",
+      "gap": 2,
+      "root_cause": "candidate: separation_system",
+      "n_windows": 3,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0381",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "low",
+      "proposed": "high",
+      "gap": 2,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 3,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0386",
+      "fault_label": null,
+      "stored": "critical",
+      "authoritative": "low",
+      "proposed": "high",
+      "gap": 2,
+      "root_cause": "Condenser cooling water valve sticking (stiction hysteresis)",
+      "n_windows": 3,
+      "triggered_by": "dynamic"
+    },
+    {
+      "event_id": "ANOM-0358",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 7,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0359",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 6,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0365",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0366",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0372",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0373",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0379",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 19,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0389",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0390",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0396",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0397",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0403",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 19,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0412",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0413",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0419",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0420",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0426",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 19,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0436",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0437",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0443",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "Condenser cooling water inlet temperature step or valve sticking",
+      "n_windows": 1,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0444",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 8,
+      "triggered_by": "lstm_ae"
+    },
+    {
+      "event_id": "ANOM-0450",
+      "fault_label": null,
+      "stored": "low",
+      "authoritative": "low",
+      "proposed": "medium",
+      "gap": 1,
+      "root_cause": "B composition step change or purge variation",
+      "n_windows": 19,
+      "triggered_by": "both"
+    },
+    {
+      "event_id": "ANOM-0051",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0144",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0227",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0245",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0276",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0280",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: feed_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0281",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0310",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0311",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0313",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0325",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0326",
+      "fault_label": null,
+      "stored": "high",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: stripper_system",
+      "n_windows": 4,
+      "triggered_by": null
+    },
+    {
+      "event_id": "ANOM-0328",
+      "fault_label": null,
+      "stored": "medium",
+      "authoritative": "medium",
+      "proposed": "low",
+      "gap": -1,
+      "root_cause": "candidate: reactor_system",
+      "n_windows": 4,
+      "triggered_by": null
+    }
+  ]
+}
