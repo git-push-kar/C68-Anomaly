@@ -46,6 +46,12 @@ outputs/**/*.npz
 outputs/anomaly_detector/*
 !outputs/anomaly_detector/threshold.json
 !outputs/anomaly_detector/config.json
+# Baseline statistics the event builder dereferences; reconstructible and
+# verified against the fitted scaler (scripts/restore_baseline_stats.py).
+!outputs/preprocessing/
+outputs/preprocessing/*
+!outputs/preprocessing/baseline_stats.json
+!outputs/preprocessing/baseline_provenance.json
 outputs/**/*.db
 outputs/**/*.sqlite
 # Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)

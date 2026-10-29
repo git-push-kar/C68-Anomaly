@@ -1,0 +1,13 @@
+{
+  "written_by": "scripts/restore_baseline_stats.py",
+  "source_file": "data\\raw\\normal\\TEP_FaultFree_Training.csv",
+  "n_samples": 250000,
+  "feature_order": "preprocessing.tep_loader.CANONICAL_NAMES",
+  "verification": {
+    "scaler_class": "StandardScaler",
+    "max_relative_error_mean": 2.3593323497681888e-07,
+    "max_relative_error_std": 1.299818600732072e-07,
+    "tolerance": 0.0001,
+    "matches_fitted_scaler": true
+  }
+}
