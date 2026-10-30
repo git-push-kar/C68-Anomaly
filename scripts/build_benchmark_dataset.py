@@ -724,8 +724,8 @@ def main() -> int:
                     help="re-judge cached teacher answers with the current filters and "
                          "attach those that still pass; makes no model call")
     ap.add_argument("--exclude-rejected", action="store_true",
-                    help="drop train items whose teacher answer was rejected, then "
-                         "re-apply the unclassified cap to the smaller set")
+                    help="drop train items with no valid prose (rejected or never "
+                         "called), then re-apply the unclassified cap")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args()
@@ -892,8 +892,10 @@ def main() -> int:
         # unclassified side (64 vs 9 in the full run), which pushes the open-set
         # share back over the cap -- so the cap is re-applied to what is left
         # rather than trusted from the larger set.
-        kept = [row for row in items["train"]
-                if row.get("teacher_status") != "rejected"]
+        # "No prose" covers both kinds of residual drop: an answer that was
+        # rejected under the final filters, and an item the call budget never
+        # reached. Both are unusable as a prose-conditioned row.
+        kept = [row for row in items["train"] if row.get("prose")]
         removed = len(items["train"]) - len(kept)
         items["train"] = kept
         items["train"], class_balance = cap_open_set(items["train"], args.seed)

@@ -51,6 +51,8 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--generate", type=int, default=20,
                         help="validation items to generate after the steps")
+    parser.add_argument("--max-new-tokens", type=int, default=96,
+                        help="decode cap per item; the forward-only loop is slow")
     parser.add_argument("--out", default=str(OUT))
     args = parser.parse_args()
 
@@ -170,43 +172,60 @@ def main() -> int:
     }
 
     # -- generation ----------------------------------------------------------
+    # ``model.generate`` is not usable with this remote code: InternVL's own
+    # generate() asserts that the input carries image-context tokens, and a
+    # text-only prompt has none. The application already solves this by decoding
+    # with plain forward passes (llm/inference.py), so the smoke run measures the
+    # same path rather than a different one.
     generation: Dict[str, object] = {"items": 0}
     if args.generate and val_rows:
         model.eval()
-        model.config.use_cache = True
+        dummy_pixels = torch.zeros(1, 3, dummy, dummy, dtype=dtype, device=model.device)
+        flags = torch.tensor([0], device=model.device)
+        stop = {tokenizer.convert_tokens_to_ids("<|im_end|>"), tokenizer.eos_token_id}
         produced = 0
         seconds_list: List[float] = []
         tokens_out = 0
         started = time.time()
-        for row in val_rows[: args.generate]:
-            prompt = (f"<|im_start|>system\n{row['system']}<|im_end|>"
-                      f"<|im_start|>user\n{row['question']}<|im_end|>"
-                      "<|im_start|>assistant\n")
-            ids = tokenizer(prompt, return_tensors="pt", truncation=True,
-                            max_length=max_len).to(model.device)
-            start = time.time()
-            with torch.no_grad():
-                out = model.generate(
-                    input_ids=ids.input_ids, attention_mask=ids.attention_mask,
-                    pixel_values=torch.zeros(1, 3, dummy, dummy, dtype=dtype,
-                                             device=model.device),
-                    image_flags=torch.tensor([0], device=model.device),
-                    max_new_tokens=512, do_sample=False,
-                    pad_token_id=tokenizer.pad_token_id,
-                    eos_token_id=tokenizer.convert_tokens_to_ids("<|im_end|>"),
-                )
-            seconds_list.append(time.time() - start)
-            tokens_out += int(out.shape[1] - ids.input_ids.shape[1])
-            produced += 1
-        elapsed = time.time() - started
-        generation = {
-            "items": produced,
-            "seconds_total": round(elapsed, 1),
-            "seconds_per_item": round(statistics.fmean(seconds_list), 2) if seconds_list else None,
-            "tokens_per_second": round(tokens_out / elapsed, 2) if elapsed else None,
-            "mean_new_tokens": round(tokens_out / produced, 1) if produced else None,
-            "note": "greedy, unbatched, unmerged adapter; not scored",
-        }
+        try:
+            for row in val_rows[: args.generate]:
+                prompt = (f"<|im_start|>system\n{row['system']}<|im_end|>"
+                          f"<|im_start|>user\n{row['question']}<|im_end|>"
+                          "<|im_start|>assistant\n")
+                ids = tokenizer(prompt, return_tensors="pt", truncation=True,
+                                max_length=max_len).to(model.device)
+                input_ids = ids.input_ids
+                start = time.time()
+                new_tokens = 0
+                with torch.no_grad():
+                    for _ in range(args.max_new_tokens):
+                        out = model(input_ids=input_ids,
+                                    attention_mask=torch.ones_like(input_ids),
+                                    pixel_values=dummy_pixels, image_flags=flags,
+                                    use_cache=False)
+                        next_id = out.logits[:, -1, :].argmax(-1, keepdim=True)
+                        input_ids = torch.cat([input_ids, next_id], dim=1)
+                        new_tokens += 1
+                        if int(next_id) in stop:
+                            break
+                        del out
+                seconds_list.append(time.time() - start)
+                tokens_out += new_tokens
+                produced += 1
+            elapsed = time.time() - started
+            generation = {
+                "items": produced,
+                "seconds_total": round(elapsed, 1),
+                "seconds_per_item": round(statistics.fmean(seconds_list), 2) if seconds_list else None,
+                "tokens_per_second": round(tokens_out / elapsed, 2) if elapsed else None,
+                "mean_new_tokens": round(tokens_out / produced, 1) if produced else None,
+                "max_new_tokens_cap": args.max_new_tokens,
+                "note": ("greedy, unbatched, unmerged adapter, forward-only decode "
+                         "(no KV cache), capped at "
+                         f"{args.max_new_tokens} tokens; outputs not scored"),
+            }
+        except Exception as exc:  # keep the training numbers if decoding fails
+            generation = {"items": produced, "error": f"{type(exc).__name__}: {exc}"}
 
     report = {"check": check, "train": train_metrics, "projection": projection,
               "generation": generation,

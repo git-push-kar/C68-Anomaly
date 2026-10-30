@@ -34,6 +34,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from llm.benchmark.prompt_v2 import opaque_event_id  # noqa: E402
+from llm.benchmark.scaffolding import scaffolding_hits  # noqa: E402
 
 
 def load_items(path: Path) -> List[Dict]:
@@ -131,7 +132,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dataset", default="outputs/benchmark_v2/dataset")
     ap.add_argument("--events", default="outputs/benchmark_v2/events")
-    ap.add_argument("--out", default="outputs/benchmark_v2/dataset/audit_v2.csv")
+    ap.add_argument("--out", default="outputs/benchmark_v2/dataset/audit_v3.csv")
     ap.add_argument("--rows", type=int, default=100)
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
@@ -152,14 +153,20 @@ def main() -> int:
     chosen = stratified(accepted, args.rows, args.seed)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    # ``scaffolding`` is blank on a clean row; when it is not, it names the
+    # template phrase the prose quoted. A human auditing a sample should not have
+    # to know the filter to see the defect.
     columns = ["item_id", "family", "evidence_summary", "menu_variant", "target_label",
-               "teacher_reasoning", "teacher_narrative", "correct", "grounded",
-               "direction_consistent", "useful", "notes"]
+               "teacher_reasoning", "teacher_narrative", "scaffolding", "correct",
+               "grounded", "direction_consistent", "useful", "notes"]
     with open(out_path, "w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle)
         writer.writerow(columns)
         for item in chosen:
             prose = item.get("prose") or {}
+            text = f"{prose.get('physical_reasoning', '')} {prose.get('narrative', '')}"
+            abstain = str((item.get("target") or {}).get("fault_id")) == "UNCLASSIFIED_OPEN_SET"
+            hits = scaffolding_hits(text, abstain=abstain)
             writer.writerow([
                 opaque_event_id(item.get("event_id")),
                 family_of(item),
@@ -168,6 +175,7 @@ def main() -> int:
                 (item.get("target") or {}).get("fault_id"),
                 prose.get("physical_reasoning", ""),
                 prose.get("narrative", ""),
+                ",".join(hit["phrase"] for hit in hits),
                 "", "", "", "", "",
             ])
 
