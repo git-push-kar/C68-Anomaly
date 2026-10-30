@@ -17,6 +17,8 @@ from llm.benchmark.menu import CLASSIFIABLE_FAULTS, UNCLASSIFIED, build_menu, lo
 from llm.benchmark.prompt_v2 import (
     FORBIDDEN_PROMPT_FRAGMENTS,
     assert_prompt_clean,
+    opaque_event_id,
+    prompt_leaks,
     render_prompt,
     teacher_instruction,
 )
@@ -28,6 +30,13 @@ from llm.benchmark.targets import (
     open_set_assignment,
 )
 from llm.response.allowed_set import build_allowed_set
+from scripts.build_benchmark_dataset import (
+    OPEN_SET_FAMILY,
+    UNOBSERVABLE_FAULTS,
+    cap_open_set,
+    make_item,
+)
+from scripts.fault_knowledge import FAULT_KNOWLEDGE
 
 
 def _event(fault: int = 15, run: int = 401, split: str = "test") -> dict:
@@ -274,3 +283,122 @@ def test_invalid_json_is_reported_as_such():
 
 def test_kb_lookalikes_are_present_for_a_differential():
     assert lookalikes(14), "fault 14 names its sibling in the KB differential"
+
+
+# -- prompt leaks -------------------------------------------------------------
+def test_prompt_carries_an_opaque_id_and_no_split_fault_or_run():
+    event = _event()
+    prompt = render_prompt(event["event"], build_menu(), teacher_instruction(["FAULT_15"]))
+    assert event["event_id"] not in prompt, "the internal id must never reach the prompt"
+    assert opaque_event_id(event["event_id"]) in prompt
+    assert prompt_leaks(prompt) == []
+    # the three things the internal id encodes, none of which may appear
+    for token in ("r401", "EVT-", "test"):
+        assert token not in prompt
+
+
+def test_opaque_id_is_stable_and_hides_the_input():
+    assert opaque_event_id("EVT-train-f04-r123") == opaque_event_id("EVT-train-f04-r123")
+    assert opaque_event_id("EVT-train-f04-r123") != opaque_event_id("EVT-train-f04-r124")
+    assert "train" not in opaque_event_id("EVT-train-f04-r123")
+
+
+@pytest.mark.parametrize("leak", [
+    "EVT-train-f04-r123",
+    "the run r086",
+    "NORM-3-r401",
+    "labelled NORMAL_TRANSIENT",
+    "fault 15 again",
+    "split=train",
+])
+def test_leak_detector_catches_each_token(leak):
+    text = f"evidence line\n{leak}\nCANDIDATE MENU\n- FAULT_15: something\n"
+    assert prompt_leaks(text), f"{leak!r} should be a leak"
+
+
+def test_fault_name_in_the_evidence_section_is_a_leak():
+    name = str(FAULT_KNOWLEDGE[15]["name"])
+    with pytest.raises(ValueError):
+        assert_prompt_clean(f"The {name} is likely.\nCANDIDATE MENU\n- FAULT_15: {name}")
+
+
+def test_fault_names_inside_the_menu_are_the_choices_not_a_leak():
+    prompt = render_prompt(_event()["event"], build_menu(), teacher_instruction(["FAULT_15"]))
+    name = str(FAULT_KNOWLEDGE[15]["name"])
+    assert name in prompt, "the menu is supposed to name the faults"
+    assert_prompt_clean(prompt)          # and that is not a leak
+
+
+# -- twins for faults 16-20 ---------------------------------------------------
+def test_open_set_family_has_no_entry_to_remove_so_no_twin():
+    for fault in OPEN_SET_FAMILY:
+        menu_target = build_target(_event(fault=fault))
+        removed_target = build_target(_event(fault=fault), variant="removed")
+        assert menu_target["menu_removed"] == []
+        assert menu_target["fault_id"] == removed_target["fault_id"] == UNCLASSIFIED
+        assert menu_target["ranked_hypotheses"] == removed_target["ranked_hypotheses"]
+
+
+def test_classifiable_faults_still_get_a_removable_entry():
+    assert build_target(_event(), variant="removed")["menu_removed"] == ["FAULT_15"]
+
+
+# -- faults 3 and 9 -----------------------------------------------------------
+def test_unobservable_faults_are_declared_and_flagged_on_the_item():
+    assert set(UNOBSERVABLE_FAULTS) == {3, 9}
+    item = make_item(_event(fault=3), "val", "menu")
+    assert item["unobservable"] is True
+    assert make_item(_event(fault=4), "val", "menu")["unobservable"] is False
+
+
+# -- class balance ------------------------------------------------------------
+def _train_item(index: int, fault: int, target_id: str) -> dict:
+    return {"item_id": f"it-{index:03d}", "event_id": f"EVT-train-x-{index:03d}",
+            "fault": fault, "split": "train", "target": {"fault_id": target_id}}
+
+
+def test_open_set_cap_drops_only_the_16_to_20_supply():
+    # 60 classified + 40 open-set = 100 faulty; the cap is 25.
+    items = [_train_item(i, 1, "FAULT_01") for i in range(60)]
+    items += [_train_item(100 + i, 17, UNCLASSIFIED) for i in range(30)]
+    items += [_train_item(200 + i, 2, UNCLASSIFIED) for i in range(10)]  # 1-15 episodes
+    kept, report = cap_open_set(items, seed=42)
+    assert report["capped"] is True
+    # 60 classified fixes the bound at 0.25*60/0.75 = 20 unclassified, so 20 of
+    # the 40 go: all from the 16-20 supply.
+    assert report["dropped"] == 20
+    assert report["share_after"] <= 0.25
+    remaining = [i for i in kept if i["target"]["fault_id"] == UNCLASSIFIED]
+    assert sum(1 for i in remaining if i["fault"] == 2) == 10, "episodes are not the lever"
+    assert sum(1 for i in remaining if i["fault"] == 17) == 10
+
+
+def test_open_set_cap_leaves_a_balanced_set_alone():
+    items = [_train_item(i, 1, "FAULT_01") for i in range(90)]
+    items += [_train_item(100 + i, 17, UNCLASSIFIED) for i in range(10)]
+    kept, report = cap_open_set(items, seed=42)
+    assert report["capped"] is False
+    assert len(kept) == len(items)
+
+
+# -- percent rendering of a stored share (pilot example 4) --------------------
+def test_a_share_stated_in_percent_is_not_a_new_number():
+    """0.702 printed in the evidence and quoted as "70.2%" is the same figure.
+
+    The 50-call pilot rejected this as ``number_not_in_store:70.2``; the rejection
+    was wrong, and the factor-100 reading is the fix. A truncated number is still
+    rejected, which the next test pins.
+    """
+    event = _event()
+    event["event"]["detector_evidence"]["lag_attribution"]["top_variables"][0]["share"] = 0.702
+    answer = dict(_good_answer(),
+                  narrative=_good_answer()["narrative"] + " Its residual share is 70.2%.")
+    assert _check(answer, event=event) == []
+
+
+def test_a_truncated_number_is_still_rejected():
+    event = _event()
+    event["event"]["top_anomalous_sensors"][0]["deviation_percent"] = 206.82
+    answer = dict(_good_answer(),
+                  narrative=_good_answer()["narrative"] + " The deviation reached 206%.")
+    assert any(code.startswith("number_not_in_store") for code in _check(answer, event=event))
