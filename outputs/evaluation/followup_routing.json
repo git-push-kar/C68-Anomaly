@@ -1,0 +1,478 @@
+{
+  "per_label": [
+    {
+      "label": "sensor_values",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "sensor_values": 50
+      },
+      "bench": {
+        "sensor_values": 46,
+        "hypothesis_comparison": 4
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 4,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "evidence_why",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "evidence_why": 50
+      },
+      "bench": {
+        "evidence_why": 50
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "system_sensors",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "system_sensors": 50
+      },
+      "bench": {
+        "system_sensors": 50
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "sensor_scores",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "sensor_scores": 50
+      },
+      "bench": {
+        "sensor_scores": 50
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "detector_severity",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "detector_severity": 50
+      },
+      "bench": {
+        "detector_severity": 50
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "detector_scores",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "detector_scores": 50
+      },
+      "bench": {
+        "detector_scores": 50
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "severity",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "severity": 50
+      },
+      "bench": {
+        "severity": 50
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "overview",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "overview": 46,
+        "(none: model)": 4
+      },
+      "bench": {
+        "overview": 46,
+        "(none)": 4
+      },
+      "template": 46,
+      "llm": 4,
+      "clarify": 4,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "sensors_inspect",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "sensors_inspect": 50
+      },
+      "bench": {
+        "sensors_inspect": 50
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "action",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "action": 49,
+        "(none: model)": 1
+      },
+      "bench": {
+        "action": 49,
+        "out_of_scope_refusal": 1
+      },
+      "template": 49,
+      "llm": 1,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "overview_fallback",
+      "family": "live_template",
+      "n": 50,
+      "routed": {
+        "overview_fallback": 45,
+        "overview": 5
+      },
+      "bench": {
+        "overview_fallback": 45,
+        "overview": 5
+      },
+      "template": 50,
+      "llm": 0,
+      "clarify": 5,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "hypothesis_comparison",
+      "family": "benchmark_only",
+      "n": 50,
+      "routed": {
+        "(none: model)": 34,
+        "overview": 12,
+        "overview_fallback": 4
+      },
+      "bench": {
+        "hypothesis_comparison": 50
+      },
+      "template": 16,
+      "llm": 34,
+      "clarify": 1,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "out_of_scope_refusal",
+      "family": "benchmark_only",
+      "n": 50,
+      "routed": {
+        "(none: model)": 49,
+        "overview": 1
+      },
+      "bench": {
+        "(none)": 41,
+        "out_of_scope_refusal": 8,
+        "overview": 1
+      },
+      "template": 1,
+      "llm": 49,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "clarification_reply",
+      "family": "benchmark_only",
+      "n": 50,
+      "routed": {
+        "(none: model)": 50
+      },
+      "bench": {
+        "clarification_reply": 50
+      },
+      "template": 0,
+      "llm": 50,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "valve_actuator",
+      "family": "live_free_form",
+      "n": 50,
+      "routed": {
+        "(none: model)": 50
+      },
+      "bench": {
+        "(none)": 47,
+        "out_of_scope_refusal": 3
+      },
+      "template": 0,
+      "llm": 50,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "causal_why",
+      "family": "live_free_form",
+      "n": 50,
+      "routed": {
+        "(none: model)": 50
+      },
+      "bench": {
+        "(none)": 45,
+        "out_of_scope_refusal": 5
+      },
+      "template": 0,
+      "llm": 50,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    },
+    {
+      "label": "mechanism",
+      "family": "live_free_form",
+      "n": 50,
+      "routed": {
+        "(none: model)": 46,
+        "action": 4
+      },
+      "bench": {
+        "(none)": 31,
+        "out_of_scope_refusal": 15,
+        "action": 4
+      },
+      "template": 4,
+      "llm": 46,
+      "clarify": 0,
+      "guardrail_eligible": 0
+    }
+  ],
+  "families": [
+    {
+      "family": "live_template",
+      "labels": 11,
+      "n": 550,
+      "template": 545,
+      "model": 5,
+      "model_share": 0.0091
+    },
+    {
+      "family": "live_free_form",
+      "labels": 3,
+      "n": 150,
+      "template": 4,
+      "model": 146,
+      "model_share": 0.9733
+    },
+    {
+      "family": "benchmark_only",
+      "labels": 3,
+      "n": 150,
+      "template": 17,
+      "model": 133,
+      "model_share": 0.8867
+    }
+  ],
+  "reply_shaped": {
+    "n": 10,
+    "routed": {
+      "detector_scores": 1,
+      "__clarify__": 0,
+      "(none: model)": 7,
+      "evidence_why": 2
+    }
+  },
+  "corpus": [
+    {
+      "corpus": "data/llm_1/train",
+      "measure": "followup:ask",
+      "n": 576,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "overview": 288,
+        "severity": 144,
+        "sensors_inspect": 144
+      },
+      "rows_with_telemetry_preamble": 0
+    },
+    {
+      "corpus": "data/llm_1/train",
+      "measure": "grounded_qa:ask",
+      "n": 1008,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "detector_scores": 144,
+        "evidence_why": 144,
+        "sensor_values": 144,
+        "sensors_inspect": 144,
+        "overview": 144,
+        "severity": 144,
+        "action": 144
+      },
+      "rows_with_telemetry_preamble": 1008
+    },
+    {
+      "corpus": "data/llm_1/train",
+      "measure": "grounded_qa:full",
+      "n": 1008,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "evidence_why": 864,
+        "sensor_values": 144
+      },
+      "rows_with_telemetry_preamble": 1008
+    },
+    {
+      "corpus": "data/llm_1/val",
+      "measure": "followup:ask",
+      "n": 32,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "overview": 16,
+        "severity": 8,
+        "sensors_inspect": 8
+      },
+      "rows_with_telemetry_preamble": 0
+    },
+    {
+      "corpus": "data/llm_1/val",
+      "measure": "grounded_qa:ask",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "detector_scores": 8,
+        "evidence_why": 8,
+        "sensor_values": 8,
+        "sensors_inspect": 8,
+        "overview": 8,
+        "severity": 8,
+        "action": 8
+      },
+      "rows_with_telemetry_preamble": 56
+    },
+    {
+      "corpus": "data/llm_1/val",
+      "measure": "grounded_qa:full",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "evidence_why": 48,
+        "sensor_values": 8
+      },
+      "rows_with_telemetry_preamble": 56
+    },
+    {
+      "corpus": "data/llm_1/test",
+      "measure": "followup:ask",
+      "n": 32,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "overview": 16,
+        "severity": 8,
+        "sensors_inspect": 8
+      },
+      "rows_with_telemetry_preamble": 0
+    },
+    {
+      "corpus": "data/llm_1/test",
+      "measure": "grounded_qa:ask",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "detector_scores": 8,
+        "evidence_why": 8,
+        "sensor_values": 8,
+        "sensors_inspect": 8,
+        "overview": 8,
+        "severity": 8,
+        "action": 8
+      },
+      "rows_with_telemetry_preamble": 56
+    },
+    {
+      "corpus": "data/llm_1/test",
+      "measure": "grounded_qa:full",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "evidence_why": 48,
+        "sensor_values": 8
+      },
+      "rows_with_telemetry_preamble": 56
+    },
+    {
+      "corpus": "data/llm/train",
+      "measure": "followup:ask",
+      "n": 576,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "overview": 288,
+        "severity": 144,
+        "sensors_inspect": 144
+      },
+      "rows_with_telemetry_preamble": 0
+    },
+    {
+      "corpus": "data/llm/val",
+      "measure": "followup:ask",
+      "n": 32,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "overview": 16,
+        "severity": 8,
+        "sensors_inspect": 8
+      },
+      "rows_with_telemetry_preamble": 0
+    },
+    {
+      "corpus": "data/llm/test",
+      "measure": "followup:ask",
+      "n": 32,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "overview": 16,
+        "severity": 8,
+        "sensors_inspect": 8
+      },
+      "rows_with_telemetry_preamble": 0
+    }
+  ]
+}
