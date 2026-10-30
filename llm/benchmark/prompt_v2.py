@@ -28,6 +28,7 @@ from typing import Dict, List, Optional, Sequence
 
 from llm.benchmark.menu import UNCLASSIFIED
 from scripts.fault_knowledge import FAULT_KNOWLEDGE
+from scripts.tags import canonical_tag
 
 #: Case-insensitive fragments that must never appear in a v2 prompt.
 #: "severity" is on the list because severity is a host-side computation: if the
@@ -94,6 +95,31 @@ def _fmt(value: object, decimals: int = 2) -> str:
         return str(value)
 
 
+def tag_kind(tag: object) -> str:
+    """What a tag measures, in the plant's own terms.
+
+    ``XMV_44`` is displayed as "A_Feed_Flow" but is the *valve position* on that
+    feed, while ``XMEAS_1`` is the feed flow itself. Two variables, one word.
+    Labelling every tag removes the ambiguity without changing the evidence.
+    """
+    text = str(tag or "").upper()
+    if text.startswith("XMV_"):
+        return "valve position, manipulated variable"
+    if text.startswith("XMEAS_"):
+        return "measurement"
+    return "variable"
+
+
+def _tagged(name: object, tag: object) -> str:
+    """``A_Feed_Flow [XMV_44, valve position, manipulated variable]``."""
+    if not tag:
+        return str(name)
+    kind = tag_kind(tag)
+    if str(name).upper() == str(tag).upper():
+        return f"{name} [{kind}]"
+    return f"{name} [{tag}, {kind}]"
+
+
 def _detector_lines(evidence: Dict) -> List[str]:
     det = evidence.get("detector_evidence") or {}
     if not isinstance(det, dict) or not det:
@@ -133,10 +159,11 @@ def _sensor_lines(evidence: Dict) -> List[str]:
         if not isinstance(s, dict):
             continue
         name = str(s.get("display_name") or s.get("name") or "")
+        tag = canonical_tag(s.get("name")) or canonical_tag(s.get("display_name"))
         z = s.get("z_score", s.get("zScore"))
         dev = s.get("deviation_percent")
         trend = s.get("trend")
-        line = f"- {name}: z={_fmt(z)}, deviation {_fmt(dev)}%"
+        line = f"- {_tagged(name, tag)}: z={_fmt(z)}, deviation {_fmt(dev)}%"
         if trend:
             line += f", trend {trend}"
         lines.append(line)
@@ -156,7 +183,8 @@ def _lag_lines(evidence: Dict) -> List[str]:
     if not tops:
         return ["- (no dynamic residual attribution recorded)"]
     lines = [
-        f"- {v.get('variable')}: residual share {_fmt(v.get('share'), 3)}" for v in tops
+        f"- {_tagged(v.get('variable'), canonical_tag(v.get('variable')))}: "
+        f"residual share {_fmt(v.get('share'), 3)}" for v in tops
     ]
     if lag.get("dominant_lag") is not None:
         lines.append(
@@ -179,8 +207,9 @@ def _sequence_lines(evidence: Dict) -> List[str]:
     lines = []
     for i, item in enumerate(seq, start=1):
         name = item.get("display_name") or item.get("name") or "sensor"
+        tag = canonical_tag(item.get("sensor")) or canonical_tag(item.get("display_name"))
         dt = item.get("relative_time_minutes", 0.0)
-        lines.append(f"{i}. {name} at +{_fmt(dt, 1)} min")
+        lines.append(f"{i}. {_tagged(name, tag)} at +{_fmt(dt, 1)} min")
     return lines
 
 
@@ -312,5 +341,6 @@ __all__ = [
     "prompt_leaks",
     "render_prompt",
     "schema_example",
+    "tag_kind",
     "teacher_instruction",
 ]

@@ -24,13 +24,15 @@ Rules (code in brackets, as reported in the rejection log):
 ``absolute_wording``     "definitely", "proves", "guaranteed" and friends
 ``severity_claim``       a severity level or priority assigned in prose
 ``fault_out_of_scope``   a fault number outside 1-20, or a synthetic fault
+``names_removed_fault``  an abstention item that names the fault it abstains from
 """
 from __future__ import annotations
 
 import re
 from typing import Dict, List, Optional, Sequence, Set
 
-from llm.benchmark.kb_causes import is_cause_mention
+from llm.benchmark.kb_causes import distinctive_signatures, is_cause_mention, normalise
+from llm.benchmark.menu import UNCLASSIFIED
 from llm.response.allowed_set import AllowedSet
 from llm.response.schemas import count_sentences
 from llm.response.validators import fault_ids_in, number_supported, numbers_in
@@ -68,6 +70,56 @@ _STREAM_RE = re.compile(r"^(?:stream|feed)[_ -]?\d{1,2}$", re.IGNORECASE)
 
 def _is_chemical_name(token: str) -> bool:
     return bool(_COMPONENT_RE.match(str(token).strip()) or _STREAM_RE.match(str(token).strip()))
+
+
+def names_removed_fault(text: str, target: Dict,
+                        menu_ids: Optional[Sequence[str]] = None) -> Optional[str]:
+    """The fault an abstention item must not name, if ``text`` names it.
+
+    On an open-set episode the true fault's menu entry was removed; on faults
+    16-20 it was never there. Either way the answer is UNCLASSIFIED_OPEN_SET, so
+    prose that still identifies the removed fault -- by KB name, by signature
+    phrase, or by number -- is answering the question that was deliberately made
+    unanswerable, and the item would teach the model to recover the label from the
+    text rather than from the evidence.
+
+    Returns a short reason (``signature:...`` / ``number:...``) or ``None``.
+
+    Only *distinctive* phrases count: faults 5 and 12 share a cause and differ in
+    the disturbance tail, so the shared prefix is also a listed candidate's wording
+    and ruling that candidate out is legitimate.
+    """
+    if str(target.get("fault_id") or "") != UNCLASSIFIED:
+        return None
+    number = target.get("truth_fault_number")
+    if number is None:
+        return None
+    body = normalise(text)
+    others = _menu_fault_numbers(menu_ids)
+    for phrase in distinctive_signatures(int(number), others):
+        if phrase and phrase in body:
+            return f"signature:{phrase[:60]}"
+    if re.search(rf"\bfault[_ -]?0?{int(number)}\b", str(text or ""), re.IGNORECASE):
+        return f"number:{int(number)}"
+    return None
+
+
+def _menu_fault_numbers(menu_ids: Optional[Sequence[str]]) -> Set[int]:
+    """KB numbers behind the fault_id strings a menu was built from."""
+    numbers: Set[int] = set()
+    for value in menu_ids or ():
+        text = str(value or "")
+        if text.startswith(("FAULT_", "SYNTHETIC_")):
+            try:
+                numbers.add(int(text.split("_")[-1]))
+            except ValueError:
+                continue
+    return numbers
+
+
+def _tag_kind(tag: str) -> str:
+    """What an XMV/XMEAS tag measures. A valve position is not a flow."""
+    return "valve_position" if str(tag).upper().startswith("XMV_") else "measurement"
 
 
 def _sentences(text: str) -> int:
@@ -173,6 +225,7 @@ def check_answer(
     allowed: AllowedSet,
     parse_error: Optional[str] = None,
     prompt: Optional[str] = None,
+    menu_ids: Optional[Sequence[str]] = None,
 ) -> List[str]:
     """Return the rejection codes for one teacher answer (empty means accept).
 
@@ -214,6 +267,10 @@ def check_answer(
     if answer.get("fault_id") and (claimed is None or claimed.value != truth_id):
         codes.append(f"label_changed:{answer.get('fault_id')}")
 
+    removal = names_removed_fault(whole, target, menu_ids)
+    if removal:
+        codes.append(f"names_removed_fault:{removal}")
+
     # Two different failures hide behind a tag-shaped token, and they deserve
     # different names: an id that resolves to no sensor at all (``XMV_99``,
     # ``Condenser_Cooling_Water_Valve``) is a fabrication, while a real tag the
@@ -223,12 +280,25 @@ def check_answer(
     # tag at all.
     # ``truth_fault_number`` is the simulator's number, which survives the
     # UNCLASSIFIED_OPEN_SET relabelling of faults 16-20 -- without it their KB
-    # tags would not count as grounding.
-    kb_number = target.get("truth_fault_number")
-    if kb_number is None:
-        truth_number = target.get("truth_fault")
-        if isinstance(truth_number, str) and truth_number.startswith(("FAULT_", "SYNTHETIC_")):
-            kb_number = int(truth_number.split("_")[-1])
+    # tags would not count as grounding. On an abstention item it licenses the
+    # *sensors* only, never the cause phrasing: the menu entry was removed (or
+    # never existed), so accepting the true fault's wording would let the answer
+    # reconstruct exactly the label the item withholds.
+    truth_number = target.get("truth_fault_number")
+    if truth_number is None:
+        raw_truth = target.get("truth_fault")
+        if isinstance(raw_truth, str) and raw_truth.startswith(("FAULT_", "SYNTHETIC_")):
+            truth_number = int(raw_truth.split("_")[-1])
+    open_set = str(target.get("fault_id") or "") == UNCLASSIFIED
+    kb_number = None if open_set else truth_number
+    # A named cause is allowed for any fault the item's menu actually offered:
+    # naming a listed candidate is legitimate differential reasoning, naming the
+    # removed one is not.
+    cause_numbers = _menu_fault_numbers(menu_ids)
+    if not cause_numbers and not open_set and truth_number is not None:
+        cause_numbers = {int(truth_number)}
+    if open_set and truth_number is not None:
+        cause_numbers.discard(int(truth_number))
 
     fabricated: List[str] = []
     ungrounded_names: List[str] = []
@@ -236,9 +306,9 @@ def check_answer(
         if _is_chemical_name(token):
             continue  # "Component_B" is a species, not a sensor id
         # A cause is usually not instrumented: naming "condenser cooling water
-        # inlet temperature" is correct even though it has no tag. Only this
-        # fault's own KB phrasing is allowed through, read from the KB.
-        if is_cause_mention(token, kb_number):
+        # inlet temperature" is correct even though it has no tag. Only a menu
+        # entry's own KB phrasing is allowed through, read from the KB.
+        if any(is_cause_mention(token, number) for number in cause_numbers):
             continue
         (fabricated if canonical_tag(token) is None else ungrounded_names).append(token)
     if fabricated:
@@ -249,7 +319,7 @@ def check_answer(
         resolved = canonical_tag(tag)
         if resolved:
             cited.add(resolved)
-    grounded = _evidence_tags(evidence) | _kb_tags(kb_number)
+    grounded = _evidence_tags(evidence) | _kb_tags(truth_number)
     for extra in target.get("ranked_hypotheses") or []:
         value = str(extra.get("fault_id") or "")
         if value.startswith(("FAULT_", "SYNTHETIC_")):
@@ -264,6 +334,9 @@ def check_answer(
         permitted.add(fault_number)
     if kb_number is not None:
         permitted.add(int(kb_number))
+    permitted |= cause_numbers
+    if open_set and truth_number is not None:
+        permitted.discard(int(truth_number))
     for hyp in target.get("ranked_hypotheses") or []:
         value = str(hyp.get("fault_id") or "")
         if value.startswith(("FAULT_", "SYNTHETIC_")):
@@ -336,12 +409,13 @@ def _stored_directions(evidence: Dict) -> Dict[str, tuple]:
         tag = canonical_tag(sensor.get("name")) or canonical_tag(sensor.get("display_name"))
         if not tag:
             continue
+        kind = _tag_kind(tag)
         trend = str(sensor.get("trend") or "").strip().lower()
         if trend in _TREND_UP:
-            directions[tag] = (1, "trend")
+            directions[tag] = (1, "trend", kind)
             continue
         if trend in _TREND_DOWN:
-            directions[tag] = (-1, "trend")
+            directions[tag] = (-1, "trend", kind)
             continue
         if trend == "stable":
             continue  # no direction claim to contradict
@@ -349,7 +423,7 @@ def _stored_directions(evidence: Dict) -> Dict[str, tuple]:
         if value is None:
             value = sensor.get("z_score", sensor.get("zScore"))
         if isinstance(value, (int, float)) and not isinstance(value, bool) and value != 0:
-            directions[tag] = (1 if value > 0 else -1, "deviation")
+            directions[tag] = (1 if value > 0 else -1, "deviation", kind)
     return directions
 
 
@@ -364,6 +438,13 @@ def direction_inconsistent(answer: Optional[Dict], evidence: Dict, allowed: Allo
     Only sentences naming exactly one ranked sensor are considered, and a sentence
     carrying a negation is skipped, because "no longer increasing" is not an
     increase.
+
+    Valve positions (XMV tags) are skipped entirely. ``XMV_44`` is named
+    "A_Feed_Flow" in the plant vocabulary and is a *valve position*, while
+    ``XMEAS_1`` is the feed flow itself; a valve closing while the flow it admits
+    rises under pressure is ordinary, so comparing the two directions flags
+    correct prose. The prompt now labels every tag with its kind, and this check
+    leaves valve sentences to the human.
     """
     if not isinstance(answer, dict):
         return []
@@ -384,16 +465,29 @@ def direction_inconsistent(answer: Optional[Dict], evidence: Dict, allowed: Allo
         down = [w for w in DOWN_WORDS if re.search(rf"\b{re.escape(w)}\b", low)]
         if bool(up) == bool(down):
             continue  # no direction word, or both directions in one clause
-        stored, basis = signs[tags[0]]
+        stored, basis, kind = signs[tags[0]]
+        if kind == "valve_position":
+            continue
         if (up and stored < 0) or (down and stored > 0):
             flags.append({
                 "sentence": body,
                 "sensor": tags[0],
+                "tag_kind": kind,
                 "stored": "increase" if stored > 0 else "decrease",
                 "basis": basis,
                 "words": (up or down)[:3],
             })
     return flags
+
+
+def direction_report(answer: Optional[Dict], evidence: Dict, allowed: AllowedSet) -> Dict:
+    """Flags plus what was skipped, for the per-run report."""
+    signs = _stored_directions(evidence)
+    return {
+        "flags": direction_inconsistent(answer, evidence, allowed),
+        "valve_tags_skipped": sorted(tag for tag, (_s, _b, kind) in signs.items()
+                                    if kind == "valve_position"),
+    }
 
 
 __all__ = [
@@ -404,5 +498,7 @@ __all__ = [
     "UP_WORDS",
     "check_answer",
     "direction_inconsistent",
+    "direction_report",
+    "names_removed_fault",
     "store_numbers",
 ]

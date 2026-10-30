@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import ast
 import re
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional
 
 from scripts.fault_knowledge import FAULT_KNOWLEDGE
 from scripts.tags import canonical_tag
@@ -97,6 +97,48 @@ def is_cause_mention(token: object, fault: Optional[int]) -> bool:
     return False
 
 
+def signature_phrases(fault: int) -> List[str]:
+    """Normalised phrases that identify one fault in prose.
+
+    Used for the open-set check: when a fault's menu entry has been removed, an
+    answer that still names it is naming the answer it was asked to abstain from.
+    The phrases are the KB name, the name with its disturbance tail dropped (the
+    same cause stated less fully), and an unmeasured initiating variable -- all
+    read from the KB, so a KB edit moves the check with it.
+    """
+    phrases: List[str] = []
+    name = normalise(disturbance_phrase(fault))
+    if name:
+        phrases.append(name)
+        words = name.split()
+        if len(words) > MIN_PHRASE_WORDS:
+            phrases.append(" ".join(words[:-1]))
+    for phrase in unmeasured_cause_phrases(fault):
+        if phrase not in phrases:
+            phrases.append(phrase)
+    return phrases
+
+
+def distinctive_signatures(fault: int, other_faults: Iterable[int] = ()) -> List[str]:
+    """The phrases that identify ``fault`` and no other candidate in the menu.
+
+    Faults 5 and 12 share a cause -- "condenser cooling water inlet temperature" --
+    and differ only in their disturbance tail (step vs random variation). The menu
+    must still list 12 on a fault-5 open-set item, so 12's line necessarily
+    contains the shared prefix. What identifies the *removed* fault is only what no
+    listed candidate says: here, "... temperature step". A phrase contained in
+    another candidate's phrase is not distinctive and is not treated as a leak.
+    """
+    own = signature_phrases(fault)
+    others: List[str] = []
+    for number in other_faults or ():
+        if int(number) == int(fault):
+            continue
+        others.extend(signature_phrases(int(number)))
+    return [phrase for phrase in own
+            if phrase and not any(phrase in other for other in others)]
+
+
 def audit() -> List[Dict]:
     """Per-fault count of KB phrases that name something unmeasured."""
     rows: List[Dict] = []
@@ -118,8 +160,10 @@ def audit() -> List[Dict]:
 __all__ = [
     "MIN_PHRASE_WORDS",
     "audit",
+    "distinctive_signatures",
     "disturbance_phrase",
     "is_cause_mention",
     "normalise",
+    "signature_phrases",
     "unmeasured_cause_phrases",
 ]
