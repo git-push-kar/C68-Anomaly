@@ -258,18 +258,30 @@ class ResponseRouter:
 
     # -- clarification triggers -------------------------------------------
     def _hypotheses(self, report: Dict) -> List[Tuple[str, float]]:
+        """Ranked hypotheses that carry a *measured* confidence.
+
+        A missing confidence is not a tie. Phase 2B's targets deliberately leave
+        ``confidence`` unset (it has to be calibrated from the adapter's own token
+        probabilities), and defaulting it to 0.0 made every two-hypothesis report
+        look like a 0.0-vs-0.0 dead heat -- which fired ``ambiguous_hypotheses`` on
+        every question. Only a confidence that was actually recorded can produce
+        a margin, so only those entries take part.
+        """
         raw = report.get("hypotheses") if isinstance(report, dict) else None
         out: List[Tuple[str, float]] = []
         if isinstance(raw, list):
             for item in raw:
-                if isinstance(item, dict):
-                    fault = item.get("fault") or item.get("root_cause") or ""
-                    fault = getattr(fault, "value", fault)
-                    try:
-                        confidence = float(item.get("confidence", 0.0))
-                    except (TypeError, ValueError):
-                        confidence = 0.0
-                    out.append((str(fault), confidence))
+                if not isinstance(item, dict):
+                    continue
+                if item.get("confidence") is None:
+                    continue
+                fault = item.get("fault") or item.get("root_cause") or ""
+                fault = getattr(fault, "value", fault)
+                try:
+                    confidence = float(item.get("confidence"))
+                except (TypeError, ValueError):
+                    continue
+                out.append((str(fault), confidence))
         return sorted(out, key=lambda pair: pair[1], reverse=True)
 
     def _trigger(
