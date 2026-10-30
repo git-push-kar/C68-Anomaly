@@ -1,0 +1,64 @@
+{
+  "replay": {
+    "fault_items_in_train": 119,
+    "cached": 119,
+    "accepted_now": 119,
+    "scenarios": {
+      "vocabulary_only": {
+        "newly_rejected": 21,
+        "note": "gerunds added while the KB still says decrease: this is the damage the vocabulary edit does on its own"
+      },
+      "kb_flip_only": {
+        "newly_rejected": 0
+      },
+      "kb_flip_and_vocabulary": {
+        "newly_rejected": 5,
+        "still_accepted": 114
+      }
+    },
+    "invalidated_detail": [
+      {
+        "item_id": "EVT-train-f13-r030::menu",
+        "window": "",
+        "codes": [
+          "direction_conflict:XMEAS_7 described as decreasing but the KB says increasing"
+        ],
+        "narrative": "The reactor system is showing a slow drift in pressure and temperature trends, with the Stripper_Steam_Valve position decreasing before the flow. Verify the reactor temperature and pressure trends, and check for any slow changes in reaction conditions that could affect kinetics."
+      },
+      {
+        "item_id": "EVT-train-f13-r038::menu",
+        "window": "",
+        "codes": [
+          "direction_conflict:XMEAS_7 described as decreasing but the KB says increasing"
+        ],
+        "narrative": "The reactor system is showing a slow drift in pressure trends with decreasing stripper steam flow. Check the reaction kinetics and feed composition for slow changes, and verify the stripper steam valve position is stable."
+      },
+      {
+        "item_id": "EVT-train-f13-r070::menu",
+        "window": "",
+        "codes": [
+          "direction_conflict:XMEAS_7 described as decreasing but the KB says increasing"
+        ],
+        "narrative": "The reactor pressure is slowly decreasing while stripper pressure and temperature are increasing. Check the reactor temperature and reaction conditions first to verify the slow drift in reaction kinetics."
+      },
+      {
+        "item_id": "EVT-train-f13-r098::menu",
+        "window": "",
+        "codes": [
+          "direction_conflict:XMEAS_7 described as decreasing but the KB says increasing"
+        ],
+        "narrative": "The reactor pressure is gradually decreasing while stripper pressure and temperature are increasing. Check the reactor cooling system and verify if the reaction kinetics are slowing down; confirm if the steam supply to the stripper is reduced."
+      },
+      {
+        "item_id": "EVT-train-f13-r100::menu",
+        "window": "",
+        "codes": [
+          "direction_conflict:XMEAS_7 described as decreasing but the KB says increasing"
+        ],
+        "narrative": "The reactor system is experiencing a slow drift in reaction kinetics, indicated by a gradual decrease in Reactor_Pressure. Check the reactor temperature and catalyst activity as these are key indicators of kinetic changes."
+      }
+    ],
+    "flags_today": [],
+    "flag_count": 0
+  }
+}

@@ -710,11 +710,47 @@ compares the trend of the KB's `initiating.sensor` with the KB's
 an **XMV valve position**, while the KB's wording names a *flow* — so the rule
 compares a position with a flow direction. The stored trend contradicts the KB in
 **120/120** of fault 14's train events, **120/120** of fault 7's and **26/26** of
-fault 15's; fault 13, a measurement, contradicts in **0/102**. Proposal: apply the
-rejection only when the initiating tag is an XMEAS measurement, and review fault
-13's KB sign. Replay: 25 dropped items recovered, 0 invalidated, whereas flipping
-the KB sign instead would invalidate 84 accepted answers. Not applied pending an
-owner decision; the KB hash, menu text and prompts would move if it is.
+fault 15's.
+
+Fault 13 is the one that is a measurement, and the KB sign there is a genuine
+contradiction rather than a wording mismatch: the stored **trend** of `XMEAS_7`
+is `increasing` in **102/102** train events where it is ranked within the event
+snapshot (0 events say decreasing), while the KB says `decrease`. An earlier
+line in this document said `0/102`; that figure matches neither field and is
+withdrawn. The two fields disagree because they measure different things:
+`deviation_percent` is the offset from baseline (negative in 41/102, positive in
+61/102) while `trend` is the direction of movement. A reader comparing the KB
+against the deviation sign would see agreement in 41 cases and a contradiction
+in 61; comparing against the trend, 102 contradictions. The trend is the field
+the rejection rule already reads for every other fault, so the KB is the odd one
+out.
+
+**Fault-13 sign change: measured, then stopped (owner decision pending).**
+`scripts/replay_fault13_change.py` prices the edit before it is made, and the
+answer is that it is not a one-line KB fix:
+
+* the `FAULT_13` menu line is rendered into **5,731 of 5,870** prompts (every
+  item whose menu still holds the entry; only the 139 fault-13 open-set twins
+  drop it), so the student-visible text moves for items that are not about fault
+  13 -- the stated stop condition;
+* the teacher prompt carries the same line, so `teacher_prompt_sha256` moves for
+  the same 5,731 items;
+* `FILTER_CODE_FILES` includes `prompt_v2.py` but **not** `menu.py` or
+  `fault_knowledge.py`, so a KB-only edit would change the text while leaving
+  `filter_sha256` untouched, and `run_teacher`/`replay_cache` key staleness on
+  the filter hash alone. The 1,868 cached answers written from the old line
+  would be re-attached silently. Any fault-13 edit therefore also needs the KB
+  and menu files in that hash list before it is safe.
+* the prose consequence is small: flipping the KB sign alone invalidates **0** of
+the 119 accepted fault-13 answers because the rejection vocabulary does not see
+the gerund; flipping it and adding gerunds (`increasing`/`decreasing`/
+`rising`/`falling`) invalidates **5** answers that call `XMEAS_7` decreasing,
+keeping 114. Adding gerunds *without* the flip would invalidate **21** answers
+that correctly say it is increasing -- which is the argument for doing both
+edits together, and not for doing either alone.
+
+So the change is deferred until the menu-wide re-render it implies is approved;
+the KB hash, the menu text and all 5,870 prompts move with it.
 
 **Dropped items are the weak-evidence tail.** Median fused ratio 11.7 (dropped)
 vs 27.9 (accepted); median top-|z| 0.39 vs 3.97. Faults 14/15 sit at ratio ≈1.1
