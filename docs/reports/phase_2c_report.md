@@ -1,8 +1,9 @@
 # Phase 2C — Follow-up dialogue dataset
 
 **Branch:** `benchmark-upgrade` · **CPU only** · **no teacher calls**: every build
-in this phase used the fake teacher. The GPU was busy with the Phase 2B teacher
-job and no Ollama request was issued (`grep -c ollama` on the demo log: 0).
+in this phase used `--teacher fake`, which is a pure-Python function and makes no
+network call. No Ollama endpoint was contacted, and the real teacher is neither
+configured nor started by anything added here (`--teacher` defaults to `fake`).
 
 ---
 
@@ -256,9 +257,10 @@ The Phase 2B event set is not on disk on this checkout (`outputs/benchmark_v2/ev
 is git-ignored and absent), and regenerating it is blocked by a detector-artefact
 mismatch — see §11. The build was therefore verified end to end on
 `outputs/benchmark_v2/followup_fixture_events`: a synthetic event set in the
-Phase 2B schema (39 train / 37 val / 37 test events, faults 1-20, normal runs,
-open-set candidates), so every code path runs with real store keys and real
-router decisions.
+Phase 2B schema (113 events: 39 train / 37 val / 37 test, evidence borrowed from
+`tests/fixtures/response/*` with keys taken from `data/splits_v2.json`), so every
+code path runs with real store keys and real router decisions. The fixture's own
+`build_summary.json` labels it `"fixture": true, "Not benchmark data"`.
 
 ```
 python scripts/build_followup_dataset.py \
