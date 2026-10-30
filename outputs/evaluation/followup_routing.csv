@@ -1,0 +1,851 @@
+label,family,question,live_intent,live_route,bench_primary,bench_clarify,live_cfg_candidates,guardrail_eligible
+sensor_values,live_template,What are the sensor values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Give me the measured values against the baseline.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Show me the observed values and the normal values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,List the sensor values with their ideal values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,What are the current and baseline values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,I need the measured values for the moving variables.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Report the observed values versus baseline values.,sensor_values,template,hypothesis_comparison,ambiguous_question,1,False
+sensor_values,live_template,Which variables are off their normal values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,What are the sensor values right now?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Print the measured values and ideal baselines.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: what are the sensor values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: give me the measured values against the baseline.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: show me the observed values and the normal values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: list the sensor values with their ideal values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: what are the current and baseline values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: i need the measured values for the moving variables.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: report the observed values versus baseline values.,sensor_values,template,hypothesis_comparison,ambiguous_question,1,False
+sensor_values,live_template,Can you tell me: which variables are off their normal values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: what are the sensor values right now?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Can you tell me: print the measured values and ideal baselines.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, what are the sensor values?",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, give me the measured values against the baseline.",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, show me the observed values and the normal values.",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, list the sensor values with their ideal values.",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, what are the current and baseline values?",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, i need the measured values for the moving variables.",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, report the observed values versus baseline values.",sensor_values,template,hypothesis_comparison,ambiguous_question,1,False
+sensor_values,live_template,"For this incident, which variables are off their normal values?",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, what are the sensor values right now?",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For this incident, print the measured values and ideal baselines.",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — what are the sensor values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — give me the measured values against the baseline.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — show me the observed values and the normal values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — list the sensor values with their ideal values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — what are the current and baseline values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — i need the measured values for the moving variables.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — report the observed values versus baseline values.,sensor_values,template,hypothesis_comparison,ambiguous_question,1,False
+sensor_values,live_template,Quick check — which variables are off their normal values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — what are the sensor values right now?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Quick check — print the measured values and ideal baselines.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,How far is each variable from its normal value?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Compare each variable's measured value with its ideal value.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,I want the observed value and the ideal value side by side.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,Read me the baseline values next to the measured values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,What is the measured value of every moving variable against its baseline value?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,List observed values and the corresponding normal values.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"Give me one line per variable: observed value, normal value, shift.",sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,What did the variables settle at compared with their baseline values?,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,State the sensor values for the top three variables only.,sensor_values,template,sensor_values,,1,False
+sensor_values,live_template,"For each moving variable, the measured value and the normal value.",sensor_values,template,sensor_values,,1,False
+evidence_why,live_template,What is the evidence that this is an anomaly?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Why was this flagged?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Show me the evidence behind this alarm.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,What evidence forces this to be an anomaly?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Why is this an anomaly?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Which alarm trigger fired?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Give me the evidence for this event.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,What is the evidence and the detector readings?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Why this is an anomaly — walk me through the evidence.,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,What evidence supports this alarm?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Can you tell me: what is the evidence that this is an anomaly?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Can you tell me: why was this flagged?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Can you tell me: show me the evidence behind this alarm.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Can you tell me: what evidence forces this to be an anomaly?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Can you tell me: why is this an anomaly?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Can you tell me: which alarm trigger fired?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Can you tell me: give me the evidence for this event.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Can you tell me: what is the evidence and the detector readings?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Can you tell me: why this is an anomaly — walk me through the evidence.,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Can you tell me: what evidence supports this alarm?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"For this incident, what is the evidence that this is an anomaly?",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"For this incident, why was this flagged?",evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,"For this incident, show me the evidence behind this alarm.",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"For this incident, what evidence forces this to be an anomaly?",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"For this incident, why is this an anomaly?",evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,"For this incident, which alarm trigger fired?",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"For this incident, give me the evidence for this event.",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"For this incident, what is the evidence and the detector readings?",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"For this incident, why this is an anomaly — walk me through the evidence.",evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,"For this incident, what evidence supports this alarm?",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Quick check — what is the evidence that this is an anomaly?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Quick check — why was this flagged?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Quick check — show me the evidence behind this alarm.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Quick check — what evidence forces this to be an anomaly?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Quick check — why is this an anomaly?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Quick check — which alarm trigger fired?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Quick check — give me the evidence for this event.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Quick check — what is the evidence and the detector readings?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Quick check — why this is an anomaly — walk me through the evidence.,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Quick check — what evidence supports this alarm?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,What evidence do you have that the process moved?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,The alarm fired — what evidence backs it?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Which readings sent this past the alarm trigger?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Why was this flagged as anomalous rather than normal drift?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,Point to the evidence that made the detector fire.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,What evidence did the detector have when it alarmed?,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,"Was there an alarm trigger, and what evidence came with it?",evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Show the evidence that justifies calling this an anomaly.,evidence_why,template,evidence_why,,1,False
+evidence_why,live_template,Why anomaly at all — what is the evidence?,evidence_why,template,evidence_why,,2,False
+evidence_why,live_template,"Give me the evidence chain, from alarm trigger to reading.",evidence_why,template,evidence_why,,1,False
+system_sensors,live_template,Which sensors are used in this system?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,What sensors are in the system?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,List all sensors in the plant.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Which sensors are used for monitoring?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Sensors used in the Tennessee Eastman process?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Give me the system sensors.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,What sensors are in this plant?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Which sensors are used by the detector?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Show me all sensors in the system.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,What sensors are in the system baseline?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: which sensors are used in this system?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: what sensors are in the system?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: list all sensors in the plant.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: which sensors are used for monitoring?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: sensors used in the Tennessee Eastman process?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: give me the system sensors.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: what sensors are in this plant?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: which sensors are used by the detector?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: show me all sensors in the system.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Can you tell me: what sensors are in the system baseline?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, which sensors are used in this system?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, what sensors are in the system?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, list all sensors in the plant.",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, which sensors are used for monitoring?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, sensors used in the Tennessee Eastman process?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, give me the system sensors.",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, what sensors are in this plant?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, which sensors are used by the detector?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, show me all sensors in the system.",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"For this incident, what sensors are in the system baseline?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — which sensors are used in this system?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — what sensors are in the system?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — list all sensors in the plant.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — which sensors are used for monitoring?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — sensors used in the Tennessee Eastman process?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — give me the system sensors.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — what sensors are in this plant?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — which sensors are used by the detector?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — show me all sensors in the system.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Quick check — what sensors are in the system baseline?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Remind me which sensors are used at this plant.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,How many and which sensors are used in the system — the full list?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"I want the system sensors list, not just the moving ones.",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,"Which sensors are used in the process, and which are valves?",system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Enumerate the sensors used in this system.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,What sensors are in the system on the measurement side?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Which sensors are used — the 41 measurements and the 11 manipulated variables?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Give me all sensors the plant reports.,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Are all sensors in the system active in this event?,system_sensors,template,system_sensors,,1,False
+system_sensors,live_template,Sensors used by this system: what is the full set?,system_sensors,template,system_sensors,,1,False
+sensor_scores,live_template,What is the sensor score for each variable?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Show the sensor scores.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Which sensor has the highest score?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Give me the per-sensor scores.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,What are the sensor scores and their deviations?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Rank the sensors by score.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,What is the score of each sensor?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"Sensor score details, please.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Which sensors score highest on the detector?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Show me sensor scores with trends.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: what is the sensor score for each variable?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: show the sensor scores.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: which sensor has the highest score?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: give me the per-sensor scores.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: what are the sensor scores and their deviations?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: rank the sensors by score.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: what is the score of each sensor?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"Can you tell me: sensor score details, please.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: which sensors score highest on the detector?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Can you tell me: show me sensor scores with trends.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, what is the sensor score for each variable?",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, show the sensor scores.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, which sensor has the highest score?",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, give me the per-sensor scores.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, what are the sensor scores and their deviations?",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, rank the sensors by score.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, what is the score of each sensor?",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, sensor score details, please.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, which sensors score highest on the detector?",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"For this incident, show me sensor scores with trends.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — what is the sensor score for each variable?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — show the sensor scores.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — which sensor has the highest score?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — give me the per-sensor scores.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — what are the sensor scores and their deviations?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — rank the sensors by score.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — what is the score of each sensor?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"Quick check — sensor score details, please.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — which sensors score highest on the detector?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Quick check — show me sensor scores with trends.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Break the detector score down per sensor.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Each sensor's score — highest first.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,How is the score distributed across the sensors?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Give me the sensor-by-sensor score table.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Which sensor contributes the most to the score?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,What score does each individual sensor carry?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"Per-sensor score and deviation, please.",sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Show a sensor score ranking.,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,Does any single sensor carry a large score?,sensor_scores,template,sensor_scores,,1,False
+sensor_scores,live_template,"Sensor scores ranked, with the trend for each.",sensor_scores,template,sensor_scores,,1,False
+detector_severity,live_template,What are the detector scores and the severity?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Give me the metrics and how serious this is.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Show the reconstruction error, the Q-statistic and the severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,What is the score and the risk level?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Detector metrics plus the severity level.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"How serious is this, and what are the detector scores?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Q-statistic, threshold, and severity please.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,What are the metrics and is this critical?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Report the scores and the danger level.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Thresholds, scores, and severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Can you tell me: what are the detector scores and the severity?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Can you tell me: give me the metrics and how serious this is.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Can you tell me: show the reconstruction error, the Q-statistic and the severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Can you tell me: what is the score and the risk level?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Can you tell me: detector metrics plus the severity level.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Can you tell me: how serious is this, and what are the detector scores?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Can you tell me: q-statistic, threshold, and severity please.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Can you tell me: what are the metrics and is this critical?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Can you tell me: report the scores and the danger level.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Can you tell me: thresholds, scores, and severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, what are the detector scores and the severity?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, give me the metrics and how serious this is.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, show the reconstruction error, the Q-statistic and the severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, what is the score and the risk level?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, detector metrics plus the severity level.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, how serious is this, and what are the detector scores?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, q-statistic, threshold, and severity please.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, what are the metrics and is this critical?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, report the scores and the danger level.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"For this incident, thresholds, scores, and severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Quick check — what are the detector scores and the severity?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Quick check — give me the metrics and how serious this is.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Quick check — show the reconstruction error, the Q-statistic and the severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Quick check — what is the score and the risk level?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Quick check — detector metrics plus the severity level.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Quick check — how serious is this, and what are the detector scores?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Quick check — q-statistic, threshold, and severity please.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Quick check — what are the metrics and is this critical?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Quick check — report the scores and the danger level.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Quick check — thresholds, scores, and severity.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Both numbers, please: the detector metrics and how serious it is.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Give me the score breakdown and the alarm level.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,What is the reconstruction error and the severity?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"How dangerous is this, judged on the detector scores?",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Severity, plus the score and threshold for each detector.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Metrics first, then the risk level.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Show the Q-statistic against its threshold and the severity.,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Is this critical? And what are the scores?,detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,"Detector score, threshold, and the danger assessment.",detector_severity,template,detector_severity,,3,False
+detector_severity,live_template,Score margin and severity together.,detector_severity,template,detector_severity,,3,False
+detector_scores,live_template,What are the detector scores?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Give me the metrics.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,What is the Q-statistic?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Show the reconstruction error and threshold.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,What is the score?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"Detector thresholds and scores, please.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,What is the LSTM reconstruction error?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Which detectors alarmed and with what score?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Report the metrics and thresholds.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,What are the scores from both detectors?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: what are the detector scores?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: give me the metrics.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: what is the Q-statistic?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: show the reconstruction error and threshold.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: what is the score?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"Can you tell me: detector thresholds and scores, please.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: what is the LSTM reconstruction error?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: which detectors alarmed and with what score?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: report the metrics and thresholds.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Can you tell me: what are the scores from both detectors?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, what are the detector scores?",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, give me the metrics.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, what is the Q-statistic?",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, show the reconstruction error and threshold.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, what is the score?",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, detector thresholds and scores, please.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, what is the LSTM reconstruction error?",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, which detectors alarmed and with what score?",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, report the metrics and thresholds.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"For this incident, what are the scores from both detectors?",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — what are the detector scores?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — give me the metrics.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — what is the Q-statistic?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — show the reconstruction error and threshold.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — what is the score?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"Quick check — detector thresholds and scores, please.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — what is the LSTM reconstruction error?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — which detectors alarmed and with what score?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — report the metrics and thresholds.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Quick check — what are the scores from both detectors?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"The detector metrics, please.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,How far above threshold is the Q-statistic?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Give me the reconstruction error with its threshold.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,What scores did the two detectors return?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"LSTM error and CVA Q, with thresholds.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Show the detector metrics for this event.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Which threshold did the score cross?,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,"The score, the threshold, and the margin.",detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,Give me the metric values the detector produced.,detector_scores,template,detector_scores,,1,False
+detector_scores,live_template,What is the reconstruction error right now?,detector_scores,template,detector_scores,,1,False
+severity,live_template,What is the severity?,severity,template,severity,,1,False
+severity,live_template,How serious is this?,severity,template,severity,,1,False
+severity,live_template,How dangerous is this event?,severity,template,severity,,1,False
+severity,live_template,What is the risk level?,severity,template,severity,,1,False
+severity,live_template,Is this critical?,severity,template,severity,,1,False
+severity,live_template,Give me the severity level.,severity,template,severity,,1,False
+severity,live_template,What is the alarm level?,severity,template,severity,,1,False
+severity,live_template,What is the severity of this anomaly?,severity,template,severity,,1,False
+severity,live_template,State the severity for the record.,severity,template,severity,,1,False
+severity,live_template,What danger does this pose?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: what is the severity?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: how serious is this?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: how dangerous is this event?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: what is the risk level?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: is this critical?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: give me the severity level.,severity,template,severity,,1,False
+severity,live_template,Can you tell me: what is the alarm level?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: what is the severity of this anomaly?,severity,template,severity,,1,False
+severity,live_template,Can you tell me: state the severity for the record.,severity,template,severity,,1,False
+severity,live_template,Can you tell me: what danger does this pose?,severity,template,severity,,1,False
+severity,live_template,"For this incident, what is the severity?",severity,template,severity,,1,False
+severity,live_template,"For this incident, how serious is this?",severity,template,severity,,1,False
+severity,live_template,"For this incident, how dangerous is this event?",severity,template,severity,,1,False
+severity,live_template,"For this incident, what is the risk level?",severity,template,severity,,1,False
+severity,live_template,"For this incident, is this critical?",severity,template,severity,,1,False
+severity,live_template,"For this incident, give me the severity level.",severity,template,severity,,1,False
+severity,live_template,"For this incident, what is the alarm level?",severity,template,severity,,1,False
+severity,live_template,"For this incident, what is the severity of this anomaly?",severity,template,severity,,1,False
+severity,live_template,"For this incident, state the severity for the record.",severity,template,severity,,1,False
+severity,live_template,"For this incident, what danger does this pose?",severity,template,severity,,1,False
+severity,live_template,Quick check — what is the severity?,severity,template,severity,,1,False
+severity,live_template,Quick check — how serious is this?,severity,template,severity,,1,False
+severity,live_template,Quick check — how dangerous is this event?,severity,template,severity,,1,False
+severity,live_template,Quick check — what is the risk level?,severity,template,severity,,1,False
+severity,live_template,Quick check — is this critical?,severity,template,severity,,1,False
+severity,live_template,Quick check — give me the severity level.,severity,template,severity,,1,False
+severity,live_template,Quick check — what is the alarm level?,severity,template,severity,,1,False
+severity,live_template,Quick check — what is the severity of this anomaly?,severity,template,severity,,1,False
+severity,live_template,Quick check — state the severity for the record.,severity,template,severity,,1,False
+severity,live_template,Quick check — what danger does this pose?,severity,template,severity,,1,False
+severity,live_template,Rate the severity of this event.,severity,template,severity,,1,False
+severity,live_template,"On your scale, what is the severity?",severity,template,severity,,1,False
+severity,live_template,Is the severity high or low?,severity,template,severity,,1,False
+severity,live_template,How serious would you call it?,severity,template,severity,,1,False
+severity,live_template,What severity does the rule assign?,severity,template,severity,,1,False
+severity,live_template,Give me the alarm level and the reason.,severity,template,severity,,1,False
+severity,live_template,How dangerous is the current state?,severity,template,severity,,1,False
+severity,live_template,Is this a critical condition?,severity,template,severity,,1,False
+severity,live_template,What is the risk level for the shift?,severity,template,severity,,1,False
+severity,live_template,"Severity, please — and nothing else.",severity,template,severity,,1,False
+overview,live_template,What happened?,overview,template,overview,,1,False
+overview,live_template,What is the root cause?,overview,template,overview,,1,False
+overview,live_template,Which fault is this?,overview,template,overview,,1,False
+overview,live_template,Give me an overview.,overview,template,overview,,1,False
+overview,live_template,What is this anomaly?,overview,template,overview,,1,False
+overview,live_template,Which fault number is this?,overview,template,overview,,1,False
+overview,live_template,Summarise the event.,,llm,,,0,False
+overview,live_template,What is the cause?,overview,template,overview,,1,False
+overview,live_template,Diagnose this event.,overview,template,overview,ambiguous_question,2,False
+overview,live_template,What fault type is this?,overview,template,overview,,1,False
+overview,live_template,Can you tell me: what happened?,overview,template,overview,,1,False
+overview,live_template,Can you tell me: what is the root cause?,overview,template,overview,,1,False
+overview,live_template,Can you tell me: which fault is this?,overview,template,overview,,1,False
+overview,live_template,Can you tell me: give me an overview.,overview,template,overview,,1,False
+overview,live_template,Can you tell me: what is this anomaly?,overview,template,overview,,1,False
+overview,live_template,Can you tell me: which fault number is this?,overview,template,overview,,1,False
+overview,live_template,Can you tell me: summarise the event.,,llm,,,0,False
+overview,live_template,Can you tell me: what is the cause?,overview,template,overview,,1,False
+overview,live_template,Can you tell me: diagnose this event.,overview,template,overview,ambiguous_question,2,False
+overview,live_template,Can you tell me: what fault type is this?,overview,template,overview,,1,False
+overview,live_template,"For this incident, what happened?",overview,template,overview,,1,False
+overview,live_template,"For this incident, what is the root cause?",overview,template,overview,,1,False
+overview,live_template,"For this incident, which fault is this?",overview,template,overview,,1,False
+overview,live_template,"For this incident, give me an overview.",overview,template,overview,,1,False
+overview,live_template,"For this incident, what is this anomaly?",overview,template,overview,,1,False
+overview,live_template,"For this incident, which fault number is this?",overview,template,overview,,1,False
+overview,live_template,"For this incident, summarise the event.",,llm,,,0,False
+overview,live_template,"For this incident, what is the cause?",overview,template,overview,,1,False
+overview,live_template,"For this incident, diagnose this event.",overview,template,overview,ambiguous_question,2,False
+overview,live_template,"For this incident, what fault type is this?",overview,template,overview,,1,False
+overview,live_template,Quick check — what happened?,overview,template,overview,,1,False
+overview,live_template,Quick check — what is the root cause?,overview,template,overview,,1,False
+overview,live_template,Quick check — which fault is this?,overview,template,overview,,1,False
+overview,live_template,Quick check — give me an overview.,overview,template,overview,,1,False
+overview,live_template,Quick check — what is this anomaly?,overview,template,overview,,1,False
+overview,live_template,Quick check — which fault number is this?,overview,template,overview,,1,False
+overview,live_template,Quick check — summarise the event.,,llm,,,0,False
+overview,live_template,Quick check — what is the cause?,overview,template,overview,,1,False
+overview,live_template,Quick check — diagnose this event.,overview,template,overview,ambiguous_question,2,False
+overview,live_template,Quick check — what fault type is this?,overview,template,overview,,1,False
+overview,live_template,In one line: what happened here?,overview,template,overview,,1,False
+overview,live_template,What is the root cause as you see it?,overview,template,overview,,1,False
+overview,live_template,Which fault does this look like?,overview,template,overview,,1,False
+overview,live_template,Give me the summary of this incident.,overview,template,overview,,1,False
+overview,live_template,What is the fault type and the affected area?,overview,template,overview,,1,False
+overview,live_template,"What is this, in plain terms?",overview,template,overview,,1,False
+overview,live_template,Tell me the fault number if you have one.,overview,template,overview,,1,False
+overview,live_template,What happened during this event?,overview,template,overview,,1,False
+overview,live_template,Explain this anomaly briefly.,overview,template,overview,,2,False
+overview,live_template,"An overview, then the root cause.",overview,template,overview,,1,False
+sensors_inspect,live_template,Which sensors should I inspect?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which sensor should I look at first?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which sensors are deviating?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,List the sensors to check.,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Where should maintenance inspect?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which sensors are out of line?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Show me the deviating sensors.,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which sensor moved first?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Sensors worth a field check?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,What should I inspect on the loop?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: which sensors should I inspect?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: which sensor should I look at first?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: which sensors are deviating?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: list the sensors to check.,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: where should maintenance inspect?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: which sensors are out of line?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: show me the deviating sensors.,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: which sensor moved first?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: sensors worth a field check?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Can you tell me: what should I inspect on the loop?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, which sensors should I inspect?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, which sensor should I look at first?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, which sensors are deviating?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, list the sensors to check.",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, where should maintenance inspect?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, which sensors are out of line?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, show me the deviating sensors.",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, which sensor moved first?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, sensors worth a field check?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"For this incident, what should I inspect on the loop?",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — which sensors should I inspect?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — which sensor should I look at first?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — which sensors are deviating?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — list the sensors to check.,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — where should maintenance inspect?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — which sensors are out of line?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — show me the deviating sensors.,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — which sensor moved first?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — sensors worth a field check?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Quick check — what should I inspect on the loop?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"Give me the field inspection list, sensor by sensor.",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which sensor is furthest out?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Where do I start on the sensors?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which sensors warrant a check?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,List the sensors that moved and need a look.,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,What should the field tech inspect?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which of the sensors is drifting?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,"Sensors to inspect, ranked.",sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Which sensor reading is the worst offender?,sensors_inspect,template,sensors_inspect,,1,False
+sensors_inspect,live_template,Point me at the sensors to check first.,sensors_inspect,template,sensors_inspect,,1,False
+action,live_template,What should I do?,action,template,action,,1,False
+action,live_template,What is the recommended action?,action,template,action,,1,False
+action,live_template,How do I fix this?,action,template,action,,1,False
+action,live_template,What are the next steps?,action,template,action,,1,False
+action,live_template,Give me a mitigation plan.,action,template,action,,1,False
+action,live_template,What procedure do you recommend?,action,template,action,,1,False
+action,live_template,Provide a fix for this.,action,template,action,,1,False
+action,live_template,What action should the operator take?,action,template,action,,1,False
+action,live_template,What action should the shift take?,action,template,action,,1,False
+action,live_template,Recommend a response.,action,template,action,,1,False
+action,live_template,Can you tell me: what should I do?,action,template,action,,1,False
+action,live_template,Can you tell me: what is the recommended action?,action,template,action,,1,False
+action,live_template,Can you tell me: how do I fix this?,action,template,action,,1,False
+action,live_template,Can you tell me: what are the next steps?,action,template,action,,1,False
+action,live_template,Can you tell me: give me a mitigation plan.,action,template,action,,1,False
+action,live_template,Can you tell me: what procedure do you recommend?,action,template,action,,1,False
+action,live_template,Can you tell me: provide a fix for this.,action,template,action,,1,False
+action,live_template,Can you tell me: what action should the operator take?,action,template,action,,1,False
+action,live_template,Can you tell me: what action should the shift take?,action,template,action,,1,False
+action,live_template,Can you tell me: recommend a response.,action,template,action,,1,False
+action,live_template,"For this incident, what should I do?",action,template,action,,1,False
+action,live_template,"For this incident, what is the recommended action?",action,template,action,,1,False
+action,live_template,"For this incident, how do I fix this?",action,template,action,,1,False
+action,live_template,"For this incident, what are the next steps?",action,template,action,,1,False
+action,live_template,"For this incident, give me a mitigation plan.",action,template,action,,1,False
+action,live_template,"For this incident, what procedure do you recommend?",action,template,action,,1,False
+action,live_template,"For this incident, provide a fix for this.",action,template,action,,1,False
+action,live_template,"For this incident, what action should the operator take?",action,template,action,,1,False
+action,live_template,"For this incident, what action should the shift take?",action,template,action,,1,False
+action,live_template,"For this incident, recommend a response.",action,template,action,,1,False
+action,live_template,Quick check — what should I do?,action,template,action,,1,False
+action,live_template,Quick check — what is the recommended action?,action,template,action,,1,False
+action,live_template,Quick check — how do I fix this?,action,template,action,,1,False
+action,live_template,Quick check — what are the next steps?,action,template,action,,1,False
+action,live_template,Quick check — give me a mitigation plan.,action,template,action,,1,False
+action,live_template,Quick check — what procedure do you recommend?,action,template,action,,1,False
+action,live_template,Quick check — provide a fix for this.,action,template,action,,1,False
+action,live_template,Quick check — what action should the operator take?,action,template,action,,1,False
+action,live_template,Quick check — what action should the shift take?,action,template,action,,1,False
+action,live_template,Quick check — recommend a response.,action,template,action,,1,False
+action,live_template,What is the operator action here?,action,template,action,,1,False
+action,live_template,"Give me the next step, in order.",action,template,action,,1,False
+action,live_template,How should we mitigate this?,action,template,action,,1,False
+action,live_template,What repair do you recommend?,action,template,action,,1,False
+action,live_template,Is there a procedure for this?,action,template,action,,1,False
+action,live_template,Tell me what to do next.,action,template,action,,1,False
+action,live_template,What corrective action fits?,action,template,action,,1,False
+action,live_template,"Fix options, please.",action,template,action,,1,False
+action,live_template,How do we fix the sticking valve?,action,template,action,,1,False
+action,live_template,What should the shift do about it?,,llm,out_of_scope_refusal,,0,False
+overview_fallback,live_template,Why did this happen?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain what I am seeing.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Why did the pressure move?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain the pattern.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Why the flow change?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Diagnose what is going on.,overview,template,overview,ambiguous_question,2,False
+overview_fallback,live_template,Why is the reactor temperature drifting?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain the anomaly.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Why would that valve stick?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain the sequence.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: why did this happen?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: explain what I am seeing.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: why did the pressure move?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: explain the pattern.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: why the flow change?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: diagnose what is going on.,overview,template,overview,ambiguous_question,2,False
+overview_fallback,live_template,Can you tell me: why is the reactor temperature drifting?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: explain the anomaly.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: why would that valve stick?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Can you tell me: explain the sequence.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, why did this happen?",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, explain what I am seeing.",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, why did the pressure move?",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, explain the pattern.",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, why the flow change?",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, diagnose what is going on.",overview,template,overview,ambiguous_question,2,False
+overview_fallback,live_template,"For this incident, why is the reactor temperature drifting?",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, explain the anomaly.",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, why would that valve stick?",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,"For this incident, explain the sequence.",overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — why did this happen?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — explain what I am seeing.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — why did the pressure move?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — explain the pattern.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — why the flow change?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — diagnose what is going on.,overview,template,overview,ambiguous_question,2,False
+overview_fallback,live_template,Quick check — why is the reactor temperature drifting?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — explain the anomaly.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — why would that valve stick?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Quick check — explain the sequence.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Why did it start with that variable?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain it as you would to a new operator.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Why now and not earlier?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain what the loop is doing.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Why is the stripper level falling?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Diagnose the behaviour of this loop.,overview,template,overview,ambiguous_question,2,False
+overview_fallback,live_template,Why does the level keep dropping?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain the dynamics in plain words.,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Why is the condenser pressure climbing?,overview_fallback,template,overview_fallback,,1,False
+overview_fallback,live_template,Explain the trend I am looking at.,overview_fallback,template,overview_fallback,,1,False
+hypothesis_comparison,benchmark_only,How do we distinguish this from a lookalike fault?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,What distinguishes this from alternative causes?,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,How is this different from fault 14?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Give me the differential diagnosis.,overview_fallback,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Which lookalike fits better?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,How do we tell this apart from an instrument problem?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Compare this against the alternative cause.,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Is it fault 15 vs fault 14?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,What is the differential between the two sticking-valve faults?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,How do we tell the lookalikes apart?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Can you tell me: how do we distinguish this from a lookalike fault?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Can you tell me: what distinguishes this from alternative causes?,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Can you tell me: how is this different from fault 14?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Can you tell me: give me the differential diagnosis.,overview_fallback,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Can you tell me: which lookalike fits better?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Can you tell me: how do we tell this apart from an instrument problem?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Can you tell me: compare this against the alternative cause.,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Can you tell me: is it fault 15 vs fault 14?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Can you tell me: what is the differential between the two sticking-valve faults?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Can you tell me: how do we tell the lookalikes apart?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,"For this incident, how do we distinguish this from a lookalike fault?",,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,"For this incident, what distinguishes this from alternative causes?",overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,"For this incident, how is this different from fault 14?",,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,"For this incident, give me the differential diagnosis.",overview_fallback,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,"For this incident, which lookalike fits better?",,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,"For this incident, how do we tell this apart from an instrument problem?",,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,"For this incident, compare this against the alternative cause.",overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,"For this incident, is it fault 15 vs fault 14?",,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,"For this incident, what is the differential between the two sticking-valve faults?",,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,"For this incident, how do we tell the lookalikes apart?",,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Quick check — how do we distinguish this from a lookalike fault?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Quick check — what distinguishes this from alternative causes?,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Quick check — how is this different from fault 14?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Quick check — give me the differential diagnosis.,overview_fallback,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Quick check — which lookalike fits better?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Quick check — how do we tell this apart from an instrument problem?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Quick check — compare this against the alternative cause.,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Quick check — is it fault 15 vs fault 14?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Quick check — what is the differential between the two sticking-valve faults?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Quick check — how do we tell the lookalikes apart?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Distinguish the two candidate causes for me.,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,What is the differential here?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,How is this different from a feed disturbance?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Which alternative cause should stay on the list?,overview,template,hypothesis_comparison,,1,False
+hypothesis_comparison,benchmark_only,Fault 14 versus fault 15 — which fits?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Give me the lookalike comparison.,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,How do we tell this from an ordinary drift?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Is this the same signature as a lookalike event?,,llm,hypothesis_comparison,,0,False
+hypothesis_comparison,benchmark_only,Compare fault 4 versus fault 15 as the cause.,overview,template,hypothesis_comparison,ambiguous_question,1,False
+hypothesis_comparison,benchmark_only,What separates this from the nearest alternative cause?,overview,template,hypothesis_comparison,,1,False
+out_of_scope_refusal,benchmark_only,What is the compressor bearing vibration?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Show me the vibration spectrum on the stripper.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,What is the ambient humidity in the compressor house?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Give me the lube-oil pressure on the compressor.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,What is the corrosion rate in the reactor?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Show the maintenance log for this valve.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,What is the noise level at the stripper?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Give me the motor current on the agitator.,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,What is the bearing temperature of the cooling water pump?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,What is the weather in Houston?,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: what is the compressor bearing vibration?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: show me the vibration spectrum on the stripper.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: what is the ambient humidity in the compressor house?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: give me the lube-oil pressure on the compressor.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: what is the corrosion rate in the reactor?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: show the maintenance log for this valve.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: what is the noise level at the stripper?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: give me the motor current on the agitator.,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: what is the bearing temperature of the cooling water pump?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Can you tell me: what is the weather in Houston?,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, what is the compressor bearing vibration?",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, show me the vibration spectrum on the stripper.",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, what is the ambient humidity in the compressor house?",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, give me the lube-oil pressure on the compressor.",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, what is the corrosion rate in the reactor?",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, show the maintenance log for this valve.",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, what is the noise level at the stripper?",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, give me the motor current on the agitator.",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, what is the bearing temperature of the cooling water pump?",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,"For this incident, what is the weather in Houston?",,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — what is the compressor bearing vibration?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — show me the vibration spectrum on the stripper.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — what is the ambient humidity in the compressor house?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — give me the lube-oil pressure on the compressor.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — what is the corrosion rate in the reactor?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — show the maintenance log for this valve.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — what is the noise level at the stripper?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — give me the motor current on the agitator.,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — what is the bearing temperature of the cooling water pump?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Quick check — what is the weather in Houston?,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,What is the ambient temperature outside the control room?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Who signed off the last safety audit?,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,Give me the spare-parts stock level for this pump.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,What is the vibration on the reactor agitator?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Show me the electrical drawing for the compressor.,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,What is the plant's energy consumption this month?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Tell me the analyser calibration drift for the gas chromatograph.,,llm,out_of_scope_refusal,,0,False
+out_of_scope_refusal,benchmark_only,What is the corrosion allowance on the stripper shell?,,llm,,,0,False
+out_of_scope_refusal,benchmark_only,Write a summary of the shift handover meeting.,overview,template,overview,,1,False
+out_of_scope_refusal,benchmark_only,What is the flow coefficient of the purge valve trim?,,llm,,,0,False
+clarification_reply,benchmark_only,What do you mean by that?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you clarify which view you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Which one do you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Clarify that, please.",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,What do you mean by the per-variable view?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you clarify what you just said?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"What do you mean, the first or the second?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,What do you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Clarify which view you are offering.,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Which one do you mean, the per-variable view or the aggregate view?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you tell me: what do you mean by that?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you tell me: can you clarify which view you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you tell me: which one do you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Can you tell me: clarify that, please.",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you tell me: what do you mean by the per-variable view?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you tell me: can you clarify what you just said?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Can you tell me: what do you mean, the first or the second?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you tell me: what do you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you tell me: clarify which view you are offering.,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Can you tell me: which one do you mean, the per-variable view or the aggregate view?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, what do you mean by that?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, can you clarify which view you mean?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, which one do you mean?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, clarify that, please.",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, what do you mean by the per-variable view?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, can you clarify what you just said?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, what do you mean, the first or the second?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, what do you mean?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, clarify which view you are offering.",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"For this incident, which one do you mean, the per-variable view or the aggregate view?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Quick check — what do you mean by that?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Quick check — can you clarify which view you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Quick check — which one do you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Quick check — clarify that, please.",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Quick check — what do you mean by the per-variable view?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Quick check — can you clarify what you just said?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Quick check — what do you mean, the first or the second?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Quick check — what do you mean?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Quick check — clarify which view you are offering.,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,"Quick check — which one do you mean, the per-variable view or the aggregate view?",,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,I do not follow — can you clarify?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Clarify what you mean by that.,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,What do you mean exactly?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,What do you mean by the two views?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you clarify?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,What do you mean by the second option?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Clarify the choice you just gave me.,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,What do you mean by raw readings?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Which one do you mean by the detector side?,,llm,clarification_reply,,0,False
+clarification_reply,benchmark_only,Can you clarify the options?,,llm,clarification_reply,,0,False
+valve_actuator,live_free_form,Is the condenser cooling water valve sticking?,,llm,,,0,False
+valve_actuator,live_free_form,Could the A feed valve be stuck open?,,llm,,,0,False
+valve_actuator,live_free_form,Which actuator is failing?,,llm,out_of_scope_refusal,,0,False
+valve_actuator,live_free_form,Is the purge valve behaving?,,llm,,,0,False
+valve_actuator,live_free_form,What is the valve position doing?,,llm,,,0,False
+valve_actuator,live_free_form,Is the recycle compressor valve hunting?,,llm,,,0,False
+valve_actuator,live_free_form,Could a sticking valve account for this?,,llm,,,0,False
+valve_actuator,live_free_form,Which valve is the actuator suspect?,,llm,,,0,False
+valve_actuator,live_free_form,Is the stripper steam valve stuck?,,llm,,,0,False
+valve_actuator,live_free_form,What is going on at the condenser valve?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: is the condenser cooling water valve sticking?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: could the A feed valve be stuck open?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: which actuator is failing?,,llm,out_of_scope_refusal,,0,False
+valve_actuator,live_free_form,Can you tell me: is the purge valve behaving?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: what is the valve position doing?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: is the recycle compressor valve hunting?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: could a sticking valve account for this?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: which valve is the actuator suspect?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: is the stripper steam valve stuck?,,llm,,,0,False
+valve_actuator,live_free_form,Can you tell me: what is going on at the condenser valve?,,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, is the condenser cooling water valve sticking?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, could the A feed valve be stuck open?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, which actuator is failing?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, is the purge valve behaving?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, what is the valve position doing?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, is the recycle compressor valve hunting?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, could a sticking valve account for this?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, which valve is the actuator suspect?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, is the stripper steam valve stuck?",,llm,,,0,False
+valve_actuator,live_free_form,"For this incident, what is going on at the condenser valve?",,llm,,,0,False
+valve_actuator,live_free_form,Quick check — is the condenser cooling water valve sticking?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — could the A feed valve be stuck open?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — which actuator is failing?,,llm,out_of_scope_refusal,,0,False
+valve_actuator,live_free_form,Quick check — is the purge valve behaving?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — what is the valve position doing?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — is the recycle compressor valve hunting?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — could a sticking valve account for this?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — which valve is the actuator suspect?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — is the stripper steam valve stuck?,,llm,,,0,False
+valve_actuator,live_free_form,Quick check — what is going on at the condenser valve?,,llm,,,0,False
+valve_actuator,live_free_form,Is the valve actuator the thing that moved first?,,llm,,,0,False
+valve_actuator,live_free_form,Could the cooling water valve be sticking rather than fouling?,,llm,,,0,False
+valve_actuator,live_free_form,"Which valve do you suspect: feed, purge or cooling water?",,llm,,,0,False
+valve_actuator,live_free_form,Is the A feed valve open too far?,,llm,,,0,False
+valve_actuator,live_free_form,Is the actuator hunting at the purge valve?,,llm,,,0,False
+valve_actuator,live_free_form,What is the condenser valve doing?,,llm,,,0,False
+valve_actuator,live_free_form,Could the valve be stuck part-open?,,llm,,,0,False
+valve_actuator,live_free_form,Is the sticking valve on the cooling water side?,,llm,,,0,False
+valve_actuator,live_free_form,Which control loop valve is misbehaving?,,llm,,,0,False
+valve_actuator,live_free_form,Is the separator liquid valve chattering?,,llm,,,0,False
+causal_why,live_free_form,How does a sticking condenser valve end up raising the reactor temperature?,,llm,,,0,False
+causal_why,live_free_form,What chain of events links the feed ratio step to the pressure swing?,,llm,,,0,False
+causal_why,live_free_form,How does the coolant restriction propagate into the separator?,,llm,,,0,False
+causal_why,live_free_form,What connects the purge valve closing to the stripper pressure?,,llm,,,0,False
+causal_why,live_free_form,How does one loop pull the next one with it?,,llm,,,0,False
+causal_why,live_free_form,What is the sequence from the valve to the temperature?,,llm,,,0,False
+causal_why,live_free_form,How does the reactor feed rate respond to the A feed valve?,,llm,,,0,False
+causal_why,live_free_form,What happens downstream when the cooling water valve sticks?,,llm,,,0,False
+causal_why,live_free_form,How does the composition shift reach the product stream?,,llm,out_of_scope_refusal,,0,False
+causal_why,live_free_form,What links the pressure rise to the level drop?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: how does a sticking condenser valve end up raising the reactor temperature?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: what chain of events links the feed ratio step to the pressure swing?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: how does the coolant restriction propagate into the separator?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: what connects the purge valve closing to the stripper pressure?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: how does one loop pull the next one with it?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: what is the sequence from the valve to the temperature?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: how does the reactor feed rate respond to the A feed valve?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: what happens downstream when the cooling water valve sticks?,,llm,,,0,False
+causal_why,live_free_form,Can you tell me: how does the composition shift reach the product stream?,,llm,out_of_scope_refusal,,0,False
+causal_why,live_free_form,Can you tell me: what links the pressure rise to the level drop?,,llm,,,0,False
+causal_why,live_free_form,"For this incident, how does a sticking condenser valve end up raising the reactor temperature?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, what chain of events links the feed ratio step to the pressure swing?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, how does the coolant restriction propagate into the separator?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, what connects the purge valve closing to the stripper pressure?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, how does one loop pull the next one with it?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, what is the sequence from the valve to the temperature?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, how does the reactor feed rate respond to the A feed valve?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, what happens downstream when the cooling water valve sticks?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, how does the composition shift reach the product stream?",,llm,,,0,False
+causal_why,live_free_form,"For this incident, what links the pressure rise to the level drop?",,llm,,,0,False
+causal_why,live_free_form,Quick check — how does a sticking condenser valve end up raising the reactor temperature?,,llm,,,0,False
+causal_why,live_free_form,Quick check — what chain of events links the feed ratio step to the pressure swing?,,llm,,,0,False
+causal_why,live_free_form,Quick check — how does the coolant restriction propagate into the separator?,,llm,,,0,False
+causal_why,live_free_form,Quick check — what connects the purge valve closing to the stripper pressure?,,llm,,,0,False
+causal_why,live_free_form,Quick check — how does one loop pull the next one with it?,,llm,,,0,False
+causal_why,live_free_form,Quick check — what is the sequence from the valve to the temperature?,,llm,,,0,False
+causal_why,live_free_form,Quick check — how does the reactor feed rate respond to the A feed valve?,,llm,,,0,False
+causal_why,live_free_form,Quick check — what happens downstream when the cooling water valve sticks?,,llm,,,0,False
+causal_why,live_free_form,Quick check — how does the composition shift reach the product stream?,,llm,out_of_scope_refusal,,0,False
+causal_why,live_free_form,Quick check — what links the pressure rise to the level drop?,,llm,,,0,False
+causal_why,live_free_form,Walk me through how the condenser restriction reaches the reactor.,,llm,,,0,False
+causal_why,live_free_form,What is the propagation path from the valve to the column?,,llm,,,0,False
+causal_why,live_free_form,How does closing the purge valve move the separator pressure?,,llm,,,0,False
+causal_why,live_free_form,What is the knock-on effect of the feed ratio step?,,llm,,,0,False
+causal_why,live_free_form,How does the cooling water flow restriction ripple through the plant?,,llm,,,0,False
+causal_why,live_free_form,What ties the temperature rise to the valve behaviour?,,llm,,,0,False
+causal_why,live_free_form,How does the disturbance travel from the feed to the product?,,llm,,,0,False
+causal_why,live_free_form,What is the chain from the actuator to the analyser reading?,,llm,out_of_scope_refusal,,0,False
+causal_why,live_free_form,How would a stuck valve show up two loops later?,,llm,,,0,False
+causal_why,live_free_form,What is the physical path between the two readings?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,What physical mechanism turns a coolant restriction into a pressure rise?,,llm,,,0,False
+mechanism,live_free_form,What is the mechanism behind a sticking valve under closed-loop control?,,llm,,,0,False
+mechanism,live_free_form,By what mechanism does the feed ratio change the reactor composition?,,llm,,,0,False
+mechanism,live_free_form,What mechanism makes the level fall when the valve sticks?,,llm,,,0,False
+mechanism,live_free_form,What is the physical mechanism at the actuator?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,How does valve stiction produce a slow oscillation?,,llm,,,0,False
+mechanism,live_free_form,What mechanism links the pressure to the temperature here?,,llm,,,0,False
+mechanism,live_free_form,What is the mechanism of the decomposition side reaction?,action,template,action,,1,False
+mechanism,live_free_form,By what mechanism does the purge change the composition?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,What mechanism gives a slow drift rather than a step?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,Can you tell me: what physical mechanism turns a coolant restriction into a pressure rise?,,llm,,,0,False
+mechanism,live_free_form,Can you tell me: what is the mechanism behind a sticking valve under closed-loop control?,,llm,,,0,False
+mechanism,live_free_form,Can you tell me: by what mechanism does the feed ratio change the reactor composition?,,llm,,,0,False
+mechanism,live_free_form,Can you tell me: what mechanism makes the level fall when the valve sticks?,,llm,,,0,False
+mechanism,live_free_form,Can you tell me: what is the physical mechanism at the actuator?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,Can you tell me: how does valve stiction produce a slow oscillation?,,llm,,,0,False
+mechanism,live_free_form,Can you tell me: what mechanism links the pressure to the temperature here?,,llm,,,0,False
+mechanism,live_free_form,Can you tell me: what is the mechanism of the decomposition side reaction?,action,template,action,,1,False
+mechanism,live_free_form,Can you tell me: by what mechanism does the purge change the composition?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,Can you tell me: what mechanism gives a slow drift rather than a step?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,"For this incident, what physical mechanism turns a coolant restriction into a pressure rise?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, what is the mechanism behind a sticking valve under closed-loop control?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, by what mechanism does the feed ratio change the reactor composition?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, what mechanism makes the level fall when the valve sticks?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, what is the physical mechanism at the actuator?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, how does valve stiction produce a slow oscillation?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, what mechanism links the pressure to the temperature here?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, what is the mechanism of the decomposition side reaction?",action,template,action,,1,False
+mechanism,live_free_form,"For this incident, by what mechanism does the purge change the composition?",,llm,,,0,False
+mechanism,live_free_form,"For this incident, what mechanism gives a slow drift rather than a step?",,llm,,,0,False
+mechanism,live_free_form,Quick check — what physical mechanism turns a coolant restriction into a pressure rise?,,llm,,,0,False
+mechanism,live_free_form,Quick check — what is the mechanism behind a sticking valve under closed-loop control?,,llm,,,0,False
+mechanism,live_free_form,Quick check — by what mechanism does the feed ratio change the reactor composition?,,llm,,,0,False
+mechanism,live_free_form,Quick check — what mechanism makes the level fall when the valve sticks?,,llm,,,0,False
+mechanism,live_free_form,Quick check — what is the physical mechanism at the actuator?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,Quick check — how does valve stiction produce a slow oscillation?,,llm,,,0,False
+mechanism,live_free_form,Quick check — what mechanism links the pressure to the temperature here?,,llm,,,0,False
+mechanism,live_free_form,Quick check — what is the mechanism of the decomposition side reaction?,action,template,action,,1,False
+mechanism,live_free_form,Quick check — by what mechanism does the purge change the composition?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,Quick check — what mechanism gives a slow drift rather than a step?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,"Give me the physical mechanism, not the symptom.",,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,What is happening mechanically inside the valve?,,llm,,,0,False
+mechanism,live_free_form,What mechanism would produce this slow oscillation?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,By what mechanism does the coolant flow limit the reactor temperature?,,llm,,,0,False
+mechanism,live_free_form,What is the mechanism behind the level decline?,,llm,,,0,False
+mechanism,live_free_form,Is the mechanism stiction or fouling?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,What physical process turns the valve problem into a pressure swing?,,llm,,,0,False
+mechanism,live_free_form,What mechanism governs the recovery after the actuator frees up?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,How does the mechanism differ for a step against a drift?,,llm,out_of_scope_refusal,,0,False
+mechanism,live_free_form,What mechanism is consistent with a slow drift at the actuator?,,llm,out_of_scope_refusal,,0,False

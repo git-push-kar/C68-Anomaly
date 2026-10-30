@@ -113,6 +113,28 @@ def test_ambiguous_hypotheses_trigger_uses_the_configured_margin(event):
     assert ResponseRouter().route(event, wide, "What happened?", with_answer=False).clarification is None
 
 
+def test_missing_confidence_is_not_a_tie(event):
+    """Phase 2B targets carry no confidence; that is "unmeasured", not "tied".
+
+    Coercing a missing confidence to 0.0 made every two-hypothesis report look
+    like a 0.0-vs-0.0 dead heat, so ``ambiguous_hypotheses`` fired on every turn
+    and every dialogue needed a clarification it should not have.
+    """
+    unmeasured = {
+        "root_cause": "FAULT_15",
+        "hypotheses": [{"fault": "FAULT_15", "confidence": None}, {"fault": "FAULT_14", "confidence": None}],
+    }
+    route = ResponseRouter().route(event, unmeasured, "What happened?", with_answer=False)
+    assert route.clarification is None, "an unmeasured margin cannot be a tie"
+
+    # One measured and one missing is still not a margin.
+    partial = {
+        "root_cause": "FAULT_15",
+        "hypotheses": [{"fault": "FAULT_15", "confidence": 0.52}, {"fault": "FAULT_14", "confidence": None}],
+    }
+    assert ResponseRouter().route(event, partial, "What happened?", with_answer=False).clarification is None
+
+
 def test_unclassified_report_triggers_a_clarification():
     event = load("unclassified")
     route = ResponseRouter().route(event, {"root_cause": "UNCLASSIFIED_OPEN_SET"}, "What are the detector scores?")
