@@ -144,8 +144,14 @@ class ReportBody(BaseModel):
     reasoning_steps: str
     recommended_action: str
     uncertainty: str
-    confidence: float = Field(ge=0.0, le=1.0)
     hypotheses: List[Hypothesis] = Field(default_factory=list, max_length=3)
+
+    # No ``confidence`` here on purpose. A model-authored confidence is a number
+    # with no measurement behind it; the contract is that confidence is computed
+    # in code from the fault-id token probability and calibrated on validation,
+    # and that it is absent until a calibrator exists. Because the model forbids
+    # extra keys, an answer that emits one is a schema error rather than a field
+    # that gets silently carried into a report.
 
     @field_validator("summary")
     @classmethod
@@ -163,6 +169,21 @@ class Report(ReportBody):
     table: TableID = TableID.DETECTORS
     citations: List[str] = Field(default_factory=list, max_length=8)
     source: str = "model"  # "model" or "deterministic"
+    #: Set only by a fitted calibrator. ``None`` until then, and the renderer says
+    #: "uncalibrated" rather than printing a number a reader would take as measured.
+    confidence: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+    confidence_calibrated: bool = False
+    confidence_source: str = "uncalibrated"
+
+    @model_validator(mode="after")
+    def _confidence_needs_a_calibrator(self) -> "Report":
+        if self.confidence is not None and not self.confidence_calibrated:
+            raise ValueError(
+                "a confidence value requires a fitted calibrator; leave it unset"
+            )
+        if self.confidence_calibrated and self.confidence_source == "uncalibrated":
+            raise ValueError("calibrated confidence must name its calibrator")
+        return self
 
     @model_validator(mode="after")
     def _synthetic_is_labelled(self) -> "Report":

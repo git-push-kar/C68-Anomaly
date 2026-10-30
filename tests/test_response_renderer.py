@@ -29,6 +29,7 @@ from llm.response import (
     render_report,
 )
 from llm.response.renderer import format_cell, fmt
+from llm.response.schemas import Report
 
 FIXTURES = ROOT / "tests" / "fixtures" / "response"
 NAMES = ["classified", "unclassified", "normal_excursion"]
@@ -106,6 +107,44 @@ def test_synthetic_label_is_shown_when_applicable():
     doc = render_report(report, StoreAccess(event))
     assert "(synthetic)" in doc.markdown
     assert doc.ui["meta"]["synthetic"] is True
+
+
+def test_confidence_is_rendered_uncalibrated_until_a_calibrator_exists(fixture):
+    report = _report_for(fixture)
+    assert report.confidence is None, "no calibrator is fitted, so there is no value"
+    doc = render_report(report, StoreAccess(fixture))
+    assert "uncalibrated" in doc.markdown
+    assert "Confidence:** 0." not in doc.markdown
+
+
+def test_a_confidence_value_without_a_calibrator_is_rejected(fixture):
+    report = _report_for(fixture)
+    body = report.model_dump(exclude={"confidence", "confidence_calibrated",
+                                      "confidence_source", "severity", "event_id",
+                                      "table", "citations", "source"})
+    with pytest.raises(ValueError):
+        Report(**body, event_id="X", severity=report.severity,
+               confidence=0.71, confidence_calibrated=False)
+
+
+def test_a_calibrated_value_names_its_calibrator(fixture):
+    report = _report_for(fixture)
+    body = report.model_dump(exclude={"confidence", "confidence_calibrated",
+                                      "confidence_source", "severity", "event_id",
+                                      "table", "citations", "source"})
+    calibrated = Report(**body, event_id="X", severity=report.severity,
+                        confidence=0.71, confidence_calibrated=True,
+                        confidence_source="isotonic-val")
+    doc = render_report(calibrated, StoreAccess(fixture))
+    assert "0.71 (isotonic-val)" in doc.markdown
+
+
+def test_model_authored_confidence_is_a_schema_error():
+    event = load("classified")
+    event["report"] = dict(event["report"], confidence=0.71)
+    report, result = build_report(event["report"], event)
+    assert report is None, "confidence is not a model field"
+    assert any(issue.code == "schema" for issue in result.issues)
 
 
 def test_followup_renderer_uses_the_same_tables():
