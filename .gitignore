@@ -157,3 +157,5 @@ secrets.yaml
 secrets.json
 
 models/
+# Training virtualenv (created by the Phase 3A setup; never committed)
+venv_train/
