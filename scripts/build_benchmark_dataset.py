@@ -1048,6 +1048,7 @@ def main() -> int:
             "provenance": {key: teacher_stats.get(key) for key in
                            ("teacher_tag", "temperature", "seed", "filter_sha256",
                             "license_sha256", "system_prompt_sha256", "concurrency",
+                            "menu_revision", "menu_sha256", "kb_sha256",
                             "cache_path") if teacher_stats.get(key) is not None},
         },
         # The evidence view is part of the dataset's identity: a snapshot at a
