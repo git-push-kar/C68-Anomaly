@@ -395,10 +395,18 @@ def main() -> None:
     logger.info("train median event-open sample %d from %d train events",
                 train_median_open, len(train_opens))
 
+    # Only runs the detector *saw* but which had not closed when the run ended get
+    # an oracle window. Manufacturing windows for plain detector misses would
+    # invent events for faults the detector cannot see (faults 3 and 9) and
+    # inflate training coverage with items the system never produces.
+    oracle_misses = [m for m in misses if m.get("reason") == "unclosed_at_run_end"]
+    logger.info("oracle candidates: %d unclosed runs of %d misses",
+                len(oracle_misses), len(misses))
+
     oracle: List[Dict] = []
-    if not args.skip_oracle and misses:
+    if not args.skip_oracle and oracle_misses:
         by_fault: Dict[int, set] = defaultdict(set)
-        for m in misses:
+        for m in oracle_misses:
             by_fault[int(m["fault"])].add(int(m["simulationRun"]))
         wanted_faults = sorted(by_fault)
         target_start = train_median_open - (det.window_size - 1)
@@ -481,6 +489,7 @@ def main() -> None:
                    "detector_miss_by_fault": dict(Counter(str(m["fault"]) for m in misses
                                                        if m.get("reason") == "detector_miss"))},
         "oracle_events": len(oracle),
+        "oracle_skipped_misses": len(misses) - len(oracle_misses),
         "oracle_offset": {"sample": train_median_open,
                           "delay_after_onset": train_median_open - det.onset,
                           "source": "median event-open sample over the TRAIN split only"},
