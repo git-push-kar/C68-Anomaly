@@ -106,6 +106,45 @@ def test_a_stable_reading_is_not_a_conflict():
     assert F._direction_conflict("XMEAS_7 is stable at the setpoint", 13) is None
 
 
+# -- the advisory display-name flag -------------------------------------------
+_EVIDENCE = {
+    "top_anomalous_sensors": [
+        {"name": "XMEAS_7", "display_name": "Reactor_Pressure",
+         "z_score": 1.2, "deviation_percent": -2.0, "trend": "increasing"},
+        {"name": "XMV_51", "display_name": "Reactor_Cooling_Water_Flow",
+         "z_score": 2.0, "deviation_percent": 8.0, "trend": "decreasing"},
+    ],
+}
+
+
+def test_the_display_flag_catches_what_the_tag_rule_misses():
+    prose = {"physical_reasoning": "Reactor_Pressure is decreasing through the window.",
+             "narrative": "Check the reactor pressure."}
+    assert F.direction_inconsistent_display(prose, _EVIDENCE), "display name not seen"
+    assert F._direction_conflict("Reactor_Pressure is decreasing", 13) is None
+
+
+def test_the_display_flag_accepts_the_agreeing_sentence():
+    prose = {"physical_reasoning": "Reactor_Pressure is rising through the window.",
+             "narrative": "Check the reactor pressure."}
+    assert F.direction_inconsistent_display(prose, _EVIDENCE) == []
+
+
+def test_the_display_flag_skips_valve_positions_and_negations():
+    valve = {"physical_reasoning": "Reactor_Cooling_Water_Flow is increasing.",
+             "narrative": "Check the valve."}
+    assert F.direction_inconsistent_display(valve, _EVIDENCE) == []
+    negated = {"physical_reasoning": "Reactor_Pressure is not decreasing.",
+               "narrative": "Check the reactor pressure."}
+    assert F.direction_inconsistent_display(negated, _EVIDENCE) == []
+
+
+def test_the_display_flag_is_not_a_rejection():
+    """Advisory by construction: check_answer's codes come from the tag rule only."""
+    assert "direction_inconsistent_display" not in dir(F.check_answer)
+    assert F.direction_inconsistent_display.__module__ == "llm.benchmark.filters"
+
+
 # -- the menu revision label --------------------------------------------------
 def test_the_revision_label_matches_the_published_text():
     """A forgotten bump is the failure this guards: r2 must mean this text."""

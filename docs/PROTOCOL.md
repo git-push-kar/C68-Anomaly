@@ -704,13 +704,23 @@ firings** (5 items failed two rules). `1,914 + 288 = 2,202` calls and
 under `OPEN_SET`. `scripts/analyze_teacher_rejections.py` asserts these identities,
 so a future table cannot drift back.
 
-**Direction scope (PROPOSED, not applied).** `filters._direction_conflict`
+**Direction scope (APPLIED: measurements only).** `filters._direction_conflict`
 compares the trend of the KB's `initiating.sensor` with the KB's
 `initiating.direction`. For faults 1, 4, 5, 6, 7, 11, 12, 14 and 15 that sensor is
 an **XMV valve position**, while the KB's wording names a *flow* — so the rule
 compares a position with a flow direction. The stored trend contradicts the KB in
 **120/120** of fault 14's train events, **120/120** of fault 7's and **26/26** of
 fault 15's.
+
+A limitation, recorded rather than fixed: those contradictions are **wording, not
+model error**. A valve closing while the flow it admits rises under pressure is
+ordinary process behaviour, and a KB that describes the flow through a valve has
+not made a claim about the valve's position. The rule therefore skips XMV tags
+entirely (it did so before this patch; the docstring's "PROPOSED" label was out
+of date), and no answer was re-called on this account. The KB wording for those
+faults is left as published, so a reader of the KB still sees a flow direction
+where the field holds a position — the limitation is in the KB, not only in the
+rule.
 
 Fault 13 is the one that is a measurement, and the KB sign there is a genuine
 contradiction rather than a wording mismatch: the stored **trend** of `XMEAS_7`
@@ -784,6 +794,17 @@ passes `replay_cache` under the current filter, in a sidecar so the cache stays
 append-only evidence; the reuse rule accepts either the original hash or the
 stamp. Without that, one filter edit would have priced ~1,900 already-checked
 answers as fresh model calls.
+
+**The rejection rule reads tags; the prose reads display names (advisory).**
+`_direction_conflict` searches for `XMEAS_7`; answers usually write
+`Reactor_Pressure`. `filters.direction_inconsistent_display` is the matching check
+by display name, and it is an **advisory flag, never a rejection**: promoting it
+would change which answers are accepted, which is an owner decision. Priced over
+the 1,902 accepted answers with no model calls
+(`scripts/audit_direction_display.py`): **4 items flagged / 4 sentences**, at
+faults 2, 12, 15 and 20, all `measurement` sensors on `trend` basis. Four is small
+enough that the tag rule's blindness is not currently hiding a systematic problem,
+but it is also small enough that the flag is cheap to keep.
 
 **Dropped items are the weak-evidence tail.** Median fused ratio 11.7 (dropped)
 vs 27.9 (accepted); median top-|z| 0.39 vs 3.97. Faults 14/15 sit at ratio ≈1.1

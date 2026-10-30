@@ -523,6 +523,75 @@ def direction_report(answer: Optional[Dict], evidence: Dict, allowed: AllowedSet
     }
 
 
+#: The rejection rule reads tags; prose overwhelmingly reads display names
+#: ("Reactor_Pressure"), so the rule sees only part of the claims it is meant to
+#: judge. The advisory check below measures the rest.
+
+
+def _stored_directions_by_display(evidence: Dict) -> Dict[str, tuple]:
+    """``Reactor_Pressure`` -> (sign, basis, tag kind), from the same fields."""
+    out: Dict[str, tuple] = {}
+    for sensor in (evidence.get("top_anomalous_sensors") or []):
+        if not isinstance(sensor, dict):
+            continue
+        display = str(sensor.get("display_name") or "").strip()
+        tag = canonical_tag(sensor.get("name")) or canonical_tag(sensor.get("display_name"))
+        if not display or not tag:
+            continue
+        stored = _stored_directions({"top_anomalous_sensors": [sensor]}).get(tag)
+        if stored is None:
+            continue
+        out[display] = stored
+    return out
+
+
+def direction_inconsistent_display(answer: Optional[Dict], evidence: Dict) -> List[Dict]:
+    """ADVISORY: the same consistency check, but matching display names.
+
+    Never a rejection. The tag-matching rule in ``direction_inconsistent`` misses
+    prose that writes ``Reactor_Pressure`` instead of ``XMEAS_7``, and this is the
+    measurement of how much it misses -- a count for a human to read, not a rule
+    that removes answers. Promoting it would change which answers are accepted,
+    which is an owner decision made on these numbers.
+
+    Valve positions are still skipped for the reason given there: a position and
+    the flow it admits are different variables.
+    """
+    if not isinstance(answer, dict):
+        return []
+    signs = _stored_directions_by_display(evidence)
+    if not signs:
+        return []
+    text = f"{answer.get('physical_reasoning') or ''}\n{answer.get('narrative') or ''}"
+    flags: List[Dict] = []
+    for sentence in _SENTENCE_SPLIT.split(text):
+        body = sentence.strip()
+        if not body or _NEGATION.search(body.lower()):
+            continue
+        names = [name for name in signs if re.search(rf"\b{re.escape(name)}\b", body)]
+        if len(names) != 1:
+            continue
+        low = body.lower()
+        up = [w for w in UP_WORDS if re.search(rf"\b{re.escape(w)}\b", low)]
+        down = [w for w in DOWN_WORDS if re.search(rf"\b{re.escape(w)}\b", low)]
+        if bool(up) == bool(down):
+            continue
+        stored, basis, kind = signs[names[0]]
+        if kind == "valve_position":
+            continue
+        if (up and stored < 0) or (down and stored > 0):
+            flags.append({
+                "sentence": body,
+                "sensor": names[0],
+                "matched": "display_name",
+                "tag_kind": kind,
+                "stored": "increase" if stored > 0 else "decrease",
+                "basis": basis,
+                "words": (up or down)[:3],
+            })
+    return flags
+
+
 __all__ = [
     "ABSOLUTE_PATTERNS",
     "DOWN_WORDS",
@@ -531,6 +600,7 @@ __all__ = [
     "UP_WORDS",
     "check_answer",
     "direction_inconsistent",
+    "direction_inconsistent_display",
     "direction_report",
     "names_removed_fault",
     "store_numbers",
