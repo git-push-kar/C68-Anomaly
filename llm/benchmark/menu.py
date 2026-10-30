@@ -125,11 +125,19 @@ def build_menu(remove: Optional[Iterable] = None) -> List[Dict[str, str]]:
 
 
 def nearest_candidates(fault: int, k: int = 2) -> List[str]:
-    """Deterministic 'nearest' list for an open-set episode: KB lookalikes first."""
+    """Deterministic 'nearest' list for an open-set episode: KB lookalikes first.
+
+    The fault itself is never a candidate. Without that exclusion the fill loop
+    could pad the list with the removed entry, and the teacher prompt would then
+    name the very fault the item asks it to abstain from -- number and KB name
+    both.
+    """
     candidates = [fault_id_for(n).value for n in lookalikes(fault, limit=k)]
     for number in CLASSIFIABLE_FAULTS:
         if len(candidates) >= k:
             break
+        if int(number) == int(fault):
+            continue
         value = fault_id_for(number).value
         if value not in candidates:
             candidates.append(value)

@@ -141,9 +141,12 @@ def build_target(
     subsystem = entry.get("subsystem")
     mitigation = str(entry.get("recommended_action") or entry.get("action") or "").strip()
 
-    if variant == "removed":
+    if variant == "removed" or number not in CLASSIFIABLE_FAULTS:
         # Only a real menu entry can be removed: for faults 16-20 the true fault
-        # was never on the menu, so an open-set item removes nothing.
+        # was never on the menu, so an open-set item removes nothing. Those faults
+        # are unanswerable by construction, so their target is UNCLASSIFIED in
+        # both variants -- a ``menu`` variant that expected FAULT_17 would demand
+        # an answer the menu does not offer.
         removed = [number] if number in CLASSIFIABLE_FAULTS else []
         target_id = UNCLASSIFIED
         verdict = "unclassified_open_set"

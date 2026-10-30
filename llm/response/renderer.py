@@ -301,6 +301,18 @@ def _table_for(table_id: TableID, store: StoreAccess, context: Dict) -> Optional
     return None
 
 
+def _confidence_text(report: Report) -> str:
+    """Confidence as the renderer is allowed to show it.
+
+    Until a calibrator is fitted there is no honest number: the raw token
+    probability is not a calibrated probability, so printing it would invite a
+    reader to compare two reports on a scale that does not exist yet.
+    """
+    if report.confidence is None or not report.confidence_calibrated:
+        return "uncalibrated (no calibrator fitted)"
+    return f"{report.confidence:.2f} ({report.confidence_source})"
+
+
 def _block_list(markdown_parts: List[str], tables: List[Table], citations: List[str], kind: str, title: str, meta: Dict) -> Dict:
     blocks: List[Dict[str, Any]] = []
     for part in markdown_parts:
@@ -327,7 +339,9 @@ def render_report(report: Report, store: StoreAccess, include_timeline: bool = T
         f"## {title}" + (" _(synthetic)_" if synthetic else ""),
         f"**Severity:** {severity.level.value.capitalize()} (authoritative, computed in code)  ",
         f"**Subsystem:** {report.affected_subsystem}  ",
-        f"**Confidence:** {report.confidence:.2f}",
+        f"**Confidence:** {_confidence_text(report)}",
+        # The value is code-computed; it is deliberately last so a reader sees
+        # what the plant is doing before a number they might over-read.
         "",
         report.summary,
     ]

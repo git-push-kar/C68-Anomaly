@@ -425,6 +425,10 @@ plus a threshold re-derivation and a v2 re-evaluation per seed (~4 min each).
 | Events built | 4,438 real (train 2,168 / val 456 / test 1,814) + 20 oracle + 204 NORMAL_TRANSIENT |
 | Splits | `data/splits_v2.json` (run ranges expanded and checked pairwise during the build) |
 
+> **Superseded by §10 (2026-10-30).** The dataset now uses a fixed horizon and no
+> oracle windows; the numbers below describe the full-event build, which is kept
+> at `outputs/benchmark_v2/events_full/` and is **not used**.
+
 ### 9.2 Event shape — a limitation, stated plainly
 
 Events are **long by construction**: median 735 samples (147 windows), p10 705,
@@ -442,6 +446,10 @@ each); every other fault produces an event in 244/245 runs, the missing one bein
 the run that ends while an event is still open.
 
 ### 9.3 Misses, oracles and NORMAL_TRANSIENT
+
+> **Superseded by §10.2.** The 20 `unclosed_at_run_end` misses were a selection
+> artifact, not a stream artifact: run 86 is closed correctly in §10.2, and no
+> oracle window is needed or built.
 
 - 462 runs produced no closed event: 442 are `detector_miss` (228 fault 3, 214
   fault 9) and 20 are `unclosed_at_run_end` (exactly one per fault).
@@ -480,3 +488,266 @@ near-match): 7.8-9.2 s per call, 44/50 pilot answers accepted under the final
 filter (88%). The 6 rejections are genuine: 2 invented sensor/valve names, 1
 ungrounded sensor, 3 invented numbers. Teacher prose exists for **train only**;
 val/test are scored against deterministic targets.
+
+---
+
+## 10. Phase 2B close-out (2026-10-30)
+
+### 10.1 Evidence view — a fixed horizon, H = 20 windows
+
+The evidence a benchmark item shows is a **fixed snapshot**: the event's open
+window plus 20 windows (window_size 60, stride 5 → 100 samples), capped at the end
+of the run. H was fixed before the rebuild and is not tuned on val or test.
+
+Why: the full-event view measured *how much of the run was left* (median 149
+windows, because an event that alarms near sample 220 cannot find `separate`=20
+quiet windows before the 960-sample stream ends). A snapshot of fixed length makes
+every item comparable and makes event closure irrelevant to whether an event
+exists. The live aggregator and its config are untouched; the horizon is a
+benchmark-only argument of the builder (`--max-windows`, default 20, `0` = off).
+
+| quantity | value |
+|---|---|
+| events | 4,458 (train 2,188 / val 456 / test 1,814) |
+| snapshot length | 20 windows for every event (5 runs truncated by stream end) |
+| events whose span covers the onset | 4,458 / 4,458 |
+| windows left at open | median 146, p05 137, p95 148, min 0 |
+| full-event length (unused, for reference) | median 149 windows, p05/p95 149 |
+| event-open delay, observable faults | median 59 (fault 1/4/14) to 94 (fault 20) samples |
+
+The full-event build is kept at `outputs/benchmark_v2/events_full/` and is not
+read by any script.
+
+### 10.2 The "unclosed" runs — cause, fix, and why there are no oracles
+
+All 20 `unclosed_at_run_end` misses were **run 86**, one per fault. It was not a
+stream or flush artifact. `segment_events` already emits the still-open event at
+the end of the stream, so run 86 produced an event correctly: open window 20,
+close window 180. The builder then asked whether the **opening** window ended at
+or after onset — window 20 ends at sample 159, onset is 160 — and discarded an
+event that spans the entire run.
+
+The rule is now "the first event whose span reaches the onset" (`select_event`,
+`llm/benchmark/events.py`). Run 86 yields an event for every fault, open delay −1
+sample, and the miss list drops from 462 to **442, all `detector_miss`** (faults 3
+and 9 only). With zero unclosed runs, **oracle windows are no longer needed and
+none are built**; the oracle pass remains, driven by a shared reason filter, and
+is a no-op on this data.
+
+### 10.3 Faults 3 and 9
+
+Events from faults 3 and 9 are excluded from **train** and from teacher input:
+their fused FDR is far below 5%, so an event of theirs is a chance detection, and
+training on it would teach a diagnosis from evidence that does not exist. They
+remain in **val/test** with `unobservable: true` so the miss is measured rather
+than hidden.
+
+| split | unobservable items | events from 3/9 |
+|---|---|---|
+| train | 0 (28 excluded during the build) | 0 |
+| val | 12 | 6 |
+| test | 28 | 14 |
+
+### 10.4 Faults 16-20 and twin items
+
+Faults 16-20 have no menu entry, so removing the truth removes nothing. Their
+target is `UNCLASSIFIED_OPEN_SET` in **both** variants — a `menu` variant that
+expects `FAULT_17` would demand an answer the menu forbids — and the two variants
+are therefore identical. Evaluation items for 16-20 are emitted **once**; the
+removed-twin is emitted only for faults 1-15, where removal changes the menu.
+
+### 10.5 Class balance in train
+
+`UNCLASSIFIED_OPEN_SET` is capped at 25% of faulty train items by seeded
+subsampling of the faults 16-20 supply only; the 1-15 open-set episodes, which are
+the actual abstention signal and are spread across every classifiable fault, are
+never dropped. Because the share is of the faulty total *after* dropping, the
+bound is `u ≤ cap·classified/(1−cap)`.
+
+| train quantity | value |
+|---|---|
+| faulty items before cap | 2,160 |
+| unclassified before cap | 793 (193 episodes + 600 from 16-20) |
+| dropped | 338 (all 16-20) |
+| unclassified after | 455 (193 episodes + 262 from 16-20) |
+| share after | 0.2497 |
+
+Test is untouched by the cap.
+
+### 10.6 Prompt leak checks
+
+Effort was spent to remove label-shaped tokens from the prompt, so the check is
+script-enforced on **every** prompt (4,634 this build, 0 violations):
+
+- the internal id `EVT-<split>-f<fault>-r<run>` never reaches the prompt; the id
+  shown is a salted SHA-256 prefix (`EV-…`), stable per event;
+- no split name, run-number token, `EVT`/`NORM` token, or `NORMAL_TRANSIENT`;
+- no fault reference (`FAULT_n`, `fault n`, or a KB fault name) outside the menu
+  block — the menu is exempt because naming the candidates is its job.
+
+### 10.7 Teacher
+
+`qwen3:30b` is the teacher, recorded in the manifest and here. It is **not** a
+config value: `configs/*.yaml` are not edited for the benchmark, and the client
+refuses a tag the server does not have rather than substituting a near match.
+
+Inference: temperature 0.2, seed 42, `think: false`, JSON mode, concurrency 1
+(the flag exists; Ollama serves one request at a time, so >1 buys nothing).
+Output is prose only (`physical_reasoning`, `narrative`).
+
+Provenance is recorded per call, in the cache and in the manifest: teacher tag,
+temperature, seed, `filter_sha256` over the four files that decide acceptance,
+`license_sha256` of the licence text the local runtime reports for the tag, and
+`system_prompt_sha256`. A licence is recorded only as a hash of what the runtime
+reports — no licence is asserted from memory.
+
+Resume: every finished call is appended to `teacher_cache.jsonl` as its own line,
+keyed by item id, with the verdict and rejection codes. A restart skips cached
+items; a cached item produced under a different `filter_sha256` is re-run, so a
+filter change cannot silently mix two regimes.
+
+### 10.8 Confidence
+
+Confidence is **not** a target field and **not** teacher output. The contract:
+
+- it is computed in code, at inference, from the probability of the `fault_id`
+  token, and calibrated on validation with isotonic regression;
+- no calibrator is fitted yet, so `Report.confidence` is `None` and the renderer
+  prints **"uncalibrated (no calibrator fitted)"** rather than a number;
+- a value may not be set without `confidence_calibrated=True` and a named source,
+  and a model that emits `confidence` is rejected as a schema error;
+- hypothesis-level confidences in the response schema are a separate, live-path
+  concern and are not reported as a benchmark metric.
+
+### 10.9 Inputs
+
+The four untracked detector artifacts are pinned in
+`configs/benchmark_inputs.json` and verified at the start of both builds, which
+fails on a missing or changed file:
+
+| artifact | sha256 (first 12) |
+|---|---|
+| `outputs/anomaly_detector/model.pt` | `d0ec3f386f11` |
+| `outputs/anomaly_detector/dynamic/cva_model.npz` | `97f27ae9ab10` |
+| `outputs/anomaly_detector/dynamic/dpca_model.npz` | `a1b29a5b086a` |
+| `outputs/preprocessing/scaler.pkl` | `6b67a6a18e74` |
+
+### 10.10 Cause phrasing, retry policy and direction flags (close-out 2)
+
+- **Cause phrasing.** Every fault's KB `name` describes an unmeasured cause
+  (20/20); its `initiating.sensor` is a measured tag (20/20). The teacher prompt
+  therefore states the disturbance in the KB's own words, and the filter accepts
+  exactly that phrase (or it with the disturbance tail dropped, three words
+  minimum) as a non-sensor cause mention. All other unknown tags still reject.
+  Fault 5: 3/10 → 27/27.
+- **Retry policy.** One retry with the rejection codes and a different seed, judged
+  against the original prompt so feedback tokens cannot be quoted back; a
+  twice-rejected item is dropped and logged, with per-fault coverage in the
+  manifest against a 0.70 floor.
+- **Direction flag.** `direction_inconsistent` is a flag, never a rejection. It
+  compares direction words to the stored `trend` (movement), falling back to the
+  deviation sign only when the trend is absent; `trend` and deviation disagree in
+  442 of 2,151 ranked sensors, so the deviation-only version flagged 29 correct
+  sentences. 8 flags remain in 7 of 172 answers.
+
+### 10.11 Abstention, valve labels and the replay policy (close-out 3)
+
+- **Open-set abstention contract.** On an item whose target is
+  `UNCLASSIFIED_OPEN_SET` the teacher prompt no longer carries `the disturbance:`
+  line; it states that no listed candidate fits and names only the nearest listed
+  candidates to rule out. The filter's cause allowance is scoped to the faults the
+  item's *menu* offered, so the removed fault's KB wording is rejected
+  (`names_removed_fault`) while ruling out a listed candidate stays legal.
+  Only **distinctive** phrases count: faults 5 and 12 share "condenser cooling
+  water inlet temperature" and differ in the tail (step / random variation), and
+  fault 12 must remain on the menu, so the shared prefix is not a leak.
+  Bug fixed on the way: `nearest_candidates` could pad its list with the fault
+  itself, which put the removed entry back into its own prompt. Before: 2 of 60
+  accepted abstention answers named the removed fault and 63/63 prompts carried
+  it. After: 0 of 73, and the builder now raises if any abstention prompt leaks.
+- **Valve vs flow.** Eleven XMV tags have display names that read like process
+  flows (`XMV_44 A_Feed_Flow` vs `XMEAS_1 A_Feed_Stream1`;
+  `XMV_50 Stripper_Steam_Valve` vs `XMEAS_19 Stripper_Steam_Flow`;
+  `XMV_51/52 ..._Cooling_Water_Flow` vs `XMEAS_21/22 ..._Outlet_Temperature`;
+  also XMV_42/43/45/47/48/49). Every tag in the student prompt is now labelled
+  `[XMV_44, valve position, manipulated variable]` or `[XMEAS_1, measurement]`,
+  in the sensor list, the CVA attribution and the onset order. The teacher prompt
+  says a valve position is not a flow, and `direction_inconsistent` skips XMV
+  sentences entirely. Template hash changed; dataset rebuilt.
+- **Replay instead of discard.** A prompt or filter edit changes the code hash of
+  every cached answer. Rather than throw the prose away, the builder re-judges each
+  cached raw answer with the *current* filters (`--replay-cache`, no model call).
+  First rebuild: 184 of 188 still valid; after the 15-item re-run, 199 of 201.
+
+### 10.12 The full teacher run (2026-10-30)
+
+`qwen3:30b`, concurrency 1, final hashes. **1,914 items attempted, 2,202 API calls,
+21,644 s (6.01 h)**: 1,626 accepted on the first attempt (84.9%), 198 recovered by
+the single retry, **90 dropped** (4.7%), 1,849 train items with valid prose after
+the 25 carried over. Every fault clears the 0.70 floor; the lowest is
+`FAULT_15` at 0.858. Rejection codes are dominated by `number_not_in_store` (47)
+and `direction_conflict` (28) among the dropped, and direction conflicts cluster on
+the dynamics faults 14 and 7.
+
+Dropped items stay in `train.jsonl` with `prose: null` and
+`teacher_status: "rejected"` plus their codes; accepted ones carry
+`teacher_status: "accepted"` (or `"accepted_replayed"`). A prose-conditioned loss
+must mask on `prose is not None`; a label-only loss can use all 1,939 items.
+
+### 10.13 Rejection accounting, direction scope and the training environment
+
+**Code counts are not item counts.** The full-run tables printed rule firings
+under an `items` heading. First pass is **289 rejected items / 300 rule firings**
+(11 items failed two rules); the final attempt is **90 dropped items / 95 retry
+firings** (5 items failed two rules). `1,914 + 288 = 2,202` calls and
+`1,849 + 90 = 1,939` items both hold, and open-set episodes are counted once,
+under `OPEN_SET`. `scripts/analyze_teacher_rejections.py` asserts these identities,
+so a future table cannot drift back.
+
+**Direction scope (PROPOSED, not applied).** `filters._direction_conflict`
+compares the trend of the KB's `initiating.sensor` with the KB's
+`initiating.direction`. For faults 1, 4, 5, 6, 7, 11, 12, 14 and 15 that sensor is
+an **XMV valve position**, while the KB's wording names a *flow* — so the rule
+compares a position with a flow direction. The stored trend contradicts the KB in
+**120/120** of fault 14's train events, **120/120** of fault 7's and **26/26** of
+fault 15's; fault 13, a measurement, contradicts in **0/102**. Proposal: apply the
+rejection only when the initiating tag is an XMEAS measurement, and review fault
+13's KB sign. Replay: 25 dropped items recovered, 0 invalidated, whereas flipping
+the KB sign instead would invalidate 84 accepted answers. Not applied pending an
+owner decision; the KB hash, menu text and prompts would move if it is.
+
+**Dropped items are the weak-evidence tail.** Median fused ratio 11.7 (dropped)
+vs 27.9 (accepted); median top-|z| 0.39 vs 3.97. Faults 14/15 sit at ratio ≈1.1
+either way. The drop is therefore not a random 4.6% of training events: it
+concentrates on low-signal excursions, which remain present in validation and
+test. Any claim about training difficulty must account for it.
+
+**Training-set policy (PROPOSED).** Excluding the 90 gives 1,849 items: 1,307
+classified, 442 `UNCLASSIFIED_OPEN_SET`, 100 `NORMAL_TRANSIENT`; the unclassified
+share of faulty items is **25.27%**, 7 items over the 25% cap, because the drops
+removed 64 classified but only 9 unclassified items. Either keep the 90 as
+label-only (share 21.06%, no change) or exclude them and re-subsample 7
+unclassified items (24.97%).
+
+**Training environment.** Pinning target is `torch 2.13.0+cu130`,
+`transformers 4.57.6`, `peft 0.20.0`; the app currently runs `torch 2.11.0+cu128`,
+`transformers 5.15.0`, with `peft` and `timm` absent, so **no smoke run is
+possible yet**. `timm` is required by the InternVL remote modelling code, not by
+this repo, and its pin must be read from the model runtime rather than assumed.
+Because transformers must move down a major version, training belongs in a
+dedicated venv; the 268 tests pass on the current stack and would need re-running
+after a downgrade.
+
+**Sequence budget (MEASURED).** With the real tokenizer, train prompts are p50
+1,497 / max 1,536 tokens and schema-shaped answers p50 402 / max 562, so the
+longest example is **2,065 tokens**: nothing is truncated at 4,096 and no sample
+has a zero-length answer. `max_sequence_length: 4096` therefore buys ~2× the
+tokens needed; 2,560 fits every row. The trainer truncates the prompt silently
+and gives the answer only the remainder, so this budget must be re-measured if the
+prompt template or the answer schema grows.
+
+**Stale trainer constants (Phase 3A blocker).** `llm/dataset.py`'s
+`SYSTEM_PROMPT` still carries the fault→severity rubric and the subsystem framing,
+and `ANSWER_KEYS`/`ANSWER_SCHEMA_HINT` still describe the v1 answer. The benchmark
+items must carry their own `system` and `answer`, and the trainer must not fall
+back to those defaults for dataset v2.

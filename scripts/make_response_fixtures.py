@@ -49,7 +49,8 @@ def _report(fault: str, subsystem: str, hypotheses: list) -> dict:
         "reasoning_steps": "1. Compare detector margins. 2. Rank sensor contributions. 3. Match the KB mechanism.",
         "recommended_action": "Inspect the condenser cooling-water valve actuator and verify the positioner response.",
         "uncertainty": "A fouled condenser would produce a similar signature; on-site verification is required.",
-        "confidence": 0.71,
+        # No report-level ``confidence``: it is not a model field. The renderer
+        # prints "uncalibrated" until a calibrator is fitted.
         "hypotheses": hypotheses,
         "table": "detectors",
         "citations": ["detector.dynamic.score", "detector.dynamic.threshold", "subsystem.candidate"],

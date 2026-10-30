@@ -18,13 +18,18 @@ data.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import subprocess
 import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence
+
+from llm.benchmark.kb_causes import distinctive_signatures
+from llm.benchmark.menu import UNCLASSIFIED
 
 #: Expected teacher. Verified against `/api/tags` before any call.
 DEFAULT_MODEL = "qwen2.5:32b"
@@ -41,7 +46,18 @@ SYSTEM_PROMPT_TEACHER = (
     "2. Ground every physical claim in the evidence supplied: name sensors only "
     "as the evidence names them, quote a number only if it appears verbatim in "
     "the evidence, and do not introduce a mechanism, sensor or value that is "
-    "absent from it.\n"
+    "absent from it. Naming the disturbance itself is allowed even though it is "
+    "not a measured sensor: use the wording given under DECIDED DIAGNOSIS, "
+    "because a cause such as a cooling-water inlet temperature is inferred from "
+    "its effects and has no tag. When the decided diagnosis is "
+    f"{UNCLASSIFIED}, name no fault: say the signature matches none of the listed "
+    "candidates and discuss only the nearest listed ones you rule out.\n"
+    "2b. Every tag is labelled: an XMV is a valve position (a manipulated "
+    "variable the controller moves) and an XMEAS is a process measurement. A "
+    "valve position is not a flow, even when its name says \"flow\": the valve "
+    "on the A/C feed can close while the measured feed flow rises, so never "
+    "infer a flow's direction from a valve's direction, and say which of the two "
+    "you mean.\n"
     "3. Never claim certainty. Say what the evidence suggests and what should be "
     "verified on site.\n"
     "4. Do not state a severity level, a priority, or a numeric risk score: that "
@@ -99,17 +115,102 @@ def resolve_model(preferred: str = DEFAULT_MODEL, host: str = DEFAULT_HOST) -> s
     )
 
 
+def license_text(model: str, host: str = DEFAULT_HOST, timeout: float = 20.0) -> Optional[str]:
+    """The model's licence text as the *local runtime* reports it.
+
+    Recorded only as a hash. The licence of a given tag is whatever the installed
+    weights ship with; stating one from memory would be a claim about a file
+    nobody checked, so this reads it from ``ollama show --license`` or
+    ``/api/show`` and returns ``None`` when neither answers.
+    """
+    try:
+        completed = subprocess.run(["ollama", "show", model, "--license"],
+                                   capture_output=True, text=True, timeout=timeout)
+        if completed.returncode == 0 and (completed.stdout or "").strip():
+            return completed.stdout
+    except (OSError, subprocess.SubprocessError):
+        pass
+    try:
+        body = json.dumps({"name": model}).encode("utf-8")
+        request = urllib.request.Request(
+            f"{host.rstrip('/')}/api/show", data=body,
+            headers={"Content-Type": "application/json"}, method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=timeout) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        value = payload.get("license")
+        if isinstance(value, list):
+            value = "\n".join(str(item) for item in value)
+        return str(value) if value else None
+    except (urllib.error.URLError, OSError, ValueError):
+        return None
+
+
+def license_hash(model: str, host: str = DEFAULT_HOST) -> Optional[str]:
+    """SHA-256 of the licence text, or ``None`` when the runtime cannot report it."""
+    text = license_text(model, host)
+    if not text:
+        return None
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def teacher_prompt_leaks(prompt: str, target: Dict,
+                         menu_ids: Sequence[str] = ()) -> List[str]:
+    """The removed fault named in a prompt written for an abstention item.
+
+    An open-set episode removes one menu entry; faults 16-20 were never on it.
+    In both cases the answer is UNCLASSIFIED_OPEN_SET, so a prompt that carries
+    the true fault's name or number tells the teacher what to say and the
+    filter -- if it trusted the same number -- what to accept. This check runs on
+    every abstention prompt, before the call.
+    """
+    if str(target.get("fault_id") or "") != UNCLASSIFIED:
+        return []
+    number = target.get("truth_fault_number")
+    if number is None:
+        return []
+    findings: List[str] = []
+    flat = " ".join(str(prompt or "").lower().split())
+    others = [int(str(value).split("_")[-1]) for value in menu_ids
+              if str(value).startswith(("FAULT_", "SYNTHETIC_"))
+              and str(value).split("_")[-1].isdigit()]
+    for phrase in distinctive_signatures(int(number), others):
+        if phrase and phrase in flat:
+            findings.append(f"fault_name:{int(number)}")
+            break
+    if re.search(rf"\bfault[_ -]?0?{int(number)}\b", str(prompt or ""), re.IGNORECASE):
+        findings.append(f"fault_number:{int(number)}")
+    return findings
+
+
 def build_teacher_prompt(evidence: Dict, menu: Sequence[Dict[str, str]], target: Dict) -> str:
     """Evidence + menu + the decided answer, with a request for prose only."""
     from llm.benchmark.prompt_v2 import render_prompt
 
+    from llm.benchmark.kb_causes import disturbance_phrase
+
     lines = [render_prompt(evidence, menu, include_schema=False), ""]
     lines.append("DECIDED DIAGNOSIS (do not change):")
     lines.append(f"- {_label(target.get('fault_id'))}")
+    # The cause in the KB's own words. Without it the teacher either omits the
+    # mechanism or invents a name for it, and every invented name is a rejection.
+    # Never on an abstention item: there the fault's own wording is the answer,
+    # and stating it would turn the open-set item into a copying exercise.
+    number = target.get("truth_fault_number")
+    abstain = str(target.get("fault_id") or "") == UNCLASSIFIED
+    if abstain:
+        candidates = [_label(r.get("fault_id")) for r in (target.get("ranked_hypotheses") or [])]
+        lines.append("- no listed candidate explains this signature: say so, and discuss "
+                     "only the nearest listed candidates you rule out"
+                     + (f" ({'; '.join(candidates)})" if candidates else ""))
+    elif number:
+        phrase = disturbance_phrase(int(number))
+        if phrase:
+            lines.append(f"- the disturbance: {phrase}")
     if target.get("primary_subsystem"):
         lines.append(f"- affected area: {str(target['primary_subsystem']).replace('_', ' ')}")
     ranked = target.get("ranked_hypotheses") or []
-    if ranked:
+    if ranked and not abstain:
         lines.append("- considered and rejected: "
                      + "; ".join(_label(r.get("fault_id")) for r in ranked[1:]))
     # The stored action is deliberately NOT shown: it is taken from the knowledge
@@ -126,7 +227,11 @@ def build_teacher_prompt(evidence: Dict, menu: Sequence[Dict[str, str]], target:
         "name a sensor that the evidence above does not list.",
         'Return exactly: {"physical_reasoning": "...", "narrative": "..."}',
     ]
-    return "\n".join(lines)
+    prompt = "\n".join(lines)
+    leaks = teacher_prompt_leaks(prompt, target, [entry["fault_id"] for entry in menu])
+    if leaks:
+        raise ValueError(f"teacher prompt leaks the removed fault: {leaks}")
+    return prompt
 
 
 def _label(fault_id: object) -> str:
@@ -175,7 +280,8 @@ class OllamaTeacher:
         # also what makes the timing usable: the hidden tokens were ~90% of it.
         self.think = bool(think)
 
-    def generate(self, prompt: str, system: str = SYSTEM_PROMPT_TEACHER) -> TeacherResponse:
+    def generate(self, prompt: str, system: str = SYSTEM_PROMPT_TEACHER,
+                 seed: Optional[int] = None) -> TeacherResponse:
         request_body = {
             "model": self.model,
             "prompt": prompt,
@@ -185,7 +291,7 @@ class OllamaTeacher:
             "think": self.think,
             "options": {
                 "temperature": self.temperature,
-                "seed": self.seed,
+                "seed": self.seed if seed is None else int(seed),
                 "num_predict": self.num_predict,
             },
         }
@@ -223,9 +329,13 @@ class OllamaTeacher:
         )
 
     def answer(self, evidence: Dict, menu: Sequence[Dict[str, str]],
-               target: Dict) -> tuple:
+               target: Dict, extra_instruction: Optional[str] = None,
+               seed: Optional[int] = None) -> tuple:
         """Return ``(parsed_dict_or_None, TeacherResponse, parse_error)``."""
-        response = self.generate(build_teacher_prompt(evidence, menu, target))
+        prompt = build_teacher_prompt(evidence, menu, target)
+        if extra_instruction:
+            prompt = f"{prompt}\n\n{extra_instruction.strip()}"
+        response = self.generate(prompt, seed=seed)
         parsed, error = parse_teacher_json(response.text)
         return parsed, response, error
 
@@ -256,6 +366,8 @@ __all__ = [
     "TeacherResponse",
     "TeacherUnavailable",
     "build_teacher_prompt",
+    "license_hash",
+    "license_text",
     "list_models",
     "parse_teacher_json",
     "resolve_model",

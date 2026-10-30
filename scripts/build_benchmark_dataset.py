@@ -41,16 +41,24 @@ import random
 import sys
 import time
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from llm.benchmark.filters import TEACHER_ANSWER_KEYS, check_answer  # noqa: E402
+from llm.benchmark.filters import (  # noqa: E402
+    direction_report,
+    TEACHER_ANSWER_KEYS,
+    check_answer,
+    direction_inconsistent,
+)
+from llm.benchmark.inputs import verify_inputs  # noqa: E402
 from llm.benchmark.menu import CLASSIFIABLE_FAULTS, UNCLASSIFIED, build_menu  # noqa: E402
 from llm.benchmark.prompt_v2 import (  # noqa: E402
     SYSTEM_PROMPT_V2,
     assert_prompt_clean,
+    prompt_leaks,
     render_prompt,
     teacher_instruction,
 )
@@ -69,6 +77,20 @@ OUT = "outputs/benchmark_v2/dataset"
 EVENTS = "outputs/benchmark_v2/events"
 SPLITS = Path("data/splits_v2.json")
 LABEL_SPACE = "configs/detector_v2_operating_point.json"
+ROOT = Path(__file__).resolve().parents[1]
+
+#: Faults the fused detector does not reliably see (fused FDR far below 5% on
+#: validation). They stay in val/test so the miss is measured, carry an explicit
+#: ``unobservable`` flag, and are kept out of train and out of teacher input: a
+#: model trained to name a fault the detector cannot flag is trained on evidence
+#: that does not exist.
+UNOBSERVABLE_FAULTS = (3, 9)
+
+#: Faults with no menu entry: naming one is wrong by construction.
+OPEN_SET_FAMILY = (16, 17, 18, 19, 20)
+
+#: Cap on UNCLASSIFIED_OPEN_SET as a share of faulty TRAIN items.
+OPEN_SET_CAP = 0.25
 
 
 def sha256_file(path: Path) -> str:
@@ -139,6 +161,12 @@ def make_item(record: Dict, split: str, variant: str) -> Dict:
     prompt = render_prompt(evidence, menu, instruction=teacher_instruction(
         [entry["fault_id"] for entry in menu]))
     assert_prompt_clean(prompt, where=f"prompt[{record.get('event_id')}]")
+    if target.get("fault_id") == UNCLASSIFIED:
+        # An abstention item must not hand the teacher the answer. The builder
+        # raises here rather than trusting a later audit.
+        from llm.benchmark.teacher import build_teacher_prompt
+
+        build_teacher_prompt(evidence, menu, target)
     item = {
         "item_id": f"{record.get('event_id')}::{'openset' if variant == 'removed' else 'menu'}",
         "event_id": record.get("event_id"),
@@ -150,6 +178,10 @@ def make_item(record: Dict, split: str, variant: str) -> Dict:
         "oracle": bool(record.get("oracle")),
         "confirmed_false_alarm": record.get("confirmed_false_alarm"),
         "label": record.get("label") or ("NORMAL_TRANSIENT" if record.get("fault") is None else None),
+        # Carried on the item so a metric can report the unobservable subset
+        # without having to re-derive it from the fault number.
+        "unobservable": (record.get("fault") is not None
+                         and int(record["fault"]) in UNOBSERVABLE_FAULTS),
         "variant": variant,
         "menu_ids": [entry["fault_id"] for entry in menu],
         "prompt": prompt,
@@ -161,33 +193,401 @@ def make_item(record: Dict, split: str, variant: str) -> Dict:
     return item
 
 
-def teacher_decision(record: Dict, item: Dict, teacher, allowed_cache: Dict[str, object]) -> None:
-    """Call the teacher for one train item and keep it only if it passes."""
+#: Files whose contents decide accept/reject. Their hash is written into every
+#: cached teacher record, so a filter edit cannot silently mix two regimes.
+FILTER_CODE_FILES = (
+    "llm/benchmark/filters.py",
+    "llm/benchmark/prompt_v2.py",
+    "llm/response/allowed_set.py",
+    "llm/response/validators.py",
+)
+
+
+def filter_code_hash() -> str:
+    digest = hashlib.sha256()
+    for rel in FILTER_CODE_FILES:
+        path = ROOT / rel
+        if path.exists():
+            digest.update(rel.encode("utf-8"))
+            digest.update(path.read_bytes())
+    return digest.hexdigest()
+
+
+def load_teacher_cache(path: Path) -> Dict[str, Dict]:
+    """Every finished teacher call, keyed by item id."""
+    done: Dict[str, Dict] = {}
+    if not path.exists():
+        return done
+    with open(path, encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except ValueError:
+                # A truncated last line is what a kill mid-write looks like.
+                continue
+            if record.get("item_id"):
+                done[record["item_id"]] = record
+    return done
+
+
+def rejection_feedback(codes: Sequence[str]) -> str:
+    """The retry instruction: what failed, stated so it can be fixed without help."""
+    return (
+        "REVISION REQUIRED. Your previous answer was rejected for: "
+        + "; ".join(codes)
+        + ". Rewrite both fields to fix exactly those points. Keep the diagnosis "
+          "unchanged, quote a number only if it is printed in the evidence above "
+          "and quote it exactly, name only sensors the evidence lists, and use the "
+          "disturbance wording given under DECIDED DIAGNOSIS when naming the cause."
+    )
+
+
+def teacher_call(item: Dict, record: Dict, teacher, provenance: Dict) -> Dict:
+    """One teacher item: one call, plus one retry if the first is rejected.
+
+    The retry is checked against the *original* prompt, never the retry prompt:
+    the feedback names the offending token, and if that token counted as "shown"
+    the model could quote it back and pass on the second attempt.
+    """
     evidence = evidence_of(record)
-    menu = [{"fault_id": fid, "signature": ""} for fid in item["menu_ids"]]
     target = item["target"]
-    answer, response, parse_error = teacher.answer(evidence, build_menu(remove=target.get("menu_removed") or []), target)
-    key = item["item_id"]
-    allowed = allowed_cache.get(key)
-    if allowed is None:
-        allowed = build_allowed_set(evidence, extra_faults=[record["fault"]] if record.get("fault") else [])
+    menu = build_menu(remove=target.get("menu_removed") or [])
+    allowed = build_allowed_set(evidence,
+                                extra_faults=[record["fault"]] if record.get("fault") else [])
+    from llm.benchmark.teacher import build_teacher_prompt
+
+    teacher_prompt = build_teacher_prompt(evidence, menu, target)
+    answer, response, parse_error = teacher.answer(evidence, menu, target)
     codes = check_answer(answer, target, evidence, allowed, parse_error=parse_error,
-                         prompt=item.get("prompt"))
-    item["teacher"] = {
+                         prompt=item.get("prompt"), menu_ids=item.get("menu_ids"))
+    attempts = 1
+    seconds = float(response.seconds)
+    first_codes = list(codes)
+    raw_text = response.text or ""
+    if codes:
+        feedback = rejection_feedback(codes)
+        answer2, response2, parse_error2 = teacher.answer(
+            evidence, menu, target, extra_instruction=feedback, seed=teacher.seed + 1
+        )
+        codes2 = check_answer(answer2, target, evidence, allowed, parse_error=parse_error2,
+                              prompt=item.get("prompt"), menu_ids=item.get("menu_ids"))
+        attempts = 2
+        seconds += float(response2.seconds)
+        if not codes2:
+            answer, codes = answer2, codes2
+            raw_text = response2.text or ""
+        else:
+            codes = codes + [f"retry:{code}" for code in codes2]
+            answer = None
+    prose = None
+    if not codes and isinstance(answer, dict):
+        prose = {key: str(answer.get(key)).strip() for key in TEACHER_ANSWER_KEYS}
+    flags = direction_inconsistent(prose, evidence, allowed) if prose else []
+    return {
+        "item_id": item["item_id"],
+        "event_id": item["event_id"],
+        "family": _family(item),
         "model": response.model,
-        "seconds": round(response.seconds, 3),
+        "seconds": round(seconds, 3),
+        "attempts": attempts,
+        "first_codes": first_codes,
         "prompt_chars": response.prompt_chars,
-        "raw_chars": len(response.text or ""),
+        # The exact prompt the answer was written from, as a hash: a cache entry
+        # cannot be re-used for a differently-worded prompt, and an open-set scan
+        # can tell whether the removed fault's name was ever shown.
+        "teacher_prompt_sha256": hashlib.sha256(teacher_prompt.encode("utf-8")).hexdigest(),
+        "teacher_prompt_chars": len(teacher_prompt),
+        "raw_chars": len(raw_text),
         "codes": codes,
         "accepted": not codes,
+        # A twice-rejected item is dropped from the dataset rather than kept as an
+        # accepted-looking row with bad prose.
+        "dropped": bool(codes),
+        "flags": flags,
+        "prose": prose,
         # Kept verbatim so a filter change can be replayed against the same
         # answers instead of re-running the model and getting different text.
-        "raw_text": (response.text or "")[:4000],
-        "temperature": teacher.temperature,
-        "seed": teacher.seed,
+        "raw_text": raw_text[:4000],
+        **provenance,
     }
-    if not codes and isinstance(answer, dict):
-        item["prose"] = {key_name: str(answer.get(key_name)).strip() for key_name in TEACHER_ANSWER_KEYS}
+
+
+def run_teacher(items: List[Dict], records: Dict[str, Dict], teacher, cache_path: Path,
+                provenance: Dict, limit: Optional[int], concurrency: int,
+                item_ids: Optional[set] = None, max_calls: Optional[int] = None) -> Dict:
+    """Call the teacher for every pending item, appending each result immediately.
+
+    The cache is the durable record: one JSONL line per finished call, written as
+    soon as the call returns. A run that dies at item 1,900 restarts at item 1,901
+    instead of losing five hours of work.
+    """
+    done = load_teacher_cache(cache_path)
+    ordered = stratified_train_order(items, limit)
+    if limit is not None:
+        # A budget is a cap on *calls*, not on the order they are taken in. The
+        # order interleaves families so a partial run is representative.
+        ordered = ordered[:limit]
+    if item_ids is not None:
+        ordered = [item for item in ordered if item["item_id"] in item_ids]
+    pending = [item for item in ordered
+               if item["item_id"] not in done
+               or done[item["item_id"]].get("filter_sha256") != provenance["filter_sha256"]]
+    stats = {"cached": len(done), "pending": len(pending), "calls": 0, "api_calls": 0,
+             "errors": 0, "rejected": 0, "retried": 0, "dropped": 0, "seconds": 0.0,
+             "max_calls": max_calls}
+    if not pending:
+        return stats
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(cache_path, "a", encoding="utf-8") as handle:
+        def work(item: Dict) -> Optional[Dict]:
+            record = records.get(item["event_id"])
+            if record is None:
+                return None
+            return teacher_call(item, record, teacher, provenance)
+
+        if concurrency <= 1:
+            results = map(work, pending)
+            pool = None
+        else:
+            pool = ThreadPoolExecutor(max_workers=concurrency)
+            results = pool.map(work, pending)
+        try:
+            for result in results:
+                if result is None:
+                    stats["errors"] += 1
+                    continue
+                attempts = int(result.get("attempts") or 1)
+                if max_calls is not None and stats["api_calls"] + attempts > max_calls:
+                    logger.info("teacher call budget reached (%d api calls)", stats["api_calls"])
+                    break
+                handle.write(json.dumps(result) + "\n")
+                handle.flush()
+                stats["api_calls"] += attempts
+                stats["calls"] += 1
+                stats["rejected"] += 0 if result.get("accepted") else 1
+                stats["retried"] += 1 if int(result.get("attempts") or 1) > 1 else 0
+                stats["dropped"] += 1 if result.get("dropped") else 0
+                stats["seconds"] += float(result.get("seconds") or 0.0)
+                if stats["calls"] % 10 == 0:
+                    logger.info("teacher %d/%d calls, rejected %d, mean %.1fs",
+                                stats["calls"], len(pending), stats["rejected"],
+                                stats["seconds"] / max(stats["calls"], 1))
+        finally:
+            if pool is not None:
+                pool.shutdown(wait=True)
+    return stats
+
+
+def replay_cache(items: List[Dict], records: Dict[str, Dict],
+                 cache: Dict[str, Dict], filter_sha: str) -> Dict[str, Dict]:
+    """Re-judge cached raw answers with the *current* filters, without a model call.
+
+    The cache keeps the raw text for exactly this: a filter or prompt edit changes
+    the hash, and dropping every earlier answer would throw away accepted prose
+    that is still correct. Re-checking is stronger than matching the hash -- an
+    answer only survives if it passes today's rules -- and it costs no inference.
+    """
+    from llm.benchmark.teacher import parse_teacher_json
+
+    valid: Dict[str, Dict] = {}
+    rejected_now = 0
+    for item in items:
+        entry = cache.get(item["item_id"])
+        if not entry:
+            continue
+        record = records.get(item["event_id"])
+        if record is None:
+            continue
+        answer, parse_error = parse_teacher_json(entry.get("raw_text") or "")
+        evidence = evidence_of(record)
+        allowed = build_allowed_set(
+            evidence, extra_faults=[record["fault"]] if record.get("fault") else [])
+        codes = check_answer(answer, item["target"], evidence, allowed,
+                             parse_error=parse_error, prompt=item.get("prompt"),
+                             menu_ids=item.get("menu_ids"))
+        if codes:
+            rejected_now += 1
+            continue
+        fresh = dict(entry)
+        fresh["accepted"] = True
+        fresh["codes"] = []
+        fresh["prose"] = {key: str(answer.get(key)).strip() for key in TEACHER_ANSWER_KEYS}
+        fresh["replayed"] = entry.get("filter_sha256") != filter_sha
+        report = direction_report(fresh["prose"], evidence, allowed)
+        fresh["flags"] = report["flags"]
+        fresh["direction_valves_skipped"] = report["valve_tags_skipped"]
+        valid[item["item_id"]] = fresh
+    logger.info("cache replay: %d valid under the current filters, %d no longer valid",
+                len(valid), rejected_now)
+    return valid
+
+
+def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict],
+                        valid: Optional[Dict[str, Dict]] = None) -> None:
+    """Publish cached verdicts onto the items that produced them.
+
+    ``valid`` is the replay result: only answers that pass the current filters are
+    attached, so a stale entry cannot smuggle prose past a rule it never saw.
+    """
+    for item in items:
+        entry = (valid or {}).get(item["item_id"])
+        if entry is None:
+            # Distinguish "the teacher was asked and the answer was dropped" from
+            # "the teacher was never asked": both have prose=None, and a training
+            # run that cannot tell them apart cannot report its own coverage.
+            raw = cache.get(item["item_id"])
+            if raw is not None and not raw.get("accepted"):
+                item["teacher"] = {
+                    "model": raw.get("model"),
+                    "attempts": raw.get("attempts"),
+                    "first_codes": raw.get("first_codes") or [],
+                    "codes": raw.get("codes") or [],
+                    "accepted": False,
+                    "dropped": bool(raw.get("dropped")),
+                    "filter_sha256": raw.get("filter_sha256"),
+                    "replayed": False,
+                }
+                item["teacher_status"] = "rejected"
+            else:
+                item["teacher_status"] = "not_called"
+            continue
+        item["teacher"] = {
+            "model": entry.get("model"),
+            "seconds": entry.get("seconds"),
+            "attempts": entry.get("attempts"),
+            "first_codes": entry.get("first_codes") or [],
+            "prompt_chars": entry.get("prompt_chars"),
+            "raw_chars": entry.get("raw_chars"),
+            "codes": entry.get("codes") or [],
+            "accepted": bool(entry.get("accepted")),
+            "dropped": bool(entry.get("dropped")),
+            # Flags are diagnostics, not verdicts: they never remove an item.
+            "flags": entry.get("flags") or [],
+            "raw_text": entry.get("raw_text"),
+            "temperature": entry.get("temperature"),
+            "seed": entry.get("seed"),
+            "filter_sha256": entry.get("filter_sha256"),
+            "replayed": bool(entry.get("replayed")),
+            "direction_valves_skipped": entry.get("direction_valves_skipped") or [],
+        }
+        if entry.get("accepted") and entry.get("prose"):
+            item["prose"] = dict(entry["prose"])
+        item["teacher_status"] = "accepted_replayed" if entry.get("replayed") else "accepted"
+
+
+def fault_coverage(train_items: List[Dict], floor: float = 0.70) -> Dict:
+    """Accepted teacher prose per classifiable fault, with a floor.
+
+    A fault whose items mostly failed the filters trains nothing: it contributes
+    rows without prose and disappears from any prose-conditioned metric. The floor
+    makes that visible in the manifest instead of leaving it to be noticed later.
+    """
+    per: Dict[str, Dict] = {}
+    for item in train_items:
+        fault = item.get("fault")
+        if fault is None:
+            continue
+        key = f"FAULT_{int(fault):02d}"
+        row = per.setdefault(key, {"items": 0, "with_prose": 0})
+        row["items"] += 1
+        if item.get("prose"):
+            row["with_prose"] += 1
+    for row in per.values():
+        row["share"] = round(row["with_prose"] / max(row["items"], 1), 3)
+        row["below_floor"] = row["share"] < floor
+    return {
+        "floor": floor,
+        "faults": per,
+        "below_floor": sorted(key for key, row in per.items() if row["below_floor"]),
+    }
+
+
+def cap_open_set(train_items: List[Dict], seed: int) -> tuple:
+    """Keep UNCLASSIFIED_OPEN_SET at or below ``OPEN_SET_CAP`` of faulty train.
+
+    The lever is the faults 16-20 supply, not the 1-15 open-set episodes: the
+    episodes are the training signal for abstention and are spread across every
+    classifiable fault, while 16-20 are a bulk family that can crowd them out.
+    """
+    faulty = [item for item in train_items if item.get("fault") is not None]
+    unclassified = [item for item in train_items
+                    if item["target"].get("fault_id") == UNCLASSIFIED]
+    # The share is of the faulty total *after* dropping, so the bound is
+    # u <= cap * (classified) / (1 - cap), not cap * faulty.
+    classified = len(faulty) - len(unclassified)
+    limit = int(OPEN_SET_CAP * classified / (1.0 - OPEN_SET_CAP))
+    report = {
+        "faulty_train_items": len(faulty),
+        "classified_train_items": classified,
+        "unclassified_before": len(unclassified),
+        "cap_items": limit,
+        "capped": False,
+        "dropped": 0,
+    }
+    if len(unclassified) <= limit:
+        report["unclassified_after"] = len(unclassified)
+        report["share_after"] = round(len(unclassified) / max(len(faulty), 1), 4)
+        return train_items, report
+    droppable = [item for item in unclassified
+                 if item.get("fault") is not None and int(item["fault"]) in OPEN_SET_FAMILY]
+    excess = len(unclassified) - limit
+    if excess > len(droppable):
+        excess = len(droppable)
+        logger.warning("open-set cap cannot be met without dropping 1-15 episodes")
+
+    # Equal per-fault budget, so the 16-20 family is thinned evenly instead of a
+    # single shuffle that can empty one fault and leave another untouched.
+    by_fault: Dict[int, List[Dict]] = defaultdict(list)
+    for item in droppable:
+        by_fault[int(item["fault"])].append(item)
+    ordered_faults = sorted(by_fault)
+    rng = random.Random(seed)
+    victims: set = set()
+    if excess and ordered_faults:
+        quotas = {f: excess // len(ordered_faults) for f in ordered_faults}
+        for fault in ordered_faults[: excess % len(ordered_faults)]:
+            quotas[fault] += 1
+        remaining = excess
+        for fault in ordered_faults:
+            bucket = sorted((i for i in by_fault[fault] if i["item_id"] not in victims),
+                            key=lambda i: i["item_id"])
+            take = min(quotas[fault], len(bucket))
+            if take:
+                victims.update(i["item_id"] for i in rng.sample(bucket, take))
+                remaining -= take
+        # A fault that could not fill its quota pushes the difference onto the rest.
+        while remaining > 0:
+            progressed = False
+            for fault in ordered_faults:
+                if remaining == 0:
+                    break
+                bucket = [i for i in by_fault[fault] if i["item_id"] not in victims]
+                if not bucket:
+                    continue
+                victims.add(rng.choice(bucket)["item_id"])
+                remaining -= 1
+                progressed = True
+            if not progressed:
+                break
+
+    per_fault_16_20 = {f"FAULT_{fault:02d}": {
+        "items": len(by_fault.get(fault, [])),
+        "kept": sum(1 for i in by_fault.get(fault, []) if i["item_id"] not in victims),
+    } for fault in ordered_faults}
+    kept = [item for item in train_items if item["item_id"] not in victims]
+    after = len(unclassified) - len(victims)
+    report.update({
+        "capped": True,
+        "dropped": len(victims),
+        "unclassified_after": after,
+        "share_after": round(after / max(classified + after, 1), 4),
+        "budget_per_fault": (excess // len(ordered_faults)) if ordered_faults else 0,
+        "per_fault_16_20": per_fault_16_20,
+    })
+    return kept, report
 
 
 def _family(item: Dict) -> str:
@@ -306,35 +706,56 @@ def main() -> int:
     ap.add_argument("--pilot", type=int, default=None,
                     help="max train items per fault (pilot mode)")
     ap.add_argument("--teacher", action="store_true", help="call the Ollama teacher")
-    ap.add_argument("--model", default="qwen2.5:32b")
+    ap.add_argument("--model", default="qwen3:30b",
+                    help="teacher tag; must be installed (no nearest-match fallback)")
     ap.add_argument("--host", default="http://localhost:11434")
     ap.add_argument("--teacher-limit", type=int, default=None,
                     help="stop after N teacher calls (pilot budget guard)")
+    ap.add_argument("--teacher-cache", default=None,
+                    help="resume file, one JSON line per finished call (default <out>/teacher_cache.jsonl)")
+    ap.add_argument("--teacher-items", default=None,
+                    help="file with one item_id per line; restrict the teacher to those items")
+    ap.add_argument("--max-calls", type=int, default=None,
+                    help="hard cap on teacher calls, retries included")
+    ap.add_argument("--concurrency", type=int, default=1,
+                    help="parallel teacher calls; Ollama serves them one at a time")
     ap.add_argument("--audit", type=int, default=100)
+    ap.add_argument("--replay-cache", action="store_true",
+                    help="re-judge cached teacher answers with the current filters and "
+                         "attach those that still pass; makes no model call")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args()
     logging.basicConfig(level=getattr(logging, args.log_level.upper(), logging.INFO),
                         format="%(levelname)-8s %(message)s")
 
+    inputs = verify_inputs(ROOT)
+    logger.info("input artifacts verified: %s", ", ".join(sorted(inputs)))
+
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     records = load_records(Path(args.events))
     splits = json.loads(SPLITS.read_text(encoding="utf-8"))
+    events_summary = {}
+    summary_path = Path(args.events) / "build_summary.json"
+    if summary_path.exists():
+        events_summary = json.loads(summary_path.read_text(encoding="utf-8"))
 
     teacher = None
+    license_sha = None
     if args.teacher:
-        from llm.benchmark.teacher import OllamaTeacher, resolve_model
+        from llm.benchmark.teacher import OllamaTeacher, license_hash, resolve_model
 
         model = resolve_model(args.model, args.host)
-        teacher = OllamaTeacher(model=model, host=args.host)
-        logger.info("teacher: %s", model)
+        teacher = OllamaTeacher(model=model, host=args.host, seed=args.seed)
+        license_sha = license_hash(model, args.host)
+        logger.info("teacher: %s (license hash %s)", model, license_sha)
 
     items: Dict[str, List[Dict]] = defaultdict(list)
     rejected: List[Dict] = []
     coverage: Dict[str, Counter] = defaultdict(Counter)
-    teacher_calls = 0
-    teacher_seconds = 0.0
+    prompts_checked = 0
+    leak_findings = 0
     started = time.time()
 
     for split in ("train", "val", "test"):
@@ -347,52 +768,120 @@ def main() -> int:
             if record.get("oracle") and split != "train":
                 coverage[split]["oracle_skipped"] += 1
                 continue
+            # An unobservable fault cannot be diagnosed from an event that the
+            # detector produced only by chance: keep it out of train entirely, and
+            # keep it in val/test so the miss is measured.
+            if split == "train" and fault is not None and int(fault) in UNOBSERVABLE_FAULTS:
+                coverage[split]["unobservable_excluded"] += 1
+                continue
             if args.pilot is not None and split == "train" and fault is not None:
                 if per_fault[fault] >= args.pilot:
                     continue
                 per_fault[fault] += 1
             variant = variant_for(record, split)
             item = make_item(record, split, variant)
+            prompts_checked += 1
+            leak_findings += len(prompt_leaks(item["prompt"]))
             items[split].append(item)
             coverage[split]["items"] += 1
             if variant == "removed":
                 coverage[split]["open_set"] += 1
+            if item["unobservable"]:
+                coverage[split]["unobservable"] += 1
             if item["oracle"]:
                 coverage[split]["oracle"] += 1
             if item["label"] == NORMAL_ID:
                 coverage[split]["normal"] += 1
             # Evaluation items also get the removed-menu copy, so an open-set
-            # score can always be paired with the closed-set one.
-            if split != "train" and fault is not None and variant == "menu":
+            # score can be paired with the closed-set one -- but only when
+            # removing the entry actually changes the menu. For faults 16-20 the
+            # entry was never there, so the twin would be a byte-identical
+            # duplicate of the item it was meant to contrast with.
+            if (split != "train" and fault is not None and variant == "menu"
+                    and int(fault) in CLASSIFIABLE_FAULTS):
                 twin = make_item(record, split, "removed")
                 items[split].append(twin)
                 coverage[split]["items"] += 1
                 coverage[split]["open_set"] += 1
 
+    items["train"], class_balance = cap_open_set(items["train"], args.seed)
+    if class_balance["capped"]:
+        logger.info("open-set cap applied: dropped %d, share now %.3f",
+                    class_balance["dropped"], class_balance["share_after"])
+
+    teacher_stats: Dict[str, object] = {}
     if teacher is not None:
-        allowed_cache: Dict[str, object] = {}
+        from llm.benchmark.teacher import SYSTEM_PROMPT_TEACHER
+
+        provenance = {
+            "teacher_tag": teacher.model,
+            "temperature": teacher.temperature,
+            "seed": teacher.seed,
+            "filter_sha256": filter_code_hash(),
+            "license_sha256": license_sha,
+            "system_prompt_sha256": sha256_text(SYSTEM_PROMPT_TEACHER),
+        }
+        cache_path = (Path(args.teacher_cache) if args.teacher_cache
+                      else out / "teacher_cache.jsonl")
         by_event = {r.get("event_id"): r for r in records["train"]}
-        # A budgeted pilot must not measure the rejection rate on whichever fault
-        # happens to come first in file order. Round-robin across families (each
-        # fault, the open-set episodes, the NORMAL_TRANSIENT items) so the rate is
-        # measured on a representative mix.
-        ordered = stratified_train_order(items["train"], args.teacher_limit)
-        for item in ordered:
-            if args.teacher_limit is not None and teacher_calls >= args.teacher_limit:
-                logger.info("teacher budget reached (%d calls)", teacher_calls)
-                break
-            record = by_event.get(item["event_id"])
-            if record is None:
-                continue
-            teacher_decision(record, item, teacher, allowed_cache)
-            teacher_calls += 1
-            teacher_seconds += float((item.get("teacher") or {}).get("seconds") or 0.0)
-            if not (item.get("teacher") or {}).get("accepted"):
-                rejected.append({"item_id": item["item_id"],
-                                 "codes": (item.get("teacher") or {}).get("codes")})
-            if teacher_calls % 10 == 0:
-                logger.info("teacher calls %d, elapsed %.0fs, rejected %d",
-                            teacher_calls, time.time() - started, len(rejected))
+        item_ids = None
+        if args.teacher_items:
+            item_ids = {line.strip() for line in
+                        Path(args.teacher_items).read_text(encoding="utf-8").splitlines()
+                        if line.strip()}
+            logger.info("teacher restricted to %d requested item ids", len(item_ids))
+        teacher_stats = run_teacher(items["train"], by_event, teacher, cache_path,
+                                    provenance, args.teacher_limit, args.concurrency,
+                                    item_ids=item_ids, max_calls=args.max_calls)
+        cache = load_teacher_cache(cache_path)
+        replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
+        attach_cached_prose(items["train"], cache, replayed)
+        teacher_stats["valid_after_replay"] = len(replayed)
+        for row in items["train"]:
+            verdict = row.get("teacher")
+            if verdict and not verdict.get("accepted"):
+                rejected.append({"item_id": row["item_id"], "codes": verdict.get("codes")})
+        teacher_stats.update({"cache_path": str(cache_path), **provenance,
+                              "concurrency": args.concurrency})
+        logger.info("teacher stats: %s", json.dumps(teacher_stats))
+    elif args.replay_cache:
+        # A prompt or filter edit invalidates the hash of every cached answer, but
+        # an answer is not wrong merely because the rules moved: re-judge the raw
+        # text with today's filters and keep what still passes. No model call.
+        from llm.benchmark.teacher import SYSTEM_PROMPT_TEACHER
+
+        cache_path = (Path(args.teacher_cache) if args.teacher_cache
+                      else out / "teacher_cache.jsonl")
+        by_event = {r.get("event_id"): r for r in records["train"]}
+        cache = load_teacher_cache(cache_path)
+        provenance = {
+            "teacher_tag": None,
+            "temperature": None,
+            "seed": args.seed,
+            "filter_sha256": filter_code_hash(),
+            "license_sha256": None,
+            "system_prompt_sha256": sha256_text(SYSTEM_PROMPT_TEACHER),
+        }
+        replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
+        attach_cached_prose(items["train"], cache, replayed)
+        # Dropped answers are part of the record: they are why an item has no
+        # prose, and the manifest should say how many and why.
+        dropped_rows = [row for row in items["train"]
+                        if row.get("teacher_status") == "rejected"]
+        codes: Counter = Counter()
+        for row in dropped_rows:
+            for code in ((row.get("teacher") or {}).get("codes") or []):
+                codes[code.split(":")[0].replace("retry:", "retry/")] += 1
+        rejected = [{"item_id": row["item_id"],
+                     "codes": (row.get("teacher") or {}).get("codes")}
+                    for row in dropped_rows]
+        teacher_stats = {"replay_only": True, "cache_path": str(cache_path),
+                         "cached": len(cache), "valid_after_replay": len(replayed),
+                         "rejected": len(dropped_rows),
+                         "dropped": len(dropped_rows),
+                         "dropped_after_retry": len(dropped_rows),
+                         "rejection_codes": dict(sorted(codes.items())),
+                         **provenance}
 
     # ---- write JSONL ------------------------------------------------------
     hashes: Dict[str, str] = {}
@@ -404,6 +893,12 @@ def main() -> int:
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
         hashes[path.name] = sha256_file(path)
         counts[split] = dict(coverage[split])
+        # The coverage counter is filled while items are made, before the open-set
+        # cap drops any; the file is the truth, so report both.
+        counts[split]["items_before_cap"] = counts[split].get("items")
+        counts[split]["items"] = len(rows)
+        counts[split]["unclassified_open_set"] = sum(
+            1 for row in rows if row["target"].get("fault_id") == UNCLASSIFIED)
         counts[split]["teacher_accepted"] = sum(
             1 for row in rows if (row.get("teacher") or {}).get("accepted"))
         counts[split]["teacher_rejected"] = sum(
@@ -479,13 +974,56 @@ def main() -> int:
         },
         "teacher": {
             "enabled": teacher is not None,
-            "model": getattr(teacher, "model", None),
-            "calls": teacher_calls,
-            "mean_seconds": round(teacher_seconds / teacher_calls, 3) if teacher_calls else None,
+            "model": teacher_stats.get("teacher_tag") or getattr(teacher, "model", None),
+            "calls": teacher_stats.get("calls", 0),
+            "cached_reused": teacher_stats.get("cached", 0),
+            "mean_seconds": round(float(teacher_stats.get("seconds") or 0.0)
+                                  / max(int(teacher_stats.get("calls") or 0), 1), 3),
             "rejections": len(rejected),
-            "rejection_rate": round(len(rejected) / teacher_calls, 4) if teacher_calls else None,
+            "rejection_rate": (round(len(rejected) / teacher_stats["calls"], 4)
+                               if teacher_stats.get("calls") else None),
+            "retried": teacher_stats.get("retried", 0),
+            "dropped_after_retry": teacher_stats.get("dropped", 0),
+            "max_calls": teacher_stats.get("max_calls"),
             "rejection_codes": dict(Counter(
                 code.split(":")[0] for row in rejected for code in row["codes"])),
+            "provenance": {key: teacher_stats.get(key) for key in
+                           ("teacher_tag", "temperature", "seed", "filter_sha256",
+                            "license_sha256", "system_prompt_sha256", "concurrency",
+                            "cache_path") if teacher_stats.get(key) is not None},
+        },
+        # The evidence view is part of the dataset's identity: a snapshot at a
+        # different horizon is a different dataset, not a re-render.
+        "event_view": {
+            "horizon_windows": events_summary.get("horizon_windows"),
+            "persistence_windows": events_summary.get("persistence_windows"),
+            "onset_sample": events_summary.get("onset_sample"),
+            "events_dir": str(args.events),
+            "events_total": events_summary.get("events_total"),
+        },
+        "input_artifacts": inputs,
+        "class_balance": class_balance,
+        "teacher_coverage": fault_coverage(items["train"]),
+        "prompt_check": {
+            "prompts_checked": prompts_checked,
+            "leak_violations": leak_findings,
+            "rules": "no event id, split name, run number, EVT/NORM token, or fault "
+                     "reference outside the menu; checked on every prompt",
+        },
+        "unobservable_faults": list(UNOBSERVABLE_FAULTS),
+        "unobservable_items": {split: sum(1 for item in items.get(split, [])
+                                          if item.get("unobservable"))
+                               for split in ("train", "val", "test")},
+        # Confidence is not a model field and is not in the target. It is computed
+        # in code from the fault-id token probability and calibrated on validation;
+        # until a calibrator is fitted the renderer says so instead of printing a
+        # number that looks measured.
+        "confidence_contract": {
+            "in_target": False,
+            "in_teacher_output": False,
+            "source": "fault_id token probability at inference, isotonic-calibrated on validation",
+            "calibrator_fitted": False,
+            "renderer_until_calibrated": "uncalibrated (no calibrator fitted)",
         },
         "split_file_fidelity": fidelity,
         "split_integrity": verify_split_integrity(items, splits),
@@ -504,9 +1042,8 @@ def main() -> int:
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     logger.info("manifest written: %s", out / "manifest.json")
     logger.info("counts: %s", json.dumps(counts))
-    logger.info("teacher: calls=%d mean=%.2fs rejections=%d",
-                teacher_calls,
-                teacher_seconds / teacher_calls if teacher_calls else 0.0, len(rejected))
+    logger.info("teacher: calls=%d cached=%d rejections=%d",
+                teacher_stats.get("calls", 0), teacher_stats.get("cached", 0), len(rejected))
     return 0
 
 
