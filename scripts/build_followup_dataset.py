@@ -942,6 +942,9 @@ def main() -> int:
     ap.add_argument("--cache", default=None, help="teacher cache path (default <out>/teacher_cache.jsonl)")
     ap.add_argument("--no-cache", action="store_true")
     ap.add_argument("--audit", type=int, default=100)
+    ap.add_argument("--progress-file", default=None,
+                    help="append a one-line progress note every --progress-every teacher calls")
+    ap.add_argument("--progress-every", type=int, default=200)
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args()
     logging.basicConfig(level=getattr(logging, args.log_level.upper(), logging.INFO),
@@ -996,6 +999,8 @@ def main() -> int:
     counts: Dict[str, Counter] = defaultdict(Counter)
     skipped: Counter = Counter()
     started = time.time()
+    progress = Path(args.progress_file) if args.progress_file else None
+    next_milestone = max(int(args.progress_every), 1)
 
     for split in args.splits:
         rows = sorted(records.get(split, []), key=lambda r: str(r.get("event_id")))
@@ -1035,6 +1040,19 @@ def main() -> int:
             built += 1
             if built % 100 == 0:
                 logger.info("%s: %d dialogues, %.0fs", split, built, time.time() - started)
+            # A multi-hour teacher run is watched from outside, so the call count
+            # -- not the dialogue count -- is what the progress note reports.
+            if progress is not None and counts[split]["teacher_calls"] >= next_milestone:
+                stamp = time.strftime("%Y-%m-%dT%H:%M:%S")
+                note = (f"{stamp} followup {split}: {counts[split]['teacher_calls']} teacher calls, "
+                        f"{counts[split]['dialogues']} dialogues, {counts[split]['accepted']} accepted, "
+                        f"{counts[split]['rejected']} rejected, {time.time() - started:.0f}s elapsed\n")
+                progress.parent.mkdir(parents=True, exist_ok=True)
+                with open(progress, "a", encoding="utf-8") as handle:
+                    handle.write(note)
+                logger.info("progress: %s", note.strip())
+                while next_milestone <= counts[split]["teacher_calls"]:
+                    next_milestone += max(int(args.progress_every), 1)
         logger.info("%s: %d dialogues done (%.0fs)", split, built, time.time() - started)
 
     # -- write ------------------------------------------------------------

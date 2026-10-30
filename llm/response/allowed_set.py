@@ -19,7 +19,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional
+from enum import Enum
+from typing import Dict, FrozenSet, Iterable, List, Optional
 
 from evidence.process_relationships import SUBSYSTEM_GROUPS
 from scripts.fault_ids import (
@@ -32,6 +33,58 @@ from scripts.fault_ids import (
 from scripts.tags import canonical_tag, display_name, fault_tags, iter_tags, is_canonical
 
 _NON_ALNUM = re.compile(r"[^a-z0-9]+")
+
+_SCHEMA_VOCABULARY_CACHE: Optional[FrozenSet[str]] = None
+
+
+def schema_vocabulary() -> FrozenSet[str]:
+    """Identifiers that name the *answer format*, not a variable in the plant.
+
+    A token such as ``overview_fallback`` or ``ranked_hypotheses`` is shaped like
+    a tag (one underscore, letters on both sides), so ``unknown_tag_like`` used to
+    report it as a fabricated sensor and reject an answer for naming its own
+    schema. The vocabulary here is derived from the schema module -- the intent
+    and table and severity enums plus every pydantic field name -- rather than
+    typed out, so a new enum member or field cannot silently become a "fabricated
+    tag". Sensor claims are unaffected: nothing in this set is a tag.
+    """
+    global _SCHEMA_VOCABULARY_CACHE
+    if _SCHEMA_VOCABULARY_CACHE is not None:
+        return _SCHEMA_VOCABULARY_CACHE
+    names: set = set()
+    try:
+        from pydantic import BaseModel
+
+        from llm.response import schemas
+    except Exception:  # pragma: no cover - schema module is always importable here
+        _SCHEMA_VOCABULARY_CACHE = frozenset()
+        return _SCHEMA_VOCABULARY_CACHE
+    for attr in dir(schemas):
+        obj = getattr(schemas, attr)
+        if isinstance(obj, type) and issubclass(obj, Enum):
+            for member in obj:
+                names.add(str(member.value).lower())
+                names.add(member.name.lower())
+        elif isinstance(obj, type) and issubclass(obj, BaseModel):
+            names.update(str(name).lower() for name in obj.model_fields)
+        elif isinstance(obj, tuple) and obj and all(isinstance(item, str) for item in obj):
+            # module-level tuples of field or intent names (e.g. ANSWER_KEYS)
+            names.update(item.lower() for item in obj)
+    for group in (getattr(schemas, "LIVE_INTENTS", ()), getattr(schemas, "PROPOSED_INTENTS", ())):
+        for member in group:
+            names.add(str(getattr(member, "value", member)).lower())
+    # The slim SFT answer contract (fault_id, verdict, ranked_hypotheses, ...) is
+    # declared with the export, not with the pydantic models, so it is read from
+    # there rather than restated here.
+    try:
+        from llm.benchmark import to_sft
+
+        for group in (getattr(to_sft, "ANSWER_KEYS", ()), getattr(to_sft, "DERIVED_AT_RENDER", ())):
+            names.update(str(item).lower() for item in group)
+    except Exception:  # pragma: no cover - export module is optional at import time
+        pass
+    _SCHEMA_VOCABULARY_CACHE = frozenset(names)
+    return _SCHEMA_VOCABULARY_CACHE
 
 
 def normalize_name(text: object) -> str:
@@ -86,11 +139,14 @@ class AllowedSet:
             if self.resolve_tag(token) is None and token not in bad:
                 bad.append(token)
         # display-name shaped tokens that look like a sensor but are not allowed
+        vocabulary = schema_vocabulary()
         for match in re.finditer(r"\b([A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+)\b", text):
             token = match.group(1)
             if self.resolve_tag(token) is not None:
                 continue
             if token.lower().startswith(("fault_", "xmv", "xmeas")):
+                continue
+            if token.lower() in vocabulary:
                 continue
             if normalize_name(token) in self.other_names:
                 continue

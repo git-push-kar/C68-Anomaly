@@ -184,3 +184,62 @@ def test_overlap_ratio_is_symmetric_enough_for_the_rule():
     assert overlap_ratio(a, b) > 0.5
     assert is_near_duplicate(a, b) is True
     assert is_near_duplicate(a, "a completely different sentence about the stripper level") is False
+
+
+def test_refusal_may_decline_by_absence(ctx):
+    """A decline can be worded as an absence, not only as an inability.
+
+    The pilot rejected "XMEAS_2 is not listed among the variables that moved
+    first ... The context does not mention XMEAS_2" with ``refusal_missing``: it
+    *is* a decline, in the same form the teacher prompt asks for (rule 6: "never
+    confirm a variable, count or comparison that is not present"). The marker list
+    only held the inability family, so a correct refusal read as a non-refusal.
+    """
+    ctx.refusal = {
+        "required": True,
+        "reason": "key_missing",
+        "premise": {"kind": "tag", "claim": "XMEAS_2", "verdict": "missing",
+                    "store_key": "sensor.XMEAS_2", "actual": None, "reason": "not in the evidence"},
+        "alternatives": [{"question": "What are the detector scores?", "intent": "detector_scores"}],
+    }
+    answer = ("XMEAS_2 is not listed among the variables that moved first in this event. "
+              "The context does not mention XMEAS_2; I can show you the detector scores instead.")
+    assert "refusal_missing" not in check_answer(answer, ctx)
+
+
+def test_answering_past_a_false_premise_is_still_rejected(ctx):
+    """The absence markers must not turn any sentence into a decline."""
+    ctx.refusal = {
+        "required": True,
+        "reason": "key_missing",
+        "premise": {"kind": "tag", "claim": "XMEAS_2", "verdict": "missing",
+                    "store_key": "sensor.XMEAS_2", "actual": None, "reason": "not in the evidence"},
+        "alternatives": [{"question": "What are the detector scores?", "intent": "detector_scores"}],
+    }
+    answer = "XMEAS_2 reached 0.32 and rose first, so it is the cause; the detector scores agree."
+    codes = check_answer(answer, ctx)
+    assert "refusal_missing" in codes
+
+
+def test_schema_identifiers_are_not_fabricated_tags(ctx):
+    """An answer that names its own format must not read as a sensor claim.
+
+    ``unknown_tag_like`` flags underscore tokens as unresolvable display names, so
+    ``overview_fallback`` (an intent) was reported as a fabricated tag and the
+    pilot answer that named it was rejected. The vocabulary is derived from the
+    schema module, so enum members and field names are excluded together.
+    """
+    flagged = ctx.allowed.unknown_tag_like(
+        "The last response used overview_fallback rather than evidence_why; "
+        "its ranked_hypotheses are ordered and table_selection was none."
+    )
+    assert flagged == []
+
+
+def test_real_unknown_tags_are_still_flagged(ctx):
+    flagged = ctx.allowed.unknown_tag_like(
+        "XMEAS_99 rose while Condenser_Loop_Pressure_Value fell."
+    )
+    assert any(token.upper().startswith("XMEAS 99") or token.upper() == "XMEAS_99"
+               for token in flagged)
+    assert any("Condenser_Loop_Pressure_Value" in token for token in flagged)

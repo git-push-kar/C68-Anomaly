@@ -57,12 +57,22 @@ from scripts.tags import canonical_tag, iter_tags
 DEFAULT_OVERLAP_THRESHOLD = 0.6
 OVERLAP_NGRAM = 4
 
+#: A decline either states an inability/absence in the store, or states that the
+#: thing asked about is *not there*. Both families are declines; the second one is
+#: worded as an observation about the context, so it was missed by a list that
+#: only held the first family, and "XMEAS_2 is not listed among the variables that
+#: moved" was rejected as a refusal that does not decline.
 DECLINE_MARKERS = (
     "cannot", "can't", "can not", "do not have", "don't have", "no record",
     "not stored", "not in the store", "not available", "no such",
     "does not include", "doesn't include", "the store does not",
     "the event store does not", "the stored diagnosis is", "what is stored is",
     "the record shows", "is not what the store", "no stored",
+    # absence family
+    "not listed", "not among", "not in this event", "not in the evidence",
+    "does not mention", "doesn't mention", "does not name", "doesn't name",
+    "no mention", "does not appear", "doesn't appear", "is not named",
+    "cannot confirm", "can't confirm", "not possible to say", "no evidence",
 )
 
 CONFIDENCE_PATTERNS = (
