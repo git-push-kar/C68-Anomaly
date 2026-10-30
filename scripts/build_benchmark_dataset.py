@@ -43,11 +43,15 @@ import time
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from llm.benchmark.filters import TEACHER_ANSWER_KEYS, check_answer  # noqa: E402
+from llm.benchmark.filters import (  # noqa: E402
+    TEACHER_ANSWER_KEYS,
+    check_answer,
+    direction_inconsistent,
+)
 from llm.benchmark.inputs import verify_inputs  # noqa: E402
 from llm.benchmark.menu import CLASSIFIABLE_FAULTS, UNCLASSIFIED, build_menu  # noqa: E402
 from llm.benchmark.prompt_v2 import (  # noqa: E402
@@ -222,40 +226,83 @@ def load_teacher_cache(path: Path) -> Dict[str, Dict]:
     return done
 
 
+def rejection_feedback(codes: Sequence[str]) -> str:
+    """The retry instruction: what failed, stated so it can be fixed without help."""
+    return (
+        "REVISION REQUIRED. Your previous answer was rejected for: "
+        + "; ".join(codes)
+        + ". Rewrite both fields to fix exactly those points. Keep the diagnosis "
+          "unchanged, quote a number only if it is printed in the evidence above "
+          "and quote it exactly, name only sensors the evidence lists, and use the "
+          "disturbance wording given under DECIDED DIAGNOSIS when naming the cause."
+    )
+
+
 def teacher_call(item: Dict, record: Dict, teacher, provenance: Dict) -> Dict:
-    """One teacher call, checked by the same filters the runtime uses."""
+    """One teacher item: one call, plus one retry if the first is rejected.
+
+    The retry is checked against the *original* prompt, never the retry prompt:
+    the feedback names the offending token, and if that token counted as "shown"
+    the model could quote it back and pass on the second attempt.
+    """
     evidence = evidence_of(record)
     target = item["target"]
-    answer, response, parse_error = teacher.answer(
-        evidence, build_menu(remove=target.get("menu_removed") or []), target
-    )
+    menu = build_menu(remove=target.get("menu_removed") or [])
     allowed = build_allowed_set(evidence,
                                 extra_faults=[record["fault"]] if record.get("fault") else [])
+    answer, response, parse_error = teacher.answer(evidence, menu, target)
     codes = check_answer(answer, target, evidence, allowed, parse_error=parse_error,
                          prompt=item.get("prompt"))
+    attempts = 1
+    seconds = float(response.seconds)
+    first_codes = list(codes)
+    raw_text = response.text or ""
+    if codes:
+        feedback = rejection_feedback(codes)
+        answer2, response2, parse_error2 = teacher.answer(
+            evidence, menu, target, extra_instruction=feedback, seed=teacher.seed + 1
+        )
+        codes2 = check_answer(answer2, target, evidence, allowed, parse_error=parse_error2,
+                              prompt=item.get("prompt"))
+        attempts = 2
+        seconds += float(response2.seconds)
+        if not codes2:
+            answer, codes = answer2, codes2
+            raw_text = response2.text or ""
+        else:
+            codes = codes + [f"retry:{code}" for code in codes2]
+            answer = None
     prose = None
     if not codes and isinstance(answer, dict):
         prose = {key: str(answer.get(key)).strip() for key in TEACHER_ANSWER_KEYS}
+    flags = direction_inconsistent(prose, evidence, allowed) if prose else []
     return {
         "item_id": item["item_id"],
         "event_id": item["event_id"],
         "family": _family(item),
         "model": response.model,
-        "seconds": round(response.seconds, 3),
+        "seconds": round(seconds, 3),
+        "attempts": attempts,
+        "first_codes": first_codes,
         "prompt_chars": response.prompt_chars,
-        "raw_chars": len(response.text or ""),
+        "raw_chars": len(raw_text),
         "codes": codes,
         "accepted": not codes,
+        # A twice-rejected item is dropped from the dataset rather than kept as an
+        # accepted-looking row with bad prose.
+        "dropped": bool(codes),
+        "flags": flags,
         "prose": prose,
         # Kept verbatim so a filter change can be replayed against the same
         # answers instead of re-running the model and getting different text.
-        "raw_text": (response.text or "")[:4000],
+        "raw_text": raw_text[:4000],
         **provenance,
     }
 
 
 def run_teacher(items: List[Dict], records: Dict[str, Dict], teacher, cache_path: Path,
-                provenance: Dict, limit: Optional[int], concurrency: int) -> Dict:
+                provenance: Dict, limit: Optional[int], concurrency: int,
+                item_ids: Optional[set] = None, max_calls: Optional[int] = None) -> Dict:
     """Call the teacher for every pending item, appending each result immediately.
 
     The cache is the durable record: one JSONL line per finished call, written as
@@ -268,11 +315,14 @@ def run_teacher(items: List[Dict], records: Dict[str, Dict], teacher, cache_path
         # A budget is a cap on *calls*, not on the order they are taken in. The
         # order interleaves families so a partial run is representative.
         ordered = ordered[:limit]
+    if item_ids is not None:
+        ordered = [item for item in ordered if item["item_id"] in item_ids]
     pending = [item for item in ordered
                if item["item_id"] not in done
                or done[item["item_id"]].get("filter_sha256") != provenance["filter_sha256"]]
-    stats = {"cached": len(done), "pending": len(pending), "calls": 0, "errors": 0,
-             "rejected": 0, "seconds": 0.0}
+    stats = {"cached": len(done), "pending": len(pending), "calls": 0, "api_calls": 0,
+             "errors": 0, "rejected": 0, "retried": 0, "dropped": 0, "seconds": 0.0,
+             "max_calls": max_calls}
     if not pending:
         return stats
     cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -294,10 +344,17 @@ def run_teacher(items: List[Dict], records: Dict[str, Dict], teacher, cache_path
                 if result is None:
                     stats["errors"] += 1
                     continue
+                attempts = int(result.get("attempts") or 1)
+                if max_calls is not None and stats["api_calls"] + attempts > max_calls:
+                    logger.info("teacher call budget reached (%d api calls)", stats["api_calls"])
+                    break
                 handle.write(json.dumps(result) + "\n")
                 handle.flush()
+                stats["api_calls"] += attempts
                 stats["calls"] += 1
                 stats["rejected"] += 0 if result.get("accepted") else 1
+                stats["retried"] += 1 if int(result.get("attempts") or 1) > 1 else 0
+                stats["dropped"] += 1 if result.get("dropped") else 0
                 stats["seconds"] += float(result.get("seconds") or 0.0)
                 if stats["calls"] % 10 == 0:
                     logger.info("teacher %d/%d calls, rejected %d, mean %.1fs",
@@ -318,10 +375,15 @@ def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict]) -> None:
         item["teacher"] = {
             "model": entry.get("model"),
             "seconds": entry.get("seconds"),
+            "attempts": entry.get("attempts"),
+            "first_codes": entry.get("first_codes") or [],
             "prompt_chars": entry.get("prompt_chars"),
             "raw_chars": entry.get("raw_chars"),
             "codes": entry.get("codes") or [],
             "accepted": bool(entry.get("accepted")),
+            "dropped": bool(entry.get("dropped")),
+            # Flags are diagnostics, not verdicts: they never remove an item.
+            "flags": entry.get("flags") or [],
             "raw_text": entry.get("raw_text"),
             "temperature": entry.get("temperature"),
             "seed": entry.get("seed"),
@@ -329,6 +391,33 @@ def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict]) -> None:
         }
         if entry.get("accepted") and entry.get("prose"):
             item["prose"] = dict(entry["prose"])
+
+
+def fault_coverage(train_items: List[Dict], floor: float = 0.70) -> Dict:
+    """Accepted teacher prose per classifiable fault, with a floor.
+
+    A fault whose items mostly failed the filters trains nothing: it contributes
+    rows without prose and disappears from any prose-conditioned metric. The floor
+    makes that visible in the manifest instead of leaving it to be noticed later.
+    """
+    per: Dict[str, Dict] = {}
+    for item in train_items:
+        fault = item.get("fault")
+        if fault is None:
+            continue
+        key = f"FAULT_{int(fault):02d}"
+        row = per.setdefault(key, {"items": 0, "with_prose": 0})
+        row["items"] += 1
+        if item.get("prose"):
+            row["with_prose"] += 1
+    for row in per.values():
+        row["share"] = round(row["with_prose"] / max(row["items"], 1), 3)
+        row["below_floor"] = row["share"] < floor
+    return {
+        "floor": floor,
+        "faults": per,
+        "below_floor": sorted(key for key, row in per.items() if row["below_floor"]),
+    }
 
 
 def cap_open_set(train_items: List[Dict], seed: int) -> tuple:
@@ -363,8 +452,46 @@ def cap_open_set(train_items: List[Dict], seed: int) -> tuple:
     if excess > len(droppable):
         excess = len(droppable)
         logger.warning("open-set cap cannot be met without dropping 1-15 episodes")
+
+    # Equal per-fault budget, so the 16-20 family is thinned evenly instead of a
+    # single shuffle that can empty one fault and leave another untouched.
+    by_fault: Dict[int, List[Dict]] = defaultdict(list)
+    for item in droppable:
+        by_fault[int(item["fault"])].append(item)
+    ordered_faults = sorted(by_fault)
     rng = random.Random(seed)
-    victims = {item["item_id"] for item in rng.sample(droppable, excess)} if excess else set()
+    victims: set = set()
+    if excess and ordered_faults:
+        quotas = {f: excess // len(ordered_faults) for f in ordered_faults}
+        for fault in ordered_faults[: excess % len(ordered_faults)]:
+            quotas[fault] += 1
+        remaining = excess
+        for fault in ordered_faults:
+            bucket = sorted((i for i in by_fault[fault] if i["item_id"] not in victims),
+                            key=lambda i: i["item_id"])
+            take = min(quotas[fault], len(bucket))
+            if take:
+                victims.update(i["item_id"] for i in rng.sample(bucket, take))
+                remaining -= take
+        # A fault that could not fill its quota pushes the difference onto the rest.
+        while remaining > 0:
+            progressed = False
+            for fault in ordered_faults:
+                if remaining == 0:
+                    break
+                bucket = [i for i in by_fault[fault] if i["item_id"] not in victims]
+                if not bucket:
+                    continue
+                victims.add(rng.choice(bucket)["item_id"])
+                remaining -= 1
+                progressed = True
+            if not progressed:
+                break
+
+    per_fault_16_20 = {f"FAULT_{fault:02d}": {
+        "items": len(by_fault.get(fault, [])),
+        "kept": sum(1 for i in by_fault.get(fault, []) if i["item_id"] not in victims),
+    } for fault in ordered_faults}
     kept = [item for item in train_items if item["item_id"] not in victims]
     after = len(unclassified) - len(victims)
     report.update({
@@ -372,6 +499,8 @@ def cap_open_set(train_items: List[Dict], seed: int) -> tuple:
         "dropped": len(victims),
         "unclassified_after": after,
         "share_after": round(after / max(classified + after, 1), 4),
+        "budget_per_fault": (excess // len(ordered_faults)) if ordered_faults else 0,
+        "per_fault_16_20": per_fault_16_20,
     })
     return kept, report
 
@@ -499,6 +628,10 @@ def main() -> int:
                     help="stop after N teacher calls (pilot budget guard)")
     ap.add_argument("--teacher-cache", default=None,
                     help="resume file, one JSON line per finished call (default <out>/teacher_cache.jsonl)")
+    ap.add_argument("--teacher-items", default=None,
+                    help="file with one item_id per line; restrict the teacher to those items")
+    ap.add_argument("--max-calls", type=int, default=None,
+                    help="hard cap on teacher calls, retries included")
     ap.add_argument("--concurrency", type=int, default=1,
                     help="parallel teacher calls; Ollama serves them one at a time")
     ap.add_argument("--audit", type=int, default=100)
@@ -603,8 +736,15 @@ def main() -> int:
         cache_path = (Path(args.teacher_cache) if args.teacher_cache
                       else out / "teacher_cache.jsonl")
         by_event = {r.get("event_id"): r for r in records["train"]}
+        item_ids = None
+        if args.teacher_items:
+            item_ids = {line.strip() for line in
+                        Path(args.teacher_items).read_text(encoding="utf-8").splitlines()
+                        if line.strip()}
+            logger.info("teacher restricted to %d requested item ids", len(item_ids))
         teacher_stats = run_teacher(items["train"], by_event, teacher, cache_path,
-                                    provenance, args.teacher_limit, args.concurrency)
+                                    provenance, args.teacher_limit, args.concurrency,
+                                    item_ids=item_ids, max_calls=args.max_calls)
         cache = load_teacher_cache(cache_path)
         attach_cached_prose(items["train"], cache)
         for row in items["train"]:
@@ -714,6 +854,9 @@ def main() -> int:
             "rejections": len(rejected),
             "rejection_rate": (round(len(rejected) / teacher_stats["calls"], 4)
                                if teacher_stats.get("calls") else None),
+            "retried": teacher_stats.get("retried", 0),
+            "dropped_after_retry": teacher_stats.get("dropped", 0),
+            "max_calls": teacher_stats.get("max_calls"),
             "rejection_codes": dict(Counter(
                 code.split(":")[0] for row in rejected for code in row["codes"])),
             "provenance": {key: teacher_stats.get(key) for key in
@@ -732,6 +875,7 @@ def main() -> int:
         },
         "input_artifacts": inputs,
         "class_balance": class_balance,
+        "teacher_coverage": fault_coverage(items["train"]),
         "prompt_check": {
             "prompts_checked": prompts_checked,
             "leak_violations": leak_findings,

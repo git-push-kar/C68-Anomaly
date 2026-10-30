@@ -30,6 +30,7 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Optional, Sequence, Set
 
+from llm.benchmark.kb_causes import is_cause_mention
 from llm.response.allowed_set import AllowedSet
 from llm.response.schemas import count_sentences
 from llm.response.validators import fault_ids_in, number_supported, numbers_in
@@ -220,11 +221,25 @@ def check_answer(
     # an ungrounded claim. ``AllowedSet.unknown_tag_like`` reports both, so the
     # split is made here by asking whether the token resolves to any canonical
     # tag at all.
+    # ``truth_fault_number`` is the simulator's number, which survives the
+    # UNCLASSIFIED_OPEN_SET relabelling of faults 16-20 -- without it their KB
+    # tags would not count as grounding.
+    kb_number = target.get("truth_fault_number")
+    if kb_number is None:
+        truth_number = target.get("truth_fault")
+        if isinstance(truth_number, str) and truth_number.startswith(("FAULT_", "SYNTHETIC_")):
+            kb_number = int(truth_number.split("_")[-1])
+
     fabricated: List[str] = []
     ungrounded_names: List[str] = []
     for token in allowed.unknown_tag_like(whole):
         if _is_chemical_name(token):
             continue  # "Component_B" is a species, not a sensor id
+        # A cause is usually not instrumented: naming "condenser cooling water
+        # inlet temperature" is correct even though it has no tag. Only this
+        # fault's own KB phrasing is allowed through, read from the KB.
+        if is_cause_mention(token, kb_number):
+            continue
         (fabricated if canonical_tag(token) is None else ungrounded_names).append(token)
     if fabricated:
         codes.append("unknown_tag:" + ",".join(fabricated[:3]))
@@ -234,14 +249,6 @@ def check_answer(
         resolved = canonical_tag(tag)
         if resolved:
             cited.add(resolved)
-    # ``truth_fault_number`` is the simulator's number, which survives the
-    # UNCLASSIFIED_OPEN_SET relabelling of faults 16-20 -- without it their KB
-    # tags would not count as grounding.
-    kb_number = target.get("truth_fault_number")
-    if kb_number is None:
-        truth_number = target.get("truth_fault")
-        if isinstance(truth_number, str) and truth_number.startswith(("FAULT_", "SYNTHETIC_")):
-            kb_number = int(truth_number.split("_")[-1])
     grounded = _evidence_tags(evidence) | _kb_tags(kb_number)
     for extra in target.get("ranked_hypotheses") or []:
         value = str(extra.get("fault_id") or "")
@@ -298,10 +305,104 @@ def check_answer(
     return codes
 
 
+#: Direction vocabulary for the consistency FLAG (never a rejection).
+UP_WORDS = (
+    "increase", "increases", "increasing", "increased", "rise", "rises", "rising", "rose",
+    "higher", "upward", "climb", "climbs", "climbing", "grow", "grows", "growing",
+)
+DOWN_WORDS = (
+    "decrease", "decreases", "decreasing", "decreased", "fall", "falls", "falling", "fell",
+    "lower", "downward", "drop", "drops", "dropping", "dropped", "decline", "declines",
+    "declining", "reduce", "reduces", "reduced", "reducing",
+)
+_NEGATION = re.compile(r"\b(?:no|not|without|never|neither|nor|n't)\b")
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
+
+
+#: The stored ``trend`` is the direction of *movement*; ``deviation_percent`` is
+#: the offset from baseline. They disagree in 442 of 2,151 ranked sensors in this
+#: dataset (a level still below baseline but climbing), so comparing a direction
+#: word against the deviation sign flags correct prose. Prefer the trend.
+_TREND_UP = frozenset({"increasing", "rising", "up"})
+_TREND_DOWN = frozenset({"decreasing", "falling", "down"})
+
+
+def _stored_directions(evidence: Dict) -> Dict[str, tuple]:
+    """Direction the evidence records for each ranked sensor, and its basis."""
+    directions: Dict[str, tuple] = {}
+    for sensor in (evidence.get("top_anomalous_sensors") or []):
+        if not isinstance(sensor, dict):
+            continue
+        tag = canonical_tag(sensor.get("name")) or canonical_tag(sensor.get("display_name"))
+        if not tag:
+            continue
+        trend = str(sensor.get("trend") or "").strip().lower()
+        if trend in _TREND_UP:
+            directions[tag] = (1, "trend")
+            continue
+        if trend in _TREND_DOWN:
+            directions[tag] = (-1, "trend")
+            continue
+        if trend == "stable":
+            continue  # no direction claim to contradict
+        value = sensor.get("deviation_percent")
+        if value is None:
+            value = sensor.get("z_score", sensor.get("zScore"))
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and value != 0:
+            directions[tag] = (1 if value > 0 else -1, "deviation")
+    return directions
+
+
+def direction_inconsistent(answer: Optional[Dict], evidence: Dict, allowed: AllowedSet) -> List[Dict]:
+    """Flag sentences whose direction word contradicts the stored sign.
+
+    A flag, never a rejection: the sentence may be describing a *consequence* ("the
+    flow is rising, so heat removal falls") in which only one sensor is named and
+    the direction belongs to something else. Flagging keeps that visible for a
+    human without throwing away a grounded answer.
+
+    Only sentences naming exactly one ranked sensor are considered, and a sentence
+    carrying a negation is skipped, because "no longer increasing" is not an
+    increase.
+    """
+    if not isinstance(answer, dict):
+        return []
+    signs = _stored_directions(evidence)
+    if not signs:
+        return []
+    text = f"{answer.get('physical_reasoning') or ''}\n{answer.get('narrative') or ''}"
+    flags: List[Dict] = []
+    for sentence in _SENTENCE_SPLIT.split(text):
+        body = sentence.strip()
+        if not body or _NEGATION.search(body.lower()):
+            continue
+        tags = [tag for tag in allowed.tags_in(body) if tag in signs]
+        if len(tags) != 1:
+            continue
+        low = body.lower()
+        up = [w for w in UP_WORDS if re.search(rf"\b{re.escape(w)}\b", low)]
+        down = [w for w in DOWN_WORDS if re.search(rf"\b{re.escape(w)}\b", low)]
+        if bool(up) == bool(down):
+            continue  # no direction word, or both directions in one clause
+        stored, basis = signs[tags[0]]
+        if (up and stored < 0) or (down and stored > 0):
+            flags.append({
+                "sentence": body,
+                "sensor": tags[0],
+                "stored": "increase" if stored > 0 else "decrease",
+                "basis": basis,
+                "words": (up or down)[:3],
+            })
+    return flags
+
+
 __all__ = [
     "ABSOLUTE_PATTERNS",
+    "DOWN_WORDS",
     "SEVERITY_PATTERNS",
     "TEACHER_ANSWER_KEYS",
+    "UP_WORDS",
     "check_answer",
+    "direction_inconsistent",
     "store_numbers",
 ]
