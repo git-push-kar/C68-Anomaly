@@ -17,13 +17,21 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from llm.benchmark.filters import check_answer, direction_inconsistent
+from llm.benchmark.filters import (
+    check_answer,
+    direction_inconsistent,
+    direction_report,
+    names_removed_fault,
+)
 from llm.benchmark.kb_causes import (
     disturbance_phrase,
     is_cause_mention,
+    signature_phrases,
     unmeasured_cause_phrases,
 )
+from llm.benchmark.menu import build_menu
 from llm.benchmark.prompt_v2 import teacher_instruction
+from llm.benchmark.teacher import build_teacher_prompt
 from llm.benchmark.targets import build_target
 from llm.response.allowed_set import build_allowed_set
 from scripts.build_benchmark_dataset import cap_open_set, teacher_call
@@ -191,6 +199,115 @@ def test_a_stable_sensor_makes_no_direction_claim():
 def test_direction_flag_is_not_a_rejection():
     answer = _answer(text_extra=" Condenser_Cooling_Water_Outlet_Temperature is increasing.")
     assert _check(answer) == [], "the flag must not remove an otherwise grounded answer"
+
+
+# -- open-set abstention items ------------------------------------------------
+def _open_set(fault: int = 5):
+    record = _event(fault=fault)
+    target = build_target(record, variant="removed")
+    return record, target, build_menu(remove=[fault])
+
+
+def test_the_teacher_prompt_never_names_the_removed_fault():
+    """The old prompt printed the true cause under DECIDED DIAGNOSIS.
+
+    On an abstention item that is the answer itself, so the teacher could copy it
+    and the filter -- trusting the same number -- could accept it.
+    """
+    record, target, menu = _open_set(5)
+    prompt = build_teacher_prompt(record["event"], menu, target)
+    flat = " ".join(prompt.lower().split())
+    assert "condenser cooling water inlet temperature step" not in flat
+    assert "fault_05" not in flat and "fault 5" not in flat
+    assert "no listed candidate" in flat
+    # Fault 12 shares the cause and stays on the menu; its line necessarily
+    # contains the shared prefix, which is why only the *distinctive* tail counts.
+    assert "condenser cooling water inlet temperature random variation" in flat
+
+
+def test_a_classified_prompt_still_states_the_disturbance():
+    record = _event(fault=5)
+    target = build_target(record)
+    prompt = build_teacher_prompt(record["event"], build_menu(), target)
+    assert "the disturbance: Condenser cooling water inlet temperature step" in prompt
+
+
+def test_the_removed_fault_name_is_detected_by_signature():
+    record, target, menu = _open_set(5)
+    menu_ids = [entry["fault_id"] for entry in menu]
+    assert names_removed_fault("The condenser cooling water inlet temperature step is present.",
+                               target, menu_ids)
+    assert names_removed_fault("This is fault 5.", target, menu_ids)
+    assert names_removed_fault("The condenser flow rises.", target, menu_ids) is None
+    # The prefix alone is FAULT_12's wording as well, so ruling 12 out is legal.
+    assert names_removed_fault("The condenser cooling water inlet temperature is drifting.",
+                               target, menu_ids) is None
+
+
+def test_an_open_set_answer_may_not_name_the_removed_fault():
+    record, target, menu = _open_set(5)
+    allowed = build_allowed_set(record["event"], extra_faults=[5])
+    menu_ids = [entry["fault_id"] for entry in menu]
+    answer = _answer(text_extra=" The Condenser_Cooling_Water_Inlet_Temperature_Step is present.")
+    codes = check_answer(answer, target, record["event"], allowed, menu_ids=menu_ids)
+    assert any(code.startswith("names_removed_fault") for code in codes), codes
+
+
+def test_an_open_set_answer_may_not_state_the_removed_number():
+    record, target, menu = _open_set(5)
+    allowed = build_allowed_set(record["event"], extra_faults=[5])
+    answer = _answer(text_extra=" This matches FAULT_05 exactly.")
+    codes = check_answer(answer, target, record["event"], allowed,
+                         menu_ids=[entry["fault_id"] for entry in menu])
+    assert any(code.startswith("names_removed_fault") for code in codes), codes
+
+
+def test_an_open_set_answer_may_rule_out_a_listed_candidate():
+    """Differential reasoning is the point of an abstention item: a *listed*
+    candidate's cause wording is legitimate, the removed one is not."""
+    record, target, menu = _open_set(5)
+    allowed = build_allowed_set(record["event"], extra_faults=[5])
+    answer = _answer(text_extra=" This is not the Reactor_Cooling_Water_Inlet_Temperature step.")
+    codes = check_answer(answer, target, record["event"], allowed,
+                         menu_ids=[entry["fault_id"] for entry in menu])
+    assert not any(code.startswith("names_removed_fault") for code in codes), codes
+
+
+def test_a_fault_16_to_20_item_is_also_an_abstention_item():
+    record, target, menu = _open_set(17)
+    assert target["fault_id"] == "UNCLASSIFIED_OPEN_SET"
+    prompt = build_teacher_prompt(record["event"], menu, target)
+    flat = " ".join(prompt.lower().split())
+    for phrase in signature_phrases(17):
+        assert phrase not in flat
+    allowed = build_allowed_set(record["event"], extra_faults=[17])
+    answer = _answer(text_extra=f" The {disturbance_phrase(17)} is present.")
+    codes = check_answer(answer, target, record["event"], allowed,
+                         menu_ids=[entry["fault_id"] for entry in menu])
+    assert any(code.startswith("names_removed_fault") for code in codes), codes
+
+
+# -- valve positions are not flows --------------------------------------------
+def test_a_valve_position_sentence_is_skipped_not_flagged():
+    """XMV_52 is "Condenser_Cooling_Water_Flow" but is a valve position; its
+    travel and the measured flow can move in opposite directions under control."""
+    event = _event()
+    event["event"]["top_anomalous_sensors"][0]["trend"] = "decreasing"
+    allowed = build_allowed_set(event["event"], extra_faults=[5])
+    answer = {"physical_reasoning": "Condenser_Cooling_Water_Flow is increasing.",
+              "narrative": "The valve is opening."}
+    assert direction_inconsistent(answer, event["event"], allowed) == []
+    report = direction_report(answer, event["event"], allowed)
+    assert "XMV_52" in report["valve_tags_skipped"]
+
+
+def test_a_measurement_sentence_is_still_flagged():
+    event = _event()
+    allowed = build_allowed_set(event["event"], extra_faults=[5])
+    answer = {"physical_reasoning": "Condenser_Cooling_Water_Outlet_Temperature is increasing.",
+              "narrative": "Watch it."}
+    flags = direction_inconsistent(answer, event["event"], allowed)
+    assert flags and flags[0]["tag_kind"] == "measurement"
 
 
 # -- retry then drop ----------------------------------------------------------

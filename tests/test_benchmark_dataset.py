@@ -103,7 +103,18 @@ def test_prompt_forbids_every_listed_fragment():
 def test_prompt_carries_the_lag_attribution():
     prompt = render_prompt(_event()["event"], build_menu(), teacher_instruction(["FAULT_15"]))
     assert "DYNAMIC RESIDUAL ATTRIBUTION" in prompt
-    assert "XMV_52: residual share 0.090" in prompt
+    assert "XMV_52 [valve position, manipulated variable]: residual share 0.090" in prompt
+
+
+def test_every_tag_in_the_prompt_is_labelled_with_its_kind():
+    """XMV_52 displays as "Condenser_Cooling_Water_Flow" but is a valve position.
+
+    Without the label the model reads it as the flow and narrates a flow direction
+    the evidence never claimed.
+    """
+    prompt = render_prompt(_event()["event"], build_menu(), teacher_instruction(["FAULT_15"]))
+    assert "Condenser_Cooling_Water_Flow [XMV_52, valve position, manipulated variable]" in prompt
+    assert "Stripper_Level [XMEAS_17, measurement]" in prompt
 
 
 # -- menu ---------------------------------------------------------------------
@@ -402,3 +413,14 @@ def test_a_truncated_number_is_still_rejected():
     answer = dict(_good_answer(),
                   narrative=_good_answer()["narrative"] + " The deviation reached 206%.")
     assert any(code.startswith("number_not_in_store") for code in _check(answer, event=event))
+
+
+def test_nearest_candidates_never_include_the_fault_itself():
+    """The fill loop used to pad the list with the removed entry, which put the
+    abstention item's answer back into its own prompt."""
+    from llm.benchmark.menu import nearest_candidates
+
+    for fault in CLASSIFIABLE_FAULTS:
+        candidates = nearest_candidates(fault)
+        assert f"FAULT_{fault:02d}" not in candidates, (fault, candidates)
+        assert len(candidates) == 2
