@@ -1,0 +1,25 @@
+{
+  "note": "SHA-256 of the untracked detector artifacts the benchmark dataset was built from.",
+  "artifacts": {
+    "model.pt": {
+      "path": "outputs/anomaly_detector/model.pt",
+      "sha256": "d0ec3f386f1119c4278d81ef09a7a48a38c0c04a073c6b4782599ae804c76b77",
+      "bytes": "2024997"
+    },
+    "cva_model.npz": {
+      "path": "outputs/anomaly_detector/dynamic/cva_model.npz",
+      "sha256": "97f27ae9ab10fd87effa9d1fe43de7de7229dccd73495d4f06d684556ef238bd",
+      "bytes": "1537492"
+    },
+    "dpca_model.npz": {
+      "path": "outputs/anomaly_detector/dynamic/dpca_model.npz",
+      "sha256": "a1b29a5b086ac891652502379f4996e73a11a0fb08b23cffce33b3a8b861d816",
+      "bytes": "142111"
+    },
+    "scaler.pkl": {
+      "path": "outputs/preprocessing/scaler.pkl",
+      "sha256": "6b67a6a18e747377622e099fd220f68175efb7b51a3b4df33ee0704637540245",
+      "bytes": "1673"
+    }
+  }
+}

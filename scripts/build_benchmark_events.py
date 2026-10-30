@@ -50,6 +50,15 @@ for p in (ROOT, ROOT / "scripts"):
 from anomaly_detection.dynamic.contributions import sensor_contributions  # noqa: E402
 from anomaly_detection.dynamic.lag_builder import build_past_future  # noqa: E402
 from evidence.event_builder import build_event  # noqa: E402
+from llm.benchmark.events import (  # noqa: E402
+    DEFAULT_HORIZON_WINDOWS,
+    DETECTOR_MISS_REASON,
+    miss_reason,
+    oracle_candidates,
+    select_event,
+    snapshot_block,
+)
+from llm.benchmark.inputs import verify_inputs, write_pin  # noqa: E402
 from preprocessing.scaler import load_scaler  # noqa: E402
 from preprocessing.tep_loader import CANONICAL_NAMES  # noqa: E402
 from preprocessing.windowing import to_windows  # noqa: E402
@@ -195,36 +204,43 @@ class FrozenDetector:
 
     # -- one run -> one event record -------------------------------------
     def build(self, event_id: str, raw: np.ndarray, fault_label: Optional[int],
-              window_block: Optional[Tuple[int, int]] = None) -> Dict:
+              window_block: Optional[Tuple[int, int]] = None,
+              horizon: Optional[int] = None) -> Dict:
         series = self.score_run(raw)
         starts = series["starts"]
         alarm = (series["fused"] > 1.0).astype(int)
         events = segment_events(alarm, starts, self.persistence, self.separate,
                                 self.max_event_windows)
         end_samples = np.asarray(starts) + self.window_size - 1
-        post = end_samples >= self.onset
 
         if window_block is not None:
             open_idx, close_idx = window_block
             forced = True
+            full_windows = close_idx - open_idx + 1
         else:
-            chosen = next(((o, c) for o, c in events if post[o]), None)
+            chosen = select_event(events, end_samples, self.onset)
             if chosen is None:
                 # Why there is no event matters: an alarm that never confirms is a
-                # detector miss, while a confirmed alarm whose event is still open
-                # when the stream ends is the aggregator's silent drop (it needs
-                # `separate` quiet windows to close and the run has run out).
+                # detector miss; a confirmed alarm with no event reaching the onset
+                # means the aggregator produced nothing usable for this run.
                 window_runs = np.convolve(alarm, np.ones(self.persistence, dtype=int), mode="valid")
-                confirmed_anywhere = bool(window_runs.size and window_runs.max() >= self.persistence)
                 return {
                     "found": False,
                     "n_events_in_run": len(events),
-                    "reason": ("unclosed_at_run_end" if confirmed_anywhere else "detector_miss"),
+                    "reason": miss_reason(events, alarm, self.persistence),
                     "n_alarmed_windows": int(alarm.sum()),
                     "max_consecutive_alarms": int(window_runs.max()) if window_runs.size else 0,
                 }
             open_idx, close_idx = chosen
             forced = False
+            full_windows = close_idx - open_idx + 1
+
+        # The PRIMARY evidence view is a fixed snapshot, so it does not depend on
+        # when (or whether) the event closed. Fixed a priori, never tuned, and
+        # applied to every event including the forced NORMAL_TRANSIENT windows.
+        if horizon is not None:
+            open_idx, close_idx = snapshot_block(open_idx, horizon, self.n_windows())
+            close_idx = min(close_idx, open_idx + horizon - 1)
 
         raw_windows = to_windows(raw.astype(np.float32), self.window_size, self.stride)
         scaled = self.bundle.scale(raw)
@@ -256,7 +272,7 @@ class FrozenDetector:
         )
 
         first_alarm_idx = next(
-            (i for i in range(open_idx + 1) if alarm[i] and post[i]), open_idx
+            (i for i in range(open_idx + 1) if alarm[i]), open_idx
         )
         open_sample = int(end_samples[open_idx])
         close_sample = int(end_samples[close_idx])
@@ -266,6 +282,10 @@ class FrozenDetector:
             "forced_windows": forced,
             "fault_label": fault_label,
             "n_windows": int(close_idx - open_idx + 1),
+            "event_n_windows_full": int(full_windows),
+            "horizon_windows": int(horizon) if horizon is not None else None,
+            "windows_left_at_open": int(self.n_windows() - 1 - open_idx),
+            "event_covers_onset": bool(int(end_samples[close_idx]) >= self.onset),
             "event_open_window": int(open_idx),
             "event_first_alarm_window": int(first_alarm_idx),
             "event_open_sample": open_sample,
@@ -328,10 +348,21 @@ def main() -> None:
     ap.add_argument("--max-runs", type=int, default=None, help="smoke: runs per component")
     ap.add_argument("--skip-normal", action="store_true")
     ap.add_argument("--skip-oracle", action="store_true")
+    ap.add_argument("--max-windows", type=int, default=DEFAULT_HORIZON_WINDOWS,
+                    help="fixed evidence horizon in windows (0 = full event; benchmark only)")
+    ap.add_argument("--update-inputs", action="store_true",
+                    help="rewrite the artifact pin from the files on disk")
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args()
     logging.basicConfig(level=args.log_level.upper(), format="%(levelname)-7s %(message)s")
+
+    if args.update_inputs:
+        write_pin(ROOT)
+        logger.info("wrote input pin %s", ROOT / "configs" / "benchmark_inputs.json")
+    inputs = verify_inputs(ROOT)
+    logger.info("input artifacts verified: %s", ", ".join(sorted(inputs)))
+    horizon = int(args.max_windows) or None
 
     config = load_config(args.config)
     op = json.loads(FROZEN.read_text(encoding="utf-8"))
@@ -366,7 +397,7 @@ def main() -> None:
             continue
         processed[fault] += 1
         event_id = f"EVT-{component}-f{fault:02d}-r{run:03d}"
-        rec = det.build(event_id, raw, fault)
+        rec = det.build(event_id, raw, fault, horizon=horizon)
         if rec["found"]:
             rec.update({"source_file": faulty_csv.name, "fault": fault,
                         "simulationRun": run, "split": component, "seed": 42})
@@ -399,7 +430,7 @@ def main() -> None:
     # an oracle window. Manufacturing windows for plain detector misses would
     # invent events for faults the detector cannot see (faults 3 and 9) and
     # inflate training coverage with items the system never produces.
-    oracle_misses = [m for m in misses if m.get("reason") == "unclosed_at_run_end"]
+    oracle_misses = oracle_candidates(misses)
     logger.info("oracle candidates: %d unclosed runs of %d misses",
                 len(oracle_misses), len(misses))
 
@@ -419,7 +450,7 @@ def main() -> None:
                 continue
             component = split_for_run(run) or "train"
             event_id = f"EVT-{component}-f{fault:02d}-r{run:03d}-oracle"
-            rec = det.build(event_id, raw, fault, window_block=block)
+            rec = det.build(event_id, raw, fault, window_block=block, horizon=horizon)
             rec.update({"source_file": faulty_csv.name, "fault": fault,
                         "simulationRun": run, "split": component, "seed": 42,
                         "oracle": True, "oracle_offset_sample": train_median_open,
@@ -473,6 +504,8 @@ def main() -> None:
         "operating_point_thresholds": op["thresholds"],
         "persistence_windows": det.persistence,
         "onset_sample": det.onset,
+        "horizon_windows": horizon,
+        "input_artifacts": inputs,
         "split_runs": SPLIT_RUNS,
         "budgets": {"train_runs_per_fault": TRAIN_RUNS_PER_FAULT,
                     "val_runs_per_fault": VAL_RUNS_PER_FAULT,
@@ -506,6 +539,16 @@ def main() -> None:
                                                      if int(r["fault"]) == f]) for f in faults},
         "event_length_windows_by_fault": {str(f): dist([r["n_windows"] for r in all_faulty
                                                         if int(r["fault"]) == f]) for f in faults},
+        "event_length_full_windows_by_fault": {str(f): dist([r["event_n_windows_full"] for r in all_faulty
+                                                             if int(r["fault"]) == f]) for f in faults},
+        "windows_left_at_open": dist([r["windows_left_at_open"] for r in all_faulty]),
+        # How many runs could not even fill the horizon from their open window:
+        # those snapshots are truncated, which is a fact about the stream rather
+        # than a tuning choice.
+        "runs_shorter_than_horizon": sum(
+            1 for r in all_faulty
+            if horizon is not None and r["windows_left_at_open"] + 1 < horizon),
+        "events_covers_onset": sum(1 for r in all_faulty if r.get("event_covers_onset")),
         "triggered_by": dict(Counter(r["triggered_by"] for r in all_faulty)),
         "runtime_seconds": round(time.time() - t0, 1),
     }
