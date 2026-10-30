@@ -57,7 +57,9 @@ SYSTEM_PROMPT_TEACHER = (
     "valve position is not a flow, even when its name says \"flow\": the valve "
     "on the A/C feed can close while the measured feed flow rises, so never "
     "infer a flow's direction from a valve's direction, and say which of the two "
-    "you mean.\n"
+    "you mean. A menu line that reports a valve position's trend reports the "
+    "position, not the flow: describe the trend the evidence shows and do not "
+    "assert which way the flow is going.\n"
     "3. Never claim certainty. Say what the evidence suggests and what should be "
     "verified on site.\n"
     "4. Do not state a severity level, a priority, or a numeric risk score: that "
@@ -183,13 +185,82 @@ def teacher_prompt_leaks(prompt: str, target: Dict,
     return findings
 
 
+def _kb_initiating(number: int) -> Dict:
+    """The KB's first initiating variable for a fault number."""
+    import ast as _ast
+
+    from scripts.fault_knowledge import FAULT_KNOWLEDGE
+
+    raw = (FAULT_KNOWLEDGE.get(int(number)) or {}).get("initiating")
+    if isinstance(raw, list):
+        return raw[0] if raw and isinstance(raw[0], dict) else {}
+    try:
+        parsed = _ast.literal_eval(str(raw))
+    except (ValueError, SyntaxError):
+        return {}
+    return parsed[0] if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict) else {}
+
+
+def _stored_trend(evidence: Dict, tag: str) -> Optional[str]:
+    from scripts.tags import canonical_tag as _canonical
+
+    for sensor in (evidence.get("top_anomalous_sensors") or []):
+        if not isinstance(sensor, dict):
+            continue
+        if (_canonical(sensor.get("name")) == tag
+                or _canonical(sensor.get("display_name")) == tag):
+            trend = str(sensor.get("trend") or "").strip().lower()
+            return trend or None
+    return None
+
+
+def teacher_menu(menu: Sequence[Dict[str, str]], evidence: Dict) -> List[Dict[str, str]]:
+    """The menu as the *teacher* sees it: no flow direction on a valve position.
+
+    The KB's ``initiating.direction`` for faults 1, 4, 5, 6, 7, 11, 12, 14 and 15
+    describes a flow, but the tag it names is an XMV valve position. Rendering
+    "A_C_Feed_Flow decreases first" invites the teacher to assert a direction the
+    evidence contradicts in 120 of 120 fault-7 events, and the filter used to
+    reject the correction. For those entries the teacher is shown the position's
+    *stored* trend instead, or told the tag is absent, and is asked to describe
+    what the evidence shows.
+
+    This is teacher-side only: the student prompt keeps the published menu, so a
+    student never sees a hint the evaluation does not give it.
+    """
+    from scripts.tags import canonical_tag
+
+    out: List[Dict[str, str]] = []
+    for entry in menu:
+        fault_id = str(entry.get("fault_id") or "")
+        match = re.fullmatch(r"FAULT_(\d{1,2})", fault_id)
+        if not match:
+            out.append(dict(entry))
+            continue
+        initiating = _kb_initiating(int(match.group(1)))
+        tag = canonical_tag(initiating.get("sensor"))
+        if not tag or not str(tag).upper().startswith("XMV_"):
+            out.append(dict(entry))
+            continue
+        name = str(entry.get("signature") or "").split(" \u2014 ")[0]
+        trend = _stored_trend(evidence, tag)
+        if trend:
+            signature = (f"{name} \u2014 valve position {tag}, trend in this event: "
+                         f"{trend}; a valve position is not a flow")
+        else:
+            signature = (f"{name} \u2014 valve position {tag} is not in this event's "
+                         f"evidence; do not infer a flow direction")
+        out.append({**entry, "signature": signature})
+    return out
+
+
 def build_teacher_prompt(evidence: Dict, menu: Sequence[Dict[str, str]], target: Dict) -> str:
     """Evidence + menu + the decided answer, with a request for prose only."""
     from llm.benchmark.prompt_v2 import render_prompt
 
     from llm.benchmark.kb_causes import disturbance_phrase
 
-    lines = [render_prompt(evidence, menu, include_schema=False), ""]
+    lines = [render_prompt(evidence, teacher_menu(menu, evidence), include_schema=False), ""]
     lines.append("DECIDED DIAGNOSIS (do not change):")
     lines.append(f"- {_label(target.get('fault_id'))}")
     # The cause in the KB's own words. Without it the teacher either omits the

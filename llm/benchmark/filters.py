@@ -25,6 +25,7 @@ Rules (code in brackets, as reported in the rejection log):
 ``severity_claim``       a severity level or priority assigned in prose
 ``fault_out_of_scope``   a fault number outside 1-20, or a synthetic fault
 ``names_removed_fault``  an abstention item that names the fault it abstains from
+``teacher_scaffolding``   prose that quotes the teacher's own prompt labels
 """
 from __future__ import annotations
 
@@ -33,6 +34,7 @@ from typing import Dict, List, Optional, Sequence, Set
 
 from llm.benchmark.kb_causes import distinctive_signatures, is_cause_mention, normalise
 from llm.benchmark.menu import UNCLASSIFIED
+from llm.benchmark.scaffolding import scaffolding_hits
 from llm.response.allowed_set import AllowedSet
 from llm.response.schemas import count_sentences
 from llm.response.validators import fault_ids_in, number_supported, numbers_in
@@ -190,7 +192,19 @@ def store_numbers(evidence: Dict, target: Dict) -> List[float]:
 
 
 def _direction_conflict(text: str, number: Optional[int]) -> Optional[str]:
-    """Flag a cited initiating variable described with the opposite sign."""
+    """Flag a cited initiating variable described with the opposite sign.
+
+    Only measurements are checked. For faults whose KB ``initiating.sensor`` is an
+    XMV, the tag is a valve *position* while the KB's direction describes the
+    *flow* that position drives -- the two routinely move oppositely, and the
+    stored trend disagreed with the KB in every fault 7, 14 and 15 training event
+    (120/120, 120/120, 26/26) while agreeing with it in every fault 4 and 11
+    event. Enforcing a flow direction on a position rejects correct prose, so a
+    valve position is out of scope here and stays an advisory flag
+    (``direction_inconsistent`` also skips it). The KB entry for fault 13, a
+    measurement, still contradicts the evidence in 102/102 events and is flagged
+    for KB review rather than silently allowed.
+    """
     if number is None:
         return None
     entry = FAULT_KNOWLEDGE.get(int(number)) or {}
@@ -204,7 +218,7 @@ def _direction_conflict(text: str, number: Optional[int]) -> Optional[str]:
     if not sensor or direction not in ("increase", "decrease"):
         return None
     tag = canonical_tag(sensor)
-    if tag is None:
+    if tag is None or str(tag).upper().startswith("XMV_"):
         return None
     body = (text or "").lower()
     for match in re.finditer(re.escape(tag.lower()), body):
@@ -374,6 +388,14 @@ def check_answer(
         if number in SYNTHETIC_FAULTS or not 1 <= number <= 20:
             codes.append(f"fault_out_of_scope:{number}")
             break
+
+    # Prose that refers to the teacher's own prompt ("the decided diagnosis ...",
+    # "the affected area: ...") is only true inside that wrapper. The phrases are
+    # read out of the template by ``llm.benchmark.scaffolding``, so a prompt edit
+    # moves the rule with it.
+    hits = scaffolding_hits(whole, abstain=str((target or {}).get("fault_id") or "") == UNCLASSIFIED)
+    if hits:
+        codes.append("teacher_scaffolding:" + ",".join(hit["phrase"] for hit in hits[:3]))
 
     return codes
 
