@@ -128,9 +128,17 @@ offset **229** = the median event-open sample over the **train** split. Faults 3
 and 9 were deliberately not patched — see deviation D2.
 
 **3. NORMAL_TRANSIENT.** From `TEP_FaultFree_Testing`, split by run range:
-**117 train / 47 val / 40 test**. Of these, **10 are confirmed false alarms**
-(8/2/0); the remaining 194 are unconfirmed excursions harvested at persistence 3
-that never reach 12. These runs overlap the detector's FAR selection/reporting
+**117 train / 47 val / 40 test** = 204. The **10 confirmed false alarms** are
+reported separately from the unconfirmed ones:
+
+| split | confirmed false alarm | unconfirmed excursion | total |
+|---|---|---|---|
+| train | 8 | 109 | 117 |
+| val | 2 | 45 | 47 |
+| test | 0 | 40 | 40 |
+| **all** | **10** | **194** | **204** |
+
+The 194 are excursions harvested at persistence 3 that never reach 12. These runs overlap the detector's FAR selection/reporting
 halves — harmless, because LLM training cannot change a detector result.
 
 **4. Prompt v2.** Evidence + menu. Removed: `Candidate affected subsystem`, the
@@ -157,9 +165,14 @@ older servers), temperature 0.2, seed 42, JSON mode. Filters: label unchanged,
 tags resolvable and grounded, numbers in the prompt, no absolute wording, no
 severity claim, no out-of-scope fault, sentence limits.
 
-**8. Sizes.** Train ≤120 runs/fault → **2,305 items** (2,288 faulty + oracles,
-117 normal); val 25/fault → **959** (456 faulty × both variants + 47 normal);
-test all 100/fault → **3,668** (1,814 × both variants + 40 normal).
+**8. Sizes.** Train ≤120 runs/fault → **2,305 items** = **2,188 faulty** (2,168
+events + 20 oracle windows) + **117 NORMAL_TRANSIENT**; val 25/fault → **959**
+(456 faulty × both variants + 47 normal); test all 100/fault → **3,668**
+(1,814 × both variants + 40 normal).
+
+> Correction: an earlier version of this paragraph said "2,288 faulty", which does
+> not add up (2,288 + 117 = 2,405 ≠ 2,305). The faulty count is 2,188. See
+> `phase_2b_closeout_report.md` — the horizon rebuild changes these totals again.
 
 **9. Pilot.** 50 teacher calls, stratified one-per-family round-robin,
 **7.8-9.2 s per call** (mean 7.8 s in the final run), **44/50 accepted (88%)**

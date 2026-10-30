@@ -425,6 +425,10 @@ plus a threshold re-derivation and a v2 re-evaluation per seed (~4 min each).
 | Events built | 4,438 real (train 2,168 / val 456 / test 1,814) + 20 oracle + 204 NORMAL_TRANSIENT |
 | Splits | `data/splits_v2.json` (run ranges expanded and checked pairwise during the build) |
 
+> **Superseded by §10 (2026-10-30).** The dataset now uses a fixed horizon and no
+> oracle windows; the numbers below describe the full-event build, which is kept
+> at `outputs/benchmark_v2/events_full/` and is **not used**.
+
 ### 9.2 Event shape — a limitation, stated plainly
 
 Events are **long by construction**: median 735 samples (147 windows), p10 705,
@@ -442,6 +446,10 @@ each); every other fault produces an event in 244/245 runs, the missing one bein
 the run that ends while an event is still open.
 
 ### 9.3 Misses, oracles and NORMAL_TRANSIENT
+
+> **Superseded by §10.2.** The 20 `unclosed_at_run_end` misses were a selection
+> artifact, not a stream artifact: run 86 is closed correctly in §10.2, and no
+> oracle window is needed or built.
 
 - 462 runs produced no closed event: 442 are `detector_miss` (228 fault 3, 214
   fault 9) and 20 are `unclosed_at_run_end` (exactly one per fault).
@@ -480,3 +488,146 @@ near-match): 7.8-9.2 s per call, 44/50 pilot answers accepted under the final
 filter (88%). The 6 rejections are genuine: 2 invented sensor/valve names, 1
 ungrounded sensor, 3 invented numbers. Teacher prose exists for **train only**;
 val/test are scored against deterministic targets.
+
+---
+
+## 10. Phase 2B close-out (2026-10-30)
+
+### 10.1 Evidence view — a fixed horizon, H = 20 windows
+
+The evidence a benchmark item shows is a **fixed snapshot**: the event's open
+window plus 20 windows (window_size 60, stride 5 → 100 samples), capped at the end
+of the run. H was fixed before the rebuild and is not tuned on val or test.
+
+Why: the full-event view measured *how much of the run was left* (median 149
+windows, because an event that alarms near sample 220 cannot find `separate`=20
+quiet windows before the 960-sample stream ends). A snapshot of fixed length makes
+every item comparable and makes event closure irrelevant to whether an event
+exists. The live aggregator and its config are untouched; the horizon is a
+benchmark-only argument of the builder (`--max-windows`, default 20, `0` = off).
+
+| quantity | value |
+|---|---|
+| events | 4,458 (train 2,188 / val 456 / test 1,814) |
+| snapshot length | 20 windows for every event (5 runs truncated by stream end) |
+| events whose span covers the onset | 4,458 / 4,458 |
+| windows left at open | median 146, p05 137, p95 148, min 0 |
+| full-event length (unused, for reference) | median 149 windows, p05/p95 149 |
+| event-open delay, observable faults | median 59 (fault 1/4/14) to 94 (fault 20) samples |
+
+The full-event build is kept at `outputs/benchmark_v2/events_full/` and is not
+read by any script.
+
+### 10.2 The "unclosed" runs — cause, fix, and why there are no oracles
+
+All 20 `unclosed_at_run_end` misses were **run 86**, one per fault. It was not a
+stream or flush artifact. `segment_events` already emits the still-open event at
+the end of the stream, so run 86 produced an event correctly: open window 20,
+close window 180. The builder then asked whether the **opening** window ended at
+or after onset — window 20 ends at sample 159, onset is 160 — and discarded an
+event that spans the entire run.
+
+The rule is now "the first event whose span reaches the onset" (`select_event`,
+`llm/benchmark/events.py`). Run 86 yields an event for every fault, open delay −1
+sample, and the miss list drops from 462 to **442, all `detector_miss`** (faults 3
+and 9 only). With zero unclosed runs, **oracle windows are no longer needed and
+none are built**; the oracle pass remains, driven by a shared reason filter, and
+is a no-op on this data.
+
+### 10.3 Faults 3 and 9
+
+Events from faults 3 and 9 are excluded from **train** and from teacher input:
+their fused FDR is far below 5%, so an event of theirs is a chance detection, and
+training on it would teach a diagnosis from evidence that does not exist. They
+remain in **val/test** with `unobservable: true` so the miss is measured rather
+than hidden.
+
+| split | unobservable items | events from 3/9 |
+|---|---|---|
+| train | 0 (28 excluded during the build) | 0 |
+| val | 12 | 6 |
+| test | 28 | 14 |
+
+### 10.4 Faults 16-20 and twin items
+
+Faults 16-20 have no menu entry, so removing the truth removes nothing. Their
+target is `UNCLASSIFIED_OPEN_SET` in **both** variants — a `menu` variant that
+expects `FAULT_17` would demand an answer the menu forbids — and the two variants
+are therefore identical. Evaluation items for 16-20 are emitted **once**; the
+removed-twin is emitted only for faults 1-15, where removal changes the menu.
+
+### 10.5 Class balance in train
+
+`UNCLASSIFIED_OPEN_SET` is capped at 25% of faulty train items by seeded
+subsampling of the faults 16-20 supply only; the 1-15 open-set episodes, which are
+the actual abstention signal and are spread across every classifiable fault, are
+never dropped. Because the share is of the faulty total *after* dropping, the
+bound is `u ≤ cap·classified/(1−cap)`.
+
+| train quantity | value |
+|---|---|
+| faulty items before cap | 2,160 |
+| unclassified before cap | 793 (193 episodes + 600 from 16-20) |
+| dropped | 338 (all 16-20) |
+| unclassified after | 455 (193 episodes + 262 from 16-20) |
+| share after | 0.2497 |
+
+Test is untouched by the cap.
+
+### 10.6 Prompt leak checks
+
+Effort was spent to remove label-shaped tokens from the prompt, so the check is
+script-enforced on **every** prompt (4,634 this build, 0 violations):
+
+- the internal id `EVT-<split>-f<fault>-r<run>` never reaches the prompt; the id
+  shown is a salted SHA-256 prefix (`EV-…`), stable per event;
+- no split name, run-number token, `EVT`/`NORM` token, or `NORMAL_TRANSIENT`;
+- no fault reference (`FAULT_n`, `fault n`, or a KB fault name) outside the menu
+  block — the menu is exempt because naming the candidates is its job.
+
+### 10.7 Teacher
+
+`qwen3:30b` is the teacher, recorded in the manifest and here. It is **not** a
+config value: `configs/*.yaml` are not edited for the benchmark, and the client
+refuses a tag the server does not have rather than substituting a near match.
+
+Inference: temperature 0.2, seed 42, `think: false`, JSON mode, concurrency 1
+(the flag exists; Ollama serves one request at a time, so >1 buys nothing).
+Output is prose only (`physical_reasoning`, `narrative`).
+
+Provenance is recorded per call, in the cache and in the manifest: teacher tag,
+temperature, seed, `filter_sha256` over the four files that decide acceptance,
+`license_sha256` of the licence text the local runtime reports for the tag, and
+`system_prompt_sha256`. A licence is recorded only as a hash of what the runtime
+reports — no licence is asserted from memory.
+
+Resume: every finished call is appended to `teacher_cache.jsonl` as its own line,
+keyed by item id, with the verdict and rejection codes. A restart skips cached
+items; a cached item produced under a different `filter_sha256` is re-run, so a
+filter change cannot silently mix two regimes.
+
+### 10.8 Confidence
+
+Confidence is **not** a target field and **not** teacher output. The contract:
+
+- it is computed in code, at inference, from the probability of the `fault_id`
+  token, and calibrated on validation with isotonic regression;
+- no calibrator is fitted yet, so `Report.confidence` is `None` and the renderer
+  prints **"uncalibrated (no calibrator fitted)"** rather than a number;
+- a value may not be set without `confidence_calibrated=True` and a named source,
+  and a model that emits `confidence` is rejected as a schema error;
+- hypothesis-level confidences in the response schema are a separate, live-path
+  concern and are not reported as a benchmark metric.
+
+### 10.9 Inputs
+
+The four untracked detector artifacts are pinned in
+`configs/benchmark_inputs.json` and verified at the start of both builds, which
+fails on a missing or changed file:
+
+| artifact | sha256 (first 12) |
+|---|---|
+| `outputs/anomaly_detector/model.pt` | `d0ec3f386f11` |
+| `outputs/anomaly_detector/dynamic/cva_model.npz` | `97f27ae9ab10` |
+| `outputs/anomaly_detector/dynamic/dpca_model.npz` | `a1b29a5b086a` |
+| `outputs/preprocessing/scaler.pkl` | `6b67a6a18e74` |
