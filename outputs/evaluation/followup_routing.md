@@ -80,8 +80,14 @@ These are answers to a pending clarifying question, so the keyword router cannot
 | data/llm_1/test | grounded_qa:ask | 56 | 0 | 0.0 | detector_scores 8, evidence_why 8, sensor_values 8, sensors_inspect 8, overview 8, severity 8, action 8 |
 | data/llm_1/test | grounded_qa:full | 56 | 0 | 0.0 | evidence_why 48, sensor_values 8 |
 | data/llm/train | followup:ask | 576 | 0 | 0.0 | overview 288, severity 144, sensors_inspect 144 |
+| data/llm/train | grounded_qa:ask | 1008 | 0 | 0.0 | detector_scores 144, evidence_why 144, sensor_values 144, sensors_inspect 144, overview 144, severity 144, action 144 |
+| data/llm/train | grounded_qa:full | 1008 | 0 | 0.0 | evidence_why 864, sensor_values 144 |
 | data/llm/val | followup:ask | 32 | 0 | 0.0 | overview 16, severity 8, sensors_inspect 8 |
+| data/llm/val | grounded_qa:ask | 56 | 0 | 0.0 | detector_scores 8, evidence_why 8, sensor_values 8, sensors_inspect 8, overview 8, severity 8, action 8 |
+| data/llm/val | grounded_qa:full | 56 | 0 | 0.0 | evidence_why 48, sensor_values 8 |
 | data/llm/test | followup:ask | 32 | 0 | 0.0 | overview 16, severity 8, sensors_inspect 8 |
+| data/llm/test | grounded_qa:ask | 56 | 0 | 0.0 | detector_scores 8, evidence_why 8, sensor_values 8, sensors_inspect 8, overview 8, severity 8, action 8 |
+| data/llm/test | grounded_qa:full | 56 | 0 | 0.0 | evidence_why 48, sensor_values 8 |
 
 `...:full` is the stored `question` field routed verbatim (telemetry preamble included); `...:ask` is the text after `Operator question:`, which is what the live call site passes.
 

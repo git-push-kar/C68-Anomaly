@@ -402,3 +402,57 @@ def test_full_build_writes_every_split_and_manifest(events_dir, tmp_path, monkey
     assert manifest["teacher"] == "fake"
     assert manifest["cost_estimate"]["seconds_per_call"] == 10.9
     assert (out / "audit_sample.csv").exists()
+
+
+# -- pairing and audit scoring path ------------------------------------------
+def _event(fault, index):
+    return {"event_id": f"EVT-test-f{fault:02d}-r{index:03d}", "fault": fault, "split": "train"}
+
+
+def test_thinning_pairs_one_dialogue_with_every_nth_report_item():
+    rows = [_event(4, i) for i in range(100)] + [_event(7, i) for i in range(10)]
+    kept = builder.thin_by_fault_family(rows, 2, seed=42)
+    assert len(kept) == 55, "ceil(n/2) per family, not per split"
+    assert sum(1 for row in kept if row["fault"] == 4) == 50
+    assert sum(1 for row in kept if row["fault"] == 7) == 5
+    again = builder.thin_by_fault_family(rows, 2, seed=42)
+    assert [row["event_id"] for row in kept] == [row["event_id"] for row in again]
+
+
+def test_thinning_is_stratified_by_family_not_global():
+    """A global sample would take ~1 in 2 overall; per family keeps the shares."""
+    rows = [_event(4, i) for i in range(40)] + [_event(20, i) for i in range(4)]
+    kept = builder.thin_by_fault_family(rows, 4, seed=7)
+    assert sum(1 for row in kept if row["fault"] == 4) == 10
+    assert sum(1 for row in kept if row["fault"] == 20) == 1
+
+
+def test_a_normal_event_thins_with_the_normal_family():
+    rows = [{"event_id": f"NORM-{i}", "fault": None, "split": "train"} for i in range(8)]
+    assert len(builder.thin_by_fault_family(rows, 2, seed=1)) == 4
+
+
+def test_thinning_off_returns_every_row():
+    rows = [_event(4, i) for i in range(5)]
+    assert len(builder.thin_by_fault_family(rows, 1, seed=1)) == 5
+
+
+def test_the_audit_sheet_separates_free_form_turns(tmp_path, dialogues_fixture=None):
+    """Free-form turns carry no intent, so they are scored on their own path."""
+    row = {"dialogue_id": "d1", "case_type": "causal_why", "split": "train",
+           "turns": [
+               {"kind": "causal", "question": "why?", "answer": "because", "answer_source": "teacher",
+                "accepted": True, "intent": None, "table": None, "citations": []},
+               {"kind": "overview", "question": "what is it?", "answer": "fault", "answer_source": "teacher",
+                "accepted": True, "intent": "overview", "table": None, "citations": []},
+           ]}
+    path = tmp_path / "audit.csv"
+    builder.write_audit(path, {"train": [row]}, limit=10, seed=42)
+    import csv as _csv
+
+    with open(path, encoding="utf-8", newline="") as handle:
+        rows = list(_csv.DictReader(handle))
+    assert {r["scoring_path"] for r in rows} == {"free_form_grounding", "intent_format"}
+    free = next(r for r in rows if r["intent"] == "")
+    assert free["scoring_path"] == "free_form_grounding"
+    assert free["correct"] == "", "the sheet is unscored by design"

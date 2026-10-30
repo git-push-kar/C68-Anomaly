@@ -449,6 +449,35 @@
       "rows_with_telemetry_preamble": 0
     },
     {
+      "corpus": "data/llm/train",
+      "measure": "grounded_qa:ask",
+      "n": 1008,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "detector_scores": 144,
+        "evidence_why": 144,
+        "sensor_values": 144,
+        "sensors_inspect": 144,
+        "overview": 144,
+        "severity": 144,
+        "action": 144
+      },
+      "rows_with_telemetry_preamble": 1008
+    },
+    {
+      "corpus": "data/llm/train",
+      "measure": "grounded_qa:full",
+      "n": 1008,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "evidence_why": 864,
+        "sensor_values": 144
+      },
+      "rows_with_telemetry_preamble": 1008
+    },
+    {
       "corpus": "data/llm/val",
       "measure": "followup:ask",
       "n": 32,
@@ -462,6 +491,35 @@
       "rows_with_telemetry_preamble": 0
     },
     {
+      "corpus": "data/llm/val",
+      "measure": "grounded_qa:ask",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "detector_scores": 8,
+        "evidence_why": 8,
+        "sensor_values": 8,
+        "sensors_inspect": 8,
+        "overview": 8,
+        "severity": 8,
+        "action": 8
+      },
+      "rows_with_telemetry_preamble": 56
+    },
+    {
+      "corpus": "data/llm/val",
+      "measure": "grounded_qa:full",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "evidence_why": 48,
+        "sensor_values": 8
+      },
+      "rows_with_telemetry_preamble": 56
+    },
+    {
       "corpus": "data/llm/test",
       "measure": "followup:ask",
       "n": 32,
@@ -473,6 +531,35 @@
         "sensors_inspect": 8
       },
       "rows_with_telemetry_preamble": 0
+    },
+    {
+      "corpus": "data/llm/test",
+      "measure": "grounded_qa:ask",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "detector_scores": 8,
+        "evidence_why": 8,
+        "sensor_values": 8,
+        "sensors_inspect": 8,
+        "overview": 8,
+        "severity": 8,
+        "action": 8
+      },
+      "rows_with_telemetry_preamble": 56
+    },
+    {
+      "corpus": "data/llm/test",
+      "measure": "grounded_qa:full",
+      "n": 56,
+      "llm": 0,
+      "llm_share": 0.0,
+      "routed": {
+        "evidence_why": 48,
+        "sensor_values": 8
+      },
+      "rows_with_telemetry_preamble": 56
     }
   ]
 }

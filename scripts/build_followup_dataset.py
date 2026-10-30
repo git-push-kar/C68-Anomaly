@@ -110,8 +110,20 @@ SPLITS_FILE = ROOT / "data" / "splits_v2.json"
 SECONDS_PER_CALL = 10.9
 #: Phase 2B pilot rejection rate, used to cost one retry per rejection.
 PILOT_REJECTION_RATE = 0.12
-#: Report items in the Phase 2B train split, from the phase brief.
+#: Report items in the Phase 2B train split, from the phase brief. Used only
+#: when the Phase 2B manifest is absent: the built dataset has since published
+#: its own count, which is what the projection prefers.
 PHASE_2B_TRAIN_REPORT_ITEMS = 1939
+
+
+def phase2b_train_report_items() -> int:
+    """The train item count the report task actually ships, when it is readable."""
+    path = ROOT / "outputs" / "benchmark_v2" / "dataset" / "manifest.json"
+    try:
+        counts = json.loads(path.read_text(encoding="utf-8")).get("counts") or {}
+        return int((counts.get("train") or {}).get("items") or PHASE_2B_TRAIN_REPORT_ITEMS)
+    except (OSError, ValueError, TypeError):
+        return PHASE_2B_TRAIN_REPORT_ITEMS
 #: Train faults whose detector signature is too weak to learn from (brief §2).
 TRAIN_EXCLUDED_FAULTS = (3, 9)
 #: Added to the shared filters for template-sample lookups only. The KB's
@@ -736,9 +748,18 @@ def fill_answer(state: DialogueState, turn: Dict, teacher, cache: Optional[Teach
 # ---------------------------------------------------------------------------
 # dialogue assembly
 # ---------------------------------------------------------------------------
-def condition_case(case_type: str, *, open_set: bool, normal: bool, has_lookalike: bool) -> Tuple[str, Optional[str]]:
-    """Fall back to a case the event can carry, recording the substitution."""
-    if case_type == "template_sample" and (open_set or normal):
+def condition_case(case_type: str, *, open_set: bool, normal: bool, has_lookalike: bool,
+                   unclassified: bool = False) -> Tuple[str, Optional[str]]:
+    """Fall back to a case the event can carry, recording the substitution.
+
+    ``unclassified`` is the *target* being ``UNCLASSIFIED_OPEN_SET``, which is
+    true for faults 16-20 even in the ``menu`` variant -- they have no menu entry
+    to remove, so the variant flag alone does not detect them. Such an item has
+    the ``unclassified`` clarification trigger on for every question, so no
+    paraphrase can route cleanly to a template and a template sample cannot be
+    built. Drawing one produced a hard failure rather than a substitution.
+    """
+    if case_type == "template_sample" and (open_set or normal or unclassified):
         return "valve_actuator", case_type
     if case_type == "hypothesis_comparison" and not has_lookalike:
         return "valve_actuator", case_type
@@ -770,7 +791,8 @@ def build_dialogue(record: Dict, split: str, variant: str, case_type: str, teach
     allowed = build_allowed_set(raw_event, extra_faults=extra_faults)
     has_lookalike = any(h.get("fault_id") for h in (target.get("ranked_hypotheses") or []) if not h.get("is_truth"))
     final_case, substituted = condition_case(
-        case_type, open_set=open_set, normal=normal, has_lookalike=has_lookalike
+        case_type, open_set=open_set, normal=normal, has_lookalike=has_lookalike,
+        unclassified=str(target.get("fault_id")) == UNCLASSIFIED,
     )
     key = f"{record_key_of(record)}|{final_case}"
     event_key = record_key_of(record)
@@ -870,12 +892,45 @@ def _family(case_type: str) -> str:
     return case_type
 
 
+def thin_by_fault_family(rows: Sequence[Dict], per_dialogue: int, seed: int) -> List[Dict]:
+    """One dialogue per ``per_dialogue`` report items, seeded and stratified.
+
+    The mix is a training decision: the report task is the headline metric, so
+    follow-up dialogues are paired with report items rather than outnumbering
+    them. Thinning per fault family (rather than globally) keeps every fault's
+    share of the follow-up set equal to its share of the report set, which a
+    global sample would only approximate -- the large families would dominate.
+
+    Selection is by hash order, not by file order: the voices are as likely to
+    come from run 401 as from run 1.
+    """
+    if per_dialogue <= 1:
+        return list(rows)
+    buckets: Dict[str, List[Dict]] = defaultdict(list)
+    for row in rows:
+        fault = row.get("fault")
+        buckets["NORMAL" if fault is None else f"F{int(fault):02d}"].append(row)
+    kept: List[Dict] = []
+    for family, items in buckets.items():
+        ordered = sorted(
+            items,
+            key=lambda r: hashlib.sha256(
+                f"{seed}|{family}|{r.get('event_id')}".encode("utf-8")
+            ).hexdigest(),
+        )
+        kept.extend(ordered[::per_dialogue])
+    kept.sort(key=lambda r: str(r.get("event_id")))
+    return kept
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--events", default=str(EVENTS))
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--splits", nargs="*", default=["train", "val", "test"])
     ap.add_argument("--limit", type=int, default=None, help="max dialogues per split")
+    ap.add_argument("--report-items-per-dialogue", type=int, default=1,
+                    help="pair one dialogue with every Nth report item (2 = the 2:1 mix)")
     ap.add_argument("--teacher", choices=("fake", "ollama", "none"), default="fake",
                     help="fake (default, no model), ollama (real run), none (deterministic fields only)")
     ap.add_argument("--fake-profile", default="good", help="fake teacher failure profile")
@@ -944,6 +999,9 @@ def main() -> int:
 
     for split in args.splits:
         rows = sorted(records.get(split, []), key=lambda r: str(r.get("event_id")))
+        available = len(rows)
+        rows = thin_by_fault_family(rows, args.report_items_per_dialogue, args.seed)
+        counts[split]["events_available"] = available
         built = 0
         for record in rows:
             if args.limit is not None and built >= args.limit:
@@ -1009,20 +1067,29 @@ def main() -> int:
     train_teacher = sum(1 for row in train for turn in row["turns"] if turn["answer_source"] == "teacher")
     train_template = train_turns - train_teacher
     routing = _load_measured_llm_share()
+    items = phase2b_train_report_items()
     followup_ratio = {
-        "phase_2b_train_report_items": PHASE_2B_TRAIN_REPORT_ITEMS,
+        "phase_2b_train_report_items": items,
         "followup_dialogues_train": len(train),
+        # The builder's unit is the event, and two report items can share one, so
+        # the achieved ratio is reported next to the requested one rather than
+        # assumed to equal it.
+        "effective_report_items_per_dialogue": round(items / max(len(train), 1), 2),
         "followup_turns_train": train_turns,
         "llm_routed_turns_train": train_teacher,
         "template_turns_train": train_template,
         "llm_routed_share_of_turns": round(train_teacher / max(train_turns, 1), 4),
         "measured_llm_share_of_operator_questions": routing,
-        "recommended_report_to_followup_dialogues": "1:1",
+        "paired_report_items_per_dialogue": args.report_items_per_dialogue,
+        "recommended_report_to_followup_dialogues": (
+            f"{args.report_items_per_dialogue}:1" if args.report_items_per_dialogue > 1 else "1:1"
+        ),
         "recommended_note": (
-            "1:1 dialogues gives about 1:2.1 answers, because each dialogue carries 2-3 "
-            "model answers against one report item; 2:1 is the conservative option if "
-            "report-label accuracy regresses. The template sample is 5% by weight and "
-            "is scored on the lookup path, so it anchors format without teaching prose."
+            f"Every dialogue is paired with {args.report_items_per_dialogue} report items, and "
+            f"each dialogue carries {round(train_teacher / max(len(train), 1), 2)} model answers, so "
+            "the report task stays the headline metric in every epoch rather than being "
+            "outnumbered by dialogue turns. The template sample is 5% by weight and is "
+            "scored on the lookup path, so it anchors format without teaching prose."
         ),
     }
 
@@ -1042,7 +1109,7 @@ def main() -> int:
         "measured_seconds_total": round(seconds, 2),
         "teacher": args.teacher,
     }
-    projection = _project_cost(dialogues, mix, args.splits)
+    projection = _project_cost(dialogues, mix, args.splits, args.report_items_per_dialogue)
 
     manifest = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
@@ -1064,6 +1131,7 @@ def main() -> int:
             "cache_hits": sum(1 for turn in teacher_turns if turn.get("prompt_cache_hit")),
         },
         "provenance": dict(provenance),
+        "report_items_per_dialogue": args.report_items_per_dialogue,
         "split_integrity": overlap,
         "paraphrase_disjointness": disjointness,
         "leak_check": {"checked": "every context and question", "violations": 0},
@@ -1113,8 +1181,14 @@ def _load_measured_llm_share() -> Dict:
     }
 
 
-def _project_cost(dialogues: Dict[str, List[Dict]], mix: Dict[str, float], splits: Sequence[str]) -> Dict:
-    """Estimate the full-size run from the sample that was built."""
+def _project_cost(dialogues: Dict[str, List[Dict]], mix: Dict[str, float], splits: Sequence[str],
+                  report_items_per_dialogue: int = 1) -> Dict:
+    """Estimate the full-size run from the sample that was built.
+
+    ``report_items_per_dialogue`` is the pairing actually used: two report items
+    per dialogue means half as many dialogues (and half the teacher calls) as the
+    1:1 framing, so a projection that ignored it would double the cost.
+    """
     built = sum(len(rows) for rows in dialogues.values())
     turns = sum(len(row["turns"]) for rows in dialogues.values() for row in rows)
     teacher = sum(1 for rows in dialogues.values() for row in rows for turn in row["turns"]
@@ -1122,7 +1196,9 @@ def _project_cost(dialogues: Dict[str, List[Dict]], mix: Dict[str, float], split
     if built == 0:
         return {}
     per_dialogue = teacher / built
-    train_dialogues = PHASE_2B_TRAIN_REPORT_ITEMS
+    k = max(int(report_items_per_dialogue), 1)
+    items = phase2b_train_report_items()
+    train_dialogues = -(-items // k)
     calls = int(round(train_dialogues * per_dialogue))
     retry = int(round(calls * PILOT_REJECTION_RATE))
     return {
@@ -1130,6 +1206,8 @@ def _project_cost(dialogues: Dict[str, List[Dict]], mix: Dict[str, float], split
         "sample_turns": turns,
         "sample_teacher_turns": teacher,
         "teacher_turns_per_dialogue": round(per_dialogue, 2),
+        "phase_2b_train_report_items": items,
+        "report_items_per_dialogue": k,
         "full_train_dialogues": train_dialogues,
         "full_train_calls": calls,
         "full_train_serial_hours": round(calls * SECONDS_PER_CALL / 3600.0, 2),
@@ -1162,6 +1240,12 @@ def write_audit(path: Path, dialogues: Dict[str, List[Dict]], *, limit: int, see
                         "answer_source": turn["answer_source"],
                         "accepted": turn.get("accepted"),
                         "intent": turn.get("intent") or "",
+                        # A free-form turn has no intent, so it cannot be scored on
+                        # intent agreement; it is judged on grounding alone. Keeping
+                        # the two populations in one sheet with this column explicit
+                        # is what stops a pooled score from mixing them.
+                        "scoring_path": ("intent_format" if turn.get("intent")
+                                         else "free_form_grounding"),
                         "table": turn.get("table") or "",
                         "citations": ";".join(turn.get("citations") or []),
                         "clarifying_question": turn.get("clarifying_question") or "",
@@ -1187,7 +1271,8 @@ def write_audit(path: Path, dialogues: Dict[str, List[Dict]], *, limit: int, see
         index += 1
     columns = [
         "dialogue_id", "case_type", "split", "turn", "question", "answer", "answer_source",
-        "accepted", "intent", "table", "citations", "clarifying_question", "refusal_reason",
+        "accepted", "intent", "scoring_path", "table", "citations", "clarifying_question",
+        "refusal_reason",
         "correct", "grounded", "refusal_appropriate", "not_repetitive", "useful", "notes",
     ]
     path.parent.mkdir(parents=True, exist_ok=True)
