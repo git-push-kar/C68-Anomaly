@@ -48,6 +48,7 @@ from typing import Dict, Iterable, List, Optional, Sequence
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from llm.benchmark.filters import (  # noqa: E402
+    direction_report,
     TEACHER_ANSWER_KEYS,
     check_answer,
     direction_inconsistent,
@@ -160,6 +161,12 @@ def make_item(record: Dict, split: str, variant: str) -> Dict:
     prompt = render_prompt(evidence, menu, instruction=teacher_instruction(
         [entry["fault_id"] for entry in menu]))
     assert_prompt_clean(prompt, where=f"prompt[{record.get('event_id')}]")
+    if target.get("fault_id") == UNCLASSIFIED:
+        # An abstention item must not hand the teacher the answer. The builder
+        # raises here rather than trusting a later audit.
+        from llm.benchmark.teacher import build_teacher_prompt
+
+        build_teacher_prompt(evidence, menu, target)
     item = {
         "item_id": f"{record.get('event_id')}::{'openset' if variant == 'removed' else 'menu'}",
         "event_id": record.get("event_id"),
@@ -250,9 +257,12 @@ def teacher_call(item: Dict, record: Dict, teacher, provenance: Dict) -> Dict:
     menu = build_menu(remove=target.get("menu_removed") or [])
     allowed = build_allowed_set(evidence,
                                 extra_faults=[record["fault"]] if record.get("fault") else [])
+    from llm.benchmark.teacher import build_teacher_prompt
+
+    teacher_prompt = build_teacher_prompt(evidence, menu, target)
     answer, response, parse_error = teacher.answer(evidence, menu, target)
     codes = check_answer(answer, target, evidence, allowed, parse_error=parse_error,
-                         prompt=item.get("prompt"))
+                         prompt=item.get("prompt"), menu_ids=item.get("menu_ids"))
     attempts = 1
     seconds = float(response.seconds)
     first_codes = list(codes)
@@ -263,7 +273,7 @@ def teacher_call(item: Dict, record: Dict, teacher, provenance: Dict) -> Dict:
             evidence, menu, target, extra_instruction=feedback, seed=teacher.seed + 1
         )
         codes2 = check_answer(answer2, target, evidence, allowed, parse_error=parse_error2,
-                              prompt=item.get("prompt"))
+                              prompt=item.get("prompt"), menu_ids=item.get("menu_ids"))
         attempts = 2
         seconds += float(response2.seconds)
         if not codes2:
@@ -285,6 +295,11 @@ def teacher_call(item: Dict, record: Dict, teacher, provenance: Dict) -> Dict:
         "attempts": attempts,
         "first_codes": first_codes,
         "prompt_chars": response.prompt_chars,
+        # The exact prompt the answer was written from, as a hash: a cache entry
+        # cannot be re-used for a differently-worded prompt, and an open-set scan
+        # can tell whether the removed fault's name was ever shown.
+        "teacher_prompt_sha256": hashlib.sha256(teacher_prompt.encode("utf-8")).hexdigest(),
+        "teacher_prompt_chars": len(teacher_prompt),
         "raw_chars": len(raw_text),
         "codes": codes,
         "accepted": not codes,
@@ -366,11 +381,60 @@ def run_teacher(items: List[Dict], records: Dict[str, Dict], teacher, cache_path
     return stats
 
 
-def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict]) -> None:
-    """Publish cached verdicts onto the items that produced them."""
+def replay_cache(items: List[Dict], records: Dict[str, Dict],
+                 cache: Dict[str, Dict], filter_sha: str) -> Dict[str, Dict]:
+    """Re-judge cached raw answers with the *current* filters, without a model call.
+
+    The cache keeps the raw text for exactly this: a filter or prompt edit changes
+    the hash, and dropping every earlier answer would throw away accepted prose
+    that is still correct. Re-checking is stronger than matching the hash -- an
+    answer only survives if it passes today's rules -- and it costs no inference.
+    """
+    from llm.benchmark.teacher import parse_teacher_json
+
+    valid: Dict[str, Dict] = {}
+    rejected_now = 0
     for item in items:
         entry = cache.get(item["item_id"])
         if not entry:
+            continue
+        record = records.get(item["event_id"])
+        if record is None:
+            continue
+        answer, parse_error = parse_teacher_json(entry.get("raw_text") or "")
+        evidence = evidence_of(record)
+        allowed = build_allowed_set(
+            evidence, extra_faults=[record["fault"]] if record.get("fault") else [])
+        codes = check_answer(answer, item["target"], evidence, allowed,
+                             parse_error=parse_error, prompt=item.get("prompt"),
+                             menu_ids=item.get("menu_ids"))
+        if codes:
+            rejected_now += 1
+            continue
+        fresh = dict(entry)
+        fresh["accepted"] = True
+        fresh["codes"] = []
+        fresh["prose"] = {key: str(answer.get(key)).strip() for key in TEACHER_ANSWER_KEYS}
+        fresh["replayed"] = entry.get("filter_sha256") != filter_sha
+        report = direction_report(fresh["prose"], evidence, allowed)
+        fresh["flags"] = report["flags"]
+        fresh["direction_valves_skipped"] = report["valve_tags_skipped"]
+        valid[item["item_id"]] = fresh
+    logger.info("cache replay: %d valid under the current filters, %d no longer valid",
+                len(valid), rejected_now)
+    return valid
+
+
+def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict],
+                        valid: Optional[Dict[str, Dict]] = None) -> None:
+    """Publish cached verdicts onto the items that produced them.
+
+    ``valid`` is the replay result: only answers that pass the current filters are
+    attached, so a stale entry cannot smuggle prose past a rule it never saw.
+    """
+    for item in items:
+        entry = (valid or {}).get(item["item_id"])
+        if entry is None:
             continue
         item["teacher"] = {
             "model": entry.get("model"),
@@ -388,6 +452,8 @@ def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict]) -> None:
             "temperature": entry.get("temperature"),
             "seed": entry.get("seed"),
             "filter_sha256": entry.get("filter_sha256"),
+            "replayed": bool(entry.get("replayed")),
+            "direction_valves_skipped": entry.get("direction_valves_skipped") or [],
         }
         if entry.get("accepted") and entry.get("prose"):
             item["prose"] = dict(entry["prose"])
@@ -635,6 +701,9 @@ def main() -> int:
     ap.add_argument("--concurrency", type=int, default=1,
                     help="parallel teacher calls; Ollama serves them one at a time")
     ap.add_argument("--audit", type=int, default=100)
+    ap.add_argument("--replay-cache", action="store_true",
+                    help="re-judge cached teacher answers with the current filters and "
+                         "attach those that still pass; makes no model call")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args()
@@ -746,7 +815,9 @@ def main() -> int:
                                     provenance, args.teacher_limit, args.concurrency,
                                     item_ids=item_ids, max_calls=args.max_calls)
         cache = load_teacher_cache(cache_path)
-        attach_cached_prose(items["train"], cache)
+        replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
+        attach_cached_prose(items["train"], cache, replayed)
+        teacher_stats["valid_after_replay"] = len(replayed)
         for row in items["train"]:
             verdict = row.get("teacher")
             if verdict and not verdict.get("accepted"):
@@ -754,6 +825,29 @@ def main() -> int:
         teacher_stats.update({"cache_path": str(cache_path), **provenance,
                               "concurrency": args.concurrency})
         logger.info("teacher stats: %s", json.dumps(teacher_stats))
+    elif args.replay_cache:
+        # A prompt or filter edit invalidates the hash of every cached answer, but
+        # an answer is not wrong merely because the rules moved: re-judge the raw
+        # text with today's filters and keep what still passes. No model call.
+        from llm.benchmark.teacher import SYSTEM_PROMPT_TEACHER
+
+        cache_path = (Path(args.teacher_cache) if args.teacher_cache
+                      else out / "teacher_cache.jsonl")
+        by_event = {r.get("event_id"): r for r in records["train"]}
+        cache = load_teacher_cache(cache_path)
+        provenance = {
+            "teacher_tag": None,
+            "temperature": None,
+            "seed": args.seed,
+            "filter_sha256": filter_code_hash(),
+            "license_sha256": None,
+            "system_prompt_sha256": sha256_text(SYSTEM_PROMPT_TEACHER),
+        }
+        replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
+        attach_cached_prose(items["train"], cache, replayed)
+        teacher_stats = {"replay_only": True, "cache_path": str(cache_path),
+                         "cached": len(cache), "valid_after_replay": len(replayed),
+                         **provenance}
 
     # ---- write JSONL ------------------------------------------------------
     hashes: Dict[str, str] = {}
