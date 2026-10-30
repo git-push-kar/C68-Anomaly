@@ -678,3 +678,18 @@ fails on a missing or changed file:
   every cached answer. Rather than throw the prose away, the builder re-judges each
   cached raw answer with the *current* filters (`--replay-cache`, no model call).
   First rebuild: 184 of 188 still valid; after the 15-item re-run, 199 of 201.
+
+### 10.12 The full teacher run (2026-10-30)
+
+`qwen3:30b`, concurrency 1, final hashes. **1,914 items attempted, 2,202 API calls,
+21,644 s (6.01 h)**: 1,626 accepted on the first attempt (84.9%), 198 recovered by
+the single retry, **90 dropped** (4.7%), 1,849 train items with valid prose after
+the 25 carried over. Every fault clears the 0.70 floor; the lowest is
+`FAULT_15` at 0.858. Rejection codes are dominated by `number_not_in_store` (47)
+and `direction_conflict` (28) among the dropped, and direction conflicts cluster on
+the dynamics faults 14 and 7.
+
+Dropped items stay in `train.jsonl` with `prose: null` and
+`teacher_status: "rejected"` plus their codes; accepted ones carry
+`teacher_status: "accepted"` (or `"accepted_replayed"`). A prose-conditioned loss
+must mask on `prose is not None`; a label-only loss can use all 1,939 items.
