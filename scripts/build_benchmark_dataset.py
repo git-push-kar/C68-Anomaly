@@ -55,6 +55,7 @@ from llm.benchmark.filters import (  # noqa: E402
 )
 from llm.benchmark.inputs import verify_inputs  # noqa: E402
 from llm.benchmark.menu import CLASSIFIABLE_FAULTS, UNCLASSIFIED, build_menu  # noqa: E402
+from llm.benchmark.provenance import menu_provenance, reuse_decision  # noqa: E402
 from llm.benchmark.prompt_v2 import (  # noqa: E402
     SYSTEM_PROMPT_V2,
     assert_prompt_clean,
@@ -315,6 +316,32 @@ def teacher_call(item: Dict, record: Dict, teacher, provenance: Dict) -> Dict:
     }
 
 
+def select_pending(items: List[Dict], done: Dict[str, Dict],
+                   provenance: Dict) -> tuple:
+    """Split the ordered items into (needs a call, skip) and count the reasons.
+
+    A cached answer is reusable when the rules it passed are still the rules in
+    force *and* it was written from the menu text now published (or is documented
+    as unaffected by the revision between the two). The filter hash alone cannot
+    see a knowledge-base edit, because the menu is generated from it.
+    """
+    pending: List[Dict] = []
+    reasons: Counter = Counter()
+    for item in items:
+        entry = done.get(item["item_id"])
+        if entry is None:
+            reasons["not_called"] += 1
+            pending.append(item)
+            continue
+        reusable, reason = reuse_decision(entry, provenance)
+        if reusable:
+            reasons[f"reuse_{reason}"] += 1
+            continue
+        reasons[reason] += 1
+        pending.append(item)
+    return pending, dict(sorted(reasons.items()))
+
+
 def run_teacher(items: List[Dict], records: Dict[str, Dict], teacher, cache_path: Path,
                 provenance: Dict, limit: Optional[int], concurrency: int,
                 item_ids: Optional[set] = None, max_calls: Optional[int] = None) -> Dict:
@@ -332,11 +359,14 @@ def run_teacher(items: List[Dict], records: Dict[str, Dict], teacher, cache_path
         ordered = ordered[:limit]
     if item_ids is not None:
         ordered = [item for item in ordered if item["item_id"] in item_ids]
-    pending = [item for item in ordered
-               if item["item_id"] not in done
-               or done[item["item_id"]].get("filter_sha256") != provenance["filter_sha256"]]
+    # A cached answer is reusable when the rules it passed are still the rules
+    # in force *and* it was written from the menu text now published (or is
+    # documented as unaffected by the revision between the two). The filter hash
+    # alone cannot see a knowledge-base edit, because the menu is generated.
+    pending, reasons = select_pending(ordered, done, provenance)
     stats = {"cached": len(done), "pending": len(pending), "calls": 0, "api_calls": 0,
              "errors": 0, "rejected": 0, "retried": 0, "dropped": 0, "seconds": 0.0,
+             "pending_reasons": reasons,
              "max_calls": max_calls}
     if not pending:
         return stats
@@ -470,6 +500,11 @@ def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict],
             "temperature": entry.get("temperature"),
             "seed": entry.get("seed"),
             "filter_sha256": entry.get("filter_sha256"),
+            # Which menu text this answer was written from, and whether the
+            # revision since then was declared harmless for it.
+            "menu_revision": entry.get("menu_revision"),
+            "menu_revision_unaffected": entry.get("menu_revision_unaffected"),
+            "menu_sha256": entry.get("menu_sha256"),
             "replayed": bool(entry.get("replayed")),
             "direction_valves_skipped": entry.get("direction_valves_skipped") or [],
         }
@@ -823,6 +858,7 @@ def main() -> int:
             "filter_sha256": filter_code_hash(),
             "license_sha256": license_sha,
             "system_prompt_sha256": sha256_text(SYSTEM_PROMPT_TEACHER),
+            **menu_provenance(),
         }
         cache_path = (Path(args.teacher_cache) if args.teacher_cache
                       else out / "teacher_cache.jsonl")
@@ -864,6 +900,7 @@ def main() -> int:
             "filter_sha256": filter_code_hash(),
             "license_sha256": None,
             "system_prompt_sha256": sha256_text(SYSTEM_PROMPT_TEACHER),
+            **menu_provenance(),
         }
         replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
         attach_cached_prose(items["train"], cache, replayed)
@@ -986,6 +1023,7 @@ def main() -> int:
         "files_sha256": hashes,
         "operating_point_sha256": sha256_file(Path(LABEL_SPACE)),
         "kb_sha256": sha256_file(Path("scripts/fault_knowledge.py")),
+        "menu_provenance": menu_provenance(),
         "prompt_template_sha256": sha256_text(SYSTEM_PROMPT_V2),
         "prompt_rules": {
             "forbidden_fragments_enforced": True,
