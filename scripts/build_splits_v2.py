@@ -134,7 +134,13 @@ def build() -> Dict:
 
     return {
         "version": "v2",
-        "repo": str(REPO_ROOT).replace("\\", "/"),
+        # The document is committed and read by other checkouts, so it must not
+        # record this machine's absolute path: that made render(build()) differ
+        # from the committed file in any other directory (CI, a renamed clone)
+        # and failed the staleness test for a reason that says nothing about the
+        # splits. "." is the one path every checkout agrees on: the file sits at
+        # the repo root.
+        "repo": ".",
         "base_commit": "4d4b3be",
         "created": "2026-10-29",
         "built_by": "scripts/build_splits_v2.py",

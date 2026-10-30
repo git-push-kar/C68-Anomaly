@@ -1,6 +1,6 @@
 {
   "version": "v2",
-  "repo": "C:/Users/Admin/Desktop/anomaly",
+  "repo": ".",
   "base_commit": "4d4b3be",
   "created": "2026-10-29",
   "built_by": "scripts/build_splits_v2.py",
