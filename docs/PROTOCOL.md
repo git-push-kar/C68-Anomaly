@@ -693,3 +693,61 @@ Dropped items stay in `train.jsonl` with `prose: null` and
 `teacher_status: "rejected"` plus their codes; accepted ones carry
 `teacher_status: "accepted"` (or `"accepted_replayed"`). A prose-conditioned loss
 must mask on `prose is not None`; a label-only loss can use all 1,939 items.
+
+### 10.13 Rejection accounting, direction scope and the training environment
+
+**Code counts are not item counts.** The full-run tables printed rule firings
+under an `items` heading. First pass is **289 rejected items / 300 rule firings**
+(11 items failed two rules); the final attempt is **90 dropped items / 95 retry
+firings** (5 items failed two rules). `1,914 + 288 = 2,202` calls and
+`1,849 + 90 = 1,939` items both hold, and open-set episodes are counted once,
+under `OPEN_SET`. `scripts/analyze_teacher_rejections.py` asserts these identities,
+so a future table cannot drift back.
+
+**Direction scope (PROPOSED, not applied).** `filters._direction_conflict`
+compares the trend of the KB's `initiating.sensor` with the KB's
+`initiating.direction`. For faults 1, 4, 5, 6, 7, 11, 12, 14 and 15 that sensor is
+an **XMV valve position**, while the KB's wording names a *flow* — so the rule
+compares a position with a flow direction. The stored trend contradicts the KB in
+**120/120** of fault 14's train events, **120/120** of fault 7's and **26/26** of
+fault 15's; fault 13, a measurement, contradicts in **0/102**. Proposal: apply the
+rejection only when the initiating tag is an XMEAS measurement, and review fault
+13's KB sign. Replay: 25 dropped items recovered, 0 invalidated, whereas flipping
+the KB sign instead would invalidate 84 accepted answers. Not applied pending an
+owner decision; the KB hash, menu text and prompts would move if it is.
+
+**Dropped items are the weak-evidence tail.** Median fused ratio 11.7 (dropped)
+vs 27.9 (accepted); median top-|z| 0.39 vs 3.97. Faults 14/15 sit at ratio ≈1.1
+either way. The drop is therefore not a random 4.6% of training events: it
+concentrates on low-signal excursions, which remain present in validation and
+test. Any claim about training difficulty must account for it.
+
+**Training-set policy (PROPOSED).** Excluding the 90 gives 1,849 items: 1,307
+classified, 442 `UNCLASSIFIED_OPEN_SET`, 100 `NORMAL_TRANSIENT`; the unclassified
+share of faulty items is **25.27%**, 7 items over the 25% cap, because the drops
+removed 64 classified but only 9 unclassified items. Either keep the 90 as
+label-only (share 21.06%, no change) or exclude them and re-subsample 7
+unclassified items (24.97%).
+
+**Training environment.** Pinning target is `torch 2.13.0+cu130`,
+`transformers 4.57.6`, `peft 0.20.0`; the app currently runs `torch 2.11.0+cu128`,
+`transformers 5.15.0`, with `peft` and `timm` absent, so **no smoke run is
+possible yet**. `timm` is required by the InternVL remote modelling code, not by
+this repo, and its pin must be read from the model runtime rather than assumed.
+Because transformers must move down a major version, training belongs in a
+dedicated venv; the 268 tests pass on the current stack and would need re-running
+after a downgrade.
+
+**Sequence budget (MEASURED).** With the real tokenizer, train prompts are p50
+1,497 / max 1,536 tokens and schema-shaped answers p50 402 / max 562, so the
+longest example is **2,065 tokens**: nothing is truncated at 4,096 and no sample
+has a zero-length answer. `max_sequence_length: 4096` therefore buys ~2× the
+tokens needed; 2,560 fits every row. The trainer truncates the prompt silently
+and gives the answer only the remainder, so this budget must be re-measured if the
+prompt template or the answer schema grows.
+
+**Stale trainer constants (Phase 3A blocker).** `llm/dataset.py`'s
+`SYSTEM_PROMPT` still carries the fault→severity rubric and the subsystem framing,
+and `ANSWER_KEYS`/`ANSWER_SCHEMA_HINT` still describe the v1 answer. The benchmark
+items must carry their own `system` and `answer`, and the trainer must not fall
+back to those defaults for dataset v2.

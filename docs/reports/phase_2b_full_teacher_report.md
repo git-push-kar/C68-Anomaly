@@ -116,6 +116,27 @@ consequence, and the KB's stated direction of the initiating variable disagrees.
 excursion with no fault both tempt the model to quantify something the evidence
 does not print.
 
+### Errata (2026-10-30) — the `items` columns above are code counts
+
+The `items` column in both tables counts **rule firings**, not items, so the
+totals do not reconcile against the cache. Corrected:
+
+| quantity | as printed | correct |
+|---|---|---|
+| first-pass rejected **items** | 300 | **289** |
+| first-pass rule firings | (same column) | **300** (11 items failed two rules) |
+| retried items in this run | 288 | **288** (289 records have `attempts=2`; one was retried before this run) |
+| dropped **items** | 95 | **90** |
+| retry rule firings | (same column) | **95** (5 items failed two rules on the retry) |
+
+Open-set episodes were **not** double counted: the `OPEN_SET` family appears once
+(20 first-pass rejections, 9 dropped). `1,914 + 288 = 2,202` API calls and
+`1,849 + 90 = 1,939` items both hold. The reissued, non-overlapping tables, with
+per-family primary attribution, are in
+[phase_2b_wrapup_report.md](phase_2b_wrapup_report.md) §2 and are reproducible with
+`python scripts/analyze_teacher_rejections.py`. The conclusions of this report are
+unaffected: the 90 dropped items, their families and their reasons are unchanged.
+
 ---
 
 ## 4. Items without valid prose in the final dataset
