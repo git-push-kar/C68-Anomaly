@@ -841,3 +841,73 @@ prompt template or the answer schema grows.
 and `ANSWER_KEYS`/`ANSWER_SCHEMA_HINT` still describe the v1 answer. The benchmark
 items must carry their own `system` and `answer`, and the trainer must not fall
 back to those defaults for dataset v2.
+
+---
+
+## 11. Pre-registration: checkpoint rule and evaluation path (2026-10-31)
+
+Recorded **before any model was trained and before any training result existed**.
+No adapter weights for dataset v2 exist at the time of writing; the only GPU run
+so far was a 20-step smoke test whose adapter was discarded. The purpose of this
+section is that the rule cannot be chosen after seeing the numbers.
+
+### 11.1 Checkpoint selection
+
+* **Selection metric:** label-scoring macro-F1 on **validation only**
+  (`val_eval.jsonl`, component `A/val`), computed by **one forward pass** over the
+  menu ids plus `UNCLASSIFIED_OPEN_SET` (`llm/benchmark/label_scorer.py`).
+* **Scope of selection:** the **seen** faults of that run's training set. Held-out
+  faults of a Protocol B fold are **reported, never selected on**.
+* **Why the single-pass scorer, not generation:** generation is the same quantity
+  measured at several hundred times the cost, and it needs a parser between the
+  measurement and the number. Generation is used for **schema validity on a
+  stratified subsample** (proposal: 150 items per component), where the question
+  is whether a document parses and validates, not how many it gets right.
+* **Tie-break / fallback:** if macro-F1 is undefined (a class with no validation
+  items), fall back to validation loss and say so in the report. No other fallback
+  is permitted.
+* **Stopping:** three epochs, as configured; the checkpoint kept is the best
+  validation macro-F1, evaluated every 100 steps (checkpoint interval set in the
+  config copy, not in `train_adapter.py`, so existing configs keep their behaviour).
+* **No eval-loss-based selection:** there is no validation prose to compute a loss
+  on (evaluation splits carry no teacher text), so `eval_loss` is disabled in the
+  v2 config by a loader flag rather than by editing the trainer's behaviour for
+  every config.
+
+### 11.2 Observable set
+
+Headline RQ1 numbers are reported on the **v2 observable set** (19 faults, fault 3
+excluded), with the deployed-v1 set (18 faults, {3, 9}) as a labelled comparison
+row and fault 9 marked `marginal`. This is unchanged from §8.3 and is repeated
+here because the checkpoint rule and the headline set have to be read together.
+
+### 11.3 Abstention and confidence
+
+* Abstention is scored on `test` (unseen), false abstention on `test_seen`.
+* Confidence is **not** a model field. It is derived from the `fault_id` token
+  probability produced by the scorer above and isotonic-calibrated on validation.
+  No calibrator is fitted in this stage, so the renderer prints
+  `uncalibrated (no calibrator fitted)`.
+
+### 11.4 Superseded statements cleaned up
+
+* §10.13's "**no smoke run is possible yet**" is superseded: `venv_train` exists
+  with the pinned stack and a 20-step smoke run completed.
+* §10.13's "**Stale trainer constants (Phase 3A blocker)**" is resolved by the
+  export path, not by editing `llm/dataset.py`: `llm/benchmark/to_sft.py` writes an
+  explicit `system` per row and refuses to write a row without one, so the
+  trainer's `SYSTEM_PROMPT` default (with the fault→severity rubric) is never
+  reached for dataset v2. `llm/dataset.py` is left untouched so the v0 corpus
+  remains reproducible.
+* The answer schema in §10.13's sequence-budget paragraph is superseded by the
+  slim target (§11.5).
+
+### 11.5 Slim answer target (owner instruction, 2026-10-31)
+
+The student emits **five** fields: `fault_id`, `verdict`, `ranked_hypotheses`,
+`physical_reasoning`, `narrative`. Subsystem, mitigation, table selection,
+suggested follow-ups and the clarifying question are derived in code
+(`llm/benchmark/hydrate.py`) from the KB and the live router. Measured with the
+real tokenizer over the 1,925 training rows: answers go from p50 402 / mean 403.8
+tokens to p50 296 / mean 298.9 (**−26%**), and the full sequence from p50 1,510 to
+1,406.
