@@ -725,9 +725,9 @@ in 61; comparing against the trend, 102 contradictions. The trend is the field
 the rejection rule already reads for every other fault, so the KB is the odd one
 out.
 
-**Fault-13 sign change: measured, then stopped (owner decision pending).**
-`scripts/replay_fault13_change.py` prices the edit before it is made, and the
-answer is that it is not a one-line KB fix:
+**Fault-13 sign change: measured, then APPLIED (owner decision, 2026-10-31).**
+`scripts/replay_fault13_change.py` priced the edit before it was made, and the
+answer was that it is not a one-line KB fix:
 
 * the `FAULT_13` menu line is rendered into **5,731 of 5,870** prompts (every
   item whose menu still holds the entry; only the 139 fault-13 open-set twins
@@ -749,8 +749,41 @@ keeping 114. Adding gerunds *without* the flip would invalidate **21** answers
 that correctly say it is increasing -- which is the argument for doing both
 edits together, and not for doing either alone.
 
-So the change is deferred until the menu-wide re-render it implies is approved;
-the KB hash, the menu text and all 5,870 prompts move with it.
+**What was decided and done.** The owner approved the menu-wide re-render on
+2026-10-31, on the data-derived basis recorded here: `XMEAS_7`'s stored *trend* is
+`increasing` in **102/102** Protocol A train events where it is ranked (the
+deviation sign is mixed, 61 positive / 41 negative), so the KB said `decrease`
+while the evidence said the opposite and the rejection rule was rejecting correct
+prose. The rule flips on the **trend**, not on the level relative to baseline;
+that distinction is why the deviation sign is recorded but not used.
+
+Applied in one commit:
+
+* `scripts/fault_knowledge.py` fault 13 initiating direction `decrease` →
+  `increase`;
+* `filters.INCREASE_WORDS` / `DECREASE_WORDS` gain the gerunds
+  (`increasing`, `rising`, `decreasing`, `falling`) in the same edit, because
+  doing either alone is worse: gerunds alone invalidate 21 correct answers, the
+  flip alone invalidates 0 of 114 because the vocabulary could not see them;
+* `provenance.MENU_REVISION` → **r2**, with `data/menu_revisions.json` recording
+the published hash so a forgotten bump fails a test;
+* the scope was settled by counting, not by estimating: the AFFECTED set is the
+  **119** accepted fault-13 answers plus the accepted answers for *other* faults
+  that name FAULT_13 and make a direction claim about `XMEAS_7` in the same
+  sentence — which is **0**. The union is **119**, under the 160 cap
+  (`scripts/fault13_affected_set.py`).
+
+The 5,731 prompts that carry the line are therefore re-rendered, but only 119
+answers are re-called: the other ~1,800 are marked `menu_revision_unaffected`
+with the reason "fault-13 menu line edit cannot change an answer about another
+fault", which is a recorded claim per record rather than an assumption.
+
+**Nothing is re-priced by a hash alone.** `validated_filter_sha256` (with
+`validated_at` and `validation_method: replay`) is stamped on every answer that
+passes `replay_cache` under the current filter, in a sidecar so the cache stays
+append-only evidence; the reuse rule accepts either the original hash or the
+stamp. Without that, one filter edit would have priced ~1,900 already-checked
+answers as fresh model calls.
 
 **Dropped items are the weak-evidence tail.** Median fused ratio 11.7 (dropped)
 vs 27.9 (accepted); median top-|z| 0.39 vs 3.97. Faults 14/15 sit at ratio ≈1.1

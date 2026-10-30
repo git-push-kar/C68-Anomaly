@@ -98,19 +98,18 @@ def test_valve_position_direction_is_not_a_conflict():
 
 
 def test_measurement_direction_is_still_a_conflict():
-    """Fault 13's KB entry says decrease, so an increase on its tag is a conflict.
+    """Fault 13's KB entry now says increase, so a decrease on its tag conflicts.
 
-    Note the vocabulary gap this test avoids: ``INCREASE_WORDS`` has "increase",
-    "increases" and "higher" but not the gerund "increasing", so only some
-    phrasings are caught. Extending it now would reject every fault-13 answer that
-    correctly describes the rising pressure (76 of 118 accepted), which is a KB
-    error, not a prose error -- see the fault-13 proposal in the report.
+    This test used to assert the opposite, because the KB said ``decrease`` while
+    the stored trend is increasing in 102/102 train events. Flipping it in the
+    same commit as the KB correction is the point: the rule and the knowledge base
+    now agree with the evidence, and the assertion still checks both directions.
     """
     allowed = build_allowed_set(EVIDENCE, extra_faults=[13])
     target = _target(13, "FAULT_13")
-    conflicting = check_answer(_answer("Reactor_Pressure [XMEAS_7] increases first."),
+    conflicting = check_answer(_answer("Reactor_Pressure [XMEAS_7] decreases first."),
                                target, EVIDENCE, allowed)
-    agreeing = check_answer(_answer("Reactor_Pressure [XMEAS_7] decreases first."),
+    agreeing = check_answer(_answer("Reactor_Pressure [XMEAS_7] increases first."),
                             target, EVIDENCE, allowed)
     assert any(code.startswith("direction_conflict") for code in conflicting)
     assert not any(code.startswith("direction_conflict") for code in agreeing)

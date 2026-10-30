@@ -196,14 +196,16 @@ def test_menu_hash_covers_every_entry_and_moves_with_the_kb(monkeypatch):
     text = P.menu_text()
     assert "FAULT_13" in text and "UNCLASSIFIED_OPEN_SET" in text
 
+    # Patch *away* from the published direction, so the test measures the hash
+    # moving rather than depending on which way the KB happens to point today.
     entry = copy.deepcopy(FAULT_KNOWLEDGE[13])
     patched = [dict(item) for item in entry["initiating"]]
-    patched[0]["direction"] = "increase"
+    patched[0]["direction"] = "decrease"
     monkeypatch.setitem(FAULT_KNOWLEDGE, 13, {**entry, "initiating": patched})
     after = P.menu_sha256()
 
     assert after != before, "a KB direction edit must move the menu hash"
-    assert "decreases first" in text and "increases first" in P.menu_text()
+    assert "increases first" in text and "decreases first" in P.menu_text()
 
 
 def test_kb_hash_is_the_file_hash():

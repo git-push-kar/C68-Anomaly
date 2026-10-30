@@ -99,19 +99,19 @@ def test_citing_it_with_the_opposite_sign_is_rejected(ctx):
     assert any(code.startswith("direction_conflict") for code in codes), codes
 
 
-def test_the_gerund_form_is_not_yet_seen_by_the_rule(ctx):
-    """Recorded, not asserted as correct: the direction vocabulary is uninflected.
+def test_the_gerund_form_is_seen_by_the_rule(ctx):
+    """The vocabulary now carries the inflected form (fault-13 patch).
 
-    ``INCREASE_WORDS`` holds "increase", not "increasing", so the gerund escapes.
-    Widening it is part of the fault-13 patch that is paused on its scope, so this
-    test pins today's behaviour instead of changing it here -- when the vocabulary
-    is extended this test is the one to flip.
+    Before the patch ``INCREASE_WORDS`` held "increase" but not "increasing", so
+    the same claim passed in one grammatical form and failed in the other. This
+    test was pinned to the old behaviour and is flipped here, deliberately, in the
+    same commit that widened the vocabulary.
     """
     direction = _initiating_direction(13)
     opposite = "increasing" if direction == "decrease" else "decreasing"
     answer = f"XMEAS_7 is {opposite} through the window, consistent with slow kinetics."
     codes = check_answer(answer, ctx)
-    assert not any(code.startswith("direction_conflict") for code in codes), codes
+    assert any(code.startswith("direction_conflict") for code in codes), codes
 
 
 def test_a_valve_position_is_not_held_to_a_flow_direction(ctx):
@@ -171,7 +171,7 @@ def test_a_cache_record_carries_the_rules_and_the_menu(tmp_path):
     row = json.loads(path.read_text(encoding="utf-8").splitlines()[0])
     for key in ("filter_sha256", "menu_revision", "menu_sha256", "kb_sha256"):
         assert row[key] == provenance[key], key
-    assert row["menu_revision"] == "r1"
+    assert row["menu_revision"] == provenance["menu_revision"]
 
 
 def test_the_cache_key_ignores_provenance_but_the_record_keeps_it(tmp_path):

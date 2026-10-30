@@ -401,7 +401,14 @@ FAULT_KNOWLEDGE: Dict[int, Dict[str, Any]] = {
         "subsystem": "reactor_system",
         "equipment": ["R-101 Catalyst Bed"],
         "valves": ["XMV_47 (Purge valve / XMV 6)"],
-        "initiating": [{"sensor": "Reactor_Pressure", "tag": "XMEAS_7", "direction": "decrease", "dev_range": (3, 10)}],
+        # Direction is data-derived, not copied from the TEP documentation: the
+        # stored trend for XMEAS_7 is increasing in 102 of 102 Protocol A train
+        # events where it is ranked (the deviation sign is mixed, 61 positive /
+        # 41 negative, so the level starts below baseline and climbs). Recorded as
+        # an owner-approved KB correction in docs/PROTOCOL.md; the prose below
+        # still describes the older "drift downwards" reading and is left as-is
+        # because it is not what the menu line or the filter reads.
+        "initiating": [{"sensor": "Reactor_Pressure", "tag": "XMEAS_7", "direction": "increase", "dev_range": (3, 10)}],
         "cascading": [
             {"sensor": "Reactor_Temperature", "tag": "XMEAS_9", "direction": "decrease", "delay_min": (3, 8), "dev_range": (2, 7)},
             {"sensor": "Component_B_Stream6", "tag": "XMEAS_24", "direction": "increase", "delay_min": (5, 12), "dev_range": (2, 6)},

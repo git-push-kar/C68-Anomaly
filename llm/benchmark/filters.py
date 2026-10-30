@@ -57,8 +57,15 @@ SEVERITY_PATTERNS = (
 
 #: Words that assert an increase or a decrease. Used only to catch a *conflict*
 #: with the KB's stated direction of the initiating variable.
-INCREASE_WORDS = ("increase", "increases", "rise", "rises", "risen", "higher", "upward", "climb")
-DECREASE_WORDS = ("decrease", "decreases", "fall", "falls", "fallen", "lower", "downward", "drop")
+#:
+#: The gerunds are present because "pressure is increasing" asserts exactly what
+#: "pressure increases" asserts, and a rule that reads only the second rejected
+#: one spelling and accepted the other. Before the gerunds were added the check
+#: saw 5 of the fault-13 contradictions in this cache instead of 26.
+INCREASE_WORDS = ("increase", "increases", "increasing", "rise", "rises", "rising", "risen",
+                  "higher", "upward", "climb")
+DECREASE_WORDS = ("decrease", "decreases", "decreasing", "fall", "falls", "falling", "fallen",
+                  "lower", "downward", "drop")
 
 _NUMBER_RANGE = ("-.2f",)
 
@@ -201,9 +208,13 @@ def _direction_conflict(text: str, number: Optional[int]) -> Optional[str]:
     (120/120, 120/120, 26/26) while agreeing with it in every fault 4 and 11
     event. Enforcing a flow direction on a position rejects correct prose, so a
     valve position is out of scope here and stays an advisory flag
-    (``direction_inconsistent`` also skips it). The KB entry for fault 13, a
-    measurement, still contradicts the evidence in 102/102 events and is flagged
-    for KB review rather than silently allowed.
+    (``direction_inconsistent`` also skips it).
+
+    The fault-13 entry this rule reads was itself corrected: it said
+    ``decrease`` while the stored trend is increasing in 102/102 train events, so
+    the rule was rejecting correct prose. The KB now says ``increase`` (owner
+    decision, recorded in ``docs/PROTOCOL.md``) and the rule agrees with the
+    evidence instead of the documentation.
     """
     if number is None:
         return None

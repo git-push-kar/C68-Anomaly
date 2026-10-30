@@ -44,9 +44,13 @@ from typing import Dict, Optional, Sequence, Tuple
 ROOT = Path(__file__).resolve().parents[2]
 
 #: The menu text revision in force. Bump together with any edit that changes a
-#: rendered menu line; ``scripts/check_menu_revision.py`` proves the hash matches
-#: the label so a forgotten bump cannot pass silently.
-MENU_REVISION = "r1"
+#: rendered menu line; ``data/menu_revisions.json`` records the hash published
+#: under each label and ``tests/test_benchmark_provenance.py`` fails when the live
+#: text no longer matches its label, so a forgotten bump cannot pass silently.
+#:
+#: r1 -> r2: the fault-13 line moved from "Reactor_Pressure decreases first" to
+#: "increases first" (data-derived correction, see docs/PROTOCOL.md).
+MENU_REVISION = "r2"
 
 #: Records written before ``menu_revision`` existed were produced from r1 text.
 LEGACY_REVISION = "r1"
