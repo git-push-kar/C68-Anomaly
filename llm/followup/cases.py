@@ -33,6 +33,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
+from llm.benchmark.prompt_v2 import tag_kind
 from llm.benchmark.targets import NORMAL_ID
 from llm.response.lookup_answers import (
     TABLE_FOR_INTENT,
@@ -236,8 +237,12 @@ def _sensor_lines(store: StoreAccess, limit: int = 5) -> List[str]:
         name = display_name(tag) or tag
         if observed is None or baseline is None:
             continue
+        # Every tag carries its kind, exactly as the report prompt does: an XMV
+        # is a valve *position* and an XMEAS is the measurement, and two of them
+        # share a display name (``A_C_Feed_Flow`` is both XMV_45 and XMEAS_4).
+        # Without the label the teacher can describe a valve as a flow reading.
         lines.append(
-            f"- {name} ({tag}): observed {fmt(float(observed))}, baseline "
+            f"- {name} [{tag}, {tag_kind(tag)}]: observed {fmt(float(observed))}, baseline "
             f"{fmt(float(baseline))}, change {float(dev or 0):+.2f}%, z {float(z or 0):+.2f}, "
             f"trend {trend or 'unknown'}"
         )

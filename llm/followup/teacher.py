@@ -184,11 +184,15 @@ class TeacherCache:
     context or model is a different key and can never be served stale text.
     """
 
-    def __init__(self, path: Path, model: str, seed: int = 42, temperature: float = 0.2):
+    def __init__(self, path: Path, model: str, seed: int = 42, temperature: float = 0.2,
+                 provenance: Optional[Dict[str, str]] = None):
         self.path = Path(path)
         self.model = model
         self.seed = int(seed)
         self.temperature = float(temperature)
+        #: Written into every record so a rule or menu edit is visible after the
+        #: fact. Defaulted here rather than required, so a test cache needs no set-up.
+        self.provenance: Dict[str, str] = dict(provenance or {})
         self._entries: Dict[str, Dict] = {}
         if self.path.exists():
             for line in self.path.read_text(encoding="utf-8").splitlines():
@@ -218,7 +222,9 @@ class TeacherCache:
         key = self.key_for(prompt)
         if key in self._entries:
             return
-        row = {"key": key, "model": model, "seconds": round(seconds, 3), "text": text}
+        row = {"key": key, "model": model, "seconds": round(seconds, 3), "text": text,
+               "temperature": self.temperature, "seed": self.seed}
+        row.update(self.provenance)
         self._entries[key] = row
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.path, "a", encoding="utf-8") as handle:

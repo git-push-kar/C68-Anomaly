@@ -74,6 +74,7 @@ from llm.followup.leak import (  # noqa: E402
     check_event_overlap,
     check_paraphrase_disjointness,
 )
+from llm.followup.provenance import followup_provenance  # noqa: E402
 from llm.followup.paraphrases import (  # noqa: E402
     FALSE_PREMISE_TEMPLATES,
     LABELS,
@@ -658,6 +659,13 @@ def answer_context(state: DialogueState, turn: Dict, prompt: str) -> AnswerConte
         intent=truth or None,
         question=str(turn.get("question") or ""),
         extra_grounded_tags=[tag for tag in extra_tags if tag],
+        # Direction is only enforced against a *classified* item's KB line: an
+        # open-set item has had its menu entry removed, so there is no line the
+        # prose could contradict.
+        kb_fault=(int(str(truth).split("_")[-1])
+                  if state.removed_fault is None
+                  and str(truth).startswith(("FAULT_", "SYNTHETIC_"))
+                  else None),
     )
 
 
@@ -911,11 +919,13 @@ def main() -> int:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     cache = None
+    provenance = followup_provenance()
     if not args.no_cache:
         cache = TeacherCache(
             Path(args.cache) if args.cache else out / "teacher_cache.jsonl",
             model=args.model if args.teacher == "ollama" else "fake-followup-v1",
             seed=args.seed,
+            provenance=provenance,
         )
     if args.teacher == "fake":
         teacher = FakeTeacher(profile=args.fake_profile)
@@ -1053,6 +1063,7 @@ def main() -> int:
             "mean_seconds_per_call": round(seconds / max(len(teacher_turns), 1), 3),
             "cache_hits": sum(1 for turn in teacher_turns if turn.get("prompt_cache_hit")),
         },
+        "provenance": dict(provenance),
         "split_integrity": overlap,
         "paraphrase_disjointness": disjointness,
         "leak_check": {"checked": "every context and question", "violations": 0},

@@ -27,6 +27,8 @@ Added for follow-up turns:
 ``names_removed_fault``   an open-set answer that names the removed fault
 ``table_reference``       "as shown in the table below" instead of numbers
 ``valve_flow_mislabel``   a manipulated variable described as a measurement
+``direction_conflict``    the KB's initiating measurement cited with the wrong sign
+``teacher_scaffolding``   prose that quotes the teacher's own prompt labels
 ``event_id_leak``         a benchmark/dataset id in the answer
 """
 from __future__ import annotations
@@ -38,9 +40,12 @@ from typing import Dict, List, Optional, Sequence, Set
 from llm.benchmark.filters import (  # same rule set, one definition of valid
     ABSOLUTE_PATTERNS,
     SEVERITY_PATTERNS,
+    _direction_conflict,
     _evidence_tags,
     _kb_tags,
+    _tag_kind,
 )
+from llm.benchmark.scaffolding import scaffolding_hits
 from llm.response.allowed_set import AllowedSet
 from llm.response.schemas import count_sentences
 from llm.response.store_access import StoreAccess
@@ -77,6 +82,9 @@ TABLE_REFERENCE_PATTERNS = (
 #: position, so calling one a temperature/pressure/composition reading is a
 #: labelling error the filters must catch, not a stylistic quibble.
 MEASUREMENT_WORDS = ("temperature", "pressure", "level", "composition", "concentration")
+
+#: And the other direction: an XMEAS reading is not a valve or an actuator.
+VALVE_WORDS = ("valve position", "valve opening", "valve stem", "actuator position")
 
 EVENT_ID_PATTERNS = (
     r"\bEVT-",
@@ -123,6 +131,10 @@ class AnswerContext:
     #: to name the thing it denies, so those tags are legitimately grounded.
     extra_grounded_tags: Sequence[str] = ()
     overlap_threshold: float = DEFAULT_OVERLAP_THRESHOLD
+    #: The fault whose menu line this item was written from, when the item is a
+    #: classified one. ``None`` for an open-set item (the fault is removed, so
+    #: there is no KB direction to hold the prose to) and for a normal one.
+    kb_fault: Optional[int] = None
 
 
 def ngrams(text: str, n: int = OVERLAP_NGRAM) -> Set[tuple]:
@@ -164,11 +176,28 @@ def _mentions_alternative(text: str, refusal: Dict, store: StoreAccess) -> bool:
 
 
 def _valve_mislabel(text: str) -> Optional[str]:
-    for match in re.finditer(r"\bXMV[_ ]?\d{1,2}\b", text or ""):
-        window = text[match.end():match.end() + 40].lower()
-        for word in MEASUREMENT_WORDS:
-            if word in window:
-                return f"{match.group(0)} described as {word}"
+    """A tag described as the kind of variable it is not.
+
+    The Phase 2B prompt labels every tag with its kind (``A_Feed_Flow [XMV_44,
+    valve position, manipulated variable]``), so an answer that calls a valve
+    position a pressure reading -- or a measurement a valve position -- has
+    contradicted the context it was given, not merely worded it loosely.
+    """
+    for match in re.finditer(r"\b(XMV|XMEAS)[_ ]?(\d{1,2})\b", text or ""):
+        tag = f"{match.group(1)}_{int(match.group(2)):02d}"
+        window = (text or "")[match.end():match.end() + 40].lower()
+        # "is not a pressure" states the distinction correctly; it is the
+        # affirmative mislabel the rule is after.
+        if any(neg in window for neg in ("not", "n't", "rather than", "isn't")):
+            continue
+        if _tag_kind(tag) == "valve_position":
+            for word in MEASUREMENT_WORDS:
+                if word in window:
+                    return f"{match.group(0)} described as {word}"
+        else:
+            for word in VALVE_WORDS:
+                if word in window:
+                    return f"{match.group(0)} described as {word}"
     return None
 
 
@@ -225,6 +254,20 @@ def check_answer(text: str, ctx: AnswerContext) -> List[str]:
     ungrounded = sorted(cited - grounded) + [t for t in ungrounded_names if canonical_tag(t) not in grounded]
     if ungrounded:
         codes.append("sensor_not_grounded:" + ",".join(dict.fromkeys(ungrounded))[:80])
+
+    # -- the Phase 2B rules, applied here unchanged ----------------------
+    # Direction scoping: only a *measurement* named as the KB's initiating
+    # variable is held to the KB's sign, and a valve position is skipped because
+    # a position and the flow it drives routinely move oppositely.
+    conflict = _direction_conflict(body, ctx.kb_fault)
+    if conflict:
+        codes.append(f"direction_conflict:{conflict}")
+
+    # Scaffolding: prose that quotes the teacher's own prompt labels is not an
+    # observation about the plant. Derived from the prompt template, not a list.
+    hits = scaffolding_hits(body, abstain=ctx.removed_fault is not None)
+    if hits:
+        codes.append("teacher_scaffolding:" + ",".join(hit["phrase"] for hit in hits[:3]))
 
     permitted = set(int(x) for x in ctx.permitted_faults)
     label_integers = set()
@@ -310,6 +353,7 @@ __all__ = [
     "CONFIDENCE_PATTERNS",
     "DEFAULT_OVERLAP_THRESHOLD",
     "DECLINE_MARKERS",
+    "VALVE_WORDS",
     "check_answer",
     "is_near_duplicate",
     "ngrams",
