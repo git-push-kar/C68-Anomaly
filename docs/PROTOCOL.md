@@ -631,3 +631,21 @@ fails on a missing or changed file:
 | `outputs/anomaly_detector/dynamic/cva_model.npz` | `97f27ae9ab10` |
 | `outputs/anomaly_detector/dynamic/dpca_model.npz` | `a1b29a5b086a` |
 | `outputs/preprocessing/scaler.pkl` | `6b67a6a18e74` |
+
+### 10.10 Cause phrasing, retry policy and direction flags (close-out 2)
+
+- **Cause phrasing.** Every fault's KB `name` describes an unmeasured cause
+  (20/20); its `initiating.sensor` is a measured tag (20/20). The teacher prompt
+  therefore states the disturbance in the KB's own words, and the filter accepts
+  exactly that phrase (or it with the disturbance tail dropped, three words
+  minimum) as a non-sensor cause mention. All other unknown tags still reject.
+  Fault 5: 3/10 → 27/27.
+- **Retry policy.** One retry with the rejection codes and a different seed, judged
+  against the original prompt so feedback tokens cannot be quoted back; a
+  twice-rejected item is dropped and logged, with per-fault coverage in the
+  manifest against a 0.70 floor.
+- **Direction flag.** `direction_inconsistent` is a flag, never a rejection. It
+  compares direction words to the stored `trend` (movement), falling back to the
+  deviation sign only when the trend is absent; `trend` and deviation disagree in
+  442 of 2,151 ranked sensors, so the deviation-only version flagged 29 correct
+  sentences. 8 flags remain in 7 of 172 answers.
