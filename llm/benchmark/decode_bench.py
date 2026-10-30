@@ -88,6 +88,25 @@ def decode_forward_only(model, tokenizer, prompt: str, max_new: int, dummy_size:
     return out
 
 
+def _step(model, ids, mask, past, image, flags):
+    """One cached step, with the fallback ladder the live path also needs.
+
+    The remote model rejects ``image_flags=None`` (``'NoneType' object has no
+    attribute 'squeeze'``), so the first attempt without image inputs is retried
+    with the dummy image. That is exactly what ``llm/inference.py`` does; the
+    difference is that this module records which form worked instead of leaving it
+    in a log line.
+    """
+    try:
+        out = model(pixel_values=None, input_ids=ids, attention_mask=mask,
+                    image_flags=None, past_key_values=past, use_cache=True)
+        return out, "no_image_inputs"
+    except Exception:
+        out = model(pixel_values=image, input_ids=ids, attention_mask=mask,
+                    image_flags=flags, past_key_values=past, use_cache=True)
+        return out, "dummy_image"
+
+
 def decode_kv(model, tokenizer, prompt: str, max_new: int, dummy_size: int) -> List[int]:
     """Prefill once, then one token per step: what the fast path is supposed to do."""
     import torch
@@ -106,6 +125,7 @@ def decode_kv(model, tokenizer, prompt: str, max_new: int, dummy_size: int) -> L
         if past is None:
             raise RuntimeError("model returned no past_key_values; capture is not supported")
         logits = prefill.logits[:, -1, :]
+        step_image = None
         for _ in range(max_new):
             nxt = int(torch.argmax(logits, dim=-1))
             out.append(nxt)
@@ -113,10 +133,11 @@ def decode_kv(model, tokenizer, prompt: str, max_new: int, dummy_size: int) -> L
                 break
             step_id = torch.tensor([[nxt]], device=ids.device)
             mask = torch.cat([mask, torch.ones((1, 1), dtype=mask.dtype, device=mask.device)], dim=1)
-            step = model(pixel_values=None, input_ids=step_id, attention_mask=mask,
-                         image_flags=None, past_key_values=past, use_cache=True)
+            step, used = _step(model, step_id, mask, past, image, flags)
+            step_image = used
             past = step.past_key_values
             logits = step.logits[:, -1, :]
+    decode_kv.last_step_form = step_image
     return out
 
 
@@ -161,8 +182,7 @@ def decode_batch(model, tokenizer, prompts: Sequence[str], max_new: int,
                     break
                 step_ids = next_tokens.view(-1, 1)
                 mask = torch.cat([mask, torch.ones((len(chunk), 1), dtype=mask.dtype, device=mask.device)], dim=1)
-                step = model(pixel_values=None, input_ids=step_ids, attention_mask=mask,
-                             image_flags=None, past_key_values=past, use_cache=True)
+                step, _used = _step(model, step_ids, mask, past, image, flags)
                 past = step.past_key_values
                 logits = step.logits[:, -1, :]
         outputs.extend(rows)
@@ -246,6 +266,7 @@ def main() -> int:
         "tokens_per_second": round(tokens / seconds, 3) if seconds > 0 else None,
         "peak_allocated_gb": round(torch.cuda.max_memory_allocated() / 1e9, 3),
         "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 1e9, 3),
+        "step_form": getattr(decode_kv, "last_step_form", None),
         "error": error,
     }
 
