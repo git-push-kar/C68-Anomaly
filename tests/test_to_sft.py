@@ -69,6 +69,17 @@ def test_abstain_label_must_match_the_verdict():
         to_sft.to_row(item)
 
 
+def test_normal_excursion_may_abstain_without_a_subsystem():
+    item = _item()
+    item["target"] = {**item["target"], "fault_id": "NORMAL_TRANSIENT",
+                      "abstain": True, "primary_subsystem": None,
+                      "ranked_hypotheses": []}
+    body = json.loads(to_sft.to_row(item)["answer"])
+    assert body["abstain"] is True
+    assert body["primary_subsystem"] is None
+    assert body["ranked_hypotheses"] == []
+
+
 def test_items_without_prose_are_not_exported():
     rows = to_sft.export([_item(), _item(item_id="b::menu", prose=None)])
     assert [row["item_id"] for row in rows] == ["EVT-train-f01-r001::menu"]

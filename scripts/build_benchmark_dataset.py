@@ -723,6 +723,9 @@ def main() -> int:
     ap.add_argument("--replay-cache", action="store_true",
                     help="re-judge cached teacher answers with the current filters and "
                          "attach those that still pass; makes no model call")
+    ap.add_argument("--exclude-rejected", action="store_true",
+                    help="drop train items whose teacher answer was rejected, then "
+                         "re-apply the unclassified cap to the smaller set")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args()
@@ -882,6 +885,21 @@ def main() -> int:
                          "dropped_after_retry": len(dropped_rows),
                          "rejection_codes": dict(sorted(codes.items())),
                          **provenance}
+
+    if args.exclude_rejected:
+        # A residual drop has no prose, so it cannot be a prose-conditioned
+        # training row. Removing it shrinks the classified side more than the
+        # unclassified side (64 vs 9 in the full run), which pushes the open-set
+        # share back over the cap -- so the cap is re-applied to what is left
+        # rather than trusted from the larger set.
+        kept = [row for row in items["train"]
+                if row.get("teacher_status") != "rejected"]
+        removed = len(items["train"]) - len(kept)
+        items["train"] = kept
+        items["train"], class_balance = cap_open_set(items["train"], args.seed)
+        logger.info("excluded %d items without valid prose; cap re-applied "
+                    "(dropped %d more), share now %.3f",
+                    removed, class_balance["dropped"], class_balance["share_after"])
 
     # ---- write JSONL ------------------------------------------------------
     hashes: Dict[str, str] = {}

@@ -76,8 +76,15 @@ def answer_body(item: Dict) -> Dict:
         "physical_reasoning": prose.get("physical_reasoning"),
         "narrative": prose.get("narrative"),
     }
-    missing = [key for key in ANSWER_KEYS if body.get(key) in (None, "", [])
-               and key not in ("clarifying_question", "abstain")]
+    # An abstention legitimately has no subsystem and no fault: the row says so
+    # rather than carrying a made-up value. Everything else must be present.
+    # A NORMAL_TRANSIENT item has no fault candidates at all, so an empty
+    # hypothesis list is the honest answer there.
+    optional = {"clarifying_question", "abstain", "ranked_hypotheses"}
+    if body["abstain"]:
+        optional |= {"primary_subsystem"}
+    missing = [key for key in ANSWER_KEYS
+               if key not in optional and body.get(key) in (None, "", [])]
     if missing:
         raise ExportGuardError(f"answer body missing {missing} for {item.get('item_id')}")
     return {key: body[key] for key in ANSWER_KEYS}
@@ -97,7 +104,9 @@ def to_row(item: Dict) -> Dict:
             raise ExportGuardError(
                 f"{item.get('item_id')}: system/question contains {banned!r}")
     body = answer_body(item)
-    if body["abstain"] and body["fault_id"] != "UNCLASSIFIED_OPEN_SET":
+    # Two verdicts abstain: the open-set disturbance and the normal excursion.
+    # Anything else claiming to abstain is labelled inconsistently.
+    if body["abstain"] and body["fault_id"] not in ("UNCLASSIFIED_OPEN_SET", "NORMAL_TRANSIENT"):
         raise ExportGuardError(
             f"{item.get('item_id')}: abstain row labelled {body['fault_id']}")
     answer = json.dumps(body, ensure_ascii=False)
@@ -125,8 +134,17 @@ def load_split(split: str) -> List[Dict]:
             if line.strip()]
 
 
-def write_split(split: str, out_dir: Path = OUT_DIR) -> Path:
+def write_split(split: str, out_dir: Path = OUT_DIR) -> Optional[Path]:
+    """Write one split, or nothing when it has no teacher prose.
+
+    ``val``/``test`` are evaluation sets: they carry deterministic targets and no
+    teacher prose, so a training row built from them would have empty prose. They
+    are not written at all rather than written with a blank answer -- an empty
+    file that looks like a training split is worse than a missing one.
+    """
     rows = export(load_split(split))
+    if not rows:
+        return None
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{split}.jsonl"
     with open(path, "w", encoding="utf-8") as handle:
@@ -144,6 +162,9 @@ def main() -> int:
     splits = ["train", "val", "test"] if args.all or not args.split else [args.split]
     for split in splits:
         path = write_split(split, Path(args.out))
+        if path is None:
+            print(f"{split:5s} skipped: no teacher prose (evaluation split)")
+            continue
         rows = sum(1 for _ in path.read_text(encoding="utf-8").splitlines())
         print(f"{split:5s} {rows:5d} rows -> {path}")
     return 0
