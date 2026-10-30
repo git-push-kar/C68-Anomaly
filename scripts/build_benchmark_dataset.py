@@ -55,7 +55,11 @@ from llm.benchmark.filters import (  # noqa: E402
 )
 from llm.benchmark.inputs import verify_inputs  # noqa: E402
 from llm.benchmark.menu import CLASSIFIABLE_FAULTS, UNCLASSIFIED, build_menu  # noqa: E402
-from llm.benchmark.provenance import menu_provenance, reuse_decision  # noqa: E402
+from llm.benchmark.provenance import (  # noqa: E402
+    menu_provenance,
+    reuse_decision,
+    validation_stamp,
+)
 from llm.benchmark.prompt_v2 import (  # noqa: E402
     SYSTEM_PROMPT_V2,
     assert_prompt_clean,
@@ -214,23 +218,74 @@ def filter_code_hash() -> str:
     return digest.hexdigest()
 
 
-def load_teacher_cache(path: Path) -> Dict[str, Dict]:
-    """Every finished teacher call, keyed by item id."""
-    done: Dict[str, Dict] = {}
+#: Sidecar that carries facts learned *about* a cached answer: a replay stamp,
+#: or a documented menu-revision exemption. Keeping them out of the main cache
+#: means the answer file stays append-only and byte-stable -- a stamp is a claim
+#: that can be re-derived, so it must not rewrite the evidence it describes.
+META_SUFFIX = ".meta.jsonl"
+
+
+def meta_path(cache_path: Path) -> Path:
+    return cache_path.with_name(cache_path.name + META_SUFFIX)
+
+
+def load_cache_meta(cache_path: Path) -> Dict[str, Dict]:
+    """item id -> the merged sidecar fields, last line winning."""
+    merged: Dict[str, Dict] = {}
+    path = meta_path(cache_path)
     if not path.exists():
-        return done
+        return merged
     with open(path, encoding="utf-8") as handle:
         for line in handle:
             line = line.strip()
             if not line:
                 continue
             try:
-                record = json.loads(line)
+                row = json.loads(line)
             except ValueError:
-                # A truncated last line is what a kill mid-write looks like.
                 continue
-            if record.get("item_id"):
-                done[record["item_id"]] = record
+            if row.get("item_id"):
+                merged.setdefault(row["item_id"], {}).update(
+                    {k: v for k, v in row.items() if k != "item_id"})
+    return merged
+
+
+def append_cache_meta(cache_path: Path, rows: Iterable[Dict]) -> int:
+    """Append sidecar lines; returns how many were written."""
+    rows = [row for row in rows if row.get("item_id")]
+    if not rows:
+        return 0
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(meta_path(cache_path), "a", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row) + "\n")
+    return len(rows)
+
+
+def load_teacher_cache(path: Path) -> Dict[str, Dict]:
+    """Every finished teacher call, keyed by item id, with its sidecar merged in.
+
+    The merge is what makes a replay stamp or a revision exemption effective: the
+    reuse rule reads one record, and it must see the fields whichever file holds
+    them.
+    """
+    done: Dict[str, Dict] = {}
+    if path.exists():
+        with open(path, encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    record = json.loads(line)
+                except ValueError:
+                    # A truncated last line is what a kill mid-write looks like.
+                    continue
+                if record.get("item_id"):
+                    done[record["item_id"]] = record
+    for item_id, extra in load_cache_meta(path).items():
+        if item_id in done:
+            done[item_id].update(extra)
     return done
 
 
@@ -453,6 +508,21 @@ def replay_cache(items: List[Dict], records: Dict[str, Dict],
     logger.info("cache replay: %d valid under the current filters, %d no longer valid",
                 len(valid), rejected_now)
     return valid
+
+
+def stamp_replay(cache_path: Path, valid: Dict[str, Dict], filter_sha: str) -> int:
+    """Record that each replayed answer passed *today's* filters.
+
+    Only answers in ``valid`` are stamped, so the stamp can never be read as "this
+    was accepted at some point". Without it, a single filter edit would price
+    ~1,900 already-checked answers as fresh model calls even though the replay had
+    just re-judged every one of them.
+    """
+    rows = [{"item_id": item_id, **validation_stamp(filter_sha, method="replay")}
+            for item_id in sorted(valid)]
+    written = append_cache_meta(cache_path, rows)
+    logger.info("replay stamp: %d answers validated under filter %s", written, filter_sha[:12])
+    return written
 
 
 def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict],
@@ -876,6 +946,7 @@ def main() -> int:
         replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
         attach_cached_prose(items["train"], cache, replayed)
         teacher_stats["valid_after_replay"] = len(replayed)
+        teacher_stats["stamped"] = stamp_replay(cache_path, replayed, provenance["filter_sha256"])
         for row in items["train"]:
             verdict = row.get("teacher")
             if verdict and not verdict.get("accepted"):
@@ -904,7 +975,7 @@ def main() -> int:
         }
         replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
         attach_cached_prose(items["train"], cache, replayed)
-        # Dropped answers are part of the record: they are why an item has no
+        stamped = stamp_replay(cache_path, replayed, provenance["filter_sha256"])
         # prose, and the manifest should say how many and why.
         dropped_rows = [row for row in items["train"]
                         if row.get("teacher_status") == "rejected"]
@@ -917,6 +988,7 @@ def main() -> int:
                     for row in dropped_rows]
         teacher_stats = {"replay_only": True, "cache_path": str(cache_path),
                          "cached": len(cache), "valid_after_replay": len(replayed),
+                         "stamped": stamped,
                          "rejected": len(dropped_rows),
                          "dropped": len(dropped_rows),
                          "dropped_after_retry": len(dropped_rows),

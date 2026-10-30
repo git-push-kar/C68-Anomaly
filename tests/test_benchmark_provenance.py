@@ -83,6 +83,88 @@ def test_a_filter_change_beats_an_unaffected_marker():
     assert P.reuse_decision(record, _prov(menu_revision="r2")) == (False, "filter_changed")
 
 
+# -- the replay stamp --------------------------------------------------------
+def test_a_stale_hash_without_a_stamp_is_pending():
+    """The old behaviour, kept: a hash mismatch alone means a call."""
+    record = _record(filter_sha256="a" * 64)
+    assert P.reuse_decision(record, _prov()) == (False, "filter_changed")
+
+
+def test_a_stamp_under_the_current_filter_makes_it_reusable():
+    record = _record(filter_sha256="a" * 64,
+                     validated_filter_sha256="f" * 64)
+    assert P.reuse_decision(record, _prov()) == (True, "validated_revision_match")
+
+
+def test_a_stamp_under_a_different_filter_does_not_help():
+    record = _record(filter_sha256="a" * 64,
+                     validated_filter_sha256="b" * 64)
+    assert P.reuse_decision(record, _prov()) == (False, "filter_changed")
+
+
+def test_a_stamp_does_not_excuse_a_menu_revision_bump():
+    """Rules passed is not the same claim as menu text unchanged."""
+    record = _record(filter_sha256="a" * 64, validated_filter_sha256="f" * 64,
+                     menu_revision="r1")
+    assert P.reuse_decision(record, _prov(menu_revision="r2")) == (
+        False, "menu_revision_changed")
+
+
+def test_a_stamped_and_exempted_record_survives_both_moves():
+    record = _record(filter_sha256="a" * 64, validated_filter_sha256="f" * 64,
+                     menu_revision="r1", menu_revision_unaffected=["r2"])
+    assert P.reuse_decision(record, _prov(menu_revision="r2")) == (
+        True, "validated_revision_unaffected")
+
+
+def test_the_stamp_records_when_and_how_it_was_checked():
+    stamp = P.validation_stamp("c" * 64)
+    assert stamp["validated_filter_sha256"] == "c" * 64
+    assert stamp["validation_method"] == "replay"
+    assert len(stamp["validated_at"]) >= 10
+
+
+# -- the sidecar the stamps live in ------------------------------------------
+def test_stamps_and_exemptions_reach_the_record_through_the_sidecar(tmp_path):
+    """A cache line is append-only evidence; claims about it live beside it."""
+    from scripts.build_benchmark_dataset import (
+        append_cache_meta,
+        load_teacher_cache,
+        meta_path,
+    )
+
+    cache = tmp_path / "teacher_cache.jsonl"
+    cache.write_text(json.dumps(_record(item_id="a", filter_sha256="a" * 64)) + "\n",
+                     encoding="utf-8")
+    cache.write_text(cache.read_text(encoding="utf-8")
+                     + json.dumps(_record(item_id="b", filter_sha256="a" * 64)) + "\n",
+                     encoding="utf-8")
+    append_cache_meta(cache, [
+        {"item_id": "a", **P.validation_stamp("f" * 64)},
+        {"item_id": "b", "menu_revision_unaffected": {"revisions": ["r2"],
+                                                       "reason": "names no XMEAS_7"}},
+    ])
+    assert cache.read_text(encoding="utf-8").count("validated_filter_sha256") == 0
+    assert meta_path(cache).exists()
+    merged = load_teacher_cache(cache)
+    assert merged["a"]["validated_filter_sha256"] == "f" * 64
+    assert merged["b"]["menu_revision_unaffected"]["revisions"] == ["r2"]
+    assert P.reuse_decision(merged["a"], _prov()) == (True, "validated_revision_match")
+    assert P.reuse_decision(merged["b"], _prov(filter_sha256="a" * 64,
+                                             menu_revision="r2")) == (
+        True, "revision_unaffected")
+
+
+def test_only_replayed_answers_are_stamped(tmp_path):
+    from scripts.build_benchmark_dataset import load_cache_meta, stamp_replay
+
+    cache = tmp_path / "teacher_cache.jsonl"
+    cache.write_text("", encoding="utf-8")
+    written = stamp_replay(cache, {"a": {"prose": {}}}, "f" * 64)
+    assert written == 1
+    assert list(load_cache_meta(cache)) == ["a"]
+
+
 # -- the ordering used by run_teacher ---------------------------------------
 def _items(*ids):
     return [{"item_id": item_id} for item_id in ids]
