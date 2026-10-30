@@ -354,13 +354,19 @@ here (and was forbidden in this phase). Nothing in the repo starts it by default
 
 | Check | Command | Result |
 |---|---|---|
-| Full suite | `python -m pytest -q` | **261 passed, 1 failed** |
+| Full suite | `python -m pytest -q` | **335 passed, 1 failed** (261 before the Phase 2B merge) |
 | Follow-up + router tests | `python -m pytest -q tests/test_followup_filters.py tests/test_followup_dataset.py tests/test_response_router.py` | **94 passed** |
 | Routing artefact | `python scripts/inspect_followup_routing.py` | 17 labels × 50; families 0.0091 / 0.9733 / 0.8867 |
 | Fake-teacher build | builder command in §7 | 111 dialogues, 261 turns, 257 teacher turns, 0 rejections |
 | Split overlap | in-build | zero overlap, 0 duplicates |
 | Paraphrase hold-out | in-build + `check_paraphrase_disjointness()` | 17/17 disjoint |
 | Leak check | in-build, every context and question | 0 violations, build aborts on a hit |
+
+Re-verified after merging the Phase 2B continuation from `origin` (18 commits,
+including the full teacher run and the confidence/abstention work): the suite went
+from 261 to 335 passing with the same single failure, the routing artefacts came
+out byte-identical, and the fixture build produced the same 111 dialogues and the
+same 4,489-call projection — so nothing in §2, §7 or §8 moved.
 
 The one failure is **pre-existing and environmental**:
 `tests/test_splits_v2.py::test_committed_file_matches_the_builder` compares
@@ -413,7 +419,7 @@ New tests (68), all passing:
 | All case types covered by tests | **pass** | 10 parametrised case types + 11 guardrails |
 | Paraphrase hold-out verified | **pass** | 17/17 disjoint, 40 train vs 10 held-out |
 | Counts and cost estimate reported | **pass** | §7 counts, §8 cost (4,489 calls, 13.6-15.2 h) |
-| Full test suite passes | **fail (1 pre-existing)** | 261 passed, 1 environmental failure in `tests/test_splits_v2.py` (§10) |
+| Full test suite passes | **fail (1 pre-existing)** | 335 passed, 1 environmental failure in `tests/test_splits_v2.py` (§10) |
 | No real teacher called | **pass** | `--teacher fake`; no Ollama request issued |
 
 ---
