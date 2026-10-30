@@ -649,3 +649,32 @@ fails on a missing or changed file:
   deviation sign only when the trend is absent; `trend` and deviation disagree in
   442 of 2,151 ranked sensors, so the deviation-only version flagged 29 correct
   sentences. 8 flags remain in 7 of 172 answers.
+
+### 10.11 Abstention, valve labels and the replay policy (close-out 3)
+
+- **Open-set abstention contract.** On an item whose target is
+  `UNCLASSIFIED_OPEN_SET` the teacher prompt no longer carries `the disturbance:`
+  line; it states that no listed candidate fits and names only the nearest listed
+  candidates to rule out. The filter's cause allowance is scoped to the faults the
+  item's *menu* offered, so the removed fault's KB wording is rejected
+  (`names_removed_fault`) while ruling out a listed candidate stays legal.
+  Only **distinctive** phrases count: faults 5 and 12 share "condenser cooling
+  water inlet temperature" and differ in the tail (step / random variation), and
+  fault 12 must remain on the menu, so the shared prefix is not a leak.
+  Bug fixed on the way: `nearest_candidates` could pad its list with the fault
+  itself, which put the removed entry back into its own prompt. Before: 2 of 60
+  accepted abstention answers named the removed fault and 63/63 prompts carried
+  it. After: 0 of 73, and the builder now raises if any abstention prompt leaks.
+- **Valve vs flow.** Eleven XMV tags have display names that read like process
+  flows (`XMV_44 A_Feed_Flow` vs `XMEAS_1 A_Feed_Stream1`;
+  `XMV_50 Stripper_Steam_Valve` vs `XMEAS_19 Stripper_Steam_Flow`;
+  `XMV_51/52 ..._Cooling_Water_Flow` vs `XMEAS_21/22 ..._Outlet_Temperature`;
+  also XMV_42/43/45/47/48/49). Every tag in the student prompt is now labelled
+  `[XMV_44, valve position, manipulated variable]` or `[XMEAS_1, measurement]`,
+  in the sensor list, the CVA attribution and the onset order. The teacher prompt
+  says a valve position is not a flow, and `direction_inconsistent` skips XMV
+  sentences entirely. Template hash changed; dataset rebuilt.
+- **Replay instead of discard.** A prompt or filter edit changes the code hash of
+  every cached answer. Rather than throw the prose away, the builder re-judges each
+  cached raw answer with the *current* filters (`--replay-cache`, no model call).
+  First rebuild: 184 of 188 still valid; after the 15-item re-run, 199 of 201.
