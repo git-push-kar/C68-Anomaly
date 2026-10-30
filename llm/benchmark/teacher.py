@@ -43,7 +43,10 @@ SYSTEM_PROMPT_TEACHER = (
     "2. Ground every physical claim in the evidence supplied: name sensors only "
     "as the evidence names them, quote a number only if it appears verbatim in "
     "the evidence, and do not introduce a mechanism, sensor or value that is "
-    "absent from it.\n"
+    "absent from it. Naming the disturbance itself is allowed even though it is "
+    "not a measured sensor: use the wording given under DECIDED DIAGNOSIS, "
+    "because a cause such as a cooling-water inlet temperature is inferred from "
+    "its effects and has no tag.\n"
     "3. Never claim certainty. Say what the evidence suggests and what should be "
     "verified on site.\n"
     "4. Do not state a severity level, a priority, or a numeric risk score: that "
@@ -144,9 +147,18 @@ def build_teacher_prompt(evidence: Dict, menu: Sequence[Dict[str, str]], target:
     """Evidence + menu + the decided answer, with a request for prose only."""
     from llm.benchmark.prompt_v2 import render_prompt
 
+    from llm.benchmark.kb_causes import disturbance_phrase
+
     lines = [render_prompt(evidence, menu, include_schema=False), ""]
     lines.append("DECIDED DIAGNOSIS (do not change):")
     lines.append(f"- {_label(target.get('fault_id'))}")
+    # The cause in the KB's own words. Without it the teacher either omits the
+    # mechanism or invents a name for it, and every invented name is a rejection.
+    number = target.get("truth_fault_number")
+    if number:
+        phrase = disturbance_phrase(int(number))
+        if phrase:
+            lines.append(f"- the disturbance: {phrase}")
     if target.get("primary_subsystem"):
         lines.append(f"- affected area: {str(target['primary_subsystem']).replace('_', ' ')}")
     ranked = target.get("ranked_hypotheses") or []
@@ -216,7 +228,8 @@ class OllamaTeacher:
         # also what makes the timing usable: the hidden tokens were ~90% of it.
         self.think = bool(think)
 
-    def generate(self, prompt: str, system: str = SYSTEM_PROMPT_TEACHER) -> TeacherResponse:
+    def generate(self, prompt: str, system: str = SYSTEM_PROMPT_TEACHER,
+                 seed: Optional[int] = None) -> TeacherResponse:
         request_body = {
             "model": self.model,
             "prompt": prompt,
@@ -226,7 +239,7 @@ class OllamaTeacher:
             "think": self.think,
             "options": {
                 "temperature": self.temperature,
-                "seed": self.seed,
+                "seed": self.seed if seed is None else int(seed),
                 "num_predict": self.num_predict,
             },
         }
@@ -264,9 +277,13 @@ class OllamaTeacher:
         )
 
     def answer(self, evidence: Dict, menu: Sequence[Dict[str, str]],
-               target: Dict) -> tuple:
+               target: Dict, extra_instruction: Optional[str] = None,
+               seed: Optional[int] = None) -> tuple:
         """Return ``(parsed_dict_or_None, TeacherResponse, parse_error)``."""
-        response = self.generate(build_teacher_prompt(evidence, menu, target))
+        prompt = build_teacher_prompt(evidence, menu, target)
+        if extra_instruction:
+            prompt = f"{prompt}\n\n{extra_instruction.strip()}"
+        response = self.generate(prompt, seed=seed)
         parsed, error = parse_teacher_json(response.text)
         return parsed, response, error
 
