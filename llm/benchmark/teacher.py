@@ -18,8 +18,10 @@ data.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import subprocess
 import time
 import urllib.error
 import urllib.request
@@ -97,6 +99,45 @@ def resolve_model(preferred: str = DEFAULT_MODEL, host: str = DEFAULT_HOST) -> s
         f"model tag {preferred!r} is not installed. available: {available}. "
         f"same family: {same_family or 'none'}"
     )
+
+
+def license_text(model: str, host: str = DEFAULT_HOST, timeout: float = 20.0) -> Optional[str]:
+    """The model's licence text as the *local runtime* reports it.
+
+    Recorded only as a hash. The licence of a given tag is whatever the installed
+    weights ship with; stating one from memory would be a claim about a file
+    nobody checked, so this reads it from ``ollama show --license`` or
+    ``/api/show`` and returns ``None`` when neither answers.
+    """
+    try:
+        completed = subprocess.run(["ollama", "show", model, "--license"],
+                                   capture_output=True, text=True, timeout=timeout)
+        if completed.returncode == 0 and (completed.stdout or "").strip():
+            return completed.stdout
+    except (OSError, subprocess.SubprocessError):
+        pass
+    try:
+        body = json.dumps({"name": model}).encode("utf-8")
+        request = urllib.request.Request(
+            f"{host.rstrip('/')}/api/show", data=body,
+            headers={"Content-Type": "application/json"}, method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=timeout) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        value = payload.get("license")
+        if isinstance(value, list):
+            value = "\n".join(str(item) for item in value)
+        return str(value) if value else None
+    except (urllib.error.URLError, OSError, ValueError):
+        return None
+
+
+def license_hash(model: str, host: str = DEFAULT_HOST) -> Optional[str]:
+    """SHA-256 of the licence text, or ``None`` when the runtime cannot report it."""
+    text = license_text(model, host)
+    if not text:
+        return None
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def build_teacher_prompt(evidence: Dict, menu: Sequence[Dict[str, str]], target: Dict) -> str:
@@ -256,6 +297,8 @@ __all__ = [
     "TeacherResponse",
     "TeacherUnavailable",
     "build_teacher_prompt",
+    "license_hash",
+    "license_text",
     "list_models",
     "parse_teacher_json",
     "resolve_model",
