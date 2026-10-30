@@ -26,6 +26,7 @@ from __future__ import annotations
 import hashlib
 from typing import Dict, List, Optional, Sequence
 
+from llm.benchmark.hydrate import NORMAL_ID, mitigation_for
 from llm.benchmark.menu import (
     CLASSIFIABLE_FAULTS,
     UNCLASSIFIED,
@@ -42,8 +43,6 @@ from scripts.fault_knowledge import FAULT_KNOWLEDGE
 #: Share of TRAIN events whose true menu entry is removed (the brief allows
 #: 10-15%; 12% leaves ~260 episodes in a 2,168-event train split).
 OPEN_SET_RATE_PERCENT = 12
-
-NORMAL_ID = "NORMAL_TRANSIENT"
 #: Deterministic question used to interrogate the router's clarification
 #: triggers. It is a real operator question, not a synthetic probe.
 TRIGGER_QUESTION = "What is the likely root cause of this event?"
@@ -119,8 +118,7 @@ def build_target(
             "abstain": True,
             "primary_subsystem": None,
             "ranked_hypotheses": [],
-            "mitigation": "No control action: the excursion closed without a confirmed process fault. "
-                          "Verify on site if the same loop repeats.",
+            "mitigation": mitigation_for(NORMAL_ID),
             "table_selection": TableID.NONE.value,
             "suggested_followups": _followups(
                 (Intent.EVIDENCE_WHY, Intent.DETECTOR_SCORES, Intent.ACTION), router
@@ -139,7 +137,9 @@ def build_target(
     truth_id = fault_id_for(number).value
     entry = _kb(number)
     subsystem = entry.get("subsystem")
-    mitigation = str(entry.get("recommended_action") or entry.get("action") or "").strip()
+    # One definition of the mitigation text, shared with the render path, so a
+    # report rendered from a slim answer cannot disagree with the target.
+    mitigation = mitigation_for(truth_id)
 
     if variant == "removed" or number not in CLASSIFIABLE_FAULTS:
         # Only a real menu entry can be removed: for faults 16-20 the true fault
@@ -154,10 +154,7 @@ def build_target(
             {"rank": i + 1, "fault_id": candidate, "basis": "kb_nearest_candidate", "is_truth": False}
             for i, candidate in enumerate(nearest_candidates(number))
         ]
-        mitigation_text = (
-            "No listed family explains this signature. Keep the unit on manual watch, "
-            "compare the deviating loop against the nearest candidates above, and confirm on site."
-        )
+        mitigation_text = mitigation_for(UNCLASSIFIED)
         table = TableID.EVIDENCE.value
         abstain = True
     else:

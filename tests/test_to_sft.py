@@ -46,6 +46,12 @@ def test_answer_carries_no_severity_and_no_confidence():
     assert "confidence" not in body
 
 
+def test_the_answer_is_the_slim_five_fields():
+    body = json.loads(to_sft.to_row(_item())["answer"])
+    assert list(body) == ["fault_id", "verdict", "ranked_hypotheses",
+                          "physical_reasoning", "narrative"]
+
+
 def test_row_without_a_system_is_refused(monkeypatch):
     monkeypatch.setattr(to_sft, "SYSTEM_PROMPT_V2", "")
     with pytest.raises(to_sft.ExportGuardError):
@@ -62,22 +68,39 @@ def test_subsystem_hint_in_the_question_is_refused():
         to_sft.to_row(_item(prompt="Candidate affected subsystem: feed"))
 
 
-def test_abstain_label_must_match_the_verdict():
+def test_abstaining_verdict_must_match_the_label():
     item = _item()
-    item["target"] = {**item["target"], "abstain": True}  # still FAULT_01
+    item["target"] = {**item["target"], "verdict": "unclassified_open_set"}  # still FAULT_01
     with pytest.raises(to_sft.ExportGuardError):
         to_sft.to_row(item)
 
 
-def test_normal_excursion_may_abstain_without_a_subsystem():
+def test_abstention_label_must_carry_an_abstaining_verdict():
     item = _item()
     item["target"] = {**item["target"], "fault_id": "NORMAL_TRANSIENT",
-                      "abstain": True, "primary_subsystem": None,
+                      "ranked_hypotheses": []}
+    with pytest.raises(to_sft.ExportGuardError):
+        to_sft.to_row(item)
+
+
+def test_normal_excursion_has_no_hypotheses_and_no_derived_fields():
+    item = _item()
+    item["target"] = {**item["target"], "fault_id": "NORMAL_TRANSIENT",
+                      "verdict": "no_fault", "primary_subsystem": None,
                       "ranked_hypotheses": []}
     body = json.loads(to_sft.to_row(item)["answer"])
-    assert body["abstain"] is True
-    assert body["primary_subsystem"] is None
+    assert body["verdict"] == "no_fault"
     assert body["ranked_hypotheses"] == []
+    assert list(body) == list(to_sft.ANSWER_KEYS)
+
+
+def test_a_render_derived_field_may_not_creep_back_in():
+    """Mitigation, subsystem and friends are code; a model field is a second truth."""
+    assert "mitigation" not in to_sft.ANSWER_KEYS
+    assert "primary_subsystem" not in to_sft.ANSWER_KEYS
+    body = json.loads(to_sft.to_row(_item())["answer"])
+    for key in to_sft.DERIVED_AT_RENDER:
+        assert key not in body, key
 
 
 def test_items_without_prose_are_not_exported():

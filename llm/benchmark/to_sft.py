@@ -8,10 +8,16 @@ So this exporter always writes an explicit system, and refuses to write a row wh
 system or question carries the rubric or the subsystem hint. A missing system can
 therefore never silently become the old prompt.
 
-The answer is the report body as JSON text: the deterministic target fields plus
-the teacher's two prose fields. ``severity`` and ``confidence`` are deliberately
-absent -- severity is computed in code from detector statistics, and confidence is
-not emitted at all until a calibrator exists.
+The answer is the **slim** report body as JSON text: the label, the verdict, the
+ranked hypothesis ids, and the teacher's two prose fields. Subsystem, mitigation,
+table choice, suggested follow-ups and the clarifying question are removed: they
+are derived in code at render time (``llm.benchmark.hydrate``), so encoding them
+in the target only gave the model a chance to disagree with the KB and cost answer
+tokens on every row.
+
+``severity`` and ``confidence`` stay absent for the same reason they always were --
+severity is computed from detector statistics, and confidence is not emitted until
+a calibrator exists.
 
 Usage:
     python -m llm.benchmark.to_sft --split train
@@ -33,12 +39,22 @@ from llm.benchmark.prompt_v2 import SYSTEM_PROMPT_V2  # noqa: E402
 
 DATASET = Path("outputs/benchmark_v2/dataset")
 OUT_DIR = Path("outputs/benchmark_v2/sft")
+SPLITS = Path("data/splits_v2.json")
 
-#: Keys the student emits, in order. No ``severity``, no ``confidence``.
+#: Protocol B folds, by the name used in the split file.
+FOLDS = ("fold_1_cooling_loop_holdout", "fold_2_valve_sticking_family")
+
+#: Keys the student emits, in order. No ``severity``, no ``confidence``, and no
+#: field the render path can derive from the KB or the router.
 ANSWER_KEYS = (
-    "fault_id", "verdict", "abstain", "primary_subsystem", "ranked_hypotheses",
-    "mitigation", "table_selection", "suggested_followups", "clarifying_question",
-    "physical_reasoning", "narrative",
+    "fault_id", "verdict", "ranked_hypotheses", "physical_reasoning", "narrative",
+)
+
+#: Fields the full target still carries for evaluation but the model must not
+#: emit. Listed so a guard can fail if one reappears in the answer.
+DERIVED_AT_RENDER = (
+    "abstain", "primary_subsystem", "mitigation", "table_selection",
+    "suggested_followups", "clarifying_question",
 )
 
 #: Strings that must not reach the trainer through the system prompt or question.
@@ -59,30 +75,20 @@ class ExportGuardError(RuntimeError):
 
 
 def answer_body(item: Dict) -> Dict:
-    """The report body for one item: deterministic fields + teacher prose."""
+    """The slim report body for one item: label, verdict, ranking, teacher prose."""
     target = item.get("target") or {}
     prose = item.get("prose") or {}
     body = {
         "fault_id": target.get("fault_id"),
         "verdict": target.get("verdict"),
-        "abstain": bool(target.get("abstain")),
-        "primary_subsystem": target.get("primary_subsystem"),
         "ranked_hypotheses": [hyp.get("fault_id")
                               for hyp in (target.get("ranked_hypotheses") or [])],
-        "mitigation": target.get("mitigation"),
-        "table_selection": target.get("table_selection"),
-        "suggested_followups": list(target.get("suggested_followups") or []),
-        "clarifying_question": target.get("clarifying_question"),
         "physical_reasoning": prose.get("physical_reasoning"),
         "narrative": prose.get("narrative"),
     }
-    # An abstention legitimately has no subsystem and no fault: the row says so
-    # rather than carrying a made-up value. Everything else must be present.
     # A NORMAL_TRANSIENT item has no fault candidates at all, so an empty
     # hypothesis list is the honest answer there.
-    optional = {"clarifying_question", "abstain", "ranked_hypotheses"}
-    if body["abstain"]:
-        optional |= {"primary_subsystem"}
+    optional = {"ranked_hypotheses"}
     missing = [key for key in ANSWER_KEYS
                if key not in optional and body.get(key) in (None, "", [])]
     if missing:
@@ -104,11 +110,22 @@ def to_row(item: Dict) -> Dict:
             raise ExportGuardError(
                 f"{item.get('item_id')}: system/question contains {banned!r}")
     body = answer_body(item)
-    # Two verdicts abstain: the open-set disturbance and the normal excursion.
-    # Anything else claiming to abstain is labelled inconsistently.
-    if body["abstain"] and body["fault_id"] not in ("UNCLASSIFIED_OPEN_SET", "NORMAL_TRANSIENT"):
+    # A derived field must not creep back into the answer: if it does, the model is
+    # being trained to recite something the render path overwrites.
+    leaked = [key for key in DERIVED_AT_RENDER if key in body]
+    if leaked:
         raise ExportGuardError(
-            f"{item.get('item_id')}: abstain row labelled {body['fault_id']}")
+            f"{item.get('item_id')}: answer carries render-derived field(s) {leaked}")
+    # Two verdicts abstain: the open-set disturbance and the normal excursion.
+    # Anything else claiming to abstain is labelled inconsistently. ``abstain`` is
+    # no longer a field, so the check reads the verdict.
+    abstaining = body["verdict"] in ("unclassified_open_set", "no_fault")
+    if abstaining and body["fault_id"] not in ("UNCLASSIFIED_OPEN_SET", "NORMAL_TRANSIENT"):
+        raise ExportGuardError(
+            f"{item.get('item_id')}: abstaining verdict labelled {body['fault_id']}")
+    if not abstaining and body["fault_id"] in ("UNCLASSIFIED_OPEN_SET", "NORMAL_TRANSIENT"):
+        raise ExportGuardError(
+            f"{item.get('item_id')}: non-abstaining verdict with {body['fault_id']}")
     answer = json.dumps(body, ensure_ascii=False)
     return {
         "item_id": item.get("item_id"),
@@ -134,6 +151,59 @@ def load_split(split: str) -> List[Dict]:
             if line.strip()]
 
 
+def _fault_number(value: object) -> Optional[int]:
+    text = str(value or "")
+    if text.startswith(("FAULT_", "SYNTHETIC_")):
+        try:
+            return int(text.split("_")[-1])
+        except ValueError:
+            return None
+    return None
+
+
+def fold_faults(fold: str) -> List[int]:
+    """The faults a fold holds out, read from the split file rather than typed here."""
+    splits = json.loads(SPLITS.read_text(encoding="utf-8"))
+    block = splits["protocols"]["B_leave_faults_out"]["folds"][fold]
+    return [int(number) for number in block["held_out_faults"]]
+
+
+def fold_rows(fold: str) -> List[Dict]:
+    """Train rows for one Protocol B fold: no held-out fault, no episode from one.
+
+    An open-set episode derived from a held-out fault has that fault's menu entry
+    removed, so its prompt still describes the held-out mechanism -- keeping it
+    would leak the fold's task into training through the evidence rather than
+    through the label. Both are dropped here, and the asserts below make the
+    claim checkable instead of asserted in prose.
+    """
+    held = {int(number) for number in fold_faults(fold)}
+    rows: List[Dict] = []
+    for item in load_split("train"):
+        fault = item.get("fault")
+        if fault is not None and int(fault) in held:
+            continue
+        if item.get("target", {}).get("truth_fault_number") in held:
+            continue
+        if not item.get("prose"):
+            continue
+        row = to_row(item)
+        body = json.loads(row["answer"])
+        # A kept fault's KB lookalikes can include a held-out one (fault 4's
+        # differential names fault 15). The menu still lists every class, so
+        # nothing is hidden from the model -- but a training *answer* must not
+        # teach it to rank a class the fold is evaluating.
+        body["ranked_hypotheses"] = [
+            value for value in body["ranked_hypotheses"]
+            if _fault_number(value) not in held]
+        row["answer"] = json.dumps(body, ensure_ascii=False)
+        assert fault is None or int(fault) not in held, f"{fold}: held-out label kept"
+        assert not [value for value in body["ranked_hypotheses"]
+                    if _fault_number(value) in held], f"{fold}: held-out ranking kept"
+        rows.append(row)
+    return rows
+
+
 def write_split(split: str, out_dir: Path = OUT_DIR) -> Optional[Path]:
     """Write one split, or nothing when it has no teacher prose.
 
@@ -153,10 +223,22 @@ def write_split(split: str, out_dir: Path = OUT_DIR) -> Optional[Path]:
     return path
 
 
+def write_fold(fold: str, out_dir: Path = OUT_DIR) -> Path:
+    rows = fold_rows(fold)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"train_{fold}.jsonl"
+    with open(path, "w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    return path
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--split", default=None, choices=["train", "val", "test"])
     parser.add_argument("--all", action="store_true", help="every split")
+    parser.add_argument("--fold", default=None, choices=list(FOLDS) + ["all"],
+                        help="also write the Protocol B train file(s)")
     parser.add_argument("--out", default=str(OUT_DIR))
     args = parser.parse_args()
     splits = ["train", "val", "test"] if args.all or not args.split else [args.split]
@@ -167,6 +249,12 @@ def main() -> int:
             continue
         rows = sum(1 for _ in path.read_text(encoding="utf-8").splitlines())
         print(f"{split:5s} {rows:5d} rows -> {path}")
+    folds = list(FOLDS) if args.fold == "all" else ([args.fold] if args.fold else [])
+    for fold in folds:
+        path = write_fold(fold, Path(args.out))
+        rows = sum(1 for _ in path.read_text(encoding="utf-8").splitlines())
+        held = ", ".join(str(number) for number in fold_faults(fold))
+        print(f"fold   {rows:5d} rows -> {path} (held out {held})")
     return 0
 
 
