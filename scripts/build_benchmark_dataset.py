@@ -435,6 +435,24 @@ def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict],
     for item in items:
         entry = (valid or {}).get(item["item_id"])
         if entry is None:
+            # Distinguish "the teacher was asked and the answer was dropped" from
+            # "the teacher was never asked": both have prose=None, and a training
+            # run that cannot tell them apart cannot report its own coverage.
+            raw = cache.get(item["item_id"])
+            if raw is not None and not raw.get("accepted"):
+                item["teacher"] = {
+                    "model": raw.get("model"),
+                    "attempts": raw.get("attempts"),
+                    "first_codes": raw.get("first_codes") or [],
+                    "codes": raw.get("codes") or [],
+                    "accepted": False,
+                    "dropped": bool(raw.get("dropped")),
+                    "filter_sha256": raw.get("filter_sha256"),
+                    "replayed": False,
+                }
+                item["teacher_status"] = "rejected"
+            else:
+                item["teacher_status"] = "not_called"
             continue
         item["teacher"] = {
             "model": entry.get("model"),
@@ -457,6 +475,7 @@ def attach_cached_prose(items: List[Dict], cache: Dict[str, Dict],
         }
         if entry.get("accepted") and entry.get("prose"):
             item["prose"] = dict(entry["prose"])
+        item["teacher_status"] = "accepted_replayed" if entry.get("replayed") else "accepted"
 
 
 def fault_coverage(train_items: List[Dict], floor: float = 0.70) -> Dict:
@@ -845,8 +864,23 @@ def main() -> int:
         }
         replayed = replay_cache(items["train"], by_event, cache, provenance["filter_sha256"])
         attach_cached_prose(items["train"], cache, replayed)
+        # Dropped answers are part of the record: they are why an item has no
+        # prose, and the manifest should say how many and why.
+        dropped_rows = [row for row in items["train"]
+                        if row.get("teacher_status") == "rejected"]
+        codes: Counter = Counter()
+        for row in dropped_rows:
+            for code in ((row.get("teacher") or {}).get("codes") or []):
+                codes[code.split(":")[0].replace("retry:", "retry/")] += 1
+        rejected = [{"item_id": row["item_id"],
+                     "codes": (row.get("teacher") or {}).get("codes")}
+                    for row in dropped_rows]
         teacher_stats = {"replay_only": True, "cache_path": str(cache_path),
                          "cached": len(cache), "valid_after_replay": len(replayed),
+                         "rejected": len(dropped_rows),
+                         "dropped": len(dropped_rows),
+                         "dropped_after_retry": len(dropped_rows),
+                         "rejection_codes": dict(sorted(codes.items())),
                          **provenance}
 
     # ---- write JSONL ------------------------------------------------------
