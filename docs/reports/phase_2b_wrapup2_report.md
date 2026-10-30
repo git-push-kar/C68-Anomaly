@@ -259,7 +259,7 @@ requested torch pin was needed.
 | loads with `trust_remote_code` | `InternVLChatModel`, 2,088,957,440 base parameters |
 | one forward pass | logits `[1, 13, 151674]` |
 | LoRA trainable parameters | **18,464,768** — exact match with the earlier run |
-| app environment unchanged | `python -m pytest -q` → **289 passed** on the app interpreter |
+| app environment unchanged | `python -m pytest -q` → **290 passed** on the app interpreter |
 
 ---
 
@@ -352,7 +352,7 @@ Data artifacts rebuilt in place: `train.jsonl` (1,868), `manifest.json`,
 
 | suite | result |
 |---|---|
-| app environment, full | **289 passed** in 10.1 s (268 before; 21 added) |
+| app environment, full | **290 passed** in 9.1 s (268 before; 22 added) |
 | `tests/test_benchmark_scaffolding.py` | 13 passed |
 | `tests/test_to_sft.py` | 9 passed |
 
@@ -376,12 +376,12 @@ Data artifacts rebuilt in place: `train.jsonl` (1,868), `manifest.json`,
 | Leak check / split overlap / open-set scan | **PASS** | 5,870 prompts 0 violations; checker PASS; 0 of 482 |
 | Audit sheet v3 with `scaffolding` | **PASS** | 100 rows, 0 with scaffolding text |
 | SFT export + guards, no severity/confidence | **PASS** | §6, 9 tests |
-| `venv_train` created, nothing else touched | **PASS** | §7; app suite 289 passed |
+| `venv_train` created, nothing else touched | **PASS** | §7; app suite 290 passed |
 | Base model hash, load, forward, 18,464,768 params | **PASS** | §7 |
 | `configs/config_v2.yaml` | **PASS** | §8 |
 | Smoke: memory, s/step, loss 1 and 20, hand CE, token counts, projection | **PASS** | §9 |
 | Measured seconds per item / tokens per second | **PASS** | 23.98 s, 4.0 tok/s |
-| Full test suite in the app environment | **PASS** | 289 passed |
+| Full test suite in the app environment | **PASS** | 290 passed |
 | Full teacher job beyond 150 calls | **STOPPED** | 52 items unreached; excluded from train |
 | Full training | **NOT RUN** | by instruction |
 
