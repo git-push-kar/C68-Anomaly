@@ -987,3 +987,45 @@ adapter exists:
 
 Measured basis: at 512 tokens, 5 of 8 sampled validation answers finished a
 complete JSON object (§11.1's decode comparison), which is why the rule exists.
+
+### 12.1b Per-case dialogue targets, superseding the tier fill (dated 2026-10-31)
+
+§12.1's tier fill is **superseded**. It was written before the composition was
+measured; the measurement showed it left tier 3 with **17 of 1,463 available
+rows** (valve_actuator 2, causal_why 11, mechanism 2, template_sample 2), i.e. a
+mixed file in which the ordinary explanatory turns — the bulk of operator traffic
+— are effectively absent from training. A priority order answers "what if the
+corpus is too small"; it does not answer "what should each case weigh".
+
+The dialogue half of the 2:1 mix is therefore filled to **per-case row targets**
+over the 959 slots (report rows unchanged at 1,919; ratio still 2:1). Whole
+dialogues only, seeded order inside each case, and the total balanced back to the
+slot count with the cases that have the most rows to give. A whole dialogue is the
+unit, so a case may land one dialogue's length either side of its target; ±3 rows
+on the 959-row total is accepted and reported.
+
+| Case | Target rows |
+|---|---|
+| out_of_scope | 114 |
+| false_premise | 120 |
+| clarification_reply | 80 |
+| repeated_question | 80 |
+| ambiguous_question | 100 |
+| hypothesis_comparison | 120 |
+| valve_actuator | 140 |
+| causal_why | 100 |
+| mechanism | 80 |
+| template_sample | 25 |
+| **total** | **959** |
+
+Every target is asserted against the corpus before selection: a target larger than
+the rows a case can supply is an error, not a silently short file.
+
+**Measured result of the rebuild** (`mix_summary.json`, `token_share.json`):
+961 dialogue rows (deviation +2, inside the ±3 tolerance), 2,880 rows total, ratio
+1.997:1. Per case: out_of_scope 114, false_premise 120, clarification_reply 81,
+repeated_question 80, ambiguous_question 101, hypothesis_comparison 120,
+valve_actuator 140, causal_why 100, mechanism 81, template_sample 24. Dialogue
+share of supervised tokens is **11.1%** (72,028 of 647,008 tokens), against 11.4%
+under the tier fill, with the valve case going from 2 rows and 95 supervised
+tokens to 140 rows and 9,542.
