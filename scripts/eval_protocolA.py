@@ -117,20 +117,42 @@ def load_base(config: Path):
     return build_model(config, None, merged=False)
 
 
+def adapter_root(path: Path) -> Path:
+    """The directory that actually holds ``adapter_config.json``.
+
+    A trainer checkpoint keeps its adapter one level down, in
+    ``<checkpoint>/<adapter_name>/``, because ``save_pretrained`` is handed a
+    directory named after the adapter. The caller therefore names the container,
+    not the adapter, and handing that straight to ``PeftModel.from_pretrained``
+    fails on a directory that looks complete but is not.
+    """
+    path = Path(path)
+    if (path / "adapter_config.json").exists():
+        return path
+    if path.is_dir():
+        nested = [child for child in sorted(path.iterdir())
+                  if child.is_dir() and (child / "adapter_config.json").exists()]
+        if len(nested) == 1:
+            return nested[0]
+    raise SystemExit(f"no adapter_config.json at or under {path}")
+
+
 def adapter_steps(directory: Path) -> List[tuple]:
     """Every checkpoint and the final adapter, in training order."""
     found = []
     for path in sorted(directory.glob("checkpoint-*")):
         try:
-            found.append((int(path.name.split("-")[-1]), path))
-        except ValueError:
+            found.append((int(path.name.split("-")[-1]), adapter_root(path)))
+        except (ValueError, SystemExit):
             continue
     summary = directory / "training_summary.json"
     if summary.exists():
         data = json.loads(summary.read_text(encoding="utf-8"))
         step = int(data.get("global_step") or 0)
-        if (directory / "adapter_config.json").exists():
-            found.append((step, directory))
+        try:
+            found.append((step, adapter_root(directory)))
+        except SystemExit:
+            pass
     return sorted(set(found), key=lambda pair: pair[0])
 
 
@@ -223,7 +245,7 @@ def cmd_checkpoints(args) -> int:
             peft_model.load_adapter(str(path), adapter_name=name)
         peft_model.set_adapter(name)
         started = time.time()
-        rows = score(peft_model, tokenizer, sample, dummy, args.batch)
+        rows = score(peft_model, tokenizer, sample, dummy, args.batch, via=args.via)
         seconds = time.time() - started
         report = ev.report(rows, label=name)
         (OUT_DIR / f"preds_val300_{name}.jsonl").write_text(
@@ -247,7 +269,7 @@ def cmd_checkpoints(args) -> int:
     peft_model.set_adapter(f"step{selected['step']}")
     full_items = load_jsonl(VAL_ITEMS)
     started = time.time()
-    full_rows = score(peft_model, tokenizer, full_items, dummy, args.batch)
+    full_rows = score(peft_model, tokenizer, full_items, dummy, args.batch, via=args.via)
     seconds = time.time() - started
     observables = [row for row in full_rows if not row["unobservable"]]
     unobservable = [row for row in full_rows if row["unobservable"]]
@@ -259,6 +281,7 @@ def cmd_checkpoints(args) -> int:
         "selected": selected,
         "rule": "macro-F1 on the 300-item stratified validation subsample, accuracy "
                 "as tie-break, later step as second tie-break",
+        "scoring_via": args.via,
         "full_val": full_report,
         "unobservable": unobservable_report,
         "full_val_seconds": round(seconds, 1),
@@ -325,7 +348,8 @@ def cmd_generate(args) -> int:
     adapter = selected["selected"]["path"]
     model, tokenizer, config, _applied = load_base(Path(args.config))
     dummy = int(config["llm"].get("dummy_image_size", 448))
-    wrapped = PeftModel.from_pretrained(model, adapter, adapter_name="gen")
+    wrapped = PeftModel.from_pretrained(model, str(adapter_root(Path(adapter))),
+                                        adapter_name="gen")
     wrapped.set_adapter("gen")
 
     observable = [item for item in load_jsonl(VAL_ITEMS) if not item.get("unobservable")]
@@ -496,7 +520,8 @@ def cmd_followup(args) -> int:
     selected = json.loads((OUT_DIR / "selected_checkpoint.json").read_text(encoding="utf-8"))
     model, tokenizer, config, _applied = load_base(Path(args.config))
     dummy = int(config["llm"].get("dummy_image_size", 448))
-    wrapped = PeftModel.from_pretrained(model, selected["selected"]["path"], adapter_name="fu")
+    wrapped = PeftModel.from_pretrained(
+        model, str(adapter_root(Path(selected["selected"]["path"]))), adapter_name="fu")
     wrapped.set_adapter("fu")
     from llm.benchmark.decode_bench import decode_kv
     from llm.dataset import build_chat_prompt
@@ -566,6 +591,9 @@ def main() -> int:
     check = sub.add_parser("checkpoints")
     check.add_argument("--per-checkpoint", type=int, default=300)
     check.add_argument("--batch", type=int, default=16)
+    check.add_argument("--via", default="wrapper", choices=("wrapper", "language_model"),
+                       help="which scoring path to use; language_model only after the "
+                            "parity test passes, because it is several times faster")
     check.set_defaults(func=cmd_checkpoints)
 
     gen = sub.add_parser("generate")
