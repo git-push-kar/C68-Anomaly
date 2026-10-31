@@ -52,6 +52,17 @@ outputs/anomaly_detector/*
 outputs/preprocessing/*
 !outputs/preprocessing/baseline_stats.json
 !outputs/preprocessing/baseline_provenance.json
+# Training run 1 (Protocol A, seed 42): the bytes that *describe* the run are
+# tracked, the 4 GB of weights and optimizer state next to them are not. A
+# clone can therefore read how the run went and check the adapter's hashes
+# without being able to mistake itself for a copy that can evaluate the run.
+!outputs/tep_rca_v2_protocolA_seed42/
+outputs/tep_rca_v2_protocolA_seed42/*
+!outputs/tep_rca_v2_protocolA_seed42/training_summary.json
+!outputs/tep_rca_v2_protocolA_seed42/train_telemetry.jsonl
+!outputs/tep_rca_v2_protocolA_seed42/train_telemetry.log
+!outputs/tep_rca_v2_protocolA_seed42/train_console.log
+!outputs/tep_rca_v2_protocolA_seed42/adapter_config.json
 outputs/**/*.db
 outputs/**/*.sqlite
 # Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)
