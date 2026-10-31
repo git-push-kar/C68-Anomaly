@@ -330,6 +330,20 @@ def asks_schema(text: str) -> Dict:
                               ("physical_reasoning", "narrative"))}
 
 
+def bare(model):
+    """The chat model under a PEFT wrapper.
+
+    ``decode_kv`` drives the vision-aware forward itself (pixel_values, image_flags,
+    past_key_values), and ``PeftModel.forward`` does not take those arguments, so a
+    wrapped model has to be handed over unwrapped. The LoRA layers are injected into
+    the base model's own modules, so calling the base still applies the adapter;
+    the wrapper is kept only to load and select it.
+    """
+    if hasattr(model, "peft_config"):
+        return model.base_model.model
+    return model
+
+
 def generate_one(model, tokenizer, prompt: str, cap: int, dummy: int) -> Dict:
     from llm.benchmark.decode_bench import decode_kv
     from llm.benchmark.label_scorer import prompt_for
@@ -358,7 +372,7 @@ def cmd_generate(args) -> int:
     def run(cap: int) -> Dict:
         rows = []
         for item in sample:
-            produced = generate_one(wrapped, tokenizer, item["prompt"], cap, dummy)
+            produced = generate_one(bare(wrapped), tokenizer, item["prompt"], cap, dummy)
             checked = asks_schema(produced["text"])
             violations = ev.grounding_violations(checked.get("prose") or "",
                                                  prompt_tags(item["prompt"]),
@@ -531,7 +545,7 @@ def cmd_followup(args) -> int:
     for entry in questions:
         prompt = build_chat_prompt(SYSTEM_PROMPT_FOLLOWUP, [("user", entry["question"])])
         started = time.time()
-        tokens = decode_kv(wrapped, tokenizer, prompt, args.cap, dummy)
+        tokens = decode_kv(bare(wrapped), tokenizer, prompt, args.cap, dummy)
         text = tokenizer.decode(tokens, skip_special_tokens=True)
         seconds = round(time.time() - started, 2)
         body = text
