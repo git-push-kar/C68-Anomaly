@@ -37,7 +37,56 @@ def test_the_candidates_are_the_menu_and_include_abstention():
     labels = L.candidates()
     assert UNCLASSIFIED in labels
     assert labels[0] == "FAULT_01"
-    assert len(labels) == 16  # faults 1-15 plus UNCLASSIFIED_OPEN_SET
+    # faults 1-15 plus UNCLASSIFIED_OPEN_SET, then the non-fault class
+    assert len(labels) == 17
+    assert labels[-1] == L.NORMAL_TRANSIENT
+
+
+def _training_targets() -> set:
+    """Every fault_id the exporter writes into a training answer.
+
+    Reads the exported SFT files the run was trained on; if a checkout has no
+    generated data, there is nothing to compare against and the test says so
+    rather than inventing a pass.
+    """
+    for relative in ("outputs/benchmark_v2/sft/train_mixed.jsonl",
+                     "outputs/benchmark_v2/sft/train.jsonl"):
+        path = ROOT / relative
+        if not path.exists():
+            continue
+        hits = set()
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            answer = json.loads(line).get("answer")
+            if isinstance(answer, str):
+                try:
+                    answer = json.loads(answer)
+                except ValueError:
+                    continue
+            if isinstance(answer, dict) and answer.get("fault_id"):
+                hits.add(str(answer["fault_id"]))
+        if hits:
+            return hits
+    pytest.skip("no exported SFT training file in this checkout")
+
+
+def test_every_training_target_is_a_scorer_candidate():
+    """A label the model was trained to emit must be a label it can be scored on.
+
+    The scorer is the closed-set path: it names the field after the last prompt
+    token and takes the argmax over a fixed list. Anything in the training targets
+    that is missing from that list cannot be predicted, so its recall is 0 by
+    construction and every reported NORMAL_TRANSIENT error is an artefact.
+    """
+    labels = set(L.candidates())
+    targets = _training_targets()
+    missing = sorted(targets - labels)
+    assert not missing, f"training targets the scorer cannot emit: {missing}"
+    assert L.NORMAL_TRANSIENT in targets, (
+        "the export is expected to contain NORMAL_TRANSIENT rows; if it no longer "
+        "does, the candidate list may need revisiting"
+    )
 
 
 def test_softmax_is_normalised_and_order_preserving():

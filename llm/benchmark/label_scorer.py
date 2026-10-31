@@ -41,9 +41,18 @@ DEFAULT_CONFIG = ROOT / "configs" / "config_v2.yaml"
 ANSWER_PREFIX = '{"fault_id": "'
 
 
+#: The dataset's non-fault answer. It is deliberately *not* a menu entry -- there
+#: is no fault to point at, and an open-set episode must not be able to name one --
+#: but it is a legal training target (111 of the 1,919 report rows), so the closed
+#: set the scorer reads has to contain it. Without it every NORMAL_TRANSIENT item is
+#: unscoreable by construction: the argmax can never be that string, and its recall
+#: is pinned at 0 for a reason that has nothing to do with the model.
+NORMAL_TRANSIENT = "NORMAL_TRANSIENT"
+
+
 def candidates() -> List[str]:
-    """Every legal answer, in menu order."""
-    return [entry["fault_id"] for entry in build_menu()]
+    """Every legal answer: the menu in order, then the non-fault class."""
+    return [entry["fault_id"] for entry in build_menu()] + [NORMAL_TRANSIENT]
 
 
 def prompt_for(question: str) -> str:

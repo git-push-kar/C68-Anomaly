@@ -1029,3 +1029,37 @@ valve_actuator 140, causal_why 100, mechanism 81, template_sample 24. Dialogue
 share of supervised tokens is **11.1%** (72,028 of 647,008 tokens), against 11.4%
 under the tier fill, with the valve case going from 2 rows and 95 supervised
 tokens to 140 rows and 9,542.
+
+## 13. Candidate-set correction (dated 2026-10-31, before any test contact)
+
+**What was wrong.** The closed-set scorer read `llm/benchmark/menu.py::build_menu`,
+which by design has no `NORMAL_TRANSIENT` entry: NORMAL_TRANSIENT is not a fault,
+and an open-set episode must not be able to point at one. But it *is* a training
+target — 111 of the 1,919 report rows carry `{"fault_id": "NORMAL_TRANSIENT",
+"verdict": "no_fault"}` — so the scorer's candidate list (16 strings) omitted a
+label the model was trained to emit. The argmax could never be that string, so
+NORMAL_TRANSIENT recall was pinned at **0.000** and its 47 validation rows were
+forced into some other class (39 of them into FAULT_15). Every number that depends
+on those rows — macro-F1, per-class precision/recall, the confusion matrix — was
+measuring the candidate list, not the model.
+
+**The fix, and its scope.** `label_scorer.candidates()` now returns the menu ids
+followed by `NORMAL_TRANSIENT` (17 candidates). Nothing else moves: the menu shown
+in the student prompt is unchanged, the open-set construction is unchanged, the
+adapter and its checkpoints are unchanged, no row of any split changes, and no
+training target changes. Only the set of labels the scoring path can *read* is
+corrected, and `tests/test_label_scorer.py` now asserts that every distinct
+`fault_id` in the exported training targets is a scorer candidate.
+
+**Why this is an instrument repair, not a rule change.** §11.1 pre-registered the
+selection metric as "one forward pass over the menu ids plus `UNCLASSIFIED_OPEN_SET`";
+that sentence was the source of the omission. The metric (macro-F1), the scope
+(seen faults, validation only), the tie-break and the 300-item subsample are
+unchanged, and the re-selection below is a replay of the same rule over a corrected
+label set. Dated here **before any test component was opened**, which remains true:
+no test row has been scored at the time of writing.
+
+**What it changes.** All six checkpoints are rescored on the same 300-item
+subsample and the selection is redone; the selected checkpoint is scored on the
+full Protocol A validation; the unadapted base model is scored on both with the
+same candidate set; and the report's tables are replaced with before/after.
