@@ -943,3 +943,47 @@ suggested follow-ups and the clarifying question are derived in code
 real tokenizer over the 1,925 training rows: answers go from p50 402 / mean 403.8
 tokens to p50 296 / mean 298.9 (**−26%**), and the full sequence from p50 1,510 to
 1,406.
+
+## 12. Pre-run amendments (2026-10-31, before any training result)
+
+Both entries below were written before the adapter was trained, and neither was
+chosen by looking at a model result.
+
+### 12.1 How the 2:1 mix is filled (dated 2026-10-31)
+
+The combined SFT file stays at **two report rows per dialogue row**. At the
+current scale that is 1,919 report rows and a dialogue budget of 959 rows
+(`len(report_rows) // 2`), 2,878 rows in total.
+
+Dialogue slots are filled in priority order, whole dialogues only, seeded hash
+inside a tier (`llm/benchmark/to_sft_followup.py::CASE_PRIORITY`):
+
+1. `out_of_scope`, `false_premise`, `clarification_reply`, `repeated_question`;
+2. `ambiguous_question`, `hypothesis_comparison`;
+3. `valve_actuator`, `causal_why`, `mechanism`, `template_sample`.
+
+A tier is exhausted before the next one is touched. No case is reserved a floor,
+so the achieved composition is whatever the corpus supports and is reported in
+`mix_summary.json` and `token_share.json` rather than assumed.
+
+**Measured consequence, recorded here so it is not discovered later.** Tiers 1
+and 2 hold 942 of the 959 dialogue rows (98.2%). Tier 3 receives **17 rows**
+(valve_actuator 2, causal_why 11, mechanism 2, template_sample 2) out of 1,463
+available. The mixed file is therefore a refusal/comparison-heavy corpus, and
+the ordinary explanatory turns are effectively absent from training. This is the
+literal reading of the instruction; §13.1 of the report proposes a floor and
+does not apply it.
+
+### 12.2 Generation cap and the completion rule (dated 2026-10-31)
+
+Generation is capped at **512 new tokens**. The rule is fixed now, before any
+adapter exists:
+
+* run the 50-item validation schema check at 512;
+* if schema completion is below **95%**, repeat the identical check at **768**
+  and report both numbers;
+* the cap used for the reported evaluation is the smallest of the two that
+  clears 95%, and both are reported even when 512 clears it.
+
+Measured basis: at 512 tokens, 5 of 8 sampled validation answers finished a
+complete JSON object (§11.1's decode comparison), which is why the rule exists.
