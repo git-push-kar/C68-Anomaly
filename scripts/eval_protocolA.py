@@ -293,6 +293,59 @@ def cmd_checkpoints(args) -> int:
     return 0
 
 
+def cmd_base(args) -> int:
+    """The unadapted base model, scored with the same prompt and candidate set.
+
+The reference row every adapter number needs: a 2 B chat model that has never
+seen this dataset can still be right about some of it, and without measuring
+that, "accuracy 0.84" has no denominator.
+    """
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    observable = [item for item in load_jsonl(VAL_ITEMS) if not item.get("unobservable")]
+    sample = stratify(observable, args.per_checkpoint, args.seed)
+    model, tokenizer, config, applied = load_base(Path(args.config))
+    if applied:
+        raise SystemExit(f"base reference must run without an adapter, got {applied}")
+    dummy = int(config["llm"].get("dummy_image_size", 448))
+    started = time.time()
+    rows300 = score(model, tokenizer, sample, dummy, args.batch, via=args.via)
+    seconds300 = time.time() - started
+    report300 = ev.report(rows300, label="base:val300")
+    (OUT_DIR / "preds_base_val300.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in rows300), encoding="utf-8")
+
+    started = time.time()
+    full_rows = score(model, tokenizer, load_jsonl(VAL_ITEMS), dummy, args.batch,
+                      via=args.via)
+    seconds_full = time.time() - started
+    observables = [row for row in full_rows if not row["unobservable"]]
+    unobservable = [row for row in full_rows if row["unobservable"]]
+    report_full = ev.report(observables, label="base:val_full")
+    report_unobservable = ev.report(unobservable, label="base:val_unobservable")
+    (OUT_DIR / "preds_base_val_full.jsonl").write_text(
+        "\n".join(json.dumps(row) for row in full_rows), encoding="utf-8")
+
+    from llm.benchmark.label_scorer import candidates as scorer_candidates
+
+    outcome = {
+        "candidate_count": len(scorer_candidates()),
+        "val300": report300,
+        "val_full": report_full,
+        "unobservable": report_unobservable,
+        "seconds_val300": round(seconds300, 1),
+        "seconds_val_full": round(seconds_full, 1),
+        "seconds_per_item": round(seconds300 / max(len(sample), 1), 3),
+    }
+    (OUT_DIR / "base_reference.json").write_text(json.dumps(outcome, indent=2, default=str),
+                                                 encoding="utf-8")
+    print(json.dumps({key: outcome[key] for key in
+                      ("seconds_val300", "seconds_val_full", "seconds_per_item")}, indent=2))
+    print(json.dumps({"val300": _metric_row(report300),
+                      "val_full": _metric_row(report_full),
+                      "abstention_full": report_full["abstention"]}, indent=2))
+    return 0
+
+
 # ---------------------------------------------------------------------------
 MONTHS = re.compile(r"\b(?:definitely|certainly|undoubtedly|absolutely)\b", re.I)
 
@@ -499,13 +552,34 @@ def followup_questions(args) -> List[Dict]:
         by_case[str(dialogue.get("case_type"))].append(dialogue)
     rng = random.Random(args.seed)
     picked: List[Dict] = []
-    per_case = max(1, args.items // max(len(by_case), 1)) if by_case else 0
+    per_case = int(getattr(args, "per_case", 0) or 0)
+    if not per_case:
+        per_case = max(1, args.items // max(len(by_case), 1)) if by_case else 0
     for case in sorted(by_case):
         bucket = sorted(by_case[case], key=lambda row: str(row.get("dialogue_id")))
         rng.shuffle(bucket)
         for dialogue in bucket[:per_case]:
             picked.append({"kind": case, "dialogue_id": dialogue.get("dialogue_id"),
                            "question": question_for(dialogue, 0), "in_scope": None})
+    # A case can be worth more than its flat share: a re-ask is where the model
+    # either adds detail or starts declining, so the re-ask bucket is topped up on
+    # top of the per-case floor rather than being fixed by it.
+    repeats = int(getattr(args, "repeats", 0) or 0)
+    if repeats:
+        have = sum(1 for row in picked if row["kind"] == "repeated_question")
+        bucket = sorted(by_case.get("repeated_question", []),
+                        key=lambda row: str(row.get("dialogue_id")))
+        rng.shuffle(bucket)
+        used = {row["dialogue_id"] for row in picked}
+        for dialogue in bucket:
+            if have >= repeats:
+                break
+            if dialogue.get("dialogue_id") in used:
+                continue
+            picked.append({"kind": "repeated_question",
+                           "dialogue_id": dialogue.get("dialogue_id"),
+                           "question": question_for(dialogue, 0), "in_scope": None})
+            have += 1
     controls = args.controls
     control_rows = []
     for dialogue in dialogues:
@@ -585,7 +659,8 @@ def cmd_followup(args) -> int:
         "seconds_per_item": round(sum(row["seconds"] for row in rows) / max(len(rows), 1), 2),
         "rows": rows,
     }
-    (OUT_DIR / "followup_sanity.json").write_text(json.dumps(outcome, indent=2), encoding="utf-8")
+    (OUT_DIR / str(getattr(args, "out", "followup_sanity.json"))).write_text(
+        json.dumps(outcome, indent=2), encoding="utf-8")
     print(json.dumps({key: value for key, value in outcome.items() if key != "rows"}, indent=2))
     return 0
 
@@ -625,8 +700,19 @@ def main() -> int:
     follow = sub.add_parser("followup")
     follow.add_argument("--items", type=int, default=40)
     follow.add_argument("--controls", type=int, default=20)
+    follow.add_argument("--per-case", dest="per_case", type=int, default=0,
+                       help="floor per case type; 0 keeps items/cases")
+    follow.add_argument("--repeats", type=int, default=0,
+                        help="top up repeated_question to this many turns")
+    follow.add_argument("--out", default="followup_sanity.json")
     follow.add_argument("--cap", type=int, default=256)
     follow.set_defaults(func=cmd_followup)
+
+    base = sub.add_parser("base")
+    base.add_argument("--per-checkpoint", dest="per_checkpoint", type=int, default=300)
+    base.add_argument("--batch", type=int, default=16)
+    base.add_argument("--via", default="language_model", choices=("wrapper", "language_model"))
+    base.set_defaults(func=cmd_base)
 
     args = parser.parse_args()
     return args.func(args)
