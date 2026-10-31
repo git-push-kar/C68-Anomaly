@@ -154,6 +154,30 @@ def top_k(probs: Dict[str, float], k: int = 3) -> List[str]:
     return [label for label, _ in sorted(probs.items(), key=lambda pair: -pair[1])[:k]]
 
 
+def feature_names() -> List[str]:
+    """One name per column, in the order ``prompt_features`` writes them.
+
+    The names are the prompt's own fields, which is what makes the identifier audit
+    checkable: a feature that encoded the item, the run or the event would have to be
+    called something, and none of these is.
+    """
+    names = list(GLOBALS)
+    for tag in TAGS:
+        names += [f"{tag}:z", f"{tag}:deviation", f"{tag}:trend", f"{tag}:onset",
+                  f"{tag}:residual", f"{tag}:present"]
+    return names
+
+
+def identifier_audit(names: Sequence[str]) -> Dict:
+    """No feature may be derived from an item, run, event or ordering identifier."""
+    banned = ("item_id", "itemid", "run", "event", "evt", "index", "order",
+              "position_in", "seed", "split", "hash", "simulation")
+    offenders = [name for name in names
+                 if any(token in name.lower() for token in banned)]
+    return {"n_features": len(names), "banned_tokens": list(banned),
+            "offending_features": offenders, "clean": not offenders}
+
+
 def fit_trees(x_train, y_train, x_val, seed: int = 42):
     import lightgbm as lgb
 
@@ -168,7 +192,9 @@ def fit_trees(x_train, y_train, x_val, seed: int = 42):
     model.fit(x_train, [encoder[label] for label in y_train])
     proba = model.predict_proba(x_val)
     ordered = [labels[index] for index in model.classes_]
-    return [{label: float(p) for label, p in zip(ordered, row)} for row in proba]
+    importance = model.booster_.feature_importance(importance_type="gain")
+    return ([{label: float(p) for label, p in zip(ordered, row)} for row in proba],
+            importance)
 
 
 def fit_mlp(x_train, y_train, x_val, seed: int = 42, epochs: int = 300):
@@ -264,9 +290,11 @@ def main() -> int:
                       "train_labels": len(set(y_train)),
                       "val_labels": len(set(y_val))}, indent=2))
 
-    trees = fit_trees(x_train, y_train, x_val, args.seed)
+    trees, importance = fit_trees(x_train, y_train, x_val, args.seed)
     trees_pred = [max(prob.items(), key=lambda pair: pair[1])[0] for prob in trees]
     trees_rows = rows_for(trees_pred, trees, y_val, ids, items)
+    names = feature_names()
+    ranking = sorted(zip(names, importance), key=lambda pair: -pair[1])[:25]
 
     mlp = fit_mlp(x_train, y_train, x_val, args.seed)
     mlp_pred = [max(prob.items(), key=lambda pair: pair[1])[0] for prob in mlp]
@@ -277,7 +305,10 @@ def main() -> int:
             "\n".join(json.dumps(row) for row in rows), encoding="utf-8")
 
     summary = {"gbdt": summarise(trees_rows, "gbdt"),
-               "mlp": summarise(mlp_rows, "mlp")}
+               "mlp": summarise(mlp_rows, "mlp"),
+               "top_features": [{"feature": name, "gain": round(float(gain), 4)}
+                                for name, gain in ranking],
+               "feature_audit": identifier_audit(names)}
 
     # The adapter, restricted to the same item ids, so the three rows differ only
     # in the model.

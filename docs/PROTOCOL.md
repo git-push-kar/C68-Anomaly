@@ -1110,3 +1110,85 @@ sanity numbers were re-measured on the selected step-300 adapter and are therefo
 not comparable with the earlier 60-turn sample at step 400.
 
 No test component has been scored at the time of writing.
+
+## 14. Instrument freeze (dated 2026-11-01, before any test contact)
+
+The closed-set number quoted for run 1 has been computed with four different readings of
+the same answer field, and they disagree enough to select different checkpoints. This
+section fixes one of them before any test component is scored; no test row has been read
+at the time of writing, and this is a record of a choice made on validation only.
+
+### 14.1 The four candidates
+
+| | Instrument | Score for a candidate |
+|---|---|---|
+| (a) | `mean` | mean log-probability per token over the candidate's suffix (`§13.1`) |
+| (b) | `joint` | summed log-probability of the suffix (the string's own probability) |
+| (c) | `decode` | greedy-decode the first answer field, ≤16 tokens, stop at the closing quote; prediction = decoded string, probability = chain-rule sum along that path |
+| (d) | `hierarchical` | argmax over the first-token family, then argmax of the conditional within it |
+
+(b) and (d) are not independent of each other: the chain rule makes them the same
+quantity, and (d) only differs by deciding in two stages. Measured on the 300-item
+subsample they agree to within 0.004 accuracy at every checkpoint, and both are broken
+by the prefix structure — 15 fault labels share the first token `FAULT`, so the family's
+mass is split 15 ways and a single-label family wins whenever the number is uncertain.
+Neither is carried into the freeze as a candidate.
+
+### 14.2 Validation numbers, all instruments, all checkpoints
+
+300-item stratified subsample (seen faults, both menu variants), batch 16:
+
+| Step | (a) acc / mF1 | (b) acc / mF1 | (d) acc / mF1 | (c) acc / mF1 |
+|---|---|---|---|---|
+| 100 | 0.4833 / 0.2515 | 0.0567 / 0.0072 | 0.0633 / 0.0278 | 0.2367 / 0.3424 |
+| 200 | 0.7633 / 0.5623 | 0.1000 / 0.1351 | 0.1267 / 0.1871 | 0.7600 / 0.6903 |
+| 300 | **0.8833 / 0.8720** | 0.3833 / 0.4988 | 0.3733 / 0.4839 | 0.8733 / 0.8706 |
+| 400 | 0.8533 / 0.7325 | 0.4300 / 0.4521 | 0.4300 / 0.4521 | 0.9267 / 0.8853 |
+| 500 | 0.9033 / 0.8540 | 0.4100 / 0.5345 | 0.4067 / 0.5318 | **0.9367 / 0.9353** |
+| 540 | 0.9033 / 0.8545 | 0.4200 / 0.5308 | 0.4200 / 0.5253 | 0.9300 / 0.9230 |
+
+Full Protocol A validation, 822 observable rows (step 300 / 500 / 540; (b) and (d) not
+carried because they already select 0.42-accuracy checkpoints on the subsample):
+
+| Step | (a) acc / mF1 / abstain P | (c) acc / mF1 / abstain P |
+|---|---|---|
+| 300 | 0.8869 / 0.8689 / 0.9707 | 0.8796 / 0.8741 / 0.9974 |
+| 500 | 0.9173 / 0.8619 / 0.9727 | **0.9416 / 0.9263 / 0.9907** |
+| 540 | 0.9161 / 0.8651 / 0.9704 | 0.9380 / 0.9204 / 0.9907 |
+
+Cost, same pass: (a) 0.82-0.92 s/item, (c) 0.216-0.226 s/item at decode batch 8, with 0
+invalid decodes in 300 at every checkpoint.
+
+### 14.3 The rule, and what it selects
+
+The rule is the one written down before these numbers existed: **highest full-validation
+macro-F1 with abstention precision >= 0.95; ties go to the instrument that matches
+deployed generation.**
+
+It selects **instrument (c), greedy decoding of the `fault_id` field**, at **step 500**:
+macro-F1 0.9263 with abstention precision 0.9907, against the mean instrument's best
+0.8689. The tie-break does not fire, but it would have pointed the same way — decoding is
+what deployment does, because the answer is produced by generating it.
+
+**Frozen from here, without a further dated amendment:**
+
+1. the closed-set instrument is (c), defined exactly as above;
+2. the candidate set is the 17 labels of §13, `NORMAL_TRANSIENT` included;
+3. the run-1 checkpoint whose numbers are reported is **step 500**;
+4. (a) stays as a diagnostic column only, because §13's tables were computed with it.
+
+### 14.4 A reference the adapter does not beat, recorded before test contact
+
+On the 497 validation items where both can be asked, a 400-tree gradient-boosted model
+trained on train events and reading the same rendered evidence reaches **0.9940 accuracy
+and 0.9926 macro-F1**; the adapter under the frozen instrument reaches **0.9034 / 0.9199**
+on those same items (McNemar paired on item id: b=1, c=46, p≈0). The classifier sees no
+menu and is therefore never asked the 325 open-set twins, on which the adapter abstains
+correctly 100% of the time — so this is not a like-for-like comparison of the whole task,
+only of the sub-task both are asked. It is recorded here because it bounds what the
+closed-set number can mean: whatever else the adapter adds (prose, follow-up answers,
+rendering), it is not currently adding fault-identification ability over a tabular
+baseline on the menu-present slice.
+
+Nothing in this section changes training, the mix, or any filter. Test components remain
+unopened.

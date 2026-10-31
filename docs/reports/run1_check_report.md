@@ -381,8 +381,9 @@ intersection.
 | MLP | 503 | 0.9583 | 0.9821 | 0.8512 |
 | Adapter | 503 | 0.7646 | 0.8893 | 0.7942 |
 
-On menu-variant items a tabular model reading the same numbers makes **2 of 497**
-mistakes where the adapter makes **83**. The adapter's own full-validation number
+On menu-variant items a tabular model reading the same numbers makes **3 of 497**
+mistakes (0.9940 × 497 = 494 correct) where the adapter makes **83**; the MLP makes
+15. The adapter's own full-validation number
 (0.8869) is higher than its menu-only number (0.833) because the full set includes 331
 removed-menu open-set episodes it abstains on correctly, and those are items the
 classifier is not asked.
