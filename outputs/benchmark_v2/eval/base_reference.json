@@ -1,0 +1,843 @@
+{
+  "candidate_count": 17,
+  "val300": {
+    "label": "base:val300",
+    "items": 300,
+    "accuracy": 0.5533,
+    "top3": 0.62,
+    "macro_f1": 0.0475,
+    "abstention": {
+      "abstention_rate": 1.0,
+      "abstention_precision": 0.5533,
+      "abstention_recall": 1.0,
+      "false_abstention_rate": 1.0,
+      "missed_abstention_rate": 0.0,
+      "abstain_support": 166
+    },
+    "ece": 0.2681,
+    "brier": 0.3206,
+    "grounding": {
+      "items": 0
+    },
+    "per_fault": {
+      "FAULT_01": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_02": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_04": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_05": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_06": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_07": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_08": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_10": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_11": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_12": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_13": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_14": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "FAULT_15": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "NORMAL_TRANSIENT": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 17
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "precision": 0.5533,
+        "recall": 1.0,
+        "f1": 0.7124,
+        "support": 166
+      }
+    },
+    "accuracy_ci": {
+      "point": 0.5533,
+      "low": 0.505,
+      "high": 0.6042,
+      "clusters": 263,
+      "resamples": 1000
+    },
+    "macro_f1_ci": {
+      "point": 0.0475,
+      "low": 0.0447,
+      "high": 0.0502,
+      "clusters": 263,
+      "resamples": 1000
+    },
+    "confusion": {
+      "FAULT_01": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_02": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_04": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_05": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_06": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_07": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_08": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_10": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_11": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_12": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_13": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_14": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "FAULT_15": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 9
+      },
+      "NORMAL_TRANSIENT": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 17
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 166
+      }
+    }
+  },
+  "val_full": {
+    "label": "base:val_full",
+    "items": 822,
+    "accuracy": 0.5474,
+    "top3": 0.6168,
+    "macro_f1": 0.0472,
+    "abstention": {
+      "abstention_rate": 1.0,
+      "abstention_precision": 0.5474,
+      "abstention_recall": 1.0,
+      "false_abstention_rate": 1.0,
+      "missed_abstention_rate": 0.0,
+      "abstain_support": 450
+    },
+    "ece": 0.2637,
+    "brier": 0.3209,
+    "grounding": {
+      "items": 0
+    },
+    "per_fault": {
+      "FAULT_01": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_02": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_04": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_05": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_06": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_07": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_08": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_10": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_11": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_12": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_13": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_14": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "FAULT_15": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 25
+      },
+      "NORMAL_TRANSIENT": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 47
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "precision": 0.5474,
+        "recall": 1.0,
+        "f1": 0.7075,
+        "support": 450
+      }
+    },
+    "accuracy_ci": {
+      "point": 0.5474,
+      "low": 0.5324,
+      "high": 0.5637,
+      "clusters": 497,
+      "resamples": 1000
+    },
+    "macro_f1_ci": {
+      "point": 0.0472,
+      "low": 0.0463,
+      "high": 0.0481,
+      "clusters": 497,
+      "resamples": 1000
+    },
+    "confusion": {
+      "FAULT_01": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_02": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_04": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_05": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_06": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_07": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_08": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_10": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_11": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_12": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_13": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_14": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "FAULT_15": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 25
+      },
+      "NORMAL_TRANSIENT": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 47
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 450
+      }
+    }
+  },
+  "unobservable": {
+    "label": "base:val_unobservable",
+    "items": 12,
+    "accuracy": 0.5,
+    "top3": 0.5,
+    "macro_f1": 0.2222,
+    "abstention": {
+      "abstention_rate": 1.0,
+      "abstention_precision": 0.5,
+      "abstention_recall": 1.0,
+      "false_abstention_rate": 1.0,
+      "missed_abstention_rate": 0.0,
+      "abstain_support": 6
+    },
+    "ece": 0.1891,
+    "brier": 0.288,
+    "grounding": {
+      "items": 0
+    },
+    "per_fault": {
+      "FAULT_03": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 2
+      },
+      "FAULT_09": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 4
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6667,
+        "support": 6
+      }
+    },
+    "accuracy_ci": {
+      "point": 0.5,
+      "low": 0.5,
+      "high": 0.5,
+      "clusters": 6,
+      "resamples": 1000
+    },
+    "macro_f1_ci": {
+      "point": 0.2222,
+      "low": 0.2222,
+      "high": 0.3333,
+      "clusters": 6,
+      "resamples": 1000
+    },
+    "confusion": {
+      "FAULT_03": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "UNCLASSIFIED_OPEN_SET": 2
+      },
+      "FAULT_09": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "UNCLASSIFIED_OPEN_SET": 4
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "UNCLASSIFIED_OPEN_SET": 6
+      }
+    }
+  },
+  "seconds_val300": 173.1,
+  "seconds_val_full": 579.2,
+  "seconds_per_item": 0.577
+}

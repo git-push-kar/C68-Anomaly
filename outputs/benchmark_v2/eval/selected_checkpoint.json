@@ -1,16 +1,16 @@
 {
   "selected": {
-    "step": 400,
-    "path": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-400\\tep_rca_v2_protocolA_seed42",
+    "step": 300,
+    "path": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-300\\tep_rca_v2_protocolA_seed42",
     "items": 300,
-    "accuracy": 0.8333,
-    "top3": 0.9367,
-    "macro_f1": 0.7826,
+    "accuracy": 0.8833,
+    "top3": 0.9867,
+    "macro_f1": 0.872,
     "abstention": {
-      "abstention_rate": 0.48,
-      "abstention_precision": 0.9931,
+      "abstention_rate": 0.4833,
+      "abstention_precision": 0.9862,
       "abstention_recall": 0.8614,
-      "false_abstention_rate": 0.0075,
+      "false_abstention_rate": 0.0149,
       "missed_abstention_rate": 0.1386,
       "abstain_support": 166
     },
@@ -19,39 +19,39 @@
       "FAULT_02": 1.0,
       "FAULT_04": 1.0,
       "FAULT_05": 0.8889,
-      "FAULT_06": 0.7778,
+      "FAULT_06": 0.8889,
       "FAULT_07": 1.0,
       "FAULT_08": 0.8889,
-      "FAULT_10": 1.0,
+      "FAULT_10": 0.8889,
       "FAULT_11": 1.0,
-      "FAULT_12": 1.0,
+      "FAULT_12": 0.6667,
       "FAULT_13": 0.8889,
-      "FAULT_14": 0.8889,
+      "FAULT_14": 1.0,
       "FAULT_15": 0.5556,
-      "NORMAL_TRANSIENT": 0.0,
+      "NORMAL_TRANSIENT": 1.0,
       "UNCLASSIFIED_OPEN_SET": 0.8614
     },
-    "seconds": 221.8,
-    "seconds_per_item": 0.739
+    "seconds": 252.1,
+    "seconds_per_item": 0.84
   },
   "rule": "macro-F1 on the 300-item stratified validation subsample, accuracy as tie-break, later step as second tie-break",
   "scoring_via": "language_model",
   "full_val": {
-    "label": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-400\\tep_rca_v2_protocolA_seed42:observable",
+    "label": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-300\\tep_rca_v2_protocolA_seed42:observable",
     "items": 822,
-    "accuracy": 0.8406,
-    "top3": 0.9331,
-    "macro_f1": 0.7888,
+    "accuracy": 0.8869,
+    "top3": 0.9866,
+    "macro_f1": 0.8689,
     "abstention": {
-      "abstention_rate": 0.4781,
-      "abstention_precision": 0.9975,
-      "abstention_recall": 0.8711,
-      "false_abstention_rate": 0.0027,
-      "missed_abstention_rate": 0.1289,
+      "abstention_rate": 0.4976,
+      "abstention_precision": 0.9707,
+      "abstention_recall": 0.8822,
+      "false_abstention_rate": 0.0323,
+      "missed_abstention_rate": 0.1178,
       "abstain_support": 450
     },
-    "ece": 0.0364,
-    "brier": 0.1171,
+    "ece": 0.6667,
+    "brier": 0.5357,
     "grounding": {
       "items": 0
     },
@@ -63,9 +63,9 @@
         "support": 25
       },
       "FAULT_02": {
-        "precision": 1.0,
+        "precision": 0.9259,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.9615,
         "support": 25
       },
       "FAULT_04": {
@@ -75,89 +75,89 @@
         "support": 25
       },
       "FAULT_05": {
-        "precision": 0.9231,
+        "precision": 0.8889,
         "recall": 0.96,
-        "f1": 0.9412,
+        "f1": 0.9231,
         "support": 25
       },
       "FAULT_06": {
-        "precision": 0.9167,
-        "recall": 0.88,
-        "f1": 0.898,
+        "precision": 0.96,
+        "recall": 0.96,
+        "f1": 0.96,
         "support": 25
       },
       "FAULT_07": {
         "precision": 1.0,
-        "recall": 0.96,
-        "f1": 0.9796,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 25
       },
       "FAULT_08": {
-        "precision": 0.6875,
-        "recall": 0.88,
-        "f1": 0.7719,
+        "precision": 0.9524,
+        "recall": 0.8,
+        "f1": 0.8696,
         "support": 25
       },
       "FAULT_10": {
-        "precision": 0.3205,
-        "recall": 1.0,
-        "f1": 0.4854,
+        "precision": 0.4259,
+        "recall": 0.92,
+        "f1": 0.5823,
         "support": 25
       },
       "FAULT_11": {
-        "precision": 0.6944,
-        "recall": 1.0,
-        "f1": 0.8197,
+        "precision": 0.96,
+        "recall": 0.96,
+        "f1": 0.96,
         "support": 25
       },
       "FAULT_12": {
-        "precision": 0.9615,
-        "recall": 1.0,
-        "f1": 0.9804,
-        "support": 25
-      },
-      "FAULT_13": {
-        "precision": 0.7273,
-        "recall": 0.96,
-        "f1": 0.8276,
-        "support": 25
-      },
-      "FAULT_14": {
         "precision": 1.0,
         "recall": 0.8,
         "f1": 0.8889,
         "support": 25
       },
+      "FAULT_13": {
+        "precision": 0.7931,
+        "recall": 0.92,
+        "f1": 0.8519,
+        "support": 25
+      },
+      "FAULT_14": {
+        "precision": 1.0,
+        "recall": 0.72,
+        "f1": 0.8372,
+        "support": 25
+      },
       "FAULT_15": {
-        "precision": 0.2407,
+        "precision": 0.5909,
         "recall": 0.52,
-        "f1": 0.3291,
+        "f1": 0.5532,
         "support": 25
       },
       "NORMAL_TRANSIENT": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1": 0.0,
+        "precision": 0.6232,
+        "recall": 0.9149,
+        "f1": 0.7414,
         "support": 47
       },
       "UNCLASSIFIED_OPEN_SET": {
-        "precision": 0.9975,
-        "recall": 0.8711,
-        "f1": 0.93,
+        "precision": 0.9707,
+        "recall": 0.8822,
+        "f1": 0.9243,
         "support": 450
       }
     },
     "accuracy_ci": {
-      "point": 0.8406,
-      "low": 0.814,
-      "high": 0.8666,
+      "point": 0.8869,
+      "low": 0.8617,
+      "high": 0.9092,
       "clusters": 497,
       "resamples": 1000
     },
     "macro_f1_ci": {
-      "point": 0.7888,
-      "low": 0.7616,
-      "high": 0.8096,
+      "point": 0.8689,
+      "low": 0.8361,
+      "high": 0.8936,
       "clusters": 497,
       "resamples": 1000
     },
@@ -235,13 +235,13 @@
         "FAULT_02": 0,
         "FAULT_04": 0,
         "FAULT_05": 0,
-        "FAULT_06": 22,
+        "FAULT_06": 24,
         "FAULT_07": 0,
-        "FAULT_08": 2,
+        "FAULT_08": 1,
         "FAULT_10": 0,
         "FAULT_11": 0,
         "FAULT_12": 0,
-        "FAULT_13": 1,
+        "FAULT_13": 0,
         "FAULT_14": 0,
         "FAULT_15": 0,
         "NORMAL_TRANSIENT": 0,
@@ -253,12 +253,12 @@
         "FAULT_04": 0,
         "FAULT_05": 0,
         "FAULT_06": 0,
-        "FAULT_07": 24,
+        "FAULT_07": 25,
         "FAULT_08": 0,
         "FAULT_10": 0,
         "FAULT_11": 0,
         "FAULT_12": 0,
-        "FAULT_13": 1,
+        "FAULT_13": 0,
         "FAULT_14": 0,
         "FAULT_15": 0,
         "NORMAL_TRANSIENT": 0,
@@ -268,14 +268,14 @@
         "FAULT_01": 1,
         "FAULT_02": 0,
         "FAULT_04": 0,
-        "FAULT_05": 0,
-        "FAULT_06": 0,
+        "FAULT_05": 2,
+        "FAULT_06": 1,
         "FAULT_07": 0,
-        "FAULT_08": 22,
+        "FAULT_08": 20,
         "FAULT_10": 0,
         "FAULT_11": 0,
         "FAULT_12": 0,
-        "FAULT_13": 2,
+        "FAULT_13": 1,
         "FAULT_14": 0,
         "FAULT_15": 0,
         "NORMAL_TRANSIENT": 0,
@@ -289,13 +289,13 @@
         "FAULT_06": 0,
         "FAULT_07": 0,
         "FAULT_08": 0,
-        "FAULT_10": 25,
+        "FAULT_10": 23,
         "FAULT_11": 0,
         "FAULT_12": 0,
         "FAULT_13": 0,
         "FAULT_14": 0,
-        "FAULT_15": 0,
-        "NORMAL_TRANSIENT": 0,
+        "FAULT_15": 1,
+        "NORMAL_TRANSIENT": 1,
         "UNCLASSIFIED_OPEN_SET": 0
       },
       "FAULT_11": {
@@ -307,13 +307,13 @@
         "FAULT_07": 0,
         "FAULT_08": 0,
         "FAULT_10": 0,
-        "FAULT_11": 25,
+        "FAULT_11": 24,
         "FAULT_12": 0,
         "FAULT_13": 0,
         "FAULT_14": 0,
         "FAULT_15": 0,
         "NORMAL_TRANSIENT": 0,
-        "UNCLASSIFIED_OPEN_SET": 0
+        "UNCLASSIFIED_OPEN_SET": 1
       },
       "FAULT_12": {
         "FAULT_01": 0,
@@ -325,12 +325,12 @@
         "FAULT_08": 0,
         "FAULT_10": 0,
         "FAULT_11": 0,
-        "FAULT_12": 25,
-        "FAULT_13": 0,
+        "FAULT_12": 20,
+        "FAULT_13": 3,
         "FAULT_14": 0,
         "FAULT_15": 0,
         "NORMAL_TRANSIENT": 0,
-        "UNCLASSIFIED_OPEN_SET": 0
+        "UNCLASSIFIED_OPEN_SET": 2
       },
       "FAULT_13": {
         "FAULT_01": 0,
@@ -343,11 +343,11 @@
         "FAULT_10": 0,
         "FAULT_11": 0,
         "FAULT_12": 0,
-        "FAULT_13": 24,
+        "FAULT_13": 23,
         "FAULT_14": 0,
         "FAULT_15": 0,
         "NORMAL_TRANSIENT": 0,
-        "UNCLASSIFIED_OPEN_SET": 1
+        "UNCLASSIFIED_OPEN_SET": 2
       },
       "FAULT_14": {
         "FAULT_01": 0,
@@ -358,83 +358,83 @@
         "FAULT_07": 0,
         "FAULT_08": 0,
         "FAULT_10": 0,
-        "FAULT_11": 5,
+        "FAULT_11": 0,
         "FAULT_12": 0,
         "FAULT_13": 0,
-        "FAULT_14": 20,
+        "FAULT_14": 18,
         "FAULT_15": 0,
         "NORMAL_TRANSIENT": 0,
-        "UNCLASSIFIED_OPEN_SET": 0
+        "UNCLASSIFIED_OPEN_SET": 7
       },
       "FAULT_15": {
         "FAULT_01": 0,
         "FAULT_02": 0,
         "FAULT_04": 0,
-        "FAULT_05": 0,
+        "FAULT_05": 1,
         "FAULT_06": 0,
         "FAULT_07": 0,
         "FAULT_08": 0,
-        "FAULT_10": 11,
+        "FAULT_10": 2,
         "FAULT_11": 1,
         "FAULT_12": 0,
         "FAULT_13": 0,
         "FAULT_14": 0,
         "FAULT_15": 13,
-        "NORMAL_TRANSIENT": 0,
+        "NORMAL_TRANSIENT": 8,
         "UNCLASSIFIED_OPEN_SET": 0
       },
       "NORMAL_TRANSIENT": {
         "FAULT_01": 0,
-        "FAULT_02": 0,
+        "FAULT_02": 1,
         "FAULT_04": 0,
         "FAULT_05": 0,
         "FAULT_06": 0,
         "FAULT_07": 0,
         "FAULT_08": 0,
-        "FAULT_10": 6,
-        "FAULT_11": 1,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
         "FAULT_12": 0,
-        "FAULT_13": 1,
+        "FAULT_13": 0,
         "FAULT_14": 0,
-        "FAULT_15": 39,
-        "NORMAL_TRANSIENT": 0,
+        "FAULT_15": 3,
+        "NORMAL_TRANSIENT": 43,
         "UNCLASSIFIED_OPEN_SET": 0
       },
       "UNCLASSIFIED_OPEN_SET": {
         "FAULT_01": 0,
-        "FAULT_02": 0,
+        "FAULT_02": 1,
         "FAULT_04": 0,
-        "FAULT_05": 2,
-        "FAULT_06": 2,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
         "FAULT_07": 0,
-        "FAULT_08": 8,
-        "FAULT_10": 36,
-        "FAULT_11": 4,
-        "FAULT_12": 1,
-        "FAULT_13": 3,
+        "FAULT_08": 0,
+        "FAULT_10": 29,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 1,
         "FAULT_14": 0,
-        "FAULT_15": 2,
-        "NORMAL_TRANSIENT": 0,
-        "UNCLASSIFIED_OPEN_SET": 392
+        "FAULT_15": 5,
+        "NORMAL_TRANSIENT": 17,
+        "UNCLASSIFIED_OPEN_SET": 397
       }
     }
   },
   "unobservable": {
-    "label": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-400\\tep_rca_v2_protocolA_seed42:unobservable",
+    "label": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-300\\tep_rca_v2_protocolA_seed42:unobservable",
     "items": 12,
-    "accuracy": 0.5,
-    "top3": 0.5833,
-    "macro_f1": 0.3333,
+    "accuracy": 0.0,
+    "top3": 0.5,
+    "macro_f1": 0.0,
     "abstention": {
-      "abstention_rate": 0.5,
-      "abstention_precision": 1.0,
-      "abstention_recall": 1.0,
+      "abstention_rate": 0.0,
+      "abstention_precision": 0.0,
+      "abstention_recall": 0.0,
       "false_abstention_rate": 0.0,
-      "missed_abstention_rate": 0.0,
+      "missed_abstention_rate": 1.0,
       "abstain_support": 6
     },
-    "ece": 0.3504,
-    "brier": 0.3096,
+    "ece": 0.2411,
+    "brier": 0.0631,
     "grounding": {
       "items": 0
     },
@@ -451,36 +451,30 @@
         "f1": 0.0,
         "support": 4
       },
-      "FAULT_10": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1": 0.0,
-        "support": 0
-      },
-      "FAULT_15": {
+      "NORMAL_TRANSIENT": {
         "precision": 0.0,
         "recall": 0.0,
         "f1": 0.0,
         "support": 0
       },
       "UNCLASSIFIED_OPEN_SET": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
         "support": 6
       }
     },
     "accuracy_ci": {
-      "point": 0.5,
-      "low": 0.5,
-      "high": 0.5,
+      "point": 0.0,
+      "low": 0.0,
+      "high": 0.0,
       "clusters": 6,
       "resamples": 1000
     },
     "macro_f1_ci": {
-      "point": 0.3333,
-      "low": 0.3333,
-      "high": 0.5,
+      "point": 0.0,
+      "low": 0.0,
+      "high": 0.0,
       "clusters": 6,
       "resamples": 1000
     },
@@ -488,39 +482,28 @@
       "FAULT_03": {
         "FAULT_03": 0,
         "FAULT_09": 0,
-        "FAULT_10": 1,
-        "FAULT_15": 1,
+        "NORMAL_TRANSIENT": 2,
         "UNCLASSIFIED_OPEN_SET": 0
       },
       "FAULT_09": {
         "FAULT_03": 0,
         "FAULT_09": 0,
-        "FAULT_10": 1,
-        "FAULT_15": 3,
+        "NORMAL_TRANSIENT": 4,
         "UNCLASSIFIED_OPEN_SET": 0
       },
-      "FAULT_10": {
+      "NORMAL_TRANSIENT": {
         "FAULT_03": 0,
         "FAULT_09": 0,
-        "FAULT_10": 0,
-        "FAULT_15": 0,
-        "UNCLASSIFIED_OPEN_SET": 0
-      },
-      "FAULT_15": {
-        "FAULT_03": 0,
-        "FAULT_09": 0,
-        "FAULT_10": 0,
-        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
         "UNCLASSIFIED_OPEN_SET": 0
       },
       "UNCLASSIFIED_OPEN_SET": {
         "FAULT_03": 0,
         "FAULT_09": 0,
-        "FAULT_10": 0,
-        "FAULT_15": 0,
-        "UNCLASSIFIED_OPEN_SET": 6
+        "NORMAL_TRANSIENT": 6,
+        "UNCLASSIFIED_OPEN_SET": 0
       }
     }
   },
-  "full_val_seconds": 834.7
+  "full_val_seconds": 790.6
 }

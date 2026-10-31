@@ -77,6 +77,8 @@ outputs/benchmark_v2/eval/*
 !outputs/benchmark_v2/eval/decode_speed.json
 !outputs/benchmark_v2/eval/generation_512.json
 !outputs/benchmark_v2/eval/followup_sanity.json
+!outputs/benchmark_v2/eval/followup_sanity_200.json
+!outputs/benchmark_v2/eval/base_reference.json
 outputs/**/*.db
 outputs/**/*.sqlite
 # Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)

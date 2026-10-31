@@ -6,6 +6,6 @@
   "max_abs_delta_probability": 0.0,
   "threshold": 0.01,
   "passes": true,
-  "seconds_per_item_wrapper": 2.1637,
-  "seconds_per_item_direct": 0.4134
+  "seconds_per_item_wrapper": 2.1988,
+  "seconds_per_item_direct": 0.4216
 }

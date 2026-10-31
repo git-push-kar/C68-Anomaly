@@ -304,7 +304,10 @@ that, "accuracy 0.84" has no denominator.
     observable = [item for item in load_jsonl(VAL_ITEMS) if not item.get("unobservable")]
     sample = stratify(observable, args.per_checkpoint, args.seed)
     model, tokenizer, config, applied = load_base(Path(args.config))
-    if applied:
+    # ``build_model`` reports the adapter it applied, and reports the string "base"
+    # when it applied none -- so the absence of an adapter is tested by value, not
+    # by truthiness ("base" is truthy and would abort every base run).
+    if applied and str(applied).lower() not in ("base", "none", ""):
         raise SystemExit(f"base reference must run without an adapter, got {applied}")
     dummy = int(config["llm"].get("dummy_image_size", 448))
     started = time.time()

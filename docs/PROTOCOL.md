@@ -1091,3 +1091,22 @@ Consequence for the abstention numbers already reported: `UNCLASSIFIED_OPEN_SET`
 6 tokens against 5 for a fault, so the old sum was quietly *penalising* abstention
 by one term. The corrected instrument can only move the abstention recall up, which
 is why the re-scored table is the one to quote.
+
+### 13.2 Reselection, and which artifact belongs to which checkpoint (2026-11-01)
+
+Replaying §11.1's rule over the corrected instrument selects **step 300**, not step
+400: macro-F1 0.8720 on the 300-item subsample, 0.8689 on the 822-row validation
+(accuracy 0.8869, top-3 0.9866). Steps 500 and 540 score higher on accuracy and top-3
+(0.9033 / 0.9933) and lower on macro-F1 because FAULT_15 recall is 0.0 there; the rule
+was written to prefer the checkpoint that keeps every class alive, so step 300 is the
+selection and the accuracy-first reading is reported beside it, not instead of it.
+
+**Consequence that has to be stated wherever the numbers are quoted:** the 50
+generated validation answers in `generation_512.json` were written by **step 400**,
+because that is the checkpoint selected when they were produced. Any comparison
+between generation and label scoring uses `preds_gen_scored.jsonl` (step 400 scored on
+those same 50 items), not the selected checkpoint's predictions. The follow-up
+sanity numbers were re-measured on the selected step-300 adapter and are therefore
+not comparable with the earlier 60-turn sample at step 400.
+
+No test component has been scored at the time of writing.
