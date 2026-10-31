@@ -8,8 +8,13 @@ it on a fresh base.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
+import math
 import shutil
+import subprocess
+import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -28,12 +33,27 @@ def _load_tokenized_datasets(config: Dict, tokenizer):
         raise FileNotFoundError(
             f"LLM dataset not found at {ds_dir}. Run scripts/generate_llm_dataset.py first."
         )
+    training_cfg = config["llm"].get("training") or {}
+    # Which file to read is a property of the run, not of the trainer: the mixed
+    # file and the report-only file are both valid targets, and an eval split is
+    # optional because a structural split carries no prose to score a loss on.
+    # Defaults keep the original behaviour (train.jsonl + val.jsonl) unchanged.
+    train_name = str(training_cfg.get("train_file") or "train.jsonl")
+    if "val_file" in training_cfg:
+        val_name = training_cfg.get("val_file")
+        val_name = str(val_name) if val_name else None
+    else:
+        val_name = "val.jsonl"
     train_hf = None
     val_hf = None
-    if (ds_dir / "train.jsonl").exists():
-        logger.info("Loading instruction dataset from %s", ds_dir / "train.jsonl")
-        train_hf = _read_jsonl(ds_dir / "train.jsonl")
-        val_hf = _read_jsonl(ds_dir / "val.jsonl") if (ds_dir / "val.jsonl").exists() else None
+    if (ds_dir / train_name).exists():
+        logger.info("Loading instruction dataset from %s", ds_dir / train_name)
+        train_hf = _read_jsonl(ds_dir / train_name)
+        if val_name and (ds_dir / val_name).exists():
+            logger.info("Loading eval dataset from %s", ds_dir / val_name)
+            val_hf = _read_jsonl(ds_dir / val_name)
+        elif val_name:
+            logger.info("No eval file at %s; eval loss disabled", ds_dir / val_name)
     elif (ds_dir / "train").exists():
         try:
             from datasets import load_from_disk
@@ -56,9 +76,103 @@ def _load_tokenized_datasets(config: Dict, tokenizer):
     return train, val
 
 
-def _read_jsonl(path: Path) -> List[Dict]:
-    import json
+def _gpu_sample() -> Dict[str, object]:
+    """One ``nvidia-smi`` reading, or an error instead of an invented number."""
+    try:
+        out = subprocess.run(
+            ["nvidia-smi",
+             "--query-gpu=memory.used,utilization.gpu,temperature.gpu,clocks.current.sm,power.draw",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=10,
+        ).stdout.strip().splitlines()[0]
+        mem, util, temp, clock, power = [float(part.strip()) for part in out.split(",")]
+        return {"gpu_mem_mib": mem, "gpu_util_pct": util, "gpu_temp_c": temp,
+                "gpu_clock_mhz": clock, "gpu_power_w": power}
+    except Exception as exc:  # pragma: no cover - depends on the host
+        return {"gpu_error": str(exc)[:120]}
 
+
+def training_watch(output_dir: Path, logging_steps: int):
+    """Telemetry and the hard stops of a long run, written next to the adapter.
+
+    The trainer logs its own loss; what a multi-hour unattended run cannot tell
+    you afterwards is how hot the card was, how far it clocked down, or whether a
+    step was ten times slower than its neighbour. Those are the failure modes that
+    corrupt a run quietly, so they are sampled and, past a threshold, raised as an
+    exception rather than left in a log nobody reads until the end.
+    """
+    from transformers import TrainerCallback
+
+    class Watch(TrainerCallback):
+        def __init__(self) -> None:
+            self.jsonl = Path(output_dir) / "train_telemetry.jsonl"
+            self.text = Path(output_dir) / "train_telemetry.log"
+            self.last_log = time.time()
+            self.last_step = time.time()
+            self.hot_since: Optional[float] = None
+            self.slow_streak = 0
+            self.pending: Dict[str, object] = {}
+
+        def _write(self, row: Dict) -> None:
+            with open(self.jsonl, "a", encoding="utf-8") as handle:
+                handle.write(json.dumps(row) + "\n")
+            with open(self.text, "a", encoding="utf-8") as handle:
+                handle.write(" ".join(f"{key}={value}" for key, value in row.items()) + "\n")
+
+        def on_step_end(self, args, state, control, **kwargs):
+            now = time.time()
+            step_seconds = now - self.last_step
+            self.last_step = now
+            sample = _gpu_sample()
+            temp = sample.get("gpu_temp_c")
+            if isinstance(temp, float) and temp > 85.0:
+                self.hot_since = self.hot_since or now
+                if now - self.hot_since > 120.0:
+                    raise RuntimeError(
+                        f"GPU at {temp:.0f} C for more than 2 minutes at step "
+                        f"{state.global_step}; stopping")
+            else:
+                self.hot_since = None
+            self.slow_streak = self.slow_streak + 1 if step_seconds > 45.0 else 0
+            if self.slow_streak >= 3:
+                raise RuntimeError(
+                    f"sustained step time {step_seconds:.1f}s above 45s at step "
+                    f"{state.global_step}; stopping")
+            self.pending = {"step": int(state.global_step),
+                            "step_seconds": round(step_seconds, 2), **sample}
+            return control
+
+        def on_log(self, args, state, control, logs=None, **kwargs):
+            logs = logs or {}
+            row: Dict[str, object] = {"step": int(state.global_step),
+                                      "epoch": round(float(state.epoch or 0.0), 3)}
+            for key in ("loss", "learning_rate", "grad_norm"):
+                if key in logs:
+                    row[key] = logs[key]
+            if "loss" in logs and not math.isfinite(float(logs["loss"])):
+                self._write(row)
+                raise RuntimeError(f"non-finite loss at step {state.global_step}: {logs['loss']}")
+            now = time.time()
+            row["seconds_per_step"] = round((now - self.last_log) / max(logging_steps, 1), 2)
+            self.last_log = now
+            row.update({key: value for key, value in self.pending.items() if key not in row})
+            self._write(row)
+            return control
+
+    return Watch()
+
+
+def _adapter_hashes(output_dir: Path) -> Dict[str, str]:
+    """SHA-256 of every file the adapter package ships."""
+    hashes = {}
+    for path in sorted(output_dir.rglob("*")):
+        if path.is_file() and path.name not in {"train_telemetry.jsonl", "train_telemetry.log"}:
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            hashes[str(path.relative_to(output_dir)).replace("\\", "/")] = digest
+    return hashes
+
+
+def _read_jsonl(path: Path) -> List[Dict]:
     rows = []
     with open(path, "r", encoding="utf-8") as handle:
         for line in handle:
@@ -121,7 +235,9 @@ def train_tep_adapter(
         save_steps=int(training.get("save_steps", 200)),
         eval_steps=int(training.get("eval_steps", 200)),
         eval_strategy="steps" if val_dataset is not None else "no",
-        save_total_limit=int(training.get("save_total_limit", 2)),
+        # 0 or absent-with-zero means keep every checkpoint: the selection rule
+        # needs the whole curve, and a pruned history cannot be re-read later.
+        save_total_limit=(int(training.get("save_total_limit", 2)) or None),
         dataloader_num_workers=int(training.get("dataloader_num_workers", 2)),
         fp16=use_fp16,
         bf16=use_bf16,
@@ -133,12 +249,17 @@ def train_tep_adapter(
         metric_for_best_model="eval_loss",
     )
 
+    callbacks = []
+    if bool(training.get("telemetry", False)):
+        callbacks.append(training_watch(output_dir, int(training.get("logging_steps", 10))))
+
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         data_collator=collator,
+        callbacks=callbacks or None,
         tokenizer=tokenizer,
     )
 
@@ -161,6 +282,11 @@ def train_tep_adapter(
             "training": training,
             "train_examples": len(train_dataset),
             "val_examples": len(val_dataset) if val_dataset is not None else 0,
+            "global_step": trainer.state.global_step,
+            "epochs_completed": trainer.state.epoch,
+            # Written here, not reconstructed later: the hash of what was saved is
+            # the only thing that ties a metric back to a file.
+            "files_sha256": _adapter_hashes(output_dir),
         },
     )
     logger.info("TEP adapter saved to %s", output_dir)

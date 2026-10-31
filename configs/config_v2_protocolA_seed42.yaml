@@ -1,0 +1,279 @@
+# ---------------------------------------------------------------------
+# Dataset v2 training configuration (benchmark-upgrade)
+#
+# Protocol A, seed 42. Copy of config_v2.yaml with the same hyperparameters;
+# only the adapter identity, the train file, the checkpoint cadence and this
+# header differ. Hyperparameters
+# are unchanged; only the dataset path, the adapter identity and this note
+# differ. The loader reads the {system, question, answer} export written by
+# `python -m llm.benchmark.to_sft --all`, so the trainer's default
+# SYSTEM_PROMPT (which still carries the severity rubric) is never used.
+# ---------------------------------------------------------------------
+# =====================================================================
+# TEP RCA System - master configuration
+# Tennessee Eastman Process anomaly detection + InternVL2-2B root-cause
+# analysis. Every value below is overridable on the command line where a
+# corresponding argparse/click flag exists. No absolute paths are hardcoded.
+# =====================================================================
+
+seed: 42
+log_level: INFO
+
+# ---------------------------------------------------------------------
+# Data paths (relative to the project root unless absolute)
+# ---------------------------------------------------------------------
+paths:
+  data_root: data/raw
+  normal_data_path: data/raw/normal
+  fault_data_path: data/raw/faults
+  processed_data_path: data/processed
+  llm_dataset_path: outputs/benchmark_v2/sft
+  output_dir: outputs
+
+# ---------------------------------------------------------------------
+# TEP dataset assumptions (see preprocessing/tep_loader.py for details)
+# ---------------------------------------------------------------------
+dataset:
+  # Supported formats:
+  #   "tep_52col_csv"  : one CSV per fault scenario plus a normal file.
+  #                      Each file is a T x F matrix (52 cols, no meta cols).
+  #   "tep_rieth_csv"  : Rieth consolidated (faultNumber, simulationRun, sample,
+  #                      xmeas_1..41, xmv_1..11) - auto-detected even when format is
+  #                      tep_52col_csv. Files: TEP_FaultFree_*.csv, TEP_Faulty_*.csv
+  #   "tep_matlab_52col": .mat archives (extension point).
+  format: tep_rieth_csv
+  num_features: 52
+  has_header: true
+  delimiter: ","
+  timestamp_column: null          # name of a timestamp column if present
+  fault_onset_column: null        # column holding the fault-injection sample idx
+  # Per-split fault onset (0-based). Training: 20 (1h into 25h run), Testing: 160 (8h into 48h run)
+  fault_onset:
+    faulty_training: 20
+    faulty_testing: 160
+    fault_free_training: null
+    fault_free_testing: null
+  # Deprecated: use fault_onset mapping above. Kept for backward compat.
+  fault_onset_index: 160
+  normal_file_pattern: "TEP_FaultFree*.csv"
+  fault_file_pattern: "TEP_Faulty*.csv"
+  missing_value_strategy: interpolate   # interpolate | ffill | drop
+  drop_constant_sensors: false
+  clip_percentile: 99.9
+
+# ---------------------------------------------------------------------
+# Normalization
+# ---------------------------------------------------------------------
+preprocessing:
+  scaler: standard               # standard | minmax
+  scaler_dir: outputs/preprocessing
+  baseline_dir: outputs/preprocessing
+
+# ---------------------------------------------------------------------
+# Sliding windows
+# ---------------------------------------------------------------------
+windowing:
+  window_size: 60
+  stride: 5
+  dtype: float32
+  block_samples: 500      # contiguous temporal blocks used for leakage-free splits
+  test_ratio: 0.2
+
+# ---------------------------------------------------------------------
+# Unsupervised anomaly detector (LSTM Autoencoder, normal-only training)
+# ---------------------------------------------------------------------
+anomaly_detector:
+  model_dir: outputs/anomaly_detector
+  lstm:
+    hidden_size: 128
+    num_layers: 2
+    latent_dim: 64
+    dropout: 0.05
+    bidirectional_encoder: false
+  train:
+    epochs: 100
+    batch_size: 64
+    learning_rate: 1.0e-3
+    weight_decay: 1.0e-5
+    lr_scheduler: cosine
+    val_ratio: 0.15
+    early_stopping_patience: 15
+    gradient_clip_norm: 1.0
+    checkpoint_every: 5
+  threshold:
+    # Methods: percentile | mean_std | validation_percentile
+    # A5000: 99.5 is less aggressive than 99.0 (was FPR 13.5% on synthetic) — reduces
+    # false alarms on normal data. Use 99.9 if FPR still >5% after Rieth retrain.
+    method: percentile
+    percentile: 99.5
+    k_std: 6.0
+    min_anomaly_score: 0.0
+
+# ---------------------------------------------------------------------
+# Evidence extraction
+# ---------------------------------------------------------------------
+evidence:
+  top_k_sensors: 5
+  min_deviation_percent: 3.0
+  baseline_windows: 20          # windows before event used as pre-anomaly baseline
+  trend_smoothing_window: 8
+  onset_sensitivity: 1.5        # multiplier of per-sensor error std for onset detect
+  max_temporal_events: 6
+
+# ---------------------------------------------------------------------
+# Continuous streaming simulation
+# ---------------------------------------------------------------------
+streaming:
+  window_size: 60               # normally mirrors windowing.window_size
+  stride: 5
+  replay_rate: 0.0              # seconds per record; 0.0 = as fast as possible
+  inject_fault_at: null         # e.g. 800 -> inject fault file at sample 800
+  source_file: null             # path to a single CSV to replay
+  normal_source: data/raw/normal/TEP_FaultFree_Training.csv
+  fault_source: data/raw/faults/TEP_Faulty_Training.csv
+  normal_simulation_run: 1
+  fault_number: 1
+  fault_simulation_run: 1
+
+# ---------------------------------------------------------------------
+# Anomaly event aggregation
+# ---------------------------------------------------------------------
+events:
+  db_path: outputs/events.db
+  consecutive_windows_to_confirm: 3   # consecutive anomalous windows -> open event
+  min_separation_windows: 20          # gap that ends an open event
+  max_event_windows: 200              # hard cap on a single event length
+
+# ---------------------------------------------------------------------
+# InternVL3-2B TEP adapter (single adapter: "tep_rca")
+# Target hardware: NVIDIA RTX A5000 (24 GB) - see README section 5
+# ---------------------------------------------------------------------
+# RTX A5000 notes:
+#   - Ampere (compute 8.6) supports BF16 natively; bf16: true is optimal.
+#   - 24 GB fits EITHER QLoRA 4-bit (~6-8 GB) or FP16 LoRA (~12-14 GB).
+#     Default below is QLoRA (use_4bit: true) for headroom; for maximum
+#     throughput on A5000 switch to: use_4bit: false, batch_size: 4,
+#     gradient_accumulation_steps: 4, optim: adamw_torch (see README).
+#   - Gradient checkpointing is on; disable only if you have VRAM to spare
+#     and want speed over memory savings.
+# ---------------------------------------------------------------------
+llm:
+  # Retrained on the pristine InternVL3-2B base (no adapter merged).
+  # The quarantined v0 adapter was trained on ./models/internvl3_2b_lr_fused.
+  base_model: "C:/Users/Admin/Desktop/LY_C68/deepfake_project/models/InternVL3-2B"
+  adapter_name: tep_rca_v2_protocolA_seed42
+  adapter_dir: outputs/tep_rca_v2_protocolA_seed42
+  trust_remote_code: true
+  use_flash_attn: false          # set true on A5000 if flash-attn installed
+  dummy_image_size: 448          # multiple of ViT patch size (14); text-only training
+  followup:
+    # v0 gated 2026-10-15 (load warning-free, JSON 100%, grounding 100%):
+    # combined routing restored — deterministic intents first, LLM open-ended.
+    prefer_llm: false
+  lora:
+    r: 16
+    alpha: 32
+    dropout: 0.05
+    bias: none
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+  training:
+    use_4bit: false               # Disabled 4-bit for standard 16-bit LoRA
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_use_double_quant: true
+    fp16: false                  # never true together with bf16
+    bf16: true                   # Ampere BF16 - optimal on RTX A5000
+    batch_size: 4                # Matches quarantined v0 strategy
+    gradient_accumulation_steps: 4  # Effective batch size 16
+    num_epochs: 3
+    learning_rate: 2.0e-4
+    weight_decay: 0.01
+    max_sequence_length: 4096
+    warmup_ratio: 0.03
+    lr_scheduler: cosine
+    max_grad_norm: 1.0
+    gradient_checkpointing: true
+    logging_steps: 10
+    save_steps: 100
+    eval_steps: 200
+    save_total_limit: 0           # 0 = keep every checkpoint (14 of them, ~35 MB each)
+    # Protocol A seed 42: train on the PROTOCOL 12.1b per-case mix, and no
+    # eval-loss pass -- val.jsonl is a structural record with no prose, so an
+    # eval loss would be a number about an empty target.
+    train_file: train_mixed.jsonl
+    val_file: null
+    telemetry: true
+    dataloader_num_workers: 2     # A5000: 2-4 depending on CPU cores
+    optim: null                  # null = auto: paged_adamw_8bit if 4bit else adamw_torch
+    train_faults: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 22]
+    val_faults: [4, 14]
+    test_faults: [15, 21]
+  generation:
+    max_new_tokens: 512
+    do_sample: false
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 50
+    repetition_penalty: 1.0
+
+# ---------------------------------------------------------------------
+# Dynamic detector (DPCA + CVA) — lag-aware, parallel to LSTM AE
+# ---------------------------------------------------------------------
+dynamic_detector:
+  enabled: true
+  method: cva              # cva | dpca | both
+  cva:
+    n_past: 5              # lags in past vector
+    n_future: 5            # lags in future vector
+    state_order_mode: energy   # energy | fixed
+    state_order: 20            # used when mode == fixed
+    energy_threshold: 0.90
+    statistics: [T2, Q, Tr]
+    primary_statistic: Q
+  dpca:
+    n_lags: 3
+    variance_threshold: 0.90
+    statistics: [T2, SPE]
+    primary_statistic: SPE
+  thresholding:
+    target_far: 0.01
+    holdout_normal_runs: 100     # fault-free runs reserved for threshold fitting
+    smoothing: ewma              # none | ewma | cusum (ewma boosts Fault 15 from 27% to 83%)
+    ewma_lambda: 0.1
+    cusum_k: 0.5
+    cusum_h: 5.0
+  fusion:
+    mode: or                 # or | weighted
+    weights: {lstm_ae: 0.5, dynamic: 0.5}   # used when mode == weighted
+    per_detector_far: 0.005  # when mode == or, split the FAR budget
+
+# ---------------------------------------------------------------------
+# API / UI
+# ---------------------------------------------------------------------
+api:
+  host: 0.0.0.0
+  port: 8000
+  stream_fps: 10                 # simulated records per second in live mode
+
+# ---------------------------------------------------------------------
+# Dataset Distillation (Teacher LLM: Qwen-70B/72B)
+# ---------------------------------------------------------------------
+distillation:
+  teacher_model: "Qwen/Qwen2.5-72B-Instruct"    # Qwen 70B/72B Teacher model
+  samples_per_fault: 12                        # 12 samples per fault (optimal for 2B student adapter)
+  seed: 42
+  load_in_4bit: true                           # 4-bit quantization
+  max_gpu_memory: "22GiB"
+  max_cpu_memory: "64GiB"                      # CPU RAM offload for 72B on 24GB GPU
+  api_base: null                               # Optional endpoint (e.g. http://localhost:11434/v1 for Ollama/vLLM)
+  api_key: null
+  timeout: 600                                 # Timeout in seconds for teacher LLM inference (10 mins for 72B cold load/inference)
+  num_ctx: 2048                                # Context window size (minimizes KV cache VRAM footprint to maximize GPU layer offload)
+  no_fallback: false                           # Strict mode: if true, raise error on teacher failure instead of falling back
+  resume: true                                 # Resume support enabled by default
