@@ -121,3 +121,51 @@ def test_the_mix_reports_the_ratio_it_achieved():
     mixed = F.mix(report, dialogues, ratio=2, seed=4)
     assert mixed["dialogue_rows"] == 30
     assert mixed["achieved_ratio"] == round(100 / 30, 3)
+
+
+def test_priority_order_fills_the_refusal_cases_before_the_ordinary_ones():
+    """Two slots, two declinable cases, and an ordinary turn wanting one of them."""
+    report = [{"item_id": f"R{i}"} for i in range(4)]      # budget 2 dialogue rows
+    dialogues = [{"item_id": "V#0"}, {"item_id": "O#0"}, {"item_id": "Q#0"},
+                 {"item_id": "C#0"}]
+    case_of = {"V": "valve_actuator", "O": "out_of_scope",
+               "C": "causal_why", "Q": "repeated_question"}
+    mixed = F.mix(report, dialogues, ratio=2, seed=11, case_of=case_of)
+    taken = {row["item_id"].split("#")[0] for row in mixed["rows"] if "#" in row["item_id"]}
+    # The ordinary turns are the lowest priority and must lose the argument.
+    assert "V" not in taken and "C" not in taken
+    assert {"O", "Q"} <= taken
+    assert mixed["by_case"]["valve_actuator"]["rows_taken"] == 0
+    assert mixed["by_case"]["valve_actuator"]["rows_available"] == 1
+
+
+def test_a_tier_is_exhausted_before_the_next_one_is_touched():
+    report = [{"item_id": f"R{i}"} for i in range(6)]     # budget 3 dialogue rows
+    dialogues = [{"item_id": f"O{i}#0"} for i in range(3)] + \
+                [{"item_id": f"V{i}#0"} for i in range(5)]
+    case_of = {f"O{i}": "out_of_scope" for i in range(3)}
+    case_of.update({f"V{i}": "valve_actuator" for i in range(5)})
+    mixed = F.mix(report, dialogues, ratio=2, seed=5, case_of=case_of)
+    assert mixed["by_case"]["out_of_scope"]["rows_taken"] == 3
+    assert mixed["dialogue_rows"] == 3
+    assert mixed["by_case"]["valve_actuator"]["rows_taken"] == 0
+
+
+def test_priority_selection_is_seeded_not_file_ordered():
+    report = [{"item_id": f"R{i}"} for i in range(40)]    # budget 20
+    dialogues = [{"item_id": f"D{i}#0"} for i in range(40)]
+    case_of = {f"D{i}": "mechanism" for i in range(40)}
+    first = F.mix(report, dialogues, ratio=2, seed=1, case_of=case_of)["rows"]
+    second = F.mix(report, dialogues, ratio=2, seed=2, case_of=case_of)["rows"]
+    ids_first = [r["item_id"] for r in first if r["item_id"].startswith("D")]
+    ids_second = [r["item_id"] for r in second if r["item_id"].startswith("D")]
+    assert len(ids_first) == len(ids_second) == 20
+    assert ids_first != ids_second
+
+
+def test_without_a_case_map_the_old_seeded_order_is_kept():
+    report = [{"item_id": f"R{i}"} for i in range(10)]
+    dialogues = [{"item_id": f"D{i}#0"} for i in range(4)]
+    mixed = F.mix(report, dialogues, ratio=2, seed=1)
+    assert mixed["dialogue_rows"] == 4
+    assert "priority_tiers" in mixed and "by_case" in mixed

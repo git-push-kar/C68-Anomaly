@@ -24,11 +24,13 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import sys
+from collections import Counter
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -46,6 +48,25 @@ SFT_DIR = Path("outputs/benchmark_v2/sft")
 #: these two are specific to training input, because the teacher was told never to
 #: state them and the student should not be taught to expect them.
 FORBIDDEN_IN_QUESTION = ("severity", "confidence")
+
+#: Slots are filled in this order. The turns whose *behaviour* the follow-up
+#: contract exists for -- a decline that has to decline, a repeated question that
+#: has to add something, a premise that has to be corrected -- come before the
+#: ordinary explanatory turns, which are the bulk of real operator traffic. The
+#: achieved composition is reported in the mix summary rather than assumed, and
+#: the order within a tier is seeded so the sample is not the file order.
+CASE_PRIORITY: Tuple[Tuple[str, ...], ...] = (
+    ("out_of_scope", "false_premise", "clarification_reply", "repeated_question"),
+    ("ambiguous_question", "hypothesis_comparison"),
+    ("valve_actuator", "causal_why", "mechanism", "template_sample"),
+)
+
+
+def _priority_tier(case_type: str) -> int:
+    for tier, names in enumerate(CASE_PRIORITY):
+        if case_type in names:
+            return tier
+    return len(CASE_PRIORITY)
 
 
 class FollowupExportError(RuntimeError):
@@ -136,11 +157,17 @@ def export(split: str = "train") -> List[Dict]:
 
 
 def mix(report_rows: Sequence[Dict], dialogue_rows: Sequence[Dict], ratio: int = 2,
-        seed: int = 42) -> Dict:
+        seed: int = 42, case_of: Optional[Dict[str, str]] = None) -> Dict:
     """Interleave two report rows per dialogue row, keeping the whole of each.
 
     ``ratio`` is report rows per dialogue **row**. Dialogues are taken whole, so
     the achieved ratio is reported rather than assumed.
+
+    Slots are filled in ``CASE_PRIORITY`` order: a case tier is exhausted before
+    the next one is touched, and the order inside a tier is a seeded hash of the
+    dialogue id. ``case_of`` maps a dialogue id to its case type; without it the
+    selection falls back to the seeded order alone, which is what the older call
+    sites and their tests expect.
     """
     budget = len(report_rows) // ratio
     rng = random.Random(seed)
@@ -148,8 +175,17 @@ def mix(report_rows: Sequence[Dict], dialogue_rows: Sequence[Dict], ratio: int =
     for row in dialogue_rows:
         key = str(row["item_id"]).split("#")[0]
         by_dialogue.setdefault(key, []).append(row)
-    ids = sorted(by_dialogue)
-    rng.shuffle(ids)
+    if case_of:
+        ids = sorted(
+            by_dialogue,
+            key=lambda key: (
+                _priority_tier(case_of.get(key, "")),
+                hashlib.sha256(f"{seed}|{key}".encode("utf-8")).hexdigest(),
+            ),
+        )
+    else:
+        ids = sorted(by_dialogue)
+        rng.shuffle(ids)
     chosen: List[Dict] = []
     used: List[str] = []
     for key in ids:
@@ -157,8 +193,6 @@ def mix(report_rows: Sequence[Dict], dialogue_rows: Sequence[Dict], ratio: int =
             continue
         chosen.extend(by_dialogue[key])
         used.append(key)
-        if len(chosen) >= budget:
-            break
     combined: List[Dict] = []
     report_queue = list(report_rows)
     dialogue_queue = list(chosen)
@@ -169,13 +203,27 @@ def mix(report_rows: Sequence[Dict], dialogue_rows: Sequence[Dict], ratio: int =
                 combined.append(report_queue.pop(0))
         if dialogue_queue:
             combined.append(dialogue_queue.pop(0))
+    available = Counter()
+    for key, rows_here in by_dialogue.items():
+        available[(case_of or {}).get(key, "unknown")] += len(rows_here)
+    taken = Counter()
+    for key in used:
+        taken[(case_of or {}).get(key, "unknown")] += len(by_dialogue[key])
     return {
         "rows": combined,
         "report_rows": len(report_rows),
         "dialogue_rows": dialogue_rows,
         "dialogues_used": len(used),
+        "dialogue_budget": budget,
         "achieved_ratio": (round(len(report_rows) / dialogue_rows, 3) if dialogue_rows else None),
         "target_ratio": ratio,
+        "priority_tiers": [list(tier) for tier in CASE_PRIORITY],
+        "by_case": {
+            case: {"rows_taken": taken[case], "rows_available": available[case],
+                   "tier": _priority_tier(case)}
+            for case in sorted(available, key=lambda name: (_priority_tier(name), name))
+        },
+        "slots_unfilled": budget - dialogue_rows,
     }
 
 
@@ -211,11 +259,22 @@ def main() -> int:
         if not report_path.exists():
             raise SystemExit(f"no report rows at {report_path}; run to_sft first")
         report_rows = _load_jsonl(report_path)
-        mixed = mix(report_rows, rows, ratio=args.ratio, seed=args.seed)
+        case_of = {str(d.get("dialogue_id")): str(d.get("case_type"))
+                   for d in load_dialogues(args.split)}
+        mixed = mix(report_rows, rows, ratio=args.ratio, seed=args.seed, case_of=case_of)
         path = out / "train_mixed.jsonl"
         with open(path, "w", encoding="utf-8") as handle:
             for row in mixed.pop("rows"):
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        # The file is build output and not tracked, so its identity has to be
+        # written down here: a hash that only appears in a report cannot be
+        # re-checked against the file the trainer actually reads.
+        mixed["train_mixed_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        mixed["report_train_sha256"] = hashlib.sha256(report_path.read_bytes()).hexdigest()
+        dialogue_path = out / f"followup_{args.split}.jsonl"
+        if dialogue_path.exists():
+            mixed["dialogue_rows_file_sha256"] = hashlib.sha256(
+                dialogue_path.read_bytes()).hexdigest()
         (out / "mix_summary.json").write_text(json.dumps(mixed, indent=2), encoding="utf-8")
         print(json.dumps(mixed, indent=2))
         print(f"mixed -> {path}")
