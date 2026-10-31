@@ -1,0 +1,526 @@
+{
+  "selected": {
+    "step": 400,
+    "path": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-400\\tep_rca_v2_protocolA_seed42",
+    "items": 300,
+    "accuracy": 0.8333,
+    "top3": 0.9367,
+    "macro_f1": 0.7826,
+    "abstention": {
+      "abstention_rate": 0.48,
+      "abstention_precision": 0.9931,
+      "abstention_recall": 0.8614,
+      "false_abstention_rate": 0.0075,
+      "missed_abstention_rate": 0.1386,
+      "abstain_support": 166
+    },
+    "per_fault_recall": {
+      "FAULT_01": 1.0,
+      "FAULT_02": 1.0,
+      "FAULT_04": 1.0,
+      "FAULT_05": 0.8889,
+      "FAULT_06": 0.7778,
+      "FAULT_07": 1.0,
+      "FAULT_08": 0.8889,
+      "FAULT_10": 1.0,
+      "FAULT_11": 1.0,
+      "FAULT_12": 1.0,
+      "FAULT_13": 0.8889,
+      "FAULT_14": 0.8889,
+      "FAULT_15": 0.5556,
+      "NORMAL_TRANSIENT": 0.0,
+      "UNCLASSIFIED_OPEN_SET": 0.8614
+    },
+    "seconds": 221.8,
+    "seconds_per_item": 0.739
+  },
+  "rule": "macro-F1 on the 300-item stratified validation subsample, accuracy as tie-break, later step as second tie-break",
+  "scoring_via": "language_model",
+  "full_val": {
+    "label": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-400\\tep_rca_v2_protocolA_seed42:observable",
+    "items": 822,
+    "accuracy": 0.8406,
+    "top3": 0.9331,
+    "macro_f1": 0.7888,
+    "abstention": {
+      "abstention_rate": 0.4781,
+      "abstention_precision": 0.9975,
+      "abstention_recall": 0.8711,
+      "false_abstention_rate": 0.0027,
+      "missed_abstention_rate": 0.1289,
+      "abstain_support": 450
+    },
+    "ece": 0.0364,
+    "brier": 0.1171,
+    "grounding": {
+      "items": 0
+    },
+    "per_fault": {
+      "FAULT_01": {
+        "precision": 0.9615,
+        "recall": 1.0,
+        "f1": 0.9804,
+        "support": 25
+      },
+      "FAULT_02": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "FAULT_04": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "FAULT_05": {
+        "precision": 0.9231,
+        "recall": 0.96,
+        "f1": 0.9412,
+        "support": 25
+      },
+      "FAULT_06": {
+        "precision": 0.9167,
+        "recall": 0.88,
+        "f1": 0.898,
+        "support": 25
+      },
+      "FAULT_07": {
+        "precision": 1.0,
+        "recall": 0.96,
+        "f1": 0.9796,
+        "support": 25
+      },
+      "FAULT_08": {
+        "precision": 0.6875,
+        "recall": 0.88,
+        "f1": 0.7719,
+        "support": 25
+      },
+      "FAULT_10": {
+        "precision": 0.3205,
+        "recall": 1.0,
+        "f1": 0.4854,
+        "support": 25
+      },
+      "FAULT_11": {
+        "precision": 0.6944,
+        "recall": 1.0,
+        "f1": 0.8197,
+        "support": 25
+      },
+      "FAULT_12": {
+        "precision": 0.9615,
+        "recall": 1.0,
+        "f1": 0.9804,
+        "support": 25
+      },
+      "FAULT_13": {
+        "precision": 0.7273,
+        "recall": 0.96,
+        "f1": 0.8276,
+        "support": 25
+      },
+      "FAULT_14": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8889,
+        "support": 25
+      },
+      "FAULT_15": {
+        "precision": 0.2407,
+        "recall": 0.52,
+        "f1": 0.3291,
+        "support": 25
+      },
+      "NORMAL_TRANSIENT": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 47
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "precision": 0.9975,
+        "recall": 0.8711,
+        "f1": 0.93,
+        "support": 450
+      }
+    },
+    "accuracy_ci": {
+      "point": 0.8406,
+      "low": 0.814,
+      "high": 0.8666,
+      "clusters": 497,
+      "resamples": 1000
+    },
+    "macro_f1_ci": {
+      "point": 0.7888,
+      "low": 0.7616,
+      "high": 0.8096,
+      "clusters": 497,
+      "resamples": 1000
+    },
+    "confusion": {
+      "FAULT_01": {
+        "FAULT_01": 25,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_02": {
+        "FAULT_01": 0,
+        "FAULT_02": 25,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_04": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 25,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_05": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 24,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 1,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_06": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 22,
+        "FAULT_07": 0,
+        "FAULT_08": 2,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 1,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_07": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 24,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 1,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_08": {
+        "FAULT_01": 1,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 22,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 2,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_10": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 25,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_11": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 25,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_12": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 25,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_13": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 0,
+        "FAULT_12": 0,
+        "FAULT_13": 24,
+        "FAULT_14": 0,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 1
+      },
+      "FAULT_14": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 0,
+        "FAULT_11": 5,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 20,
+        "FAULT_15": 0,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_15": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 11,
+        "FAULT_11": 1,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 0,
+        "FAULT_15": 13,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "NORMAL_TRANSIENT": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 0,
+        "FAULT_07": 0,
+        "FAULT_08": 0,
+        "FAULT_10": 6,
+        "FAULT_11": 1,
+        "FAULT_12": 0,
+        "FAULT_13": 1,
+        "FAULT_14": 0,
+        "FAULT_15": 39,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "FAULT_01": 0,
+        "FAULT_02": 0,
+        "FAULT_04": 0,
+        "FAULT_05": 2,
+        "FAULT_06": 2,
+        "FAULT_07": 0,
+        "FAULT_08": 8,
+        "FAULT_10": 36,
+        "FAULT_11": 4,
+        "FAULT_12": 1,
+        "FAULT_13": 3,
+        "FAULT_14": 0,
+        "FAULT_15": 2,
+        "NORMAL_TRANSIENT": 0,
+        "UNCLASSIFIED_OPEN_SET": 392
+      }
+    }
+  },
+  "unobservable": {
+    "label": "outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-400\\tep_rca_v2_protocolA_seed42:unobservable",
+    "items": 12,
+    "accuracy": 0.5,
+    "top3": 0.5833,
+    "macro_f1": 0.3333,
+    "abstention": {
+      "abstention_rate": 0.5,
+      "abstention_precision": 1.0,
+      "abstention_recall": 1.0,
+      "false_abstention_rate": 0.0,
+      "missed_abstention_rate": 0.0,
+      "abstain_support": 6
+    },
+    "ece": 0.3504,
+    "brier": 0.3096,
+    "grounding": {
+      "items": 0
+    },
+    "per_fault": {
+      "FAULT_03": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 2
+      },
+      "FAULT_09": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 4
+      },
+      "FAULT_10": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0
+      },
+      "FAULT_15": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 6
+      }
+    },
+    "accuracy_ci": {
+      "point": 0.5,
+      "low": 0.5,
+      "high": 0.5,
+      "clusters": 6,
+      "resamples": 1000
+    },
+    "macro_f1_ci": {
+      "point": 0.3333,
+      "low": 0.3333,
+      "high": 0.5,
+      "clusters": 6,
+      "resamples": 1000
+    },
+    "confusion": {
+      "FAULT_03": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "FAULT_10": 1,
+        "FAULT_15": 1,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_09": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "FAULT_10": 1,
+        "FAULT_15": 3,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_10": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "FAULT_10": 0,
+        "FAULT_15": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "FAULT_15": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "FAULT_10": 0,
+        "FAULT_15": 0,
+        "UNCLASSIFIED_OPEN_SET": 0
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "FAULT_03": 0,
+        "FAULT_09": 0,
+        "FAULT_10": 0,
+        "FAULT_15": 0,
+        "UNCLASSIFIED_OPEN_SET": 6
+      }
+    }
+  },
+  "full_val_seconds": 834.7
+}

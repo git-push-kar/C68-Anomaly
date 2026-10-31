@@ -1,0 +1,18 @@
+{
+  "adapter": {
+    "applied": "adapter",
+    "items": 20,
+    "cap": 512,
+    "seconds": 730.19,
+    "seconds_per_item": 36.51,
+    "tokens_per_second": 8.42
+  },
+  "merged": {
+    "applied": "merged",
+    "items": 20,
+    "cap": 512,
+    "seconds": 457.36,
+    "seconds_per_item": 22.87,
+    "tokens_per_second": 13.54
+  }
+}

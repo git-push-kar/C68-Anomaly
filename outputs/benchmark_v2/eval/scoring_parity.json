@@ -1,0 +1,11 @@
+{
+  "items": 40,
+  "batch": 16,
+  "argmax_agree": 40,
+  "argmax_agree_rate": 1.0,
+  "max_abs_delta_probability": 0.0,
+  "threshold": 0.01,
+  "passes": true,
+  "seconds_per_item_wrapper": 2.1637,
+  "seconds_per_item_direct": 0.4134
+}
