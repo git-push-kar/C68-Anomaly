@@ -47,6 +47,11 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", default="configs/config_v2.yaml")
+    parser.add_argument("--rows", default=None,
+                        help="SFT JSONL to train the smoke on (default: the report task only). "
+                             "Point this at train_mixed.jsonl to measure the file that will "
+                             "actually be trained, since a step's cost follows the tokens in "
+                             "the batch, not the row count.")
     parser.add_argument("--steps", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--generate", type=int, default=20,
@@ -64,7 +69,7 @@ def main() -> int:
     dummy = int(config["llm"].get("dummy_image_size", 448))
     dtype = torch.bfloat16 if training.get("bf16") else torch.float16
 
-    train_rows = load_rows(SFT_DIR / "train.jsonl")
+    train_rows = load_rows(Path(args.rows) if args.rows else SFT_DIR / "train.jsonl")
     # Evaluation splits have no teacher prose, so they are not SFT rows; their
     # questions still come from the dataset itself, which is what generation needs.
     val_rows = load_rows(SFT_DIR / "val.jsonl")

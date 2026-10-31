@@ -437,7 +437,14 @@ def test_full_build_writes_every_split_and_manifest(events_dir, tmp_path, monkey
     assert manifest["split_integrity"]["zero_overlap"] is True
     assert manifest["paraphrase_disjointness"]["per_label"]["sensor_values"]["disjoint"] is True
     assert manifest["teacher"] == "fake"
-    assert manifest["cost_estimate"]["seconds_per_call"] == 10.9
+    # The 10.9 s/call constant is a pre-run assumption; a build records what it
+    # actually spent separately, and a replay build reports its cache statistics
+    # rather than 0 s per turn.
+    cost = manifest["cost_estimate"]
+    assert cost["projection_assumption"]["seconds_per_call"] == 10.9
+    assert "seconds_per_call" not in cost
+    assert set(cost["measured"]) >= {"fresh_calls_this_build", "cache_hits_this_build",
+                                     "seconds_per_fresh_call", "cache"}
     assert (out / "audit_sample.csv").exists()
 
 

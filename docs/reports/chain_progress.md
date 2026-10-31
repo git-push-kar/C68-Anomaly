@@ -46,3 +46,5 @@ Phase 3A-2 code (CPU parts, written while the teacher ran):
 2026-10-31T06:56 followup: full train run done — 2,562 calls, 2,377 accepted (92.8%), 7,361s; open-set echoes 3 -> 0 after the paraphrase-picker fix
 2026-10-31T07:02 followup: SFT mix 1,919 report + 959 dialogue rows (ratio 2.001), audit sheet 100 rows, leak/split/open-set clean, 480 tests pass in both envs
 | Stage B | done: corpus, SFT mix, audit sheet, checks | 92.8% acceptance, ratio 2.001, 0 leaks |
+## $ (date -u +%FT%TZ) close-out
+2026-10-31T14:05 pre-training close-out: mixed-file smoke 14.31 s/step (17.02 GiB, 80 C, 1,658 MHz), label scoring invariant at batch 16 (max delta p 0.008), LM-direct decode 4.42x with identical probabilities, fold test n 957/638, 483 tests pass in both envs; 50 refusal_missing turns still unrecovered pending D1
