@@ -123,44 +123,73 @@ def test_the_mix_reports_the_ratio_it_achieved():
     assert mixed["achieved_ratio"] == round(100 / 30, 3)
 
 
-def test_priority_order_fills_the_refusal_cases_before_the_ordinary_ones():
-    """Two slots, two declinable cases, and an ordinary turn wanting one of them."""
-    report = [{"item_id": f"R{i}"} for i in range(4)]      # budget 2 dialogue rows
-    dialogues = [{"item_id": "V#0"}, {"item_id": "O#0"}, {"item_id": "Q#0"},
-                 {"item_id": "C#0"}]
-    case_of = {"V": "valve_actuator", "O": "out_of_scope",
-               "C": "causal_why", "Q": "repeated_question"}
-    mixed = F.mix(report, dialogues, ratio=2, seed=11, case_of=case_of)
-    taken = {row["item_id"].split("#")[0] for row in mixed["rows"] if "#" in row["item_id"]}
-    # The ordinary turns are the lowest priority and must lose the argument.
-    assert "V" not in taken and "C" not in taken
-    assert {"O", "Q"} <= taken
-    assert mixed["by_case"]["valve_actuator"]["rows_taken"] == 0
-    assert mixed["by_case"]["valve_actuator"]["rows_available"] == 1
+def _corpus(sizes: dict) -> tuple:
+    """A dialogue corpus from {case: [rows per dialogue]}, one row per turn."""
+    dialogues, case_of, n = [], {}, 0
+    for case, shapes in sizes.items():
+        for shape in shapes:
+            key = f"D{n:03d}"
+            for turn in range(shape):
+                dialogues.append({"item_id": f"{key}#{turn}"})
+            case_of[key] = case
+            n += 1
+    return dialogues, case_of
 
 
-def test_a_tier_is_exhausted_before_the_next_one_is_touched():
-    report = [{"item_id": f"R{i}"} for i in range(6)]     # budget 3 dialogue rows
-    dialogues = [{"item_id": f"O{i}#0"} for i in range(3)] + \
-                [{"item_id": f"V{i}#0"} for i in range(5)]
-    case_of = {f"O{i}": "out_of_scope" for i in range(3)}
-    case_of.update({f"V{i}": "valve_actuator" for i in range(5)})
-    mixed = F.mix(report, dialogues, ratio=2, seed=5, case_of=case_of)
-    assert mixed["by_case"]["out_of_scope"]["rows_taken"] == 3
-    assert mixed["dialogue_rows"] == 3
-    assert mixed["by_case"]["valve_actuator"]["rows_taken"] == 0
+def test_each_case_is_filled_to_its_own_target():
+    report = [{"item_id": f"R{i}"} for i in range(32)]      # budget 16
+    dialogues, case_of = _corpus({"out_of_scope": [1] * 15, "valve_actuator": [1] * 30})
+    mixed = F.mix(report, dialogues, ratio=2, seed=7, case_of=case_of,
+                  targets={"out_of_scope": 6, "valve_actuator": 10}, tolerance=0)
+    assert mixed["by_case"]["out_of_scope"]["rows_taken"] == 6
+    assert mixed["by_case"]["valve_actuator"]["rows_taken"] == 10
+    assert mixed["dialogue_rows"] == 16
+    assert mixed["target_deviation"] == 0
 
 
-def test_priority_selection_is_seeded_not_file_ordered():
-    report = [{"item_id": f"R{i}"} for i in range(40)]    # budget 20
-    dialogues = [{"item_id": f"D{i}#0"} for i in range(40)]
-    case_of = {f"D{i}": "mechanism" for i in range(40)}
-    first = F.mix(report, dialogues, ratio=2, seed=1, case_of=case_of)["rows"]
-    second = F.mix(report, dialogues, ratio=2, seed=2, case_of=case_of)["rows"]
+def test_a_whole_dialogue_may_carry_a_case_past_its_target():
+    """Whole dialogues are the unit, so a 3-turn dialogue lands where 2 would."""
+    report = [{"item_id": f"R{i}"} for i in range(40)]      # budget 20
+    dialogues, case_of = _corpus({"mechanism": [3] * 4, "causal_why": [1] * 20})
+    mixed = F.mix(report, dialogues, ratio=2, seed=2, case_of=case_of,
+                  targets={"mechanism": 4, "causal_why": 4}, tolerance=0)
+    assert mixed["by_case"]["mechanism"]["rows_taken"] == 6      # 2 dialogues x 3
+    assert mixed["by_case"]["mechanism"]["target"] == 4
+
+
+def test_a_target_beyond_the_corpus_is_refused():
+    report = [{"item_id": f"R{i}"} for i in range(40)]
+    dialogues, case_of = _corpus({"template_sample": [1] * 3})
+    with pytest.raises(ValueError, match="exceeds"):
+        F.mix(report, dialogues, ratio=2, seed=1, case_of=case_of,
+              targets={"template_sample": 10}, tolerance=0)
+
+
+def test_the_total_is_balanced_back_to_the_slot_count():
+    """1-turn dialogues and whole-dialogue rounding still hit the budget."""
+    report = [{"item_id": f"R{i}"} for i in range(40)]      # budget 20
+    dialogues, case_of = _corpus({"out_of_scope": [2] * 20, "mechanism": [1] * 40})
+    mixed = F.mix(report, dialogues, ratio=2, seed=3, case_of=case_of,
+                  targets={"out_of_scope": 8, "mechanism": 8}, tolerance=3)
+    assert abs(mixed["dialogue_rows"] - 20) <= 3
+
+
+def test_case_selection_is_seeded_not_file_ordered():
+    report = [{"item_id": f"R{i}"} for i in range(40)]      # budget 20
+    dialogues, case_of = _corpus({"mechanism": [1] * 40})
+    first = F.mix(report, dialogues, ratio=2, seed=1, case_of=case_of,
+                  targets={"mechanism": 20}, tolerance=0)["rows"]
+    second = F.mix(report, dialogues, ratio=2, seed=2, case_of=case_of,
+                   targets={"mechanism": 20}, tolerance=0)["rows"]
     ids_first = [r["item_id"] for r in first if r["item_id"].startswith("D")]
     ids_second = [r["item_id"] for r in second if r["item_id"].startswith("D")]
     assert len(ids_first) == len(ids_second) == 20
     assert ids_first != ids_second
+
+
+def test_the_shipped_targets_add_up_to_the_dialogue_budget():
+    assert F.TARGET_ROWS == 959
+    assert sum(F.CASE_TARGETS.values()) == F.TARGET_ROWS
 
 
 def test_without_a_case_map_the_old_seeded_order_is_kept():
@@ -168,4 +197,4 @@ def test_without_a_case_map_the_old_seeded_order_is_kept():
     dialogues = [{"item_id": f"D{i}#0"} for i in range(4)]
     mixed = F.mix(report, dialogues, ratio=2, seed=1)
     assert mixed["dialogue_rows"] == 4
-    assert "priority_tiers" in mixed and "by_case" in mixed
+    assert mixed["target_rows"] is None and "by_case" in mixed
