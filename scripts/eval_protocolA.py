@@ -456,6 +456,7 @@ def cmd_speed(args) -> int:
     results = {}
     for label, merged in (("adapter", False), ("merged", True)):
         model, tokenizer, config, applied = build_model(Path(args.config), adapter, merged=merged)
+        model = bare(model)
         dummy = int(config["llm"].get("dummy_image_size", 448))
         started = time.time()
         produced = 0
