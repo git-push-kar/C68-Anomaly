@@ -88,7 +88,7 @@ def decode_forward_only(model, tokenizer, prompt: str, max_new: int, dummy_size:
     return out
 
 
-def _step(model, ids, mask, past, image, flags):
+def _step(model, ids, mask, past, image, flags, position_ids=None):
     """One cached step, with the fallback ladder the live path also needs.
 
     The remote model rejects ``image_flags=None`` (``'NoneType' object has no
@@ -97,13 +97,14 @@ def _step(model, ids, mask, past, image, flags):
     difference is that this module records which form worked instead of leaving it
     in a log line.
     """
+    extra = {} if position_ids is None else {"position_ids": position_ids}
     try:
         out = model(pixel_values=None, input_ids=ids, attention_mask=mask,
-                    image_flags=None, past_key_values=past, use_cache=True)
+                    image_flags=None, past_key_values=past, use_cache=True, **extra)
         return out, "no_image_inputs"
     except Exception:
         out = model(pixel_values=image, input_ids=ids, attention_mask=mask,
-                    image_flags=flags, past_key_values=past, use_cache=True)
+                    image_flags=flags, past_key_values=past, use_cache=True, **extra)
         return out, "dummy_image"
 
 

@@ -52,6 +52,15 @@ the *in-distribution* number and must always be labelled as such.
 | `fold_1_cooling_loop_holdout` | 4, 11, 15 | 1,2,3,5,6,7,8,9,10,12,13,14,16–20 | 1–300 / 301–400 | 1,500 / 1,700 |
 | `fold_2_valve_sticking_family` | 14, 15 | 1–13, 16–20 | 1–300 / 301–400 | 1,000 / 1,800 |
 
+**Recorded test n (2026-10-31).** The fold `test` component in the evaluation
+export is larger than the 500-run test component: a held-out fault's own runs
+1–300 belong to no fold's training set, so they are free unseen-fault material and
+are appended to `fold_N/test` marked `source_dataset: train`. Actual rows:
+`fold_1/test` = 957 (150 test-range + 357 train-range), `fold_2/test` = 638
+(100 + 238). `test_seen` is unchanged (2,528 / 2,728). Report the two n values
+separately, or pool them and say so — never compare a 957-row number with a
+150-row one without noting which is which.
+
 Held-out faults are excluded from train and val entirely and form the **unseen**
 component `test`. Runs 401–500 of the kept faults form **`test_seen`**, the seen
 component. `test_seen` faults must be a subset of the fold's train faults and
@@ -901,6 +910,29 @@ here because the checkpoint rule and the headline set have to be read together.
   remains reproducible.
 * The answer schema in §10.13's sequence-budget paragraph is superseded by the
   slim target (§11.5).
+
+### 11.4b Scoring batch size (recorded 2026-10-31, before any training result)
+
+Label scoring is batched over **items, batch 16**.
+
+Measured on 40 validation items at batch 1/4/8/16, the scorer was **not** batch
+invariant before this date: accuracy moved 0.475 / 0.400 / 0.425 / 0.450 and the
+label vector against batch 1 differed by up to **0.731** with only 36/40 argmax
+agreement. Two causes, both fixed in `llm/benchmark/label_scorer.py`:
+
+* with `position_ids=None` this transformers version numbers tokens from
+  `cache_position`, so left-padded rows inherited the width of the longest prompt
+  in the batch. Positions are now derived from the attention mask and an explicit
+  causal/padding mask is passed (passing `position_ids` alone makes
+  `create_causal_mask` take its packing path and build a mask of the wrong
+  length);
+* the prefill's `DynamicCache` grows in place and was shared across labels, so
+  each label's cached steps started from the previous label's length.
+
+After the fix, the same 40 items at batch 1/4/8/16 give accuracy **0.500 at every
+batch size**, argmax agreement **40/40**, and a largest label-probability
+difference of **0.008** (bf16 non-determinism). A batch-16 number is therefore
+comparable with a batch-1 number, which the evaluation budget in §11.1 relies on.
 
 ### 11.5 Slim answer target (owner instruction, 2026-10-31)
 

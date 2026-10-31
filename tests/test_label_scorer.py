@@ -10,6 +10,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -54,3 +56,30 @@ def test_the_prompt_uses_the_v2_system_prompt():
     prompt = L.prompt_for("What are the detector scores?")
     assert SYSTEM_PROMPT_V2 in prompt
     assert "CANDIDATE MENU" not in prompt, "the scorer prompt is built from the ×answer× side"
+
+
+def test_the_explicit_mask_keeps_padding_out_and_stays_causal():
+    """What makes a batched label scan comparable with an unbatched one.
+
+    Two rows of different length, both left-padded to 4: row 0 has one real
+    token, row 1 has three. The mask must let a query see only earlier keys and
+    only real ones, whatever padding surrounds it.
+    """
+    torch = pytest.importorskip("torch")
+    valid = torch.tensor([[0, 0, 0, 1], [1, 1, 1, 0]])
+    mask = L._causal_mask(valid, q_len=4, kv_len=4, dtype=torch.float32)
+    assert tuple(mask.shape) == (2, 1, 4, 4)
+    blocked = torch.finfo(torch.float32).min
+    # row 0: the only real token is at index 3, and it may see only itself
+    assert mask[0, 0, 3, 3].item() == 0.0
+    assert mask[0, 0, 3, 2].item() == blocked
+    # padding is never attended, even by a later query
+    assert mask[0, 0, 3, 0].item() == blocked
+    # row 1: index 2 may see 0 and 1 and itself, never the trailing pad
+    assert mask[1, 0, 2, 0].item() == 0.0
+    assert mask[1, 0, 2, 3].item() == blocked
+    # a step (q_len 1) sees every earlier real key and nothing masked
+    step = L._causal_mask(torch.tensor([[1, 1, 1, 1, 1]]), q_len=1, kv_len=5,
+                          dtype=torch.float32)
+    assert tuple(step.shape) == (1, 1, 1, 5)
+    assert step[0, 0, 0].tolist() == [0.0] * 5

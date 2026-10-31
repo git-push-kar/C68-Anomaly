@@ -18,6 +18,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import math
 import sys
@@ -69,9 +70,41 @@ def _softmax(scores: Dict[str, float]) -> Dict[str, float]:
     return {label: round(value / norm, 6) for label, value in weights.items()}
 
 
+def _causal_mask(valid, q_len: int, kv_len: int, dtype):
+    """The additive mask the model would have built, for left-padded rows.
+
+    Passing ``position_ids`` to this transformers version makes
+    ``create_causal_mask`` take the packing path and build a mask for a different
+    length than the batch actually has. So the mask is built here, per row: a
+    query at cache position ``p`` may see every key at position ``<= p`` that is
+    real in that row.
+    """
+    import torch
+
+    keys = torch.arange(kv_len, device=valid.device).view(1, 1, 1, -1)
+    queries = torch.arange(kv_len - q_len, kv_len, device=valid.device).view(1, 1, -1, 1)
+    allowed = (keys <= queries) & valid.view(valid.shape[0], 1, 1, kv_len).bool()
+    mask = torch.zeros(valid.shape[0], 1, q_len, kv_len, device=valid.device, dtype=dtype)
+    return mask.masked_fill(~allowed, torch.finfo(dtype).min)
+
+
+def _forward(model, ids, valid, position_ids, past, image, flags, via: str):
+    """One call, wrapper or language model only, with an explicit mask."""
+    mask = {"full_attention": _causal_mask(valid, ids.shape[1], valid.shape[1],
+                                          next(model.parameters()).dtype)}
+    if via == "language_model":
+        embeds = model.language_model.get_input_embeddings()(ids)
+        return model.language_model(inputs_embeds=embeds, attention_mask=mask,
+                                    position_ids=position_ids, past_key_values=past,
+                                    use_cache=True, return_dict=True)
+    return model(pixel_values=image, input_ids=ids, attention_mask=mask,
+                 image_flags=flags, position_ids=position_ids, past_key_values=past,
+                 use_cache=True, return_dict=True)
+
+
 def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
                 labels: Optional[Sequence[str]] = None,
-                batch: int = 1) -> List[Dict]:
+                batch: int = 1, via: str = "wrapper") -> List[Dict]:
     """Score every question against every label, ``batch`` items at a time.
 
     Batching is over *items*, not labels: the prompt lengths differ and the label
@@ -80,8 +113,6 @@ def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
     is -- a label scan is prefill-bound, and a batch of 8 fills the card.
     """
     import torch
-
-    from llm.benchmark.decode_bench import _step
 
     labels = list(labels or candidates())
     suffixes = {label: _suffix_ids(tokenizer, label) for label in labels}
@@ -98,34 +129,46 @@ def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
             inputs.append(torch.tensor([pad_id] * pad + list(ids)))
             masks.append(torch.tensor([0] * pad + [1] * len(ids)))
         ids = torch.stack(inputs).to(model.device)
-        mask = torch.stack(masks).to(model.device)
+        valid = torch.stack(masks).to(model.device)
+        # Left padding is only safe if every row is told its own positions. With
+        # ``position_ids=None`` this transformers version numbers tokens from
+        # ``cache_position``, so a row's first real token would inherit the width
+        # of the longest prompt in the batch and one item's label probabilities
+        # would depend on its batch mates -- measured before the fix: max |dp|
+        # 0.73 and 36/40 argmax agreement against batch 1.
+        position_ids = (valid.long().cumsum(-1) - 1).clamp(min=0)
         image = torch.zeros(len(chunk), 3, dummy_size, dummy_size,
                             dtype=next(model.parameters()).dtype, device=model.device)
         flags = torch.zeros((len(chunk),), dtype=torch.long, device=model.device)
 
         started = time.time()
         with torch.no_grad():
-            prefill = model(pixel_values=image, input_ids=ids, attention_mask=mask,
-                            image_flags=flags, use_cache=True)
+            prefill = _forward(model, ids, valid, position_ids, None, image, flags, via)
             base_past = prefill.past_key_values
             base_logits = prefill.logits[:, -1, :]
             scores = {row: {} for row in range(len(chunk))}
             for label in labels:
                 suffix = suffixes[label]
                 totals = torch.zeros(len(chunk), dtype=torch.float32, device=model.device)
-                step_past, step_logits, step_mask = base_past, base_logits, mask
+                # ``DynamicCache`` grows in place, so a label that used the same
+                # object would start from the previous label's length. The copy
+                # is small (a few tens of MB) and is dropped at the next label.
+                step_past = copy.deepcopy(base_past)
+                step_logits, step_valid = base_logits, valid
+                step_positions = position_ids
                 for token in suffix:
                     log_probs = torch.log_softmax(step_logits.float(), dim=-1)
                     totals += log_probs[:, token]
-                    step_mask = torch.cat(
-                        [step_mask, torch.ones((len(chunk), 1), dtype=step_mask.dtype,
-                                               device=step_mask.device)], dim=1)
+                    step_valid = torch.cat(
+                        [step_valid, torch.ones((len(chunk), 1), dtype=step_valid.dtype,
+                                                device=step_valid.device)], dim=1)
+                    step_positions = (step_positions[:, -1:] + 1).to(step_positions.dtype)
                     # ``image_flags=None`` is rejected by the remote model, so the
                     # same fallback the decode path uses applies here.
-                    step, _used = _step(
+                    step = _forward(
                         model,
                         torch.full((len(chunk), 1), token, device=ids.device),
-                        step_mask, step_past, image, flags)
+                        step_valid, step_positions, step_past, image, flags, via)
                     step_past = step.past_key_values
                     step_logits = step.logits[:, -1, :]
                 for row, value in enumerate(totals.tolist()):
