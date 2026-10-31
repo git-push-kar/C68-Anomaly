@@ -40,6 +40,22 @@ DEFAULT_CONFIG = ROOT / "configs" / "config_v2.yaml"
 #: distribution right after this prefix, so it must match the training format.
 ANSWER_PREFIX = '{"fault_id": "'
 
+#: The character that closes the field. It is one token on its own and it belongs to
+#: the string whose probability is being measured.
+CLOSING_QUOTE = '"'
+
+#: What actually follows a label in the exported answer: the closing quote and the
+#: comma that separates the next key. **In context these are one token** (``",``,
+#: id 497), because the answer continues ``{"fault_id": "FAULT_01", "verdict": ...}``.
+#: The bare quote (id 1) therefore never appears where a label ends, and scoring
+#: ``label + '"'`` measured a string the model cannot produce: measured on the 300
+#: validation items, log P('"') averaged **-22.8 nats** (P ~ 1e-10) while
+#: log P('",') is ~-0.01. That constant was harmless for the argmax over sums and
+#: ruinous for the per-token mean, which divided it by the candidate's length and so
+#: ranked the *longest* label first -- the opposite of the length artefact the mean
+#: was introduced to remove.
+FIELD_TERMINATOR = '",'
+
 
 #: The dataset's non-fault answer. It is deliberately *not* a menu entry -- there
 #: is no fault to point at, and an open-set episode must not be able to name one --
@@ -61,13 +77,45 @@ def prompt_for(question: str) -> str:
     return build_chat_prompt(SYSTEM_PROMPT_V2, [("user", question)])
 
 
-def _suffix_ids(tokenizer, label: str) -> List[int]:
-    """Tokens a label adds after ``ANSWER_PREFIX`` (closing quote included)."""
+def suffix_ids(tokenizer, label: str, context: Optional[str] = None) -> List[int]:
+    """Tokens a label adds after ``ANSWER_PREFIX``, terminator included.
+
+    The terminator is ``FIELD_TERMINATOR`` (``'",'``), not the bare quote: see the
+    constant's comment for the measurement that forced it.
+
+    BPE segmentation is not compositional, so the suffix cannot be assumed: the
+    tokens after a short prefix and the tokens after the *real* prompt are two
+    different claims, and a scorer that reads the wrong logits still returns a
+    plausible label. ``context`` is the exact text the model is asked to continue
+    (``prompt_for(question) + ANSWER_PREFIX``); when it is given, the continuation
+    is tokenised whole and the suffix taken after the context's own ids, and any
+    disagreement with the prefix-only form raises instead of being averaged in.
+    """
     prefix = tokenizer(ANSWER_PREFIX, add_special_tokens=False)["input_ids"]
-    whole = tokenizer(ANSWER_PREFIX + label + '"', add_special_tokens=False)["input_ids"]
+    whole = tokenizer(ANSWER_PREFIX + label + FIELD_TERMINATOR,
+                      add_special_tokens=False)["input_ids"]
     if whole[: len(prefix)] != prefix:
         raise RuntimeError("answer prefix does not tokenise as a stable prefix")
-    return whole[len(prefix):]
+    suffix = whole[len(prefix):]
+    if context is None:
+        return suffix
+    context_ids = tokenizer(context, add_special_tokens=True)["input_ids"]
+    if context_ids[-len(prefix):] != prefix:
+        raise RuntimeError(
+            "the prompt does not end with the answer prefix as tokens; a scorer "
+            "reading the last position would read the wrong logits")
+    in_context = tokenizer(context + label + FIELD_TERMINATOR,
+                           add_special_tokens=True)["input_ids"]
+    if in_context[: len(context_ids)] != context_ids or \
+            in_context[len(context_ids):] != suffix:
+        raise RuntimeError(
+            f"{label} does not tokenise as a continuation of the prompt: "
+            f"{in_context[len(context_ids):]} != {suffix}")
+    return suffix
+
+
+# Kept for the scripts that imported the private name before it was public.
+_suffix_ids = suffix_ids
 
 
 def normalised_score(total_logp: float, n_tokens: int) -> float:
@@ -80,8 +128,14 @@ def normalised_score(total_logp: float, n_tokens: int) -> float:
     contributes a negative term, so the shortest label wins almost regardless of
     the model: with the sum in use, adding ``NORMAL_TRANSIENT`` made 287 of 300
     validation items answer it, at every checkpoint. Dividing by the token count
-    is the standard way to compare strings of different length, and it is the
-    number the argmax and the probability vector are built from.
+    is the standard way to compare strings of different length.
+
+    That normalisation is only fair if the terms it divides are comparable, which is
+    what the terminator fix restored: while the suffix ended in the bare quote, the
+    mean carried a -22.8 nat term divided by the candidate's own length, so the
+    *longest* label won instead (``UNCLASSIFIED_OPEN_SET`` took 158 of 300 items at
+    step 500). With ``FIELD_TERMINATOR`` the remaining length effect is the ordinary
+    one, and the mean is a per-token likelihood again.
     """
     return float(total_logp) / max(int(n_tokens), 1)
 
@@ -140,8 +194,9 @@ def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
     import torch
 
     labels = list(labels or candidates())
-    suffixes = {label: _suffix_ids(tokenizer, label) for label in labels}
+    suffixes = {label: suffix_ids(tokenizer, label) for label in labels}
     results: List[Dict] = []
+    verified = False
     for start in range(0, len(questions), batch):
         chunk = list(questions[start:start + batch])
         encoded = [tokenizer(prompt_for(question) + ANSWER_PREFIX,
@@ -153,6 +208,14 @@ def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
             pad = width - len(ids)
             inputs.append(torch.tensor([pad_id] * pad + list(ids)))
             masks.append(torch.tensor([0] * pad + [1] * len(ids)))
+        if not verified:
+            # One full-context check per call, on a real prompt rather than on the
+            # prefix alone: if a future prompt ended in a way that merged with the
+            # opening brace, every suffix would be wrong and nothing downstream
+            # would notice.
+            for label in labels:
+                suffix_ids(tokenizer, label, prompt_for(chunk[0]) + ANSWER_PREFIX)
+            verified = True
         ids = torch.stack(inputs).to(model.device)
         valid = torch.stack(masks).to(model.device)
         # Left padding is only safe if every row is told its own positions. With

@@ -21,6 +21,93 @@ from llm.benchmark.to_sft import ANSWER_KEYS  # noqa: E402
 from llm.benchmark.menu import UNCLASSIFIED  # noqa: E402
 
 
+TOKENIZER_PATH = "C:/Users/Admin/Desktop/LY_C68/deepfake_project/models/InternVL3-2B"
+VAL_ITEMS = ROOT / "outputs/benchmark_v2/dataset/val.jsonl"
+
+
+def _tokenizer():
+    """The tokeniser the run was tokenised with, or a skip.
+
+    These tests assert a property of *this* tokeniser (where a label ends), so a
+    checkout without the weights cannot check them. Skipping is honest here; the
+    alternative would be asserting the property of a tokeniser nobody used.
+    """
+    pytest.importorskip("transformers")
+    from transformers import AutoTokenizer
+
+    if not Path(TOKENIZER_PATH).exists():
+        pytest.skip("base tokenizer not present in this checkout")
+    return AutoTokenizer.from_pretrained(TOKENIZER_PATH, trust_remote_code=True)
+
+
+def _a_real_prompt() -> str:
+    if not VAL_ITEMS.exists():
+        pytest.skip("no validation prompts in this checkout")
+    for line in VAL_ITEMS.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            item = json.loads(line)
+            if item.get("prompt"):
+                return item["prompt"]
+    pytest.skip("no validation prompt with text")
+
+
+def test_the_scored_terminator_is_the_token_the_model_emits():
+    """The field ends with ``",`` as ONE token, not with a bare quote.
+
+    Measured before the fix: the scorer's suffix ended in the bare quote (id 1),
+    whose log-probability after a label was -22.8 nats on average. The model writes
+    ``",`` (id 497) because the answer continues with the next key, so a scorer
+    that stops at ``"`` is measuring a continuation the model cannot produce -- and
+    the per-token mean then divides that constant by the candidate's length, which
+    ranks the longest label first.
+    """
+    tokenizer = _tokenizer()
+    quote_ids = tokenizer(L.CLOSING_QUOTE, add_special_tokens=False)["input_ids"]
+    terminator_ids = tokenizer(L.FIELD_TERMINATOR, add_special_tokens=False)["input_ids"]
+    assert terminator_ids != quote_ids, "the terminator must be its own token"
+    assert len(terminator_ids) == 1, "the terminator is one token in this tokeniser"
+    for label in L.candidates():
+        suffix = L.suffix_ids(tokenizer, label)
+        assert suffix[-1:] == terminator_ids, f"{label} does not end with the terminator"
+        assert tokenizer.decode(suffix[-1:]) == L.FIELD_TERMINATOR
+        assert suffix[-1:] != quote_ids, (
+            f"{label} ends with a bare quote, which the model never emits here")
+
+
+def test_every_candidate_round_trips_as_a_continuation_of_a_real_prompt():
+    """Tokens after the real prompt == tokens after the prefix alone, per candidate.
+
+    ``suffix_ids`` raises rather than returning something plausible when that does
+    not hold, so this is also a check that no prompt in the set can silently break
+    the scorer.
+    """
+    tokenizer = _tokenizer()
+    context = L.prompt_for(_a_real_prompt()) + L.ANSWER_PREFIX
+    context_ids = tokenizer(context, add_special_tokens=True)["input_ids"]
+    for label in L.candidates():
+        suffix = L.suffix_ids(tokenizer, label, context)
+        whole = tokenizer(context + label + L.FIELD_TERMINATOR,
+                          add_special_tokens=True)["input_ids"]
+        assert whole[: len(context_ids)] == context_ids
+        assert whole[len(context_ids):] == suffix
+        # And the string really is the label followed by the terminator.
+        assert tokenizer.decode(suffix)[-len(L.FIELD_TERMINATOR):] == L.FIELD_TERMINATOR
+        assert label.replace("_", "") in tokenizer.decode(suffix).replace("_", "")
+
+
+def test_both_instruments_score_the_same_string():
+    """The decoder's chain must end on the terminator token, not before it.
+
+    A structural check because the numeric one needs a 2B model: if either side
+    changes its terminator, the two confidences stop being comparable and nothing
+    else in the pipeline notices.
+    """
+    source = (ROOT / "scripts/instrument_check.py").read_text(encoding="utf-8")
+    assert "FIELD_TERMINATOR" in source, "the decoder must import the scorer's terminator"
+    assert "scores[row] += float(log_probs[row, token])" in source, (
+        "the terminating token must contribute its log-probability")
+
+
 def test_the_prefix_is_how_the_exported_answer_actually_starts():
     body = json.dumps({"fault_id": "FAULT_01", "verdict": "classified",
                        "ranked_hypotheses": [], "physical_reasoning": "x",

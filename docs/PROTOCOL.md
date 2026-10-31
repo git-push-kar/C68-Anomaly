@@ -1192,3 +1192,74 @@ baseline on the menu-present slice.
 
 Nothing in this section changes training, the mix, or any filter. Test components remain
 unopened.
+
+---
+
+## 15. Instrument correction, and what validation means (dated 2026-11-01)
+
+Recorded after the run-1 instrument freeze and **before any test contact**. Nothing here
+changes training, the mix, the filters, the checkpoint or the selected instrument; it
+corrects a measurement that the freeze inherited, and fixes the vocabulary the numbers
+are reported in.
+
+### 15.1 The answer field ends with `",`, not with `"`
+
+The scorer appends a candidate to `{"fault_id": "` and sums the log-probabilities of the
+tokens it adds. The suffix was built as `label + '"'`. In context that is the wrong
+string: the exported answer continues `{"fault_id": "FAULT_01", "verdict": ...}`, so the
+token that ends the field is `",` (id 497), one token. The bare quote (id 1) never
+occurs there.
+
+Measured on the 300-item validation subsample at step 500, before the fix:
+
+| Quantity | Value |
+|---|---|
+| mean \|decoded chain − scorer sum\|, same string | **22.80 nats**, all 300 items > 0.01 |
+| log P(`"`) after a label | mean **−22.80** (range −25.69 … −13.75) |
+| log P(`",`) after a label | mean **−0.0002** (range −0.0034 … 0.0000) |
+
+The constant was harmless for the argmax over *sums* (it cancels between candidates) and
+decisive for the per-token *mean*, which divides it by the candidate's own length: 5
+tokens for `FAULT_nn`, 4 for `NORMAL_TRANSIENT`, 6 for `UNCLASSIFIED_OPEN_SET`. That made
+`UNCLASSIFIED_OPEN_SET` win almost every item at step 500 (158 of 300) and turned the
+"length artefact fix" of §13 into its mirror image.
+
+Fixed in one commit: `FIELD_TERMINATOR = '",'` in `llm/benchmark/label_scorer.py`,
+`suffix_ids` verifies the continuation tokenises the same way after the real prompt (and
+raises if it does not), and `scripts/instrument_check.py::decode_first_field` scores the
+token that carries the closing quote instead of dropping it. Parity after the fix, same
+items: **exactly 0.0 nats** at matched batch size, and ≤ 2.8e-3 at the production
+batchings (16 for scoring, 8 for decoding) — the residual is left-padding in bf16, not a
+definitional difference (`scripts/scorer_parity.py residual`).
+
+The frozen instrument (§14) is unchanged: decoding never scored the terminator, so its
+*predictions* are unaffected; only its reported confidence now covers the full field.
+
+### 15.2 The full validation split is the selection set, not a held-out set
+
+The 300-item subsample used for checkpoint selection is drawn **from** the 834-item
+Protocol A validation split, and the frozen rule in §14.3 selects on the full split. Both
+are therefore *selection* numbers and are reported as **validation**. The only held-out
+components are the Protocol A test components and the fold test splits, none of which has
+been opened.
+
+### 15.3 Follow-up refusal: two readings, and which one is reported
+
+`expected_decline` is computed from the router, not from the case label.
+**Store reading:** no store key resolves, which is the literal "can the store answer
+this". **Router reading:** the router's own verdict is `refuse`, which separates in-domain
+from out-of-domain. The store reading marks every prose case (why / mechanism / valve
+behaviour) as unanswerable, because no lookup key exists for them however well the KB
+covers the mechanism; refusing those is *not* correct behaviour. Per-case agreement is
+therefore reported under both readings, and over-refusal is the figure quoted for the
+adapter, with the store-coverage column next to it so a reader can see when the router has
+no key at all.
+
+### 15.4 The label is 3 % of the training signal
+
+On the 1,919 report rows of `train_mixed.jsonl`, the supervised tokens are 574,980 in
+total. The `fault_id` field — key, value and terminator — is 19,531 of them, **3.40 %**
+(2.06 % for the value alone). `physical_reasoning` is 68.4 % and `narrative` 14.5 %. Any
+closed-set metric is therefore measuring a capability that received about one token in
+thirty of the gradient, and no improvement in it can be attributed to the data mix
+without an objective that weights the field.

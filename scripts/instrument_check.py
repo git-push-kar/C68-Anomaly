@@ -39,6 +39,8 @@ for path in (ROOT, ROOT / "scripts"):
 from llm.benchmark import evaluate_v2 as ev  # noqa: E402
 from llm.benchmark.label_scorer import (  # noqa: E402
     ANSWER_PREFIX,
+    CLOSING_QUOTE,
+    FIELD_TERMINATOR,
     _causal_mask,
     _forward,
     _suffix_ids,
@@ -172,6 +174,14 @@ def decode_first_field(model, tokenizer, prompts: Sequence[str], dummy: int,
     stop_ids = {value for value in stop_ids if isinstance(value, int) and value >= 0}
     if tokenizer.eos_token_id is not None:
         stop_ids.add(tokenizer.eos_token_id)
+    # The terminator is part of the string the scorer measures -- its suffix ends
+    # with ``FIELD_TERMINATOR`` (``'",'``), so the decoder's chain has to end with
+    # the same token it emitted there. Dropping that log-probability made the two
+    # instruments' confidences differ by exactly one term (measured: 22.8 nats,
+    # because the token was the bare quote while the model emits ``",``). The
+    # *decision* is unchanged: the terminator carries no label text.
+    terminator_ids = tokenizer(FIELD_TERMINATOR, add_special_tokens=False)["input_ids"]
+    terminator_id = terminator_ids[0] if len(terminator_ids) == 1 else None
     rows: List[Dict] = []
     for start in range(0, len(prompts), batch):
         chunk = list(prompts[start:start + batch])
@@ -206,6 +216,11 @@ def decode_first_field(model, tokenizer, prompts: Sequence[str], dummy: int,
                         continue
                     piece = tokenizer.decode([int(token)])
                     if int(token) in stop_ids or '"' in piece or "\n" in piece:
+                        # The token that carries the closing quote ends the field and
+                        # is scored, exactly as the scorer scores it. A token that
+                        # ends the field some other way (a newline) is not.
+                        if '"' in piece:
+                            scores[row] += float(log_probs[row, token])
                         done[row] = True
                         continue
                     scores[row] += float(log_probs[row, token])
@@ -353,6 +368,11 @@ def cmd_sweep(args) -> int:
     model, tokenizer, config, _applied = load_base(Path(args.config))
     dummy = int(config["llm"].get("dummy_image_size", 448))
     steps = checkpoint_list()
+    if args.step:
+        wanted = {str(value) for value in args.step}
+        steps = [entry for entry in steps if str(entry[0]) in wanted]
+        if not steps:
+            raise SystemExit(f"no checkpoint among {sorted(wanted)}")
     first_step, first_path = steps[0]
     peft_model = PeftModel.from_pretrained(model, str(first_path),
                                            adapter_name=f"step{first_step}")
@@ -430,7 +450,7 @@ def cmd_fullval(args) -> int:
                                  args.decode_batch, args.cap)
     rows = instrument_rows(items, detail, decoded)
     summary = {}
-    for instrument in ("mean", "decode"):
+    for instrument in ("mean", "joint", "hierarchical", "decode"):
         predictions = rows[instrument]
         tag = f"step{args.step}"
         (OUT / f"preds_{instrument}_{tag}_full.jsonl").write_text(
@@ -474,15 +494,33 @@ def cmd_prefix(args) -> int:
         raise SystemExit("no items matched")
     model, tokenizer, config, _applied = load_base(Path(args.config))
     dummy = int(config["llm"].get("dummy_image_size", 448))
+    # What the deployed instrument said about the same items, so each row can be
+    # reconciled with the answer the model actually produced.
+    decoded_by_step = {}
+    for step in args.step:
+        rows = {}
+        # The subsample file first, then the full-validation one: an item named on the
+        # command line need not be in the 300-item subsample.
+        for path in (OUT / f"preds_decode_step{step}.jsonl",
+                     OUT / f"preds_decode_step{step}_full.jsonl"):
+            if path.exists():
+                for row in load_jsonl(path):
+                    rows.setdefault(row["item_id"], row)
+        if rows:
+            decoded_by_step[step] = rows
     out = {"checkpoints": {}}
     for step in args.step:
         path = adapter_root(ADAPTER / f"checkpoint-{step}")
         wrapped = PeftModel.from_pretrained(model, str(path), adapter_name=f"p{step}")
         wrapped.set_adapter(f"p{step}")
-        detail = score_detail(bare(wrapped), tokenizer, [item["prompt"] for item in items],
+        base_model = bare(wrapped)
+        detail = score_detail(base_model, tokenizer, [item["prompt"] for item in items],
                               dummy, 1)
+        walked = (decode_first_field(base_model, tokenizer,
+                                     [item["prompt"] for item in items], dummy, 1, 16)
+                  if not decoded_by_step.get(step) else None)
         rows = []
-        for item, row in zip(items, detail):
+        for index, (item, row) in enumerate(zip(items, detail)):
             labels = row["labels"]
             families: Dict[str, float] = {}
             for label, path_row in labels.items():
@@ -501,17 +539,29 @@ def cmd_prefix(args) -> int:
                     "joint": round(math.exp(path_row["joint"]), 10),
                 }
             ranked = sorted(labels.items(), key=lambda pair: -pair[1]["mean"])
+            by_joint = sorted(labels.items(), key=lambda pair: -pair[1]["joint"])
             winner = ranked[0][0]
             family_argmax = max(families, key=families.get)
+            decoded_row = (decoded_by_step.get(step) or {}).get(item["item_id"])
+            if decoded_row is not None:
+                decoded_label = decoded_row.get("pred") or decoded_row.get("raw")
+            elif walked is not None:
+                decoded_label = walked[index]["label"] or walked[index]["raw"]
+            else:
+                decoded_label = None
             rows.append({
                 "item_id": item["item_id"], "gold": gold_of(item),
                 "family_probability": {family: round(value / total, 6)
                                        for family, value in families.items()},
                 "p_fault_then_numbers": numbers,
                 "candidates": [{"label": label, "joint": round(math.exp(d["joint"]), 10),
-                                "mean": round(d["mean"], 6)}
+                                "mean": round(d["mean"], 6),
+                                "tokens": [t if t else "" for t in d["tokens"]]}
                                for label, d in ranked[:4]],
+                "candidates_by_joint": [label for label, _d in by_joint[:3]],
                 "argmax_mean": winner,
+                "argmax_joint": by_joint[0][0],
+                "decoded": decoded_label,
                 # The two numbers that decide whether the argmax is a decision or an
                 # artefact of dividing by length: what the model thought of the
                 # winner's *first* token, and which family it actually preferred.
@@ -535,6 +585,8 @@ def main() -> int:
     sweep.add_argument("--batch", type=int, default=16)
     sweep.add_argument("--decode-batch", dest="decode_batch", type=int, default=8)
     sweep.add_argument("--cap", type=int, default=16)
+    sweep.add_argument("--step", action="append",
+                       help="re-measure only these checkpoints (default: all)")
     sweep.add_argument("--only-missing", dest="only_missing", action="store_true",
                        help="reuse existing mean/joint/hierarchical predictions")
     sweep.set_defaults(func=cmd_sweep)
