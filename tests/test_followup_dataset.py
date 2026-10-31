@@ -500,3 +500,107 @@ def test_the_audit_sheet_separates_free_form_turns(tmp_path, dialogues_fixture=N
     free = next(r for r in rows if r["intent"] == "")
     assert free["scoring_path"] == "free_form_grounding"
     assert free["correct"] == "", "the sheet is unscored by design"
+
+
+# ---------------------------------------------------------------------------
+# replay: re-judging prose that already exists, and keeping the first attempt
+# ---------------------------------------------------------------------------
+class _FailOnce:
+    """A teacher whose first call is not JSON, so exactly one turn retries."""
+
+    model = "fail-once"
+
+    def __init__(self, inner):
+        self.inner = inner
+        self.calls = 0
+
+    def answer(self, payload, prompt=None):
+        from llm.followup.teacher import TeacherResponse
+
+        self.calls += 1
+        if self.calls == 1:
+            return payload, TeacherResponse(model=self.model, text="not json",
+                                            seconds=0.1, prompt_chars=1), None
+        _payload, response, error = self.inner.answer(payload, prompt)
+        return payload, TeacherResponse(model=self.model, text=response.text,
+                                        seconds=0.1,
+                                        prompt_chars=response.prompt_chars), error
+
+
+def test_a_retried_turns_first_attempt_is_also_cached(tmp_path):
+    """The retry must not be the only record of a purchase that was made."""
+    cache = TeacherCache(tmp_path / "cache.jsonl", model="fail-once", seed=42)
+    record = pick_record(records_fixture(), "train")
+    dialogue = builder.build_dialogue(
+        record, "train", "menu", "causal_why", _FailOnce(FakeTeacher()), cache,
+        mix=DEFAULT_MIX, seed=42, index=0,
+    )
+    turns = [t for t in dialogue["turns"] if t["answer_source"] == "teacher"]
+    retried = [t for t in turns if (t.get("answer_attempts") or 0) >= 2]
+    assert len(retried) == 1, "the fake fails once, so exactly one turn retries"
+    assert retried[0]["accepted"], retried[0]["filter_codes"]
+    # One entry per bought prompt, plus the retried turn's discarded first attempt.
+    assert len(cache._entries) == len(builder_prompts(dialogue)) + 1
+
+
+def builder_prompts(dialogue):
+    return [t["prompt_sha256"] for t in dialogue["turns"] if t["answer_source"] == "teacher"]
+
+
+def test_replay_rejudges_stored_prose_with_no_model_and_no_cache():
+    record = pick_record(records_fixture(), "train")
+    original = builder.build_dialogue(
+        record, "train", "menu", "mechanism", FakeTeacher(), None,
+        mix=DEFAULT_MIX, seed=42, index=0,
+    )
+    replay = {index: {"texts": [turn["answer"]], "retried": False}
+              for index, turn in enumerate(original["turns"])
+              if turn["answer_source"] == "teacher"}
+    replayed = builder.build_dialogue(
+        record, "train", "menu", "mechanism", None, None,
+        mix=DEFAULT_MIX, seed=42, index=0, replay=replay,
+    )
+    for index, turn in enumerate(replayed["turns"]):
+        if turn["answer_source"] != "teacher":
+            continue
+        assert turn["prose_replayed"] is True
+        assert turn["accepted"], turn["filter_codes"]
+        assert turn["answer"] == original["turns"][index]["answer"]
+        assert turn["teacher_seconds"] == 0.0
+
+
+def test_replay_recovers_a_decline_the_old_rule_dropped():
+    """A plain-English decline is prose worth keeping, not a drop."""
+    record = pick_record(records_fixture(), "train")
+    original = builder.build_dialogue(
+        record, "train", "menu", "out_of_scope", FakeTeacher(), None,
+        mix=DEFAULT_MIX, seed=42, index=0,
+    )
+    turn0 = original["turns"][0]
+    alternatives = (turn0.get("refusal") or {}).get("alternatives") or []
+    from llm.followup.teacher import ALTERNATIVE_NOUNS
+
+    noun = ALTERNATIVE_NOUNS.get(alternatives[0]["intent"], "the detector scores") \
+        if alternatives else "the detector scores"
+    # Declines in plain English -- the wording the old rule could not read -- and
+    # still points at something the record can answer, which the contract requires.
+    text = (f"The incident context does not provide that measurement, but {noun} "
+            "are recorded here and can be cited.")
+    replay = {0: {"texts": [text], "retried": False}}
+    replayed = builder.build_dialogue(
+        record, "train", "menu", "out_of_scope", None, None,
+        mix=DEFAULT_MIX, seed=42, index=0, replay=replay,
+    )
+    first = replayed["turns"][0]
+    assert first["answer_source"] == "teacher"
+    assert first["accepted"], first["filter_codes"]
+    assert "does not provide" in first["answer"]
+
+
+def test_a_dropped_turn_reports_the_rule_that_rejected_the_prose():
+    assert builder.drop_reason(
+        {"filter_codes": ["invalid_json:empty response"],
+         "first_attempt_codes": ["number_not_in_store: 6.98"]}
+    ) == ["number_not_in_store: 6.98 (no retry text)"]
+    assert builder.drop_reason({"filter_codes": ["near_duplicate"],
+                                "first_attempt_codes": ["near_duplicate"]}) == ["near_duplicate"]

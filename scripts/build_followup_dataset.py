@@ -704,13 +704,29 @@ def answer_context(state: DialogueState, turn: Dict, prompt: str) -> AnswerConte
 
 
 def fill_answer(state: DialogueState, turn: Dict, teacher, cache: Optional[TeacherCache],
-                structural: bool = False) -> Dict:
+                structural: bool = False,
+                replay_candidates: Optional[Sequence[str]] = None,
+                replay_retried: bool = False) -> Dict:
     """One turn's answer: cache, teacher, filters, one retry.
 
     ``structural`` records the deterministic part only -- intent, table,
     citations, refusal decision, suggestions -- and leaves ``answer`` empty. It
     is how val and test are built: their expectation is the decision, and a
     reference *prose* answer nobody wrote would be scored as if it were truth.
+
+    ``replay_candidates`` re-judges prose that is already in the repository: the
+    previous build's attempt texts for this turn, in the order they were made.
+    Nothing is bought and no cache is consulted, so a changed rule can be applied
+    to a corpus that already exists -- which is the difference between editing a
+    filter and paying for the same sentences twice.
+
+    ``replay_retried`` says the stored text is the *second* attempt of a turn that
+    was accepted after a retry. That answer was written against a prompt carrying
+    the rejection note, and the note's offending tokens count as grounded numbers,
+    so judging it against the bare prompt would reject a number the model was
+    entitled to quote. The retry prompt is therefore rebuilt from the codes the
+    text itself now raises and the same text is judged once more -- the two-attempt
+    rule, replayed instead of re-bought.
     """
     payload, prompt = teacher_payload(state, turn)
     if structural:
@@ -729,19 +745,38 @@ def fill_answer(state: DialogueState, turn: Dict, teacher, cache: Optional[Teach
             }
         )
         return turn
-    text = cache.get(prompt) if cache is not None else None
-    used_cache = text is not None
-    seconds = 0.0
-    model = getattr(teacher, "model", "unknown")
-    if text is None:
-        answer, response, error = teacher.answer(payload, prompt)
-        model = response.model
-        seconds = response.seconds
-        text = response.text
-        if error:
-            text = ""
+    replaying = replay_candidates is not None
+    queue: List[str] = []
+    primary_prompt = prompt
+    if replaying:
+        # The corpus stores the *extracted* answer, so it is wrapped back into the
+        # envelope the model was asked for: the parser and the answer rules run on
+        # exactly the shape they run on live.
+        queue = [json.dumps({"answer": str(text)}, ensure_ascii=False)
+                 for text in (replay_candidates or []) if str(text or "").strip()]
+        # Nothing is bought on this path, so a hit is the honest timing: the
+        # prose predates the build and cost nothing to re-judge.
+        text = queue.pop(0) if queue else ""
+        used_cache = True
+        seconds = 0.0
+        model = "replayed"
+    else:
+        text = cache.get(prompt) if cache is not None else None
+        used_cache = text is not None
+        seconds = 0.0
+        model = getattr(teacher, "model", "unknown")
+        if text is None:
+            answer, response, error = teacher.answer(payload, prompt)
+            model = response.model
+            seconds = response.seconds
+            text = response.text
+            if error:
+                text = ""
+    primary_text = text
     codes: List[str] = []
+    first_codes: List[str] = []
     answer_text = ""
+    last_rejected = ""
     attempts = 0
     while attempts < 2:
         attempts += 1
@@ -752,39 +787,65 @@ def fill_answer(state: DialogueState, turn: Dict, teacher, cache: Optional[Teach
             codes = [f"invalid_json:{error}"[:120]]
         else:
             codes = check_answer(answer_text or "", answer_context(state, turn, prompt))
+            if codes and answer_text:
+                # The text that was actually judged against a rule, kept even if a
+                # later attempt has nothing to say: otherwise a turn dropped for
+                # ``number_not_in_store`` is recorded as an empty response and the
+                # reason cannot be re-read from the dataset.
+                last_rejected = answer_text
         if not codes:
             break
         if attempts == 1:
+            # Kept separately: the retry's verdict replaces ``codes``, so without
+            # this a turn that was rejected twice reports only why the *second*
+            # attempt failed -- and a replayed turn has no second attempt to fail.
+            first_codes = list(codes)
             note = (
                 "PREVIOUS ATTEMPT REJECTED for: "
                 + ", ".join(codes)
                 + ". Write a different answer that fixes exactly that."
             )
             payload, retry_prompt = teacher_payload(state, turn, extra_prompt_note=note)
-            cached = cache.get(retry_prompt) if cache is not None else None
-            if cached is not None:
-                text = cached
+            if replaying:
+                if queue:
+                    text = queue.pop(0)
+                elif replay_retried:
+                    text = primary_text
+                    replay_retried = False
+                    turn["retry_note_reconstructed"] = True
+                else:
+                    text = ""
             else:
-                _answer, response, error = teacher.answer(payload, retry_prompt)
-                text = response.text
-                seconds += response.seconds
-                if cache is not None:
-                    cache.put(retry_prompt, text, response.model, response.seconds)
+                cached = cache.get(retry_prompt) if cache is not None else None
+                if cached is not None:
+                    text = cached
+                else:
+                    _answer, response, error = teacher.answer(payload, retry_prompt)
+                    text = response.text
+                    seconds += response.seconds
+                    if cache is not None:
+                        cache.put(retry_prompt, text, response.model, response.seconds)
             prompt = retry_prompt
-    if cache is not None and not used_cache:
-        cache.put(prompt, text, model, seconds)
+    if cache is not None and not used_cache and primary_text.strip():
+        # The first attempt is recorded under its *own* prompt even when a retry
+        # followed. Writing under the reassigned ``prompt`` (the retry's) left the
+        # retry as the only record of the purchase, and the next rebuild then had
+        # to buy a prompt that had already been bought once.
+        cache.put(primary_prompt, primary_text, model, seconds)
 
     turn.update(
         {
             "answer": answer_text if not codes else None,
-            "rejected_answer": None if not codes else (answer_text or "")[:600],
+            "rejected_answer": None if not codes else (last_rejected or answer_text or "")[:600],
             "filter_codes": codes,
+            "first_attempt_codes": first_codes,
             "accepted": not codes,
             "answer_attempts": attempts,
             "teacher_model": model,
             "teacher_seconds": round(seconds, 3),
             "prompt_sha256": sha256_text(prompt),
             "prompt_cache_hit": used_cache,
+            "prose_replayed": replaying,
         }
     )
     return turn
@@ -815,7 +876,8 @@ def condition_case(case_type: str, *, open_set: bool, normal: bool, has_lookalik
 
 def build_dialogue(record: Dict, split: str, variant: str, case_type: str, teacher,
                    cache: Optional[TeacherCache], *, mix: Dict[str, float], seed: int,
-                   index: int, structural: bool = False) -> Dict:
+                   index: int, structural: bool = False,
+                   replay: Optional[Dict[int, Sequence[str]]] = None) -> Dict:
     evidence = evidence_of(record)
     target = build_target(record, variant=variant, split=split)
     raw_event = record.get("event") if isinstance(record.get("event"), dict) else {}
@@ -893,7 +955,14 @@ def build_dialogue(record: Dict, split: str, variant: str, case_type: str, teach
             turn["accepted"] = True
             turn["filter_codes"] = []
         else:
-            turn = fill_answer(state, turn, teacher, cache, structural=structural)
+            candidates = None
+            retried = False
+            if replay is not None and turn["answer_source"] == "teacher":
+                entry = replay.get(position) or {}
+                candidates = list(entry.get("texts") or [])
+                retried = bool(entry.get("retried"))
+            turn = fill_answer(state, turn, teacher, cache, structural=structural,
+                               replay_candidates=candidates, replay_retried=retried)
         turns.append(turn)
         state.turn_records = turns
         state.history.append({"user": turn["question"], "assistant": turn.get("answer") or ""})
@@ -973,6 +1042,169 @@ def thin_by_fault_family(rows: Sequence[Dict], per_dialogue: int, seed: int) -> 
     return kept
 
 
+class _ReadOnlyCache:
+    """A cache that can be read but not written: plan mode must leave no trace."""
+
+    def __init__(self, inner: TeacherCache):
+        self.inner = inner
+
+    def get(self, prompt: str):
+        return self.inner.get(prompt)
+
+    def put(self, *_args, **_kwargs):
+        return None
+
+    def seconds_stats(self):
+        return self.inner.seconds_stats()
+
+
+class _PlanTeacher:
+    """Records the prompts a real run would have to buy, without buying them.
+
+    ``--plan`` exists because a rebuild under a changed filter is not obviously
+    free: the primary prompt does not contain the filter, so a rule edit leaves
+    every first attempt cached, but the *retry* prompt quotes the rejection
+    codes, so an item whose codes change needs a new call. Counting that before
+    spending it is cheaper than discovering it during a run.
+    """
+
+    model = "plan"
+
+    def __init__(self) -> None:
+        self.missing: Dict[str, Dict] = {}
+
+    def answer(self, payload: TeacherPayload, prompt: Optional[str] = None) -> tuple:
+        from llm.followup.teacher import TeacherResponse
+
+        text = prompt if prompt is not None else build_prompt(payload)
+        retry = "PREVIOUS ATTEMPT REJECTED" in text
+        # A miss on an early turn starves the history of the turns after it, so
+        # the turn index separates a genuinely new prompt from its cascade.
+        self.missing.setdefault(sha256_text(text),
+                                {"retry": retry, "turn_index": payload.turn_index})
+        return None, TeacherResponse(model=self.model, text="", seconds=0.0,
+                                     prompt_chars=len(text)), "plan"
+
+
+def load_replay_corpus(path: Path) -> Dict[str, Dict[int, Dict[str, object]]]:
+    """The attempt prose a previous build already holds, keyed by dialogue and turn.
+
+    An accepted turn keeps its final text in ``answer``; a rejected one keeps its
+    last attempt in ``rejected_answer``. A retried-and-then-accepted turn has told
+    us both tried texts, so the order a two-attempt policy made them in is
+    recoverable: the rejected one first, the accepted one second.
+
+    Only the last attempt of a turn that was rejected twice survives (the
+    first-attempt text of a retried turn was never cached or stored). That turn is
+    replayed with one candidate rather than being skipped, and is counted under
+    ``single_attempt`` so the report can say which prose was re-judged once.
+    """
+    if not path.exists():
+        raise SystemExit(f"replay corpus not found: {path}")
+    out: Dict[str, Dict[int, Dict[str, object]]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        turns: Dict[int, Dict[str, object]] = {}
+        for index, turn in enumerate(row.get("turns") or []):
+            if turn.get("answer_source") != "teacher":
+                continue
+            accepted = str(turn.get("answer") or "").strip()
+            rejected = str(turn.get("rejected_answer") or "").strip()
+            texts = ([rejected] if rejected else []) + ([accepted] if accepted else [])
+            turns[index] = {
+                "texts": texts,
+                # Only a turn that ended accepted after a retry has its second
+                # attempt stored; a turn rejected twice stores the text that was
+                # rejected, and re-judging that under a note it never saw would
+                # be an invitation to accept it by accident.
+                "retried": bool(accepted) and int(turn.get("answer_attempts") or 1) >= 2,
+            }
+        out[str(row.get("dialogue_id"))] = turns
+    return out
+
+
+def drop_reason(turn: Dict) -> List[str]:
+    """Why a dropped turn was dropped, not why its missing retry could not run.
+
+    A replayed turn has only the attempt texts the corpus holds, so when the first
+    one fails there is often nothing to retry with and the last verdict reads
+    ``invalid_json: empty response``. The rule that actually rejected the prose is
+    the first attempt's.
+    """
+    codes = list(turn.get("filter_codes") or [])
+    first = list(turn.get("first_attempt_codes") or [])
+    if codes and all(code.startswith("invalid_json") for code in codes) and first:
+        return [f"{code} (no retry text)" for code in first]
+    return codes
+
+
+def compare_replay(path: Path, dialogues: Dict[str, List[Dict]]) -> Dict:
+    """Acceptance before and after a replay, by case type, plus why anything dropped."""
+    before_rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
+                   if line.strip()]
+    before_by_id = {row["dialogue_id"]: row for row in before_rows}
+
+    def tally(rows: Iterable[Dict], field: str) -> Counter:
+        counter: Counter = Counter()
+        for row in rows:
+            for turn in row.get("turns") or []:
+                if turn.get("answer_source") != "teacher":
+                    continue
+                counter[(row.get("case_type"), bool(turn.get(field)))] += 1
+        return counter
+
+    before = tally(before_rows, "accepted")
+    after_rows = [row for rows in dialogues.values() for row in rows]
+    after = tally(after_rows, "accepted")
+
+    flips: Counter = Counter()
+    drops: Counter = Counter()
+    for row in after_rows:
+        previous = before_by_id.get(row["dialogue_id"]) or {}
+        old_turns = previous.get("turns") or []
+        for index, turn in enumerate(row.get("turns") or []):
+            if turn.get("answer_source") != "teacher":
+                continue
+            old = old_turns[index] if index < len(old_turns) else {}
+            was = bool(old.get("accepted"))
+            now = bool(turn.get("accepted"))
+            if was != now:
+                flips[f"{'recovered' if now else 'lost'}|{row.get('case_type')}"] += 1
+            if not now:
+                for code in drop_reason(turn):
+                    drops[code.split(":")[0]] += 1
+
+    def summarise(counter: Counter) -> Dict[str, Dict[str, Optional[float]]]:
+        cases = sorted({case for case, _ in counter})
+        out = {}
+        for case in cases:
+            accepted = counter[(case, True)]
+            rejected = counter[(case, False)]
+            total = accepted + rejected
+            out[case] = {"turns": total, "accepted": accepted, "rejected": rejected,
+                         "acceptance": round(accepted / total, 4) if total else None}
+        return out
+
+    old_total = sum(before.values())
+    new_total = sum(after.values())
+    return {
+        "before": summarise(before),
+        "after": summarise(after),
+        "totals": {
+            "before": {"turns": old_total, "accepted": sum(v for (c, a), v in before.items() if a),
+                       "acceptance": round(sum(v for (c, a), v in before.items() if a) / old_total, 4)
+                       if old_total else None},
+            "after": {"turns": new_total, "accepted": sum(v for (c, a), v in after.items() if a),
+                      "acceptance": round(sum(v for (c, a), v in after.items() if a) / new_total, 4)
+                      if new_total else None},
+        },
+        "flips": dict(sorted(flips.items())),
+        "drops_by_code": dict(sorted(drops.items())),
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--events", default=str(EVENTS))
@@ -998,6 +1230,13 @@ def main() -> int:
     ap.add_argument("--progress-file", default=None,
                     help="append a one-line progress note every --progress-every teacher calls")
     ap.add_argument("--progress-every", type=int, default=200)
+    ap.add_argument("--plan", action="store_true",
+                    help="count the prompts a real run would buy, call nothing, write nothing")
+    ap.add_argument("--replay-from", default=None,
+                    help="re-judge the attempt prose of a previously built corpus under the "
+                         "current filters: no cache reads and no teacher calls")
+    ap.add_argument("--plan-out", default=None,
+                    help="write the plan's per-turn miss list here (needs --plan)")
     ap.add_argument("--log-level", default="INFO")
     args = ap.parse_args()
     logging.basicConfig(level=getattr(logging, args.log_level.upper(), logging.INFO),
@@ -1031,14 +1270,30 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     cache = None
     provenance = followup_provenance()
-    if not args.no_cache:
+    replay_corpus = load_replay_corpus(Path(args.replay_from)) if args.replay_from else None
+    if replay_corpus is None and not args.no_cache:
         cache = TeacherCache(
             Path(args.cache) if args.cache else out / "teacher_cache.jsonl",
             model=args.model if args.teacher == "ollama" else "fake-followup-v1",
             seed=args.seed,
             provenance=provenance,
         )
-    if args.teacher == "fake":
+    if replay_corpus is not None:
+        # A replay must not be able to reach a model, so there is no cache to hit
+        # and no teacher to call: the only text this build can use is what the
+        # corpus already holds.
+        teacher = None
+        logger.warning("replay mode: %d dialogues of stored prose re-judged, no model calls",
+                       len(replay_corpus))
+    plan_teacher: Optional[_PlanTeacher] = None
+    if replay_corpus is not None:
+        pass
+    elif args.plan:
+        plan_teacher = _PlanTeacher()
+        teacher = plan_teacher
+        if cache is not None:
+            cache = _ReadOnlyCache(cache)  # type: ignore[assignment]
+    elif args.teacher == "fake":
         teacher = FakeTeacher(profile=args.fake_profile)
     elif args.teacher == "ollama":
         from llm.followup.teacher import OllamaFollowupTeacher
@@ -1073,10 +1328,17 @@ def main() -> int:
                 continue
             case_type = cases.choose_case_type(mix, f"{record_key_of(record)}|{args.seed}")
             variant = variant_for(record, split, args.open_set_rate)
+            replay_turns = None
+            if replay_corpus is not None:
+                replay_turns = replay_corpus.get(f"FD-{split}-{built:05d}")
+                if replay_turns is None:
+                    skipped["replay_dialogue_missing"] += 1
+                    replay_turns = {}
             dialogue = build_dialogue(
                 record, split, variant, case_type, teacher, cache,
                 mix=mix, seed=args.seed, index=built,
                 structural=split in set(args.structural_splits),
+                replay=replay_turns,
             )
             dialogues[split].append(dialogue)
             counts[split][dialogue["case_type"]] += 1
@@ -1118,6 +1380,85 @@ def main() -> int:
                     next_milestone += max(int(args.progress_every), 1)
         logger.info("%s: %d dialogues done (%.0fs)", split, built, time.time() - started)
 
+    replay_summary: Optional[Dict] = None
+    if replay_corpus is not None:
+        stamp = provenance.get("filter_sha256")
+        for rows in dialogues.values():
+            for row in rows:
+                for turn in row["turns"]:
+                    if turn.get("prose_replayed"):
+                        # The prose predates the rule that now judges it, so the
+                        # hash it was accepted under is recorded next to the one
+                        # that accepted it: re-checking it costs nothing.
+                        turn["replayed_under_filter_sha256"] = stamp
+        replay_summary = compare_replay(Path(args.replay_from), dialogues)
+        replay_summary["corpus"] = str(args.replay_from)
+        replay_summary["filter_sha256"] = stamp
+        shapes = Counter((len(entry.get("texts") or []), bool(entry.get("retried")))
+                         for turns in replay_corpus.values() for entry in turns.values())
+        replay_summary["candidates_available"] = {
+            f"{count}_texts" + ("_retried" if retried else ""): n
+            for (count, retried), n in sorted(shapes.items())}
+        (out / "replay_comparison.json").write_text(
+            json.dumps(replay_summary, indent=2), encoding="utf-8")
+        print(json.dumps(replay_summary, indent=2))
+
+    if plan_teacher is not None:
+        if args.plan_out:
+            # Every teacher turn, hit or miss: a hit proves the current prompt
+            # still matches the one the cache was filled with, which is the only
+            # way to tell a changed prompt from a prompt that was never bought.
+            plan_turns = []
+            for rows in dialogues.values():
+                for row in rows:
+                    for position, turn in enumerate(row["turns"]):
+                        if turn.get("answer_source") != "teacher":
+                            continue
+                        plan_turns.append({"dialogue_id": row.get("dialogue_id"),
+                                           "event_key": row.get("event_key"),
+                                           "case_type": row.get("case_type"),
+                                           "variant": row.get("variant"),
+                                           "turn_index": position,
+                                           "prompt_cache_hit": bool(turn.get("prompt_cache_hit")),
+                                           "prompt_sha256": turn.get("prompt_sha256"),
+                                           "accepted": bool(turn.get("accepted")),
+                                           "filter_codes": turn.get("filter_codes")})
+            Path(args.plan_out).write_text(json.dumps(plan_turns, indent=2), encoding="utf-8")
+        fresh = [entry for entry in plan_teacher.missing.values() if not entry["retry"]]
+        retries = [entry for entry in plan_teacher.missing.values() if entry["retry"]]
+        by_turn = Counter(entry["turn_index"] for entry in fresh)
+        turns = [t for rows in dialogues.values() for row in rows for t in row["turns"]]
+        by_case = Counter(
+            (row.get("case_type"), t.get("accepted"))
+            for rows in dialogues.values() for row in rows for t in row["turns"]
+            if t.get("answer_source") == "teacher"
+        )
+        # Which dialogues the misses sit in, so a selection change and a prompt
+        # change can be told apart before anything is spent.
+        hitless = Counter()
+        for rows in dialogues.values():
+            for row in rows:
+                if any(not t.get("prompt_cache_hit") for t in row["turns"]
+                       if t.get("answer_source") == "teacher"):
+                    hitless["dialogues_with_a_miss"] += 1
+                    hitless[f"case:{row.get('case_type')}"] += 1
+                    hitless[f"variant:{row.get('variant')}"] += 1
+                    hitless[f"open_set:{bool(row.get('open_set'))}"] += 1
+        print(json.dumps({
+            "plan": True,
+            "splits": list(dialogues),
+            "new_first_attempt_prompts": len(fresh),
+            "new_retry_prompts": len(retries),
+            "estimated_calls": len(fresh) + len(retries),
+            "first_miss_by_turn_index": dict(sorted(by_turn.items())),
+            "miss_shape": dict(sorted(hitless.items())),
+            "turns_total": len(turns),
+            "accepted_under_current_filters": sum(1 for t in turns if t.get("accepted")),
+            "by_case_accepted": {f"{case}|{'accepted' if ok else 'rejected'}": n
+                                 for (case, ok), n in sorted(by_case.items())},
+        }, indent=2))
+        return 0
+
     # -- write ------------------------------------------------------------
     hashes: Dict[str, str] = {}
     for split, rows in dialogues.items():
@@ -1132,7 +1473,8 @@ def main() -> int:
                      if turn["answer_source"] == "teacher"]
     accepted = sum(1 for turn in teacher_turns if turn.get("accepted"))
     rejection_codes = Counter(
-        code.split(":")[0] for turn in teacher_turns for code in (turn.get("filter_codes") or [])
+        code.split(":")[0] for turn in teacher_turns if not turn.get("accepted")
+        for code in drop_reason(turn)
     )
     seconds = sum(float(turn.get("teacher_seconds") or 0.0) for turn in teacher_turns)
     prompts = {turn.get("prompt_sha256") for turn in teacher_turns if turn.get("prompt_sha256")}
@@ -1248,6 +1590,7 @@ def main() -> int:
         "paraphrase_disjointness": disjointness,
         "leak_check": {"checked": "every context and question", "violations": 0},
         "files_sha256": hashes,
+        "replay": replay_summary,
         "cost_estimate": cost,
         "full_run_projection": projection,
         "mix_proposal": followup_ratio,
