@@ -221,6 +221,45 @@ def test_answering_past_a_false_premise_is_still_rejected(ctx):
     assert "refusal_missing" in codes
 
 
+def test_refusal_may_decline_by_the_record_lacking_the_field(ctx):
+    """The teacher's most common decline: the record does not provide it.
+
+    43 of the 50 answers rejected as ``refusal_missing`` in the first full run
+    read "the incident context does not provide any vibration readings for
+    XMEAS_10" -- a plain decline the inability family did not recognise.
+    """
+    ctx.refusal = {
+        "required": True,
+        "reason": "key_missing",
+        "premise": {"kind": "key", "claim": "vibration of XMEAS_10", "verdict": "missing",
+                    "store_key": "sensor.XMEAS_10.vibration", "actual": None,
+                    "reason": "no such field"},
+        "alternatives": [{"question": "What are the detector scores?", "intent": "detector_scores"}],
+    }
+    answer = ("The incident context does not provide any vibration readings for XMEAS_10. "
+              "It only lists Purge_Rate as a flow measurement; I can show the detector scores instead.")
+    assert "refusal_missing" not in check_answer(answer, ctx)
+
+
+def test_a_physical_absence_is_not_a_decline(ctx):
+    """The same verb about the process is a claim, not a refusal.
+
+    "the feed does not contain enough reactant" is exactly the kind of sentence a
+    scoped subject check has to keep rejecting; only the record's absence counts.
+    """
+    ctx.refusal = {
+        "required": True,
+        "reason": "key_missing",
+        "premise": {"kind": "key", "claim": "vibration of XMEAS_10", "verdict": "missing",
+                    "store_key": "sensor.XMEAS_10.vibration", "actual": None,
+                    "reason": "no such field"},
+        "alternatives": [{"question": "What are the detector scores?", "intent": "detector_scores"}],
+    }
+    answer = ("The reactor feed does not contain enough reactant, which does not provide enough "
+              "cooling duty, so the pressure climbed and the detector scores confirmed it.")
+    assert "refusal_missing" in check_answer(answer, ctx)
+
+
 def test_schema_identifiers_are_not_fabricated_tags(ctx):
     """An answer that names its own format must not read as a sensor claim.
 

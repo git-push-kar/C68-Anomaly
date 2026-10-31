@@ -703,9 +703,32 @@ def answer_context(state: DialogueState, turn: Dict, prompt: str) -> AnswerConte
     )
 
 
-def fill_answer(state: DialogueState, turn: Dict, teacher, cache: Optional[TeacherCache]) -> Dict:
-    """One turn's answer: cache, teacher, filters, one retry."""
+def fill_answer(state: DialogueState, turn: Dict, teacher, cache: Optional[TeacherCache],
+                structural: bool = False) -> Dict:
+    """One turn's answer: cache, teacher, filters, one retry.
+
+    ``structural`` records the deterministic part only -- intent, table,
+    citations, refusal decision, suggestions -- and leaves ``answer`` empty. It
+    is how val and test are built: their expectation is the decision, and a
+    reference *prose* answer nobody wrote would be scored as if it were truth.
+    """
     payload, prompt = teacher_payload(state, turn)
+    if structural:
+        turn.update(
+            {
+                "answer": None,
+                "rejected_answer": None,
+                "filter_codes": [],
+                "accepted": False,
+                "answer_attempts": 0,
+                "answer_source": "structural",
+                "teacher_model": None,
+                "teacher_seconds": 0.0,
+                "prompt_sha256": sha256_text(prompt),
+                "prompt_cache_hit": False,
+            }
+        )
+        return turn
     text = cache.get(prompt) if cache is not None else None
     used_cache = text is not None
     seconds = 0.0
@@ -792,7 +815,7 @@ def condition_case(case_type: str, *, open_set: bool, normal: bool, has_lookalik
 
 def build_dialogue(record: Dict, split: str, variant: str, case_type: str, teacher,
                    cache: Optional[TeacherCache], *, mix: Dict[str, float], seed: int,
-                   index: int) -> Dict:
+                   index: int, structural: bool = False) -> Dict:
     evidence = evidence_of(record)
     target = build_target(record, variant=variant, split=split)
     raw_event = record.get("event") if isinstance(record.get("event"), dict) else {}
@@ -852,8 +875,13 @@ def build_dialogue(record: Dict, split: str, variant: str, case_type: str, teach
     for position, kind in enumerate(plan):
         repeat_index = None
         if kind == "repeat":
+            # A repeat needs an earlier *answered* turn to repeat. A structural
+            # split has no prose, so it repeats the earlier question itself: the
+            # expectation there is the routing decision, and "answer it
+            # differently" is meaningless without an answer.
+            wanted = ("structural", "teacher") if structural else ("teacher",)
             repeat_index = next(
-                (i for i in range(len(turns) - 1, -1, -1) if turns[i]["answer_source"] == "teacher"),
+                (i for i in range(len(turns) - 1, -1, -1) if turns[i]["answer_source"] in wanted),
                 None,
             )
         turn = build_turn(kind, state, position, repeat_index=repeat_index)
@@ -865,7 +893,7 @@ def build_dialogue(record: Dict, split: str, variant: str, case_type: str, teach
             turn["accepted"] = True
             turn["filter_codes"] = []
         else:
-            turn = fill_answer(state, turn, teacher, cache)
+            turn = fill_answer(state, turn, teacher, cache, structural=structural)
         turns.append(turn)
         state.turn_records = turns
         state.history.append({"user": turn["question"], "assistant": turn.get("answer") or ""})
@@ -953,6 +981,9 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=None, help="max dialogues per split")
     ap.add_argument("--report-items-per-dialogue", type=int, default=1,
                     help="pair one dialogue with every Nth report item (2 = the 2:1 mix)")
+    ap.add_argument("--structural-splits", nargs="*", default=[],
+                    help="splits written with deterministic expectations only, no prose "
+                         "(val and test: there is no reference prose to score against)")
     ap.add_argument("--teacher", choices=("fake", "ollama", "none"), default="fake",
                     help="fake (default, no model), ollama (real run), none (deterministic fields only)")
     ap.add_argument("--fake-profile", default="good", help="fake teacher failure profile")
@@ -1045,6 +1076,7 @@ def main() -> int:
             dialogue = build_dialogue(
                 record, split, variant, case_type, teacher, cache,
                 mix=mix, seed=args.seed, index=built,
+                structural=split in set(args.structural_splits),
             )
             dialogues[split].append(dialogue)
             counts[split][dialogue["case_type"]] += 1
@@ -1056,7 +1088,16 @@ def main() -> int:
                 1 for turn in dialogue["turns"] if turn["answer_source"] == "teacher"
             )
             counts[split]["accepted"] += sum(1 for turn in dialogue["turns"] if turn.get("accepted"))
-            counts[split]["rejected"] += sum(1 for turn in dialogue["turns"] if not turn.get("accepted"))
+            # A structural turn carries no prose by design, so counting it as
+            # rejected would report a 0% acceptance rate for a split no model
+            # ever answered.
+            counts[split]["structural"] += sum(
+                1 for turn in dialogue["turns"] if turn.get("answer_source") == "structural"
+            )
+            counts[split]["rejected"] += sum(
+                1 for turn in dialogue["turns"]
+                if not turn.get("accepted") and turn.get("answer_source") != "structural"
+            )
             if dialogue["case_substituted"]:
                 counts[split]["case_substituted"] += 1
             built += 1
@@ -1097,9 +1138,12 @@ def main() -> int:
     prompts = {turn.get("prompt_sha256") for turn in teacher_turns if turn.get("prompt_sha256")}
 
     # -- audit sheet ------------------------------------------------------
+    # ``--audit 0`` writes none: a val/test structural build must not replace the
+    # sheet drawn from the train dialogues it knows nothing about.
     audit_path = out / "audit_sample.csv"
-    write_audit(audit_path, dialogues, limit=args.audit, seed=args.seed)
-    hashes[audit_path.name] = hashlib.sha256(audit_path.read_bytes()).hexdigest()
+    if args.audit > 0:
+        write_audit(audit_path, dialogues, limit=args.audit, seed=args.seed)
+        hashes[audit_path.name] = hashlib.sha256(audit_path.read_bytes()).hexdigest()
 
     # -- mix proposal -----------------------------------------------------
     train = dialogues.get("train", [])
@@ -1136,20 +1180,48 @@ def main() -> int:
     # -- cost -------------------------------------------------------------
     calls = len(prompts) if teacher_turns else 0
     retry_calls = int(round(calls * PILOT_REJECTION_RATE))
+    # What a call actually cost in *this* build. A cache hit costs nothing, so a
+    # per-turn average over all turns reports the replay speed, not the model's:
+    # only the fresh calls are timed against the model.
+    fresh = [turn for turn in teacher_turns if not turn.get("prompt_cache_hit")]
+    fresh_seconds = round(sum(float(turn.get("teacher_seconds") or 0.0) for turn in fresh), 2)
+    per_fresh = round(fresh_seconds / len(fresh), 3) if fresh else None
     cost = {
         "teacher_turns": len(teacher_turns),
         "distinct_prompts": calls,
-        "seconds_per_call": SECONDS_PER_CALL,
-        "serial_hours": round(calls * SECONDS_PER_CALL / 3600.0, 2),
-        "with_one_retry_per_rejection": {
-            "extra_calls": retry_calls,
-            "serial_hours": round((calls + retry_calls) * SECONDS_PER_CALL / 3600.0, 2),
+        "measured": {
+            "fresh_calls_this_build": len(fresh),
+            "cache_hits_this_build": len(teacher_turns) - len(fresh),
+            "seconds_per_fresh_call": per_fresh,
+            "seconds_total_this_build": round(seconds, 2),
+            # A replay build buys nothing, so the model's own timing is read back
+            # from the cache records instead of being reported as 0 s or as the
+            # pre-run constant.
+            "cache": (cache.seconds_stats() if cache is not None else {}),
+            "serial_hours_if_all_fresh": (
+                round(calls * (per_fresh or (cache.seconds_stats()["mean_seconds"] if cache else None)
+                               or SECONDS_PER_CALL) / 3600.0, 2)
+            ),
         },
-        "measured_rejection_rate": PILOT_REJECTION_RATE,
-        "measured_seconds_total": round(seconds, 2),
+        # Kept only as the pre-run assumption it always was; the measured block
+        # above supersedes it as soon as one fresh call has been made.
+        "projection_assumption": {
+            "seconds_per_call": SECONDS_PER_CALL,
+            "serial_hours": round(calls * SECONDS_PER_CALL / 3600.0, 2),
+            "with_one_retry_per_rejection": {
+                "extra_calls": retry_calls,
+                "serial_hours": round((calls + retry_calls) * SECONDS_PER_CALL / 3600.0, 2),
+            },
+            "rejection_rate": PILOT_REJECTION_RATE,
+        },
         "teacher": args.teacher,
     }
-    projection = _project_cost(dialogues, mix, args.splits, args.report_items_per_dialogue)
+    measured_rate = per_fresh
+    if measured_rate is None and cache is not None:
+        measured_rate = cache.seconds_stats().get("mean_seconds")
+    projection = _project_cost(
+        dialogues, mix, args.splits, args.report_items_per_dialogue, seconds_per_call=measured_rate
+    )
 
     manifest = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
@@ -1182,8 +1254,39 @@ def main() -> int:
         "train_faults_excluded": list(TRAIN_EXCLUDED_FAULTS),
         "temperature": 0.2,
     }
-    (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    logger.info("wrote %s", out / "manifest.json")
+    # A split built on its own (val/test structurally, after the train prose
+    # already exists) must not erase the other splits' counts or the train run's
+    # acceptance and cost. One manifest describes the whole directory.
+    manifest_path = out / "manifest.json"
+    if manifest_path.exists():
+        try:
+            previous = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except ValueError:
+            previous = {}
+        if previous:
+            manifest["counts"] = {**previous.get("counts", {}), **manifest["counts"]}
+            manifest["files_sha256"] = {**previous.get("files_sha256", {}), **manifest["files_sha256"]}
+            if not teacher_turns:
+                # The pairing is a property of the directory, not of one split,
+                # so the value this run actually used stays.
+                for key in ("acceptance", "cost_estimate", "full_run_projection",
+                            "mix_proposal", "teacher_model", "teacher", "temperature"):
+                    if key in previous:
+                        manifest[key] = previous[key]
+                manifest["structural_splits"] = sorted(set(args.structural_splits))
+            else:
+                manifest["structural_splits"] = previous.get("structural_splits", [])
+            manifest["builds"] = list(previous.get("builds", [])) + [
+                {
+                    "at": manifest["generated_at"],
+                    "splits": list(args.splits),
+                    "teacher": args.teacher,
+                    "structural_splits": sorted(set(args.structural_splits)),
+                    "fresh_calls": len(fresh),
+                }
+            ]
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    logger.info("wrote %s", manifest_path)
     logger.info("counts: %s", json.dumps({k: dict(v) for k, v in counts.items()}))
     return 0
 
@@ -1222,7 +1325,8 @@ def _load_measured_llm_share() -> Dict:
 
 
 def _project_cost(dialogues: Dict[str, List[Dict]], mix: Dict[str, float], splits: Sequence[str],
-                  report_items_per_dialogue: int = 1) -> Dict:
+                  report_items_per_dialogue: int = 1,
+                  seconds_per_call: Optional[float] = None) -> Dict:
     """Estimate the full-size run from the sample that was built.
 
     ``report_items_per_dialogue`` is the pairing actually used: two report items
@@ -1241,6 +1345,7 @@ def _project_cost(dialogues: Dict[str, List[Dict]], mix: Dict[str, float], split
     train_dialogues = -(-items // k)
     calls = int(round(train_dialogues * per_dialogue))
     retry = int(round(calls * PILOT_REJECTION_RATE))
+    rate = float(seconds_per_call) if seconds_per_call else SECONDS_PER_CALL
     return {
         "sample_dialogues": built,
         "sample_turns": turns,
@@ -1250,8 +1355,9 @@ def _project_cost(dialogues: Dict[str, List[Dict]], mix: Dict[str, float], split
         "report_items_per_dialogue": k,
         "full_train_dialogues": train_dialogues,
         "full_train_calls": calls,
-        "full_train_serial_hours": round(calls * SECONDS_PER_CALL / 3600.0, 2),
-        "full_train_with_retry_hours": round((calls + retry) * SECONDS_PER_CALL / 3600.0, 2),
+        "seconds_per_call_basis": "measured" if seconds_per_call else "projection_assumption",
+        "full_train_serial_hours": round(calls * rate / 3600.0, 2),
+        "full_train_with_retry_hours": round((calls + retry) * rate / 3600.0, 2),
     }
 
 

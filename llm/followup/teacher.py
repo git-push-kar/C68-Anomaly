@@ -218,6 +218,25 @@ class TeacherCache:
         self.hits += 1
         return str(row.get("text") or "")
 
+    def seconds_stats(self) -> Dict:
+        """What a call to *this* model actually cost, read back from the cache.
+
+        A rebuild replays prose instead of buying it, so the turns in that build
+        carry 0 s and a per-turn average would report the replay speed. The cache
+        is the one place the model's own timing survives, so the manifest reads it
+        from here rather than restating the pre-run assumption.
+        """
+        rows = [row for row in self._entries.values()
+                if row.get("model") == self.model and float(row.get("seconds") or 0.0) > 0.0]
+        if not rows:
+            return {"n": 0, "mean_seconds": None, "total_seconds": None}
+        total = sum(float(row.get("seconds") or 0.0) for row in rows)
+        return {
+            "n": len(rows),
+            "mean_seconds": round(total / len(rows), 3),
+            "total_seconds": round(total, 1),
+        }
+
     def put(self, prompt: str, text: str, model: str, seconds: float) -> None:
         key = self.key_for(prompt)
         if key in self._entries:

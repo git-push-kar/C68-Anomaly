@@ -75,6 +75,27 @@ DECLINE_MARKERS = (
     "cannot confirm", "can't confirm", "not possible to say", "no evidence",
 )
 
+#: The teacher's second way to decline: state that the *stored record* lacks the
+#: thing asked for. Measured over the first full run: 43 of 50 rejected
+#: out-of-scope answers said "the incident context does not provide ...", which
+#: the inability family above did not contain. Scoped by subject so that a
+#: physical sentence ("the feed does not contain enough reactant") is not read
+#: as a decline.
+ABSENCE_SUBJECTS = (
+    "context", "store", "record", "incident", "evidence", "report", "log",
+    "data", "dataset", "listing", "summary",
+)
+ABSENCE_VERBS = (
+    "does not provide", "does not include", "does not contain", "does not record",
+    "does not specify", "does not describe", "does not list", "does not give",
+    "does not show", "does not track", "does not report", "does not hold",
+)
+#: Absence stated without a subject ("XMEAS_1 is not mentioned in the list").
+BARE_ABSENCE = (
+    "not mentioned", "not provided", "not reported", "not recorded",
+    "not specified", "not listed", "no information", "no data",
+)
+
 CONFIDENCE_PATTERNS = (
     r"\b\d{1,3}\s?%\s?confiden",
     r"\bconfidence\s+(?:of|is|around|about)\s+\d",
@@ -170,6 +191,28 @@ def is_near_duplicate(candidate: str, previous: str, threshold: float = DEFAULT_
 
 def _normalise(text: str) -> str:
     return " ".join((text or "").lower().split())
+
+
+def _declines(low: str) -> bool:
+    """Does the answer decline, in either of the two ways English allows?
+
+    Either it says it cannot (the inability family in ``DECLINE_MARKERS``), or
+    it says the stored record does not hold what was asked for. The second form
+    needs its subject checked: "the context does not provide" declines, while
+    "the feed does not contain enough reactant" is a claim about the process.
+    """
+    if any(marker in low for marker in DECLINE_MARKERS):
+        return True
+    if any(phrase in low for phrase in BARE_ABSENCE):
+        return True
+    for verb in ABSENCE_VERBS:
+        start = low.find(verb)
+        while start != -1:
+            before = low[max(0, start - 60):start]
+            if any(subject in before for subject in ABSENCE_SUBJECTS):
+                return True
+            start = low.find(verb, start + 1)
+    return False
 
 
 def _mentions_alternative(text: str, refusal: Dict, store: StoreAccess) -> bool:
@@ -349,7 +392,7 @@ def check_answer(text: str, ctx: AnswerContext) -> List[str]:
 
     # -- refusal and clarification formats ------------------------------
     if ctx.refusal and ctx.refusal.get("required"):
-        if not any(marker in low for marker in DECLINE_MARKERS):
+        if not _declines(low):
             codes.append("refusal_missing")
         if not _mentions_alternative(body, ctx.refusal, ctx.store):
             codes.append("refusal_no_alternative")
@@ -358,8 +401,12 @@ def check_answer(text: str, ctx: AnswerContext) -> List[str]:
 
 
 __all__ = [
+    "ABSENCE_SUBJECTS",
+    "ABSENCE_VERBS",
     "ALTERNATIVE_ANCHORS",
     "AnswerContext",
+    "BARE_ABSENCE",
+    "_declines",
     "CONFIDENCE_PATTERNS",
     "DEFAULT_OVERLAP_THRESHOLD",
     "DECLINE_MARKERS",
