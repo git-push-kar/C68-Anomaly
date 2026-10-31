@@ -215,6 +215,15 @@ def _declines(low: str) -> bool:
     return False
 
 
+def declines(text: str) -> bool:
+    """Public view of the decline test, for reporting rather than filtering.
+
+    The audit needs to know whether an answer declined without re-implementing the
+    vocabulary in a script, where it would drift from the rule that rejects answers.
+    """
+    return _declines(_normalise(text))
+
+
 def _mentions_alternative(text: str, refusal: Dict, store: StoreAccess) -> bool:
     low = _normalise(text)
     for alternative in refusal.get("alternatives") or []:
