@@ -69,7 +69,7 @@ def components() -> Dict[str, set]:
     return out
 
 
-def _row(item: Dict, component: str) -> Dict:
+def _row(item: Dict, component: str, source_dataset: Optional[str] = None) -> Dict:
     row = {
         "item_id": item.get("item_id"),
         "system": SYSTEM_PROMPT_V2,
@@ -80,7 +80,48 @@ def _row(item: Dict, component: str) -> Dict:
     }
     if item.get("unobservable"):
         row["unobservable"] = True
+    # Only set when a row is scored without being in the dataset split its
+    # component names: a fold's held-out fault has test runs in ``test`` but its
+    # train-range runs live in the *train* dataset, untouched by that fold.
+    if source_dataset:
+        row["source_dataset"] = source_dataset
     return row
+
+
+def fold_held_out_rows(comps: Dict[str, set]) -> Dict[str, List[Dict]]:
+    """Held-out faults' train-range items, for the fold's ``test`` component.
+
+    A fold trains on the kept faults (runs 1-300) and is tested on the held-out
+    faults' test runs (401-500). The held-out faults' own runs 1-300 are used by
+    no fold training set, so they are free evaluation material and roughly
+    triple the unseen-fault test n. They are marked ``source_dataset: train`` so
+    a reader can tell a train-range item from a test-range one.
+    """
+    train_path = DATASET / "train.jsonl"
+    if not train_path.exists():
+        return {}
+    train_items = [json.loads(line) for line in train_path.read_text(encoding="utf-8").splitlines()
+                   if line.strip()]
+    out: Dict[str, List[Dict]] = {}
+    for fold, block in (json.loads(SPLITS.read_text(encoding="utf-8"))
+                        ["protocols"]["B_leave_faults_out"]["folds"] or {}).items():
+        short = "fold_1" if fold.startswith("fold_1") else "fold_2"
+        test_keys = comps.get(f"{short}/test") or set()
+        train_keys = comps.get(f"{short}/train") or set()
+        held = {int(key.split("|")[1]) for key in test_keys
+                if key.split("|")[1] not in ("normal", "None")}
+        if not held:
+            continue
+        rows: List[Dict] = []
+        for item in train_items:
+            fault = item.get("fault")
+            if fault is None or int(fault) not in held:
+                continue
+            key = _key(item)
+            assert key not in train_keys, f"{short}: held-out item {key} sits in the fold's train set"
+            rows.append(_row(item, f"{short}/test", source_dataset="train"))
+        out[f"{short}/test"] = rows
+    return out
 
 
 def build() -> Dict:
@@ -115,6 +156,31 @@ def build() -> Dict:
             "matches_dataset": per_component.get(protocol_component, 0) == len(items),
             "path": str(path),
         }
+
+    # Fold ``test`` also carries the held-out faults' train-range items, so it is
+    # written after the split files and counted separately.
+    extra = fold_held_out_rows(comps)
+    if extra:
+        test_path = OUT / "test_eval.jsonl"
+        rows = [json.loads(line) for line in test_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()]
+        added: Dict[str, int] = {}
+        seen = {(row["item_id"], row["component"]) for row in rows}
+        for component, new_rows in extra.items():
+            added[component] = 0
+            for row in new_rows:
+                if (row["item_id"], component) in seen:
+                    continue
+                rows.append(row)
+                seen.add((row["item_id"], component))
+                added[component] += 1
+        with open(test_path, "w", encoding="utf-8") as handle:
+            for row in rows:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        by_component = Counter(row["component"] for row in rows)
+        summary["test"]["rows"] = len(rows)
+        summary["test"]["by_component"] = dict(sorted(by_component.items()))
+        summary["train_range_fold_test_rows"] = dict(sorted(added.items()))
     return summary
 
 
@@ -125,7 +191,8 @@ def main() -> int:
     summary = build()
     Path(args.summary).write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary, indent=2))
-    return 0 if all(part["matches_dataset"] for part in summary.values()) else 1
+    splits = [summary[name] for name in ("val", "test") if name in summary]
+    return 0 if all(part["matches_dataset"] for part in splits) else 1
 
 
 if __name__ == "__main__":
