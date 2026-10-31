@@ -1063,3 +1063,31 @@ no test row has been scored at the time of writing.
 subsample and the selection is redone; the selected checkpoint is scored on the
 full Protocol A validation; the unadapted base model is scored on both with the
 same candidate set; and the report's tables are replaced with before/after.
+
+### 13.1 Per-token label score (dated 2026-10-31, before any test contact)
+
+Adding `NORMAL_TRANSIENT` to the candidate set exposed a second instrument fault in
+the same place, and it has to be recorded with the first because the two only show
+up together.
+
+The scorer scored each candidate by **summing** the log-probability of its tokens
+after `{"fault_id": "`. The candidates do not tokenise to equal length: the suffix
+is 5 tokens for `FAULT_01`, 4 for `NORMAL_TRANSIENT`, 6 for
+`UNCLASSIFIED_OPEN_SET`. A sum of log-probabilities charges every candidate one
+negative term per token, so a shorter label wins on arithmetic alone. Measured, with
+the 17-candidate set and the sum still in use: checkpoint 100 accuracy 0.057,
+checkpoint 200 accuracy 0.100, and **287 of 300** validation items answered
+`NORMAL_TRANSIENT` — against 0.38 at the same checkpoint under the 16-candidate set.
+That is not the model changing behaviour; it is the shortest string winning.
+
+The score is therefore the **mean log-probability per token**
+(`label_scorer.normalised_score`), the standard way to compare strings of different
+length; the argmax and the softmax-normalised `probs` are built from it, and the raw
+sum is kept in every prediction row as `total_logp` so the length effect stays
+visible rather than asserted. Two tests pin it: one on the arithmetic (equal
+per-token probability scores equal across 4 and 6 tokens), one on the call site.
+
+Consequence for the abstention numbers already reported: `UNCLASSIFIED_OPEN_SET` is
+6 tokens against 5 for a fault, so the old sum was quietly *penalising* abstention
+by one term. The corrected instrument can only move the abstention recall up, which
+is why the re-scored table is the one to quote.

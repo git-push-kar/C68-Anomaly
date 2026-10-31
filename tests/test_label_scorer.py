@@ -89,6 +89,28 @@ def test_every_training_target_is_a_scorer_candidate():
     )
 
 
+def test_a_longer_label_is_not_penalised_for_having_more_tokens():
+    """The suffix lengths differ, so the scores have to be per token.
+
+    Equal per-token log-probability must give equal scores even when one label is
+    6 tokens and another 4; the raw sums differ by the two extra negative terms,
+    which is what made the shortest label win almost every item before the fix.
+    """
+    per_token = -0.5
+    assert L.normalised_score(per_token * 4, 4) == pytest.approx(per_token)
+    assert L.normalised_score(per_token * 6, 6) == pytest.approx(per_token)
+    assert abs(per_token * 4 - per_token * 6) > 0.9  # one extra token's worth
+    assert L.normalised_score(-3.0, 0) == -3.0  # no division by zero
+
+
+def test_the_scorer_scores_per_token_and_keeps_the_raw_sum():
+    source = (ROOT / "llm/benchmark/label_scorer.py").read_text(encoding="utf-8")
+    assert "normalised_score(value, len(suffix))" in source, (
+        "the argmax must be built from the per-token score"
+    )
+    assert '"total_logp"' in source, "the raw sum stays visible for the length effect"
+
+
 def test_softmax_is_normalised_and_order_preserving():
     probs = L._softmax({"A": -1.0, "B": -3.0, "C": -7.0})
     assert abs(sum(probs.values()) - 1.0) < 1e-5

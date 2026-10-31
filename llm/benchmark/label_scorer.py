@@ -70,6 +70,22 @@ def _suffix_ids(tokenizer, label: str) -> List[int]:
     return whole[len(prefix):]
 
 
+def normalised_score(total_logp: float, n_tokens: int) -> float:
+    """Per-token mean log-probability of one label string.
+
+    The candidates do not all tokenise to the same length once a non-``FAULT_nn``
+    answer is in the set: the four label suffixes are 5 tokens for ``FAULT_01``,
+    4 for ``NORMAL_TRANSIENT`` and 6 for ``UNCLASSIFIED_OPEN_SET``. Comparing the
+    *sums* therefore compares a sum with a shorter sum, and every extra token
+    contributes a negative term, so the shortest label wins almost regardless of
+    the model: with the sum in use, adding ``NORMAL_TRANSIENT`` made 287 of 300
+    validation items answer it, at every checkpoint. Dividing by the token count
+    is the standard way to compare strings of different length, and it is the
+    number the argmax and the probability vector are built from.
+    """
+    return float(total_logp) / max(int(n_tokens), 1)
+
+
 def _softmax(scores: Dict[str, float]) -> Dict[str, float]:
     if not scores:
         return {}
@@ -156,6 +172,7 @@ def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
             base_past = prefill.past_key_values
             base_logits = prefill.logits[:, -1, :]
             scores = {row: {} for row in range(len(chunk))}
+            raw = {row: {} for row in range(len(chunk))}
             for label in labels:
                 suffix = suffixes[label]
                 totals = torch.zeros(len(chunk), dtype=torch.float32, device=model.device)
@@ -181,7 +198,11 @@ def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
                     step_past = step.past_key_values
                     step_logits = step.logits[:, -1, :]
                 for row, value in enumerate(totals.tolist()):
-                    scores[row][label] = value
+                    # Per token, not in total: see ``normalised_score``. The raw
+                    # sum is kept so a reader can see the length effect instead of
+                    # having to take the normalisation on trust.
+                    scores[row][label] = normalised_score(value, len(suffix))
+                    raw[row][label] = value
         seconds = time.time() - started
         for row in range(len(chunk)):
             probs = _softmax(scores[row])
@@ -190,6 +211,8 @@ def score_batch(model, tokenizer, questions: Sequence[str], dummy_size: int,
                 "label": best,
                 "probability": probs.get(best) if best else None,
                 "probs": probs,
+                "mean_logp": scores[row],
+                "total_logp": raw[row],
                 "seconds": round(seconds / len(chunk), 4),
                 "n_labels": len(scores[row]),
             })

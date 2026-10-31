@@ -202,7 +202,11 @@ llm:
     logging_steps: 10
     save_steps: 100
     eval_steps: 200
-    save_total_limit: 0           # 0 = keep every checkpoint (14 of them, ~35 MB each)
+    save_total_limit: 0           # 0 = keep every checkpoint. Measured on run 1:
+                                  # 540 steps at save_steps 100 = 6 directories
+                                  # (5 intermediate + the final save), 217 MB each
+                                  # = 1.30 GB, of which 74 MB is the adapter and
+                                  # 143 MB the AdamW state that rides along.
     # Protocol A seed 42: train on the PROTOCOL 12.1b per-case mix, and no
     # eval-loss pass -- val.jsonl is a structural record with no prose, so an
     # eval loss would be a number about an empty target.
