@@ -30,6 +30,7 @@ from llm.followup.leak import (  # noqa: E402
     check_event_overlap,
     check_paraphrase_disjointness,
 )
+from llm.benchmark.filters import names_removed_fault  # noqa: E402
 from llm.followup.paraphrases import heldout_questions, normalise, train_questions  # noqa: E402
 from llm.followup.teacher import FakeTeacher, TeacherCache  # noqa: E402
 from llm.response.lookup_answers import lookup_answer  # noqa: E402
@@ -158,6 +159,42 @@ def test_open_set_dialogue_never_names_the_removed_fault(case_type):
     for turn in dialogue["turns"]:
         assert "FAULT_15" not in turn["question"]
         assert "fault 15" not in turn["question"].lower()
+
+
+@pytest.mark.parametrize("index", [0, 1, 2])
+def test_open_set_false_premise_does_not_quote_the_removed_fault(index):
+    """The claim pool must not hand the model the removed fault's own name.
+
+    An open-set item's target is UNCLASSIFIED_OPEN_SET, so the "not the truth"
+    filter on the claim pool does not name the removed fault at all, and a false
+    premise built from its KB name would put that name into the very prompt whose
+    correct answer is "none of the listed candidates". The corpus run produced
+    three such questions before the claim pool excluded the removed fault.
+    """
+    dialogue = make_dialogue("false_premise", variant="removed", index=index)
+    question = dialogue["turns"][0]["question"].lower()
+    assert dialogue["open_set"] is True
+    for needle in ("condenser cooling water valve sticking", "fault 15", "fault_15"):
+        assert needle not in question, (needle, question)
+
+
+@pytest.mark.parametrize("case_type", FOLLOWUP_CASE_ORDER)
+def test_open_set_questions_do_not_name_the_removed_fault(case_type):
+    """The operator's question must not carry the answer for an open-set item.
+
+    The paraphrase bank is written per case type and one of its valve questions
+    quotes fault 15's KB cause verbatim, so an open-set item of fault 15 was asked
+    "is the condenser cooling water valve sticking?" while its target was
+    UNCLASSIFIED_OPEN_SET. The bank is now filtered with the same signature rule
+    that rejects an answer.
+    """
+    dialogue = make_dialogue(case_type, variant="removed")
+    assert dialogue["open_set"] is True
+    for turn in dialogue["turns"]:
+        reason = names_removed_fault(
+            turn["question"], {"fault_id": "UNCLASSIFIED_OPEN_SET", "truth_fault_number": 15}
+        )
+        assert reason is None, (case_type, turn["question"], reason)
 
 
 def test_open_set_answers_are_still_grounded():

@@ -49,6 +49,7 @@ from build_benchmark_dataset import (  # noqa: E402  (shared record loading)
 from llm.benchmark.filters import (  # noqa: E402
     ABSOLUTE_PATTERNS,
     SEVERITY_PATTERNS,
+    names_removed_fault,
     store_numbers,
 )
 from llm.benchmark.menu import CLASSIFIABLE_FAULTS, UNCLASSIFIED  # noqa: E402
@@ -233,6 +234,18 @@ def pick_routed_question(
     skipped = 0
     for offset in range(len(pool)):
         question = pool[(start + offset) % len(pool)]
+        # An open-set dialogue's target is "none of the listed candidates", so the
+        # operator's question must not name the removed family either: the bank is
+        # written per *case type*, and its wording sometimes carries one fault's
+        # KB cause ("is the condenser cooling water valve sticking?"), which for a
+        # fault-15 open-set item would put the answer in the prompt. The same
+        # signature rule that rejects an answer names the question here.
+        if state.removed_fault is not None and names_removed_fault(
+            question,
+            {"fault_id": UNCLASSIFIED, "truth_fault_number": int(state.removed_fault)},
+        ):
+            skipped += 1
+            continue
         if accept(question):
             return question, (start + offset) % len(pool), skipped
         skipped += 1
@@ -292,6 +305,15 @@ def _premise_for(kind: str, state: DialogueState, index: int) -> Tuple[str, Dict
     if kind == "fault":
         truth = str(state.target.get("fault_id") or "")
         numbers = [n for n in state.permitted_faults if fault_id_for(n).value != truth]
+        # An open-set item removed exactly one fault from the menu, and its target
+        # is UNCLASSIFIED_OPEN_SET -- so ``truth`` above does not name it, and the
+        # claim pool would happily quote the removed fault's KB name back to the
+        # model ("is this condenser cooling water valve sticking?") in the very
+        # prompt whose target is "none of the listed candidates". That is the leak
+        # the open-set scan reports as an operator echo, so the removed fault is
+        # excluded here, at the point the claim is chosen.
+        if state.removed_fault is not None:
+            numbers = [n for n in numbers if int(n) != int(state.removed_fault)]
         if not numbers:
             raise RuntimeError("no permitted alternative fault for a false premise")
         template = FALSE_PREMISE_TEMPLATES["fault"][index % len(FALSE_PREMISE_TEMPLATES["fault"])]

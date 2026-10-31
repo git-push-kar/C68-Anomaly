@@ -21,3 +21,28 @@ Phase 3A-2 code (CPU parts, written while the teacher ran):
 | slim target + hydrate + guards | done (`48ce803`), answer tokens p50 402 -> 296 |
 | fold exports | done, fold_1 1,568 rows, fold_2 1,687 (held out 4/11/15 and 14/15) |
 | decode bench + label scorer | code done (`0662d0e`), GPU run pending |
+2026-10-31T04:04:53 followup train: 200 teacher calls, 89 dialogues, 194 accepted, 10 rejected, 65s elapsed
+2026-10-31T04:15:26 followup train: 402 teacher calls, 178 dialogues, 390 accepted, 24 rejected, 698s elapsed
+2026-10-31T04:25:16 followup train: 600 teacher calls, 268 dialogues, 587 accepted, 35 rejected, 1288s elapsed
+2026-10-31T04:35:46 followup train: 801 teacher calls, 361 dialogues, 778 accepted, 51 rejected, 1918s elapsed
+2026-10-31T04:45:28 followup train: 1000 teacher calls, 449 dialogues, 972 accepted, 62 rejected, 2500s elapsed
+2026-10-31T04:55:56 followup train: 1201 teacher calls, 539 dialogues, 1170 accepted, 79 rejected, 3128s elapsed
+2026-10-31T05:05:31 followup train: 1400 teacher calls, 626 dialogues, 1356 accepted, 102 rejected, 3703s elapsed
+2026-10-31T05:15:54 followup train: 1600 teacher calls, 713 dialogues, 1549 accepted, 119 rejected, 4326s elapsed
+2026-10-31T05:25:56 followup train: 1801 teacher calls, 803 dialogues, 1738 accepted, 131 rejected, 4928s elapsed
+2026-10-31T05:36:36 followup train: 2000 teacher calls, 892 dialogues, 1921 accepted, 147 rejected, 5568s elapsed
+2026-10-31T05:47:30 followup train: 2200 teacher calls, 980 dialogues, 2109 accepted, 159 rejected, 6222s elapsed
+2026-10-31T05:58:48 followup train: 2401 teacher calls, 1069 dialogues, 2292 accepted, 177 rejected, 6900s elapsed
+2026-10-31T06:19:21 followup train: 402 teacher calls, 178 dialogues, 391 accepted, 23 rejected, 137s elapsed
+2026-10-31T06:22:46 followup train: 801 teacher calls, 361 dialogues, 782 accepted, 47 rejected, 341s elapsed
+2026-10-31T06:25:50 followup train: 1201 teacher calls, 539 dialogues, 1176 accepted, 73 rejected, 525s elapsed
+2026-10-31T06:28:56 followup train: 1600 teacher calls, 713 dialogues, 1558 accepted, 110 rejected, 711s elapsed
+2026-10-31T06:32:01 followup train: 2000 teacher calls, 892 dialogues, 1935 accepted, 133 rejected, 896s elapsed
+2026-10-31T06:36:23 followup train: 2401 teacher calls, 1069 dialogues, 2306 accepted, 163 rejected, 1158s elapsed
+2026-10-31T06:44:23 followup train: 600 teacher calls, 268 dialogues, 588 accepted, 34 rejected, 184s elapsed
+2026-10-31T06:48:21 followup train: 1201 teacher calls, 539 dialogues, 1176 accepted, 73 rejected, 422s elapsed
+2026-10-31T06:52:02 followup train: 1801 teacher calls, 803 dialogues, 1750 accepted, 119 rejected, 644s elapsed
+2026-10-31T06:57:13 followup train: 2401 teacher calls, 1069 dialogues, 2305 accepted, 164 rejected, 955s elapsed
+2026-10-31T06:56 followup: full train run done — 2,562 calls, 2,377 accepted (92.8%), 7,361s; open-set echoes 3 -> 0 after the paraphrase-picker fix
+2026-10-31T07:02 followup: SFT mix 1,919 report + 959 dialogue rows (ratio 2.001), audit sheet 100 rows, leak/split/open-set clean, 480 tests pass in both envs
+| Stage B | done: corpus, SFT mix, audit sheet, checks | 92.8% acceptance, ratio 2.001, 0 leaks |
