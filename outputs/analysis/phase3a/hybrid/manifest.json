@@ -1,0 +1,133 @@
+{
+  "variants": {
+    "protocolA": {
+      "train_events": 1919,
+      "features": 323,
+      "calibration": {
+        "chosen": "isotonic",
+        "cv_ece": {
+          "isotonic": 0.02008,
+          "temperature": 0.02102
+        }
+      },
+      "threshold": {
+        "threshold": 1.0,
+        "achieved_false_abstention": 0.008048,
+        "budget": 0.05,
+        "items": 497,
+        "abstained": 4
+      },
+      "feature_audit": {
+        "n_features": 323,
+        "banned_tokens": [
+          "item_id",
+          "itemid",
+          "run",
+          "event",
+          "evt",
+          "index",
+          "order",
+          "position_in",
+          "seed",
+          "split",
+          "hash",
+          "simulation"
+        ],
+        "offending_features": [],
+        "clean": true
+      },
+      "files": {
+        "classifier.txt": "273188e27b2c95b0ab990e50445ead7637760623057b11bd9acc10e58d3175e6",
+        "calibration.json": "1a7f892f7d215b706d2910f62f07bb94654e47347f577e7f100c7da70422f18d",
+        "threshold.json": "f7ea4fe805bc941ec0b6396c244824c719984064d8aa49ad9fc8aa45b5110638"
+      }
+    },
+    "fold_1": {
+      "train_events": 1562,
+      "features": 323,
+      "calibration": {
+        "chosen": "isotonic",
+        "cv_ece": {
+          "isotonic": 0.13212000000000002,
+          "temperature": 0.18956
+        }
+      },
+      "threshold": {
+        "threshold": 1.0,
+        "achieved_false_abstention": 0.0,
+        "budget": 0.05,
+        "items": 422,
+        "abstained": 0
+      },
+      "feature_audit": {
+        "n_features": 323,
+        "banned_tokens": [
+          "item_id",
+          "itemid",
+          "run",
+          "event",
+          "evt",
+          "index",
+          "order",
+          "position_in",
+          "seed",
+          "split",
+          "hash",
+          "simulation"
+        ],
+        "offending_features": [],
+        "clean": true
+      },
+      "files": {
+        "classifier.txt": "f721c9500ee927a815e6212b5120c392a999f83935bd5d1b164e8f0652cbbf3a",
+        "calibration.json": "196ef16144d3547aec95c18d275dfe30c7a10ae50516a92a8700dc533a43c280",
+        "threshold.json": "cb7987ec11e9c398d9ff7c462833a354444d39c38704e5aeb3e3424cffe04515"
+      }
+    },
+    "fold_2": {
+      "train_events": 1681,
+      "features": 323,
+      "calibration": {
+        "chosen": "isotonic",
+        "cv_ece": {
+          "isotonic": 0.09594,
+          "temperature": 0.11462000000000001
+        }
+      },
+      "threshold": {
+        "threshold": 1.0,
+        "achieved_false_abstention": 0.008949,
+        "budget": 0.05,
+        "items": 447,
+        "abstained": 4
+      },
+      "feature_audit": {
+        "n_features": 323,
+        "banned_tokens": [
+          "item_id",
+          "itemid",
+          "run",
+          "event",
+          "evt",
+          "index",
+          "order",
+          "position_in",
+          "seed",
+          "split",
+          "hash",
+          "simulation"
+        ],
+        "offending_features": [],
+        "clean": true
+      },
+      "files": {
+        "classifier.txt": "30530dd58cc3b2063db93cd66c2c38fe15e11db9f86d48a8361986ef1ac51d9f",
+        "calibration.json": "febb2a3a1fda42d935a8ab0cbbf6dd695763d80d4623d84177620fce5d2daee8",
+        "threshold.json": "8386710bae61918918839e2fd37fa655a2c82d1e8ea0c1f03c7faf0c1ba1b159"
+      }
+    }
+  },
+  "seed": 42,
+  "train_file": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\dataset\\train.jsonl",
+  "val_file": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\dataset\\val.jsonl"
+}

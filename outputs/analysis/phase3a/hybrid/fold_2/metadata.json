@@ -1,0 +1,63 @@
+{
+  "variant": "fold_2",
+  "held_out_faults": [
+    14,
+    15
+  ],
+  "seed": 42,
+  "train_events": 1681,
+  "train_classes": [
+    "FAULT_01",
+    "FAULT_02",
+    "FAULT_04",
+    "FAULT_05",
+    "FAULT_06",
+    "FAULT_07",
+    "FAULT_08",
+    "FAULT_10",
+    "FAULT_11",
+    "FAULT_12",
+    "FAULT_13",
+    "NORMAL_TRANSIENT",
+    "UNCLASSIFIED_OPEN_SET"
+  ],
+  "features": 323,
+  "feature_audit": {
+    "n_features": 323,
+    "banned_tokens": [
+      "item_id",
+      "itemid",
+      "run",
+      "event",
+      "evt",
+      "index",
+      "order",
+      "position_in",
+      "seed",
+      "split",
+      "hash",
+      "simulation"
+    ],
+    "offending_features": [],
+    "clean": true
+  },
+  "calibration": {
+    "chosen": "isotonic",
+    "cv_ece": {
+      "isotonic": 0.09594,
+      "temperature": 0.11462000000000001
+    }
+  },
+  "threshold": {
+    "threshold": 1.0,
+    "achieved_false_abstention": 0.008949,
+    "budget": 0.05,
+    "items": 447,
+    "abstained": 4
+  },
+  "files": {
+    "classifier.txt": "30530dd58cc3b2063db93cd66c2c38fe15e11db9f86d48a8361986ef1ac51d9f",
+    "calibration.json": "febb2a3a1fda42d935a8ab0cbbf6dd695763d80d4623d84177620fce5d2daee8",
+    "threshold.json": "8386710bae61918918839e2fd37fa655a2c82d1e8ea0c1f03c7faf0c1ba1b159"
+  }
+}

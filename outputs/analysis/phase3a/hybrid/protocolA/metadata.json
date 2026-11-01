@@ -1,0 +1,62 @@
+{
+  "variant": "protocolA",
+  "held_out_faults": [],
+  "seed": 42,
+  "train_events": 1919,
+  "train_classes": [
+    "FAULT_01",
+    "FAULT_02",
+    "FAULT_04",
+    "FAULT_05",
+    "FAULT_06",
+    "FAULT_07",
+    "FAULT_08",
+    "FAULT_10",
+    "FAULT_11",
+    "FAULT_12",
+    "FAULT_13",
+    "FAULT_14",
+    "FAULT_15",
+    "NORMAL_TRANSIENT",
+    "UNCLASSIFIED_OPEN_SET"
+  ],
+  "features": 323,
+  "feature_audit": {
+    "n_features": 323,
+    "banned_tokens": [
+      "item_id",
+      "itemid",
+      "run",
+      "event",
+      "evt",
+      "index",
+      "order",
+      "position_in",
+      "seed",
+      "split",
+      "hash",
+      "simulation"
+    ],
+    "offending_features": [],
+    "clean": true
+  },
+  "calibration": {
+    "chosen": "isotonic",
+    "cv_ece": {
+      "isotonic": 0.02008,
+      "temperature": 0.02102
+    }
+  },
+  "threshold": {
+    "threshold": 1.0,
+    "achieved_false_abstention": 0.008048,
+    "budget": 0.05,
+    "items": 497,
+    "abstained": 4
+  },
+  "files": {
+    "classifier.txt": "273188e27b2c95b0ab990e50445ead7637760623057b11bd9acc10e58d3175e6",
+    "calibration.json": "1a7f892f7d215b706d2910f62f07bb94654e47347f577e7f100c7da70422f18d",
+    "threshold.json": "f7ea4fe805bc941ec0b6396c244824c719984064d8aa49ad9fc8aa45b5110638"
+  }
+}

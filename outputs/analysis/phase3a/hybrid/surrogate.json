@@ -1,0 +1,45 @@
+{
+  "FAULT_05": {
+    "held_out_fault": 5,
+    "validation_items": 25,
+    "abstained": 0,
+    "abstained_rate": 0.0,
+    "mislabelled": {
+      "FAULT_12": 25
+    },
+    "threshold": 1.0,
+    "false_abstention_on_other_faults": 0.0085
+  },
+  "FAULT_08": {
+    "held_out_fault": 8,
+    "validation_items": 25,
+    "abstained": 15,
+    "abstained_rate": 0.6,
+    "mislabelled": {
+      "FAULT_01": 8,
+      "FAULT_13": 2
+    },
+    "threshold": 1.0,
+    "false_abstention_on_other_faults": 0.0021
+  },
+  "FAULT_12": {
+    "held_out_fault": 12,
+    "validation_items": 25,
+    "abstained": 23,
+    "abstained_rate": 0.92,
+    "mislabelled": {
+      "UNCLASSIFIED_OPEN_SET": 2
+    },
+    "threshold": 1.0,
+    "false_abstention_on_other_faults": 0.0085
+  },
+  "FAULT_13": {
+    "held_out_fault": 13,
+    "validation_items": 25,
+    "abstained": 25,
+    "abstained_rate": 1.0,
+    "mislabelled": {},
+    "threshold": 1.0,
+    "false_abstention_on_other_faults": 0.0064
+  }
+}

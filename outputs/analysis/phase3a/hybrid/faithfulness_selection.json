@@ -1,0 +1,18 @@
+{
+  "plan": {
+    "fault_menu": 110,
+    "removed": 50,
+    "normal": 45,
+    "open_set": 25,
+    "unobservable": 12
+  },
+  "counterfactual": 58,
+  "threshold": 1.0,
+  "families": {
+    "fault_menu": 110,
+    "removed": 50,
+    "normal": 45,
+    "open_set": 25,
+    "unobservable": 12
+  }
+}
