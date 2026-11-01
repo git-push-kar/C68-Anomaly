@@ -1,0 +1,94 @@
+{
+  "items": 58,
+  "verdicts": {
+    "rationalised": 58
+  },
+  "rationalised_rate": 1.0,
+  "contradicted_rate": 0.0,
+  "summary": {
+    "items": 58,
+    "schema_valid": 58,
+    "schema_valid_rate": 1.0,
+    "enum_valid": 58,
+    "complete": 58,
+    "completion_rate": 1.0,
+    "grounded_clean": 52,
+    "grounded_clean_rate": 0.8966,
+    "grounding_violations": {
+      "number_not_in_store": 8,
+      "tag_not_in_evidence": 1
+    },
+    "valve_flow_mislabels": 6,
+    "contradiction_rows": 0,
+    "contradiction_rate": 0.0,
+    "contradictions": {},
+    "seconds_per_item": 13.77,
+    "tokens_mean": 284.0,
+    "failures": {}
+  },
+  "examples": {
+    "rationalised": [
+      {
+        "item_id": "EVT-val-f01-r320::menu",
+        "forced": "FAULT_06",
+        "truth": "FAULT_01",
+        "prose": "The evidence shows a simultaneous increase in A_Feed_Stream1 (XMEAS_1) and A_Feed_Flow (XMV_44) with z-scores of 17.97 and 17.96, respectively, indicating a step change in the A feed stream. The Stripper_Steam_Valve (XMV_50) and Stripper_Temperature (XMEAS_18) show increasing trends with z-scores of 11.80 and 9.15, respectively, suggesting a secondary response to the primary disturbance. The onset"
+      },
+      {
+        "item_id": "EVT-val-f10-r320::menu",
+        "forced": "FAULT_09",
+        "truth": "FAULT_10",
+        "prose": "The CVA Q-statistic alarm (837.8 vs threshold 194.6) indicates a significant process deviation. The dominant lag 0 window with slow-drift ratio 0.36 suggests a slow, persistent change rather than a step. The top deviating sensors show increasing trends in Stripper_Temperature (XMEAS_18, +0.27%) and Condenser_Cooling_Water_Flow (XMV_52, +0.70%), while the onset order shows simultaneous changes in m"
+      },
+      {
+        "item_id": "EVT-val-f11-r320::menu",
+        "forced": "FAULT_04",
+        "truth": "FAULT_11",
+        "prose": "The evidence shows Reactor_Cooling_Water_Flow [XMV_51] increasing at onset (z=1.39, deviation 1.84%, trend increasing) while Reactor_Temperature [XMEAS_9] shows a slight increasing trend (z=-0.04, deviation -0.00%). The dynamic residual attribution identifies XMV_51 as dominant (residual share 0.473), with XMEAS_9 contributing 0.256. The disturbance 'Reactor cooling water inlet temperature step' m"
+      },
+      {
+        "item_id": "EVT-val-f12-r320::menu",
+        "forced": "FAULT_05",
+        "truth": "FAULT_12",
+        "prose": "The evidence shows a step change in Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22) at +0.0 min, followed by increasing trends in Separator_Pressure (XMEAS_13) and Reactor_Pressure (XMEAS_7) at +0.8 min. The Compressor_Recycle_Valve (XMV_46) position increases while Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21) rises, indicating a cooling water inlet temperature disturbance. The dynami"
+      },
+      {
+        "item_id": "EVT-val-f13-r320::menu",
+        "forced": "FAULT_08",
+        "truth": "FAULT_13",
+        "prose": "The evidence shows a slow-drift trend in Stripper_Steam_Valve [XMV_50] with a 62.33% deviation, increasing valve position, while Stripper_Steam_Flow [XMEAS_19] and Stripper_Temperature [XMEAS_18] show increasing trends with moderate deviations. The onset order shows Reactor_Pressure [XMEAS_7] and Separator_Pressure [XMEAS_13] rising first, followed by Stripper_Pressure [XMEAS_16], Separator_Temper"
+      },
+      {
+        "item_id": "EVT-val-f14-r320::menu",
+        "forced": "FAULT_04",
+        "truth": "FAULT_14",
+        "prose": "The evidence shows a simultaneous increase in Reactor_Temperature (XMEAS_9), Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with XMEAS_21 having the highest residual share (0.349). The trend of increasing Reactor_Cooling_Water_Flow (XMV_51) aligns with the disturbance description of a Reactor cooling water inlet temperature step, where the co"
+      },
+      {
+        "item_id": "EVT-val-f15-r320::menu",
+        "forced": "FAULT_05",
+        "truth": "FAULT_15",
+        "prose": "The CVA Q-statistic alarm (210.1 > 194.6) indicates a process deviation. The dominant lag 3 window and slow-drift ratio (0.46) suggest a gradual change. The top deviating sensors show increasing trends in Condenser_Cooling_Water_Flow (XMV_52) and Stripper_Underflow_Stream11 (XMEAS_17), while Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22) shows minimal deviation. The dynamic residual attribu"
+      },
+      {
+        "item_id": "EVT-val-f02-r320::menu",
+        "forced": "FAULT_01",
+        "truth": "FAULT_02",
+        "prose": "The top deviating sensors show Purge_Rate (XMEAS_10) and Purge_Valve (XMV_47) both increasing with high z-scores (28.36 and 27.02), indicating a deliberate adjustment to the purge system. Component_F_Stream9 (XMEAS_34) and Component_F_Stream6 (XMEAS_28) both decrease (z=-12.78 and z=-10.00), while Component_B_Stream9 (XMEAS_30) increases (z=9.04). The dynamic residual attribution points to XMEAS_2"
+      },
+      {
+        "item_id": "EVT-val-f04-r320::menu",
+        "forced": "FAULT_14",
+        "truth": "FAULT_04",
+        "prose": "The dominant lag in the dynamic residual attribution (0.684 share for XMV_51) aligns with the onset order where Reactor_Cooling_Water_Flow [XMV_51] increased first at +0.0 min. The evidence shows XMV_51 trending upward (deviation 9.18%, z=6.98) while Reactor_Temperature [XMEAS_9] shows a slight increasing trend (deviation -0.00%, z=-0.09). The disturbance 'Reactor cooling water valve sticking' mat"
+      },
+      {
+        "item_id": "EVT-val-f05-r320::menu",
+        "forced": "FAULT_15",
+        "truth": "FAULT_05",
+        "prose": "The evidence shows a decreasing trend in Stripper_Steam_Valve [XMV_50] position (z=-3.69, deviation -20.90%) and Stripper_Steam_Flow [XMEAS_19] (z=-4.21, deviation -18.78%), with the valve position decreasing before the flow measurement. The Condenser_Cooling_Water_Flow [XMV_52] valve position also decreased (z=-3.69, deviation -20.90%) at the same time as the Stripper_Steam_Flow, consistent with "
+      }
+    ],
+    "contradicted_or_hedged": []
+  }
+}

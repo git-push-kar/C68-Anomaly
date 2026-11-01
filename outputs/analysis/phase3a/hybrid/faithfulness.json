@@ -1,0 +1,188 @@
+{
+  "adapter": "merged",
+  "adapter_path": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\tep_rca_v2_protocolA_seed42\\checkpoint-500\\tep_rca_v2_protocolA_seed42",
+  "cap": 512,
+  "threshold": 1.0,
+  "plan": {
+    "fault_menu": 110,
+    "removed": 50,
+    "normal": 45,
+    "open_set": 25,
+    "unobservable": 12
+  },
+  "reanalysed": true,
+  "items": {
+    "main": 242,
+    "counterfactual": 58
+  },
+  "overall": {
+    "items": 242,
+    "schema_valid": 242,
+    "schema_valid_rate": 1.0,
+    "enum_valid": 242,
+    "complete": 242,
+    "completion_rate": 1.0,
+    "grounded_clean": 223,
+    "grounded_clean_rate": 0.9215,
+    "grounding_violations": {
+      "number_not_in_store": 24,
+      "tag_not_in_evidence": 3
+    },
+    "valve_flow_mislabels": 21,
+    "contradiction_rows": 0,
+    "contradiction_rate": 0.0,
+    "contradictions": {},
+    "seconds_per_item": 13.89,
+    "tokens_mean": 286.3,
+    "failures": {}
+  },
+  "by_family": {
+    "fault_menu": {
+      "items": 110,
+      "schema_valid": 110,
+      "schema_valid_rate": 1.0,
+      "enum_valid": 110,
+      "complete": 110,
+      "completion_rate": 1.0,
+      "grounded_clean": 101,
+      "grounded_clean_rate": 0.9182,
+      "grounding_violations": {
+        "number_not_in_store": 8,
+        "tag_not_in_evidence": 2
+      },
+      "valve_flow_mislabels": 11,
+      "contradiction_rows": 0,
+      "contradiction_rate": 0.0,
+      "contradictions": {},
+      "seconds_per_item": 13.68,
+      "tokens_mean": 281.7,
+      "failures": {}
+    },
+    "removed": {
+      "items": 50,
+      "schema_valid": 50,
+      "schema_valid_rate": 1.0,
+      "enum_valid": 50,
+      "complete": 50,
+      "completion_rate": 1.0,
+      "grounded_clean": 46,
+      "grounded_clean_rate": 0.92,
+      "grounding_violations": {
+        "number_not_in_store": 8,
+        "tag_not_in_evidence": 1
+      },
+      "valve_flow_mislabels": 7,
+      "contradiction_rows": 0,
+      "contradiction_rate": 0.0,
+      "contradictions": {},
+      "seconds_per_item": 14.92,
+      "tokens_mean": 308.1,
+      "failures": {}
+    },
+    "normal": {
+      "items": 45,
+      "schema_valid": 45,
+      "schema_valid_rate": 1.0,
+      "enum_valid": 45,
+      "complete": 45,
+      "completion_rate": 1.0,
+      "grounded_clean": 40,
+      "grounded_clean_rate": 0.8889,
+      "grounding_violations": {
+        "number_not_in_store": 7
+      },
+      "valve_flow_mislabels": 0,
+      "contradiction_rows": 0,
+      "contradiction_rate": 0.0,
+      "contradictions": {},
+      "seconds_per_item": 12.51,
+      "tokens_mean": 257.9,
+      "failures": {}
+    },
+    "open_set": {
+      "items": 25,
+      "schema_valid": 25,
+      "schema_valid_rate": 1.0,
+      "enum_valid": 25,
+      "complete": 25,
+      "completion_rate": 1.0,
+      "grounded_clean": 24,
+      "grounded_clean_rate": 0.96,
+      "grounding_violations": {
+        "number_not_in_store": 1
+      },
+      "valve_flow_mislabels": 2,
+      "contradiction_rows": 0,
+      "contradiction_rate": 0.0,
+      "contradictions": {},
+      "seconds_per_item": 14.53,
+      "tokens_mean": 300.2,
+      "failures": {}
+    },
+    "unobservable": {
+      "items": 12,
+      "schema_valid": 12,
+      "schema_valid_rate": 1.0,
+      "enum_valid": 12,
+      "complete": 12,
+      "completion_rate": 1.0,
+      "grounded_clean": 12,
+      "grounded_clean_rate": 1.0,
+      "grounding_violations": {},
+      "valve_flow_mislabels": 1,
+      "contradiction_rows": 0,
+      "contradiction_rate": 0.0,
+      "contradictions": {},
+      "seconds_per_item": 15.27,
+      "tokens_mean": 314.2,
+      "failures": {}
+    }
+  },
+  "classified_only": {
+    "items": 110,
+    "schema_valid": 110,
+    "schema_valid_rate": 1.0,
+    "enum_valid": 110,
+    "complete": 110,
+    "completion_rate": 1.0,
+    "grounded_clean": 101,
+    "grounded_clean_rate": 0.9182,
+    "grounding_violations": {
+      "number_not_in_store": 8,
+      "tag_not_in_evidence": 2
+    },
+    "valve_flow_mislabels": 11,
+    "contradiction_rows": 0,
+    "contradiction_rate": 0.0,
+    "contradictions": {},
+    "seconds_per_item": 13.68,
+    "tokens_mean": 281.7,
+    "failures": {}
+  },
+  "abstained_only": {
+    "items": 132,
+    "schema_valid": 132,
+    "schema_valid_rate": 1.0,
+    "enum_valid": 132,
+    "complete": 132,
+    "completion_rate": 1.0,
+    "grounded_clean": 122,
+    "grounded_clean_rate": 0.9242,
+    "grounding_violations": {
+      "number_not_in_store": 16,
+      "tag_not_in_evidence": 1
+    },
+    "valve_flow_mislabels": 10,
+    "contradiction_rows": 0,
+    "contradiction_rate": 0.0,
+    "contradictions": {},
+    "seconds_per_item": 14.06,
+    "tokens_mean": 290.1,
+    "failures": {}
+  },
+  "diagnosis_was_correct": {
+    "main": 235,
+    "of": 242
+  },
+  "contradiction_examples": []
+}

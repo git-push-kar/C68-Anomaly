@@ -1,0 +1,78 @@
+{
+  "hybrid_main": {
+    "items": 242,
+    "flags": 27,
+    "by_kind": {
+      "tag_genuine": 3,
+      "number_inside_tag": 4,
+      "number_rounding": 15,
+      "number_substring": 1,
+      "number_genuine": 4
+    },
+    "rows_with_a_genuine_flag": [
+      {
+        "item_id": "EVT-val-f02-r317::menu",
+        "codes": [
+          "tag_not_in_evidence:XMEAS_33"
+        ]
+      },
+      {
+        "item_id": "EVT-val-f02-r306::menu",
+        "codes": [
+          "tag_not_in_evidence:XMEAS_33"
+        ]
+      },
+      {
+        "item_id": "EVT-val-f02-r317::openset",
+        "codes": [
+          "tag_not_in_evidence:XMEAS_33"
+        ]
+      },
+      {
+        "item_id": "EVT-val-f02-r313::openset",
+        "codes": [
+          "number_not_in_store:16.14",
+          "number_not_in_store:16.65"
+        ]
+      },
+      {
+        "item_id": "EVT-val-f02-r310::openset",
+        "codes": [
+          "number_not_in_store:14.65",
+          "number_not_in_store:14.66"
+        ]
+      }
+    ],
+    "rows": 5
+  },
+  "hybrid_counterfactual": {
+    "items": 58,
+    "flags": 9,
+    "by_kind": {
+      "number_inside_tag": 6,
+      "tag_genuine": 1,
+      "number_substring": 1,
+      "number_rounding": 1
+    },
+    "rows_with_a_genuine_flag": [
+      {
+        "item_id": "EVT-val-f02-r317::menu",
+        "codes": [
+          "tag_not_in_evidence:XMEAS_33"
+        ]
+      }
+    ],
+    "rows": 1
+  },
+  "run1_reference_50": {
+    "items": 50,
+    "flags": 2,
+    "by_kind": {
+      "number_substring": 1,
+      "number_inside_tag": 1
+    },
+    "rows_with_a_genuine_flag": [],
+    "rows": 0
+  },
+  "note": "`flags` counts what evaluate_v2 rejects; `by_kind` says how many of those are mechanical artefacts of a strict matcher. Run-1 rows come from outputs/benchmark_v2/eval/generation_512.json (50 items, step 500)."
+}
