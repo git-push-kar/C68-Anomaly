@@ -1263,3 +1263,123 @@ total. The `fault_id` field — key, value and terminator — is 19,531 of them,
 closed-set metric is therefore measuring a capability that received about one token in
 thirty of the gradient, and no improvement in it can be attributed to the data mix
 without an objective that weights the field.
+
+---
+
+## 16. Hybrid transition pre-registration (dated 2026-11-01, before any hybrid result)
+
+**Numbering note:** §15 was claimed earlier the same day by the instrument correction.
+This section is the hybrid pre-registration the task called "section 15"; it is §16 and it
+was written **before** any classifier, calibration, threshold, generation or hybrid metric
+existed. No number below is a result.
+
+### 16.1 The definition under test
+
+The deployed path changes whose decision the fault identity is:
+
+1. the **detector** (unchanged) opens an event and produces the evidence block;
+2. a **classifier** predicts the true fault from the evidence features;
+3. a **menu rule** maps that prediction to the answer: if the predicted fault is not an entry
+   of the item's menu, **or** the classifier's calibrated confidence is below the abstention
+   threshold, the diagnosis is `UNCLASSIFIED_OPEN_SET`; a prediction of
+   `NORMAL_TRANSIENT` is carried as `no_fault`;
+4. the **adapter** writes only the prose: the answer prefix `{"fault_id": "<D>", "verdict":
+   "<V>", ` is supplied, and the adapter continues with `ranked_hypotheses`,
+   `physical_reasoning`, `narrative`;
+5. **code** builds everything else (mitigation, subsystem, severity, table selection) from
+   the KB and the response layer, as §12 already requires.
+
+The run-1 adapter is used **only** for prose. Its closed-set numbers (§14) are the reference
+it is compared against, not a component of the hybrid.
+
+### 16.2 Classifier
+
+* **Model:** LightGBM multiclass, 400 trees, lr 0.05, 15 leaves, `min_child_samples` 10,
+  subsample 0.9/1, colsample 0.6, L2 1.0, `random_state=42` — the configuration already in
+  `scripts/evidence_classifier.py`, unchanged so the two are comparable.
+* **Features:** parsed from the rendered evidence block exactly as
+  `scripts/evidence_classifier.py::prompt_features` does (11 globals + 52 tags × 6). The
+  identifier audit is re-run and must report zero offending features; no item, event, run,
+  split, index or hash may enter a column.
+* **Classes:** the **true** fault of the event — faults 1–15 as `FAULT_nn`, faults 16–20 as
+  `UNCLASSIFIED_OPEN_SET`, fault-free events as `NORMAL_TRANSIENT`. Not menu-relative: an
+  open-set episode of fault 7 is still a fault-7 event, and the menu rule is what turns it
+  into an abstention.
+* **Training data:** train events only. Both menu variants of an event carry the same
+  evidence, so the rows are **deduplicated by event** before fitting — one row per event, not
+  one per rendered prompt.
+* **Folds:** Protocol A trains on all train events. `fold_1` (held-out faults 4, 11, 15) and
+  `fold_2` (held-out faults 14, 15) drop the held-out faults from their train rows and never
+  see them.
+* **Artifacts:** model, calibrator and threshold JSON, each with its SHA-256, listed in
+  `outputs/analysis/phase3a/hybrid/manifest.json`.
+
+### 16.3 Calibration and abstention
+
+* Calibration is fitted on **validation only**, per method: (i) isotonic regression one-vs-rest
+  over the 17 classes, renormalised over the class axis; (ii) temperature scaling on the
+  logits. The method with the **lower ECE under 5-fold cross-validation within validation** is
+  selected, then refitted on the whole validation split for the reported numbers. Test data is
+  never used, at any stage.
+* **Threshold:** the **largest** calibrated max-probability threshold that keeps the false
+  abstention rate ≤ 5 % on seen-fault validation items (menu present, whether or not the
+  classifier is right). "Largest" is chosen so the rule abstains as much as the 5 % budget
+  allows, and it is fixed before any hybrid generation runs.
+
+### 16.4 What is measured
+
+* **Classifier alone** (classifier + menu rule, no adapter): accuracy, macro-F1, top-3,
+  abstention precision/recall, false-abstention rate, ECE/Brier (cross-validated), per class,
+  menu-present vs menu-removed, unobservable rows separately.
+* **Adapter alone:** §14's decode instrument at step 500, the same rows.
+* **Hybrid:** diagnosis metrics are the classifier's (the adapter cannot change them);
+  explanation metrics are schema validity, enum validity, grounding violations, completion at
+  512 tokens, seconds/item, contradiction rate (ranked top ≠ diagnosis, prose names a
+  different fault as the cause, prose says the evidence fits something else) and valve/flow
+  mislabels.
+* **Abstention surrogate:** leave-one-fault-out for faults 5, 8, 12 and 13 (none of which is
+  in a held-out fold set): retrain without that fault, report on its validation items the
+  fraction abstained at the pre-registered threshold and the fraction mislabelled as another
+  specific fault, plus false abstention on the other faults at the same threshold. Nothing is
+  tuned on these numbers.
+* **Counterfactual faithfulness:** on menu-present items, force a *wrong* diagnosis
+  (classifier's own errors first, then a nearest KB lookalike) and report whether the adapter
+  rationalises it, contradicts it, or hedges.
+
+### 16.5 Budget and validation status
+
+* Forced-label generation is capped at **300 items in total** (hard stop). The task's
+  faithfulness sample (120 + 60 + 60 + 30 + 30 = 300) plus a 60-item counterfactual would be
+  360, so the faithfulness sample is scaled to **240** (96 menu-present / 48 menu-removed /
+  48 normal / 24 open-set-16-20 / 24 unobservable) and 60 counterfactual generations bring the
+  total to exactly 300. Recorded here, before generating.
+* Protocol A **validation is the selection set** (§15.2). Every number in the hybrid tables is
+  a validation number. No test component is read, scored or generated from.
+
+### 16.6 What would make the hybrid unacceptable
+
+Stated before measuring, so the decision is not made after seeing it: the hybrid is rejected
+if the classifier+menu-rule diagnosis is worse than the adapter's own (§14 macro-F1 0.9263)
+on the same rows, or if the adapter's forced-diagnosis prose contradicts the supplied
+diagnosis on more than 10 % of items, or if grounding violations exceed the run-1 rate.
+
+### 16.7 Budget allocation as executed (dated 2026-11-01, before any generation result was read)
+
+§16.5 planned the faithfulness sample at 240 items (96 / 48 / 48 / 24 / 24) plus 60
+counterfactual. Two pools are smaller than that plan assumed, so the shortfall was moved to the
+pools that can absorb it, and the total stays at exactly **300**:
+
+| family | planned | available in validation | generated |
+| --- | --- | --- | --- |
+| menu-present fault items | 96 | 325 | 110 |
+| menu-removed items | 48 | 325 | 50 |
+| `NORMAL_TRANSIENT` | 48 | 47 | 45 |
+| open-set faults 16-20 on a menu | 24 | 125 | 25 |
+| unobservable faults 3/9 | 24 | **12** | 12 |
+| counterfactual (wrong diagnosis forced) | 60 | — | 58 |
+| **total** | **300** | | **300** |
+
+The unobservable family has only 12 observable validation rows in the whole split, so its quota
+cannot be met at any sample size; the two rows released are absorbed by the counterfactual.
+Selection is seeded (42) and fault-stratified inside each family, and classifier errors are
+never sampled away. Recorded before the batch finished; the batch itself had not been read.

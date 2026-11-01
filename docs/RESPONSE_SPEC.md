@@ -296,3 +296,51 @@ The previous rule accepted every integer 1-22 unconditionally, which let
 
 The SYSTEM_PROMPT rubric replacement in §7 remains PROPOSED and unimplemented:
 `llm/dataset.py` is unchanged in this patch.
+
+## 9. Hybrid diagnosis contract — PROPOSED, NOT IMPLEMENTED
+
+Recorded while the hybrid is being evaluated (PROTOCOL §16). **Nothing in this section is in
+the live path**: `llm/inference.py`, the System prompt in `llm/dataset.py`, the benchmark
+items and every dataset hash are unchanged by it. It is written down so the contract is
+reviewable before anyone builds it.
+
+**The decision moves out of the model.** Today the report's `fault_id` and `verdict` are
+generated: the model decodes a label as the first field of its JSON, and §14/§15 measure how
+well it does that (macro-F1 0.9263 on validation at step 500). Under the proposal, both fields
+are supplied by the caller:
+
+1. the detector opens the event (unchanged);
+2. a classifier reads the evidence features and predicts the true fault;
+3. a menu rule turns that prediction into a diagnosis — `UNCLASSIFIED_OPEN_SET` when the
+   prediction is not on the item's menu or the calibrated confidence is below the abstention
+   threshold, `NORMAL_TRANSIENT` with the `no_fault` verdict when there is no fault;
+4. the model is asked to *continue* the answer from a prefix the system has already written:
+
+   ```
+   {"fault_id": "<diagnosis>", "verdict": "<verdict>", 
+   ```
+
+   and produces only `ranked_hypotheses`, `physical_reasoning`, `narrative`;
+5. everything else (mitigation, primary subsystem, table selection, severity, follow-up
+   suggestions, clarifying question) is built in code from the KB and the router at render
+   time, as §3 and §12.1 of PROTOCOL already require.
+
+**The prompt contract.** The System prompt is unchanged in wording; what changes is that the
+assistant turn starts with the prefix above instead of an empty string, and the instructions
+must say that `fault_id` and `verdict` are given and must not be restated differently. A
+continuation that emits a second copy of `fault_id`, or a ranking whose top entry is not the
+supplied diagnosis, is a **validation failure**, not a scoring variant — the same treatment
+§3 already gives to a model-written table cell.
+
+**Why it is proposed.** Fault identity and prose are different problems: the classifier sees
+the evidence features directly and is measured on identification alone, while the adapter is
+left with the part it is good at (mechanism, narrative, operator-facing wording). The
+counterweight is that the adapter can no longer be credited with the diagnosis, and a prose
+writer handed a wrong label can be *coherently wrong*; that failure mode is what the
+counterfactual check in `scripts/hybrid_faithfulness.py` prices, and it is why the proposal is
+not a default.
+
+**What a deployment would still need, before this is anything but a proposal:** a classifier
+calibrated for the deployment population (not on a benchmark validation split), a monitored
+abstention rate, a visible distinction in the rendered report between "classified" and
+"open set", and an operator path for the open-set case. None of those exist today.

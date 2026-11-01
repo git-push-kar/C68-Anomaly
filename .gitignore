@@ -79,6 +79,38 @@ outputs/benchmark_v2/eval/*
 !outputs/benchmark_v2/eval/followup_sanity.json
 !outputs/benchmark_v2/eval/followup_sanity_200.json
 !outputs/benchmark_v2/eval/base_reference.json
+# Hybrid transition (PROTOCOL §16): the classifier's metadata, calibration and threshold
+# are the bytes its report's numbers come from, so they are tracked; the 5 MB booster, the
+# per-item prediction files and the generated prose are regenerated, not committed.
+!outputs/analysis/
+outputs/analysis/*
+!outputs/analysis/phase3a/
+outputs/analysis/phase3a/*
+!outputs/analysis/phase3a/hybrid/
+outputs/analysis/phase3a/hybrid/*
+!outputs/analysis/phase3a/hybrid/manifest.json
+!outputs/analysis/phase3a/hybrid/evaluation.json
+!outputs/analysis/phase3a/hybrid/surrogate.json
+!outputs/analysis/phase3a/hybrid/comparison.json
+!outputs/analysis/phase3a/hybrid/faithfulness.json
+!outputs/analysis/phase3a/hybrid/counterfactual.json
+!outputs/analysis/phase3a/hybrid/faithfulness_selection.json
+!outputs/analysis/phase3a/hybrid/audit_hybrid_100.csv
+!outputs/analysis/phase3a/hybrid/protocolA/
+outputs/analysis/phase3a/hybrid/protocolA/*
+!outputs/analysis/phase3a/hybrid/protocolA/metadata.json
+!outputs/analysis/phase3a/hybrid/protocolA/calibration.json
+!outputs/analysis/phase3a/hybrid/protocolA/threshold.json
+!outputs/analysis/phase3a/hybrid/fold_1/
+outputs/analysis/phase3a/hybrid/fold_1/*
+!outputs/analysis/phase3a/hybrid/fold_1/metadata.json
+!outputs/analysis/phase3a/hybrid/fold_1/calibration.json
+!outputs/analysis/phase3a/hybrid/fold_1/threshold.json
+!outputs/analysis/phase3a/hybrid/fold_2/
+outputs/analysis/phase3a/hybrid/fold_2/*
+!outputs/analysis/phase3a/hybrid/fold_2/metadata.json
+!outputs/analysis/phase3a/hybrid/fold_2/calibration.json
+!outputs/analysis/phase3a/hybrid/fold_2/threshold.json
 outputs/**/*.db
 outputs/**/*.sqlite
 # Smoke изоляции — never push smoke temp dirs (see prepare_tep.py --smoke)
