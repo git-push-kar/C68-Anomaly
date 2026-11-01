@@ -413,6 +413,11 @@ store reading.
 
 Tests: **518 passed** in the app environment, **518 passed** in `venv_train`.
 
+*Note added 2026-11-01, after the hybrid transition:* the suite has since grown by the 26 hybrid
+tests, so the same command now reports **544 passed** in the app environment and **541 passed,
+3 skipped** in `venv_train` (the three skips are the LightGBM tests, which that environment has
+no LightGBM for). 518 is the count at the time of this run, not a current figure.
+
 ---
 
 ## 8. Limitations
