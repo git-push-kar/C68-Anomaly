@@ -39,6 +39,35 @@ HEDGE = re.compile(
     r"\b(does not|doesn't|do not|cannot|can't|inconsistent with|contradicts?|"
     r"not consistent with|rules out|is not supported by)\b",
     re.IGNORECASE)
+#: A sentence that names another fault in order to *reject* it is doing differential
+#: diagnosis, not contradicting the diagnosis it was handed. Measured on the first batch:
+#: all 18 causal-name flags in the classified stratum were of this form ("FAULT_14 was
+#: rejected because it would cause the valve position to decrease"), so the cue words are
+#: only read as a contradiction when the sentence is not a rejection.
+REJECTION = re.compile(
+    r"\b(reject\w*|rul(e|es|ed|ing) out|contradict\w*|inconsistent with|not consistent with|"
+    r"rather than|does not|doesn't|do not|would|no such|no evidence|unlikely|"
+    r"exclud\w*|eliminat\w*|less likely|not observed|whereas|but)\b",
+    re.IGNORECASE)
+
+#: A fault id preceded by a word that asserts it. The first version of this check used a
+#: bare causal cue anywhere in the sentence, and on the first batch it fired 14 times -- all
+#: of them differential reasoning of the form "FAULT_05 ... would cause a flow increase, but
+#: the evidence shows no such change". The cue is therefore required to sit *next to* the
+#: label, and the sentence must not be a rejection.
+ASSERTION = re.compile(
+    r"\b(matches?|consistent with|points? to|indicat\w+|suggest\w+|is caused by|caused by|"
+    r"the cause is|due to|driven by|responsible for|signature of|characteristic of|"
+    r"explains?|supports?)\b[^.;]{0,32}?FAULT[_ ]?(\d{1,2})\b",
+    re.IGNORECASE)
+#: A denial whose object *is* the diagnosis: the cue and the label have to be adjacent, or a
+#: sentence about a process variable ("the flow does not respond") that happens to mention
+#: the diagnosis is read as a hedge, which is how the first version flagged six non-hedges.
+DENIAL = re.compile(
+    r"\b(does not|doesn't|do not|cannot|can't|inconsistent with|not consistent with|"
+    r"contradicts?|rules out|is not supported by|not supported)\b[^.;]{0,40}?"
+    r"FAULT[_ ]?(\d{1,2})\b",
+    re.IGNORECASE)
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?;])\s+")
 
 
@@ -116,8 +145,12 @@ def validate_slim(answer: Optional[Dict], allowed_labels: Sequence[str],
     if str(answer.get("verdict")) not in ("classified", "unclassified_open_set", "no_fault"):
         problems.append(f"enum_verdict:{answer.get('verdict')}")
     ranked = answer.get("ranked_hypotheses")
-    if not isinstance(ranked, list) or not ranked:
+    if not isinstance(ranked, list):
         problems.append("ranked_hypotheses_not_list")
+    elif not ranked and str(answer.get("verdict")) == "classified":
+        # An empty ranking is *correct* for a no-fault or open-set verdict -- there is no
+        # fault to rank -- but it is a defect when the answer names a fault and ranks nothing.
+        problems.append("ranked_empty_when_classified")
     else:
         unknown = [label for label in ranked if str(label) not in allowed]
         if unknown:
@@ -150,28 +183,45 @@ def _spellings(diagnosis: str) -> List[str]:
 
 
 def contradictions(answer: Optional[Dict], diagnosis: str) -> List[Dict]:
-    """Every signal that the prose does not fit the diagnosis it was handed."""
+    """Every signal that the prose does not fit the diagnosis it was handed.
+
+    The checks are only defined where the diagnosis is a fault the answer *names*. When the
+    verdict withholds a fault (open set, or no fault), ranking a candidate is the honest way
+    to write the answer -- an open-set report that lists nothing would be less informative --
+    so a ranking that does not start with the diagnosis is not a contradiction there, and
+    naming a candidate in order to reject it is never one.
+    """
     found: List[Dict] = []
     if not answer:
         return [{"code": "no_answer"}]
+    verdict = str(answer.get("verdict") or "")
     ranked = answer.get("ranked_hypotheses")
-    if isinstance(ranked, list) and ranked and str(ranked[0]) != str(diagnosis):
-        found.append({"code": "ranked_top_mismatch", "detail": str(ranked[0])})
+    if verdict == "classified" and isinstance(ranked, list):
+        if not ranked:
+            found.append({"code": "ranked_empty_when_classified"})
+        elif str(ranked[0]) != str(diagnosis):
+            found.append({"code": "ranked_top_mismatch", "detail": str(ranked[0])})
     prose = " ".join(str(answer.get(field) or "") for field in
                      ("physical_reasoning", "narrative"))
+    own = re.search(r"(\d{1,2})\s*$", str(diagnosis))
+    own = int(own.group(1)) if own else None
     for sentence in _sentences(prose):
-        for match in FAULT_REF.finditer(sentence):
-            label = f"FAULT_{int(match.group(1)):02d}"
-            if label == str(diagnosis):
+        if REJECTION.search(sentence):
+            continue
+        for match in ASSERTION.finditer(sentence):
+            number = int(match.group(2))
+            if own is not None and number == own:
                 continue
-            if CAUSAL_CUE.search(sentence):
-                found.append({"code": "names_other_fault_as_cause", "label": label,
-                              "sentence": sentence[:220]})
-                break
-    forms = [form.lower() for form in _spellings(diagnosis)]
+            found.append({"code": "names_other_fault_as_cause",
+                          "label": f"FAULT_{number:02d}",
+                          "sentence": sentence[:220]})
+            break
     for sentence in _sentences(prose):
-        if HEDGE.search(sentence) and any(form in sentence.lower() for form in forms):
+        for match in DENIAL.finditer(sentence):
+            if own is None or int(match.group(2)) != own:
+                continue
             found.append({"code": "hedges_diagnosis", "sentence": sentence[:220]})
+            break
     return found
 
 

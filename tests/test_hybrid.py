@@ -175,6 +175,48 @@ def test_prose_that_blames_another_fault_is_recorded():
     assert "names_other_fault_as_cause" in codes
 
 
+def test_rejecting_a_differential_is_not_a_contradiction():
+    """Differential reasoning names other faults in order to rule them out.
+
+    On the first forced-diagnosis batch every flag the cue-word rule raised was of this form,
+    so the check now requires an assertion next to the label and no rejection in the sentence.
+    """
+    for prose in ("This matches FAULT_13; FAULT_12 was rejected because it would cause a fall.",
+                  "FAULT_15 (valve sticking) was ruled out: the valve position increases.",
+                  "No listed fault matches the observed pattern: FAULT_05 requires a flow "
+                  "increase, not observed."):
+        answer = _answer("FAULT_13", prose)
+        codes = {found["code"] for found in contradictions(answer, "FAULT_13")}
+        assert "names_other_fault_as_cause" not in codes, prose
+
+
+def test_asserting_another_fault_still_counts():
+    answer = _answer("FAULT_13", "The evidence is consistent with FAULT_12 driving the fall.")
+    codes = {found["code"] for found in contradictions(answer, "FAULT_13")}
+    assert "names_other_fault_as_cause" in codes
+
+
+def test_a_process_description_is_not_a_hedge_about_the_diagnosis():
+    answer = _answer("FAULT_14", "The valve position increases but the cooling flow does not respond.")
+    codes = {found["code"] for found in contradictions(answer, "FAULT_14")}
+    assert "hedges_diagnosis" not in codes
+
+
+def test_an_empty_ranking_is_fine_when_nothing_is_named():
+    answer = {"fault_id": NORMAL, "verdict": "no_fault", "ranked_hypotheses": [],
+              "physical_reasoning": "x", "narrative": "y"}
+    assert validate_slim(answer, ALLOWED, NORMAL) == []
+    assert contradictions(answer, NORMAL) == []
+
+
+def test_an_empty_ranking_is_an_error_when_a_fault_is_named():
+    answer = {"fault_id": "FAULT_13", "verdict": "classified", "ranked_hypotheses": [],
+              "physical_reasoning": "x", "narrative": "y"}
+    assert validate_slim(answer, ALLOWED, "FAULT_13") == ["ranked_empty_when_classified"]
+    assert {found["code"] for found in contradictions(answer, "FAULT_13")} == {
+        "ranked_empty_when_classified"}
+
+
 def test_hedging_the_forced_diagnosis_is_recorded():
     for spelling, diagnosis in (("FAULT 5", "FAULT_05"), ("FAULT 13", "FAULT_13"),
                                 ("FAULT_15", "FAULT_15")):

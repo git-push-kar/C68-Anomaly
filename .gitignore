@@ -94,6 +94,7 @@ outputs/analysis/phase3a/hybrid/*
 !outputs/analysis/phase3a/hybrid/comparison.json
 !outputs/analysis/phase3a/hybrid/faithfulness.json
 !outputs/analysis/phase3a/hybrid/counterfactual.json
+!outputs/analysis/phase3a/hybrid/grounding_audit.json
 !outputs/analysis/phase3a/hybrid/faithfulness_selection.json
 !outputs/analysis/phase3a/hybrid/audit_hybrid_100.csv
 !outputs/analysis/phase3a/hybrid/protocolA/
