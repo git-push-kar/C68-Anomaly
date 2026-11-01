@@ -1383,3 +1383,103 @@ The unobservable family has only 12 observable validation rows in the whole spli
 cannot be met at any sample size; the two rows released are absorbed by the counterfactual.
 Selection is seeded (42) and fault-stratified inside each family, and classifier errors are
 never sampled away. Recorded before the batch finished; the batch itself had not been read.
+
+---
+
+## 17. Hybrid hardening: cross-fitted calibration, uncertainty signals, held-out folds (dated 2026-11-01, before any number in this section was computed)
+
+§16's calibration was fitted on the same validation rows it was then evaluated on, and it
+saturated: 828 of 834 calibrated maxima came out at exactly 1.0, the pre-registered threshold
+rule returned 1.0, and the abstention arm abstained 4 times in 497 items. That is a defect of
+the design, not of the classifier, and it is repaired here rather than tuned around. **Every
+number in this section is validation — the selection set of §15.2 — and the §16 numbers stay
+exactly as reported: they are not replaced, recomputed or withdrawn, they are the baseline this
+section is compared against.**
+
+### 17.1 Calibration (replaces the §16.3 fitting procedure for the hybrid classifier)
+
+* **Out-of-fold probabilities.** Five folds over the **train events**, grouped by event: an
+  event's two menu variants never land in different folds, and no validation row is used to fit
+  anything. For each fold, the classifier is trained on the other four and predicts the held-out
+  one, giving one out-of-fold (OOF) probability vector per train event.
+* **Method choice.** Isotonic (one-vs-rest, renormalised) and temperature scaling are each
+  fitted on four OOF folds and scored on the fifth, repeated over the five folds; the method
+  with the lower **out-of-fold ECE** is chosen. The chosen method is then refitted on all OOF
+  probabilities and that single calibrator is what the validation rows are scored with.
+* **No validation row is used for fitting** — not for the classifier, not for the calibrator,
+  not for the threshold. Validation is evaluation only, which is what §16 could not claim.
+
+### 17.2 Abstention threshold (replaces the §16.3 threshold fitting)
+
+The threshold is the **largest** calibrated max-probability value that keeps **false abstention
+≤ 5 %** on the **out-of-fold train** items that are menu-present with a seen fault — the same
+rule and the same 5 % budget as §16.3, on out-of-fold train confidences instead of in-sample
+validation ones. "Largest" is kept so the rule spends the whole budget; the achieved rate is
+reported with it.
+
+### 17.3 Uncertainty signals, and how one is chosen
+
+Four signals are compared as scalars for separating a class the model has never seen from
+classes it has:
+
+| signal | definition |
+|---|---|
+| `max_prob` | calibrated maximum class probability |
+| `margin` | top-1 minus top-2 calibrated probability |
+| `entropy` | Shannon entropy of the calibrated vector, in nats |
+| `novelty` | mean Euclidean distance to the 10 nearest **train** events in the standardised feature space (mean/SD from the train events) |
+
+**Selection rule:** for the leave-one-fault-out surrogate in §17.4, each signal's AUROC is
+computed for separating that fault's validation items from the *seen* faults' validation items;
+the signal with the **highest mean AUROC** across those faults wins. Ties (within 0.005) go to
+the **simpler** signal, in this fixed order of simplicity: `margin`, `entropy`, `max_prob`,
+`novelty` — margin and entropy need no fitted component, `max_prob` needs the calibrator, and
+`novelty` additionally needs a stored reference set of train events.
+
+AUROC is computed by rank with ties counted as half, over the pooled per-fault comparisons;
+"higher score = more likely to be the unseen class" for all four signals.
+
+### 17.4 Leave-one-fault-out surrogate, widened
+
+For every fault that appears in train (1, 2, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15): retrain
+without that fault, cross-fit the calibrator **without that fault's events**, derive the
+threshold by §17.2 on the remaining train events, and report on that fault's validation items
+the fraction abstained, the fraction mislabelled and as which fault, each signal's AUROC
+against the seen faults' validation items, and false abstention on the other faults at the same
+threshold. Determinism is required: `deterministic=True, force_row_wise=True, n_jobs=1` per
+model, so running shards in parallel cannot change a result.
+
+### 17.5 Held-out folds on the validation range
+
+The existing `fold_1` (held out 4, 11, 15) and `fold_2` (held out 14, 15) classifiers are
+evaluated — **not retrained with new settings**, only re-calibrated by §17.1 — on (i) the
+held-out faults' items that live in `val_eval.jsonl` with `source_dataset: train` (runs 1-300,
+which those folds never trained on) and (ii) the kept faults' fold validation rows. Menu-present
+and menu-removed variants are reported separately. A held-out fault being *named* is an error;
+the interesting numbers are the abstention and mislabel rates and each signal's AUROC.
+
+### 17.6 Metrics, and what is reported
+
+Accuracy, macro-F1, abstention precision/recall, false and missed abstention, ECE, Brier, and
+per-stratum tables for the same seven strata as §16.3; per-fault surrogate table with per-signal
+AUROC; fold tables; the 12 unobservable rows item by item; and the natural wrong-label counts
+from the cross-fit. An "unobservable" row's **gold is kept as the dataset's target**, which for
+six of the twelve is a named fault (3 or 9) and for six is `UNCLASSIFIED_OPEN_SET`.
+
+### 17.7 Detector transparency and a bounded retry experiment
+
+* The contradiction detector is reported sentence by sentence on 20 randomly chosen sentences
+  that mention a fault other than the diagnosis, with the rule that decided each verdict, plus
+  the 3 sentences the rejection guard suppressed. This is for manual checking: a detector whose
+  decisions cannot be read is not evidence.
+* The 21 valve/flow mislabels in the §16 batch are checked against the existing response-layer
+  validator, and — **only if the GPU is idle** — the mislabelled items are regenerated **once**
+  with a retry instruction. At most 21 items are generated, the adapter files are not touched,
+  and if the GPU is busy the code and tests are written and the generation is skipped and
+  reported as skipped.
+
+### 17.8 What this section does not change
+
+No adapter training, no test component opened, no change to the live path, the prompts, the
+datasets or their hashes, and no edit to any §16 artifact. New results are written as new files
+under `outputs/analysis/phase3a/hybrid/`.
