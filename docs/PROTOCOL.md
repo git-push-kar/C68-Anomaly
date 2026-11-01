@@ -1483,3 +1483,39 @@ six of the twelve is a named fault (3 or 9) and for six is `UNCLASSIFIED_OPEN_SE
 No adapter training, no test component opened, no change to the live path, the prompts, the
 datasets or their hashes, and no edit to any §16 artifact. New results are written as new files
 under `outputs/analysis/phase3a/hybrid/`.
+
+### 17.9 Corrections made while measuring (dated 2026-11-01, after §17.1-§17.8 were committed)
+
+Two things §17 got wrong, recorded here rather than silently fixed, because both change what a
+reader would otherwise conclude.
+
+**1. The AUROC orientation was not applied, and one number was published before it was noticed.**
+§17.3 fixes one orientation for all four signals: *higher = more likely the unseen class*. The
+first surrogate run ranked the raw signal values, so `max_prob` and `margin` were compared in the
+wrong direction and came out at **0.12** mean AUROC — an unseen class gets a *lower* maximum
+probability, so the raw comparison measures the complement. The orientation now lives in
+`llm/hybrid/calibration.py::ORIENTATION` and is applied before ranking, with a test asserting
+`AUROC(oriented) == 1 - AUROC(raw)`; the stored per-fault numbers are complemented exactly (the
+identity holds with ties counted as half, so no re-run changes a value).
+
+Consequence for the *choice*, which is the part that had to be re-decided by the rule and not by
+me: with the orientation applied the means are `margin` 0.8808, `max_prob` 0.8815, `entropy`
+0.8828, `novelty` 0.8456. The highest is `entropy`, but 0.8808, 0.8815 and 0.8828 are all inside
+the 0.005 tie tolerance, so §17.3's simplicity order — `margin`, `entropy`, `max_prob`, `novelty`
+— decides, and the chosen signal is **`margin`**. The first run had reported `entropy`; that was
+the rule applied to wrongly-oriented numbers, not a judgement call, and it is withdrawn.
+
+Nothing was tuned on the corrected numbers: the abstention threshold is on the calibrated maximum
+probability by §17.2 and never referenced the chosen signal, so no abstention rate, accuracy or
+macro-F1 changes because of this correction.
+
+**2. The fold test components are validation rows, not the runs 1-300 additions §17.5 describes.**
+`val_eval.jsonl` has no `source_dataset` field, and every row of `fold_1/test` (150) and
+`fold_2/test` (100) is a validation-range item: the held-out faults' menu-present and menu-removed
+twins, 50 ids shared by both folds (fault 15 appears in both held-out sets), 200 distinct, 0 of
+them in any fold's train file, 0 in `train.jsonl`. The held-out faults are absent from those folds'
+training by construction, which is the property §17.5 needs, so the numbers stand — but they are
+**validation** numbers and §17.6 already says every number in this section is validation. The
+earlier plan to add runs 1-300 items to the fold test exports was never written into this file;
+it is dropped rather than retrofitted, since the fold classifiers never train on those runs either
+way.

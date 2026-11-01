@@ -344,3 +344,51 @@ not a default.
 calibrated for the deployment population (not on a benchmark validation split), a monitored
 abstention rate, a visible distinction in the rendered report between "classified" and
 "open set", and an operator path for the open-set case. None of those exist today.
+
+### 9.1 Three things §17 says this proposal would need (dated 2026-11-01, still a proposal)
+
+Recorded after the hardening measurements in PROTOCOL §17. **Nothing here is implemented**; the
+live path, the prompts, the datasets and their hashes are unchanged, and §9 above stays as it was.
+
+**1. The diagnosis needs a second channel for "I do not recognise this".** Across the thirteen
+leave-one-out faults, every confidence-shaped signal separates an unseen fault from the seen ones
+about equally well — margin **0.881**, calibrated maximum **0.882**, entropy **0.883**, novelty
+**0.846** mean AUROC — so the ranking is not where the problem is. (An earlier draft of this note
+said the calibrated maximum scored 0.12; that was a sign error in my own AUROC call, not a
+property of the classifier: an unseen class gets a *lower* maximum, so the raw comparison must be
+complemented before it can be read. Corrected here, before anything was built on it.)
+
+The problem is the **threshold**. With isotonic saturation, 774 of 834 calibrated maxima are still
+at or above 0.979, so a confidence threshold abstains 4 times in 497 menu-present items while the
+fold-2 classifier names FAULT_11 on 23 of the 50 items whose true fault it never saw. What a
+hybrid needs is not a better confidence number but a reference: the nearest training events, or
+the KB's expected sensor signature for the candidate, compared against the evidence. Novelty is
+the weakest separator of the four and still 0.85, and it is the only one that is a *distance to
+the training set* rather than a restatement of the classifier's own opinion.
+
+**2. The prompt needs a grounding verdict it is allowed to use.** Forced-diagnosis generation
+contradicted its prefix on 0 of 242 validation items and rationalised a deliberately wrong prefix
+on 58 of 58. A prose writer that cannot disagree is not a second opinion, it is a paraphrase of
+whatever it was handed. The proposal would therefore supply a system-computed field — evidence
+strength and whether the event's signature matches the diagnosis — and an instruction that the
+answer must *report* a mismatch rather than argue around it. That is a target-level change to the
+answer schema (`grounding` or similar), and it must come with a validator that fails an answer
+whose grounding verdict contradicts the system's.
+
+**3. The tag kinds have to be enforced, not just printed.** 21 of 242 answers (8.7 %) described a
+manipulated variable as a measurement or the reverse, even though every tag is printed with its
+kind. The follow-up path already has the rule (`llm/followup/filters.py`); the report path has
+none. Any prompt that hands the model a diagnosis should carry the retry instruction that
+`llm/hybrid/generate.py::RETRY_MISLABEL` states, and the report validator should reject a prose
+answer that mislabels a tag's kind.
+
+A bounded retry experiment (§17.7) says the instruction alone is not enough: regenerating the 21
+items once with the retry sentence fixed **7**, left **13** mislabelled exactly as before, and
+moved **1** to a different mislabel (it had called a measurement a valve position; it came back
+calling a valve position a temperature). Prompting is a 33 % fix on this failure mode, and the
+retry cannot be trusted to stay put; a validator that rejects the answer, and a rewrite that
+reuses the previous prose rather than regenerating it, is what the report path would need.
+
+What §17 also showed, and what keeps this a proposal: on the twelve unobservable rows both halves
+agree the event looks normal, and the dataset scores that as wrong on six of them. A "no trace"
+answer needs a decision about what the right answer *is* before it needs a model improvement.

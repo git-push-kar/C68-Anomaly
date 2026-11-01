@@ -225,6 +225,23 @@ def contradictions(answer: Optional[Dict], diagnosis: str) -> List[Dict]:
     return found
 
 
+#: One retry instruction, for the valve/flow mislabel only (§17.7). It states the distinction the
+#: prompt already prints per tag, because the model reads the tag's kind and then contradicts it.
+RETRY_MISLABEL = (
+    "Before answering: XMV tags are valve positions (manipulated variables) and XMEAS tags are "
+    "measurements. Do not describe one as the other. Keep exactly the same answer format."
+)
+
+
+def retry_question(question: str, note: str = RETRY_MISLABEL) -> str:
+    """The same question with the correction appended to the user turn.
+
+    The instruction goes where the model reads instructions — the end of the user message — and
+    not into the answer prefix, which must stay exactly what the deployment path writes.
+    """
+    return f"{question}\n\n{note}"
+
+
 def decode_text(model, tokenizer, prompt: str, max_new: int = 512) -> List[int]:
     """Greedy decode of ``prompt``, through the language model when it is reachable.
 
@@ -280,6 +297,37 @@ def valve_flow_mislabels(text: str) -> List[str]:
     return [found] if found else []
 
 
+def explain_sentence(sentence: str, diagnosis: str) -> Dict:
+    """Why the detector did or did not treat one sentence as a contradiction.
+
+    A verdict nobody can inspect is not evidence. This returns the rule that decided it, in the
+    order the detector applies them, so a reader can disagree with a specific decision instead of
+    with a rate.
+    """
+    own = re.search(r"(\d{1,2})\s*$", str(diagnosis))
+    own = int(own.group(1)) if own else None
+    # The guard only matters where there is an assertion to suppress: reporting
+    # "rejection_guard" for a sentence that names a fault in passing says nothing about the
+    # decision that was made, so the assertion is looked for first.
+    asserted: Optional[int] = None
+    for match in ASSERTION.finditer(sentence):
+        number = int(match.group(2))
+        if own is not None and number == own:
+            continue
+        asserted = number
+        break
+    if asserted is not None:
+        if REJECTION.search(sentence):
+            return {"verdict": False, "rule": "rejection_guard",
+                    "label": f"FAULT_{asserted:02d}"}
+        return {"verdict": True, "rule": "assertion_adjacent",
+                "code": "names_other_fault_as_cause", "label": f"FAULT_{asserted:02d}"}
+    for match in DENIAL.finditer(sentence):
+        if own is not None and int(match.group(2)) == own:
+            return {"verdict": True, "rule": "denial_adjacent", "code": "hedges_diagnosis"}
+    return {"verdict": False, "rule": "no_assertion_cue"}
+
+
 def fallback_answer(diagnosis: str, verdict: str, menu_ids: Sequence[str],
                     evidence: Optional[Dict] = None) -> Dict:
     """A deterministic answer, for when generation fails validation.
@@ -322,5 +370,5 @@ def fallback_answer(diagnosis: str, verdict: str, menu_ids: Sequence[str],
 
 
 __all__ = ["SLIM_KEYS", "forced_prefix", "continuation_prompt", "parse_slim", "validate_slim",
-           "contradictions", "fallback_answer", "VERDICT_BY_DIAGNOSIS", "decode_text",
-           "valve_flow_mislabels"]
+           "contradictions", "explain_sentence", "fallback_answer", "VERDICT_BY_DIAGNOSIS",
+           "decode_text", "valve_flow_mislabels", "retry_question", "RETRY_MISLABEL"]
