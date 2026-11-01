@@ -15,7 +15,7 @@
 | 4 | Abstention surrogate numbers | **PASS** | §3.4 — faults 5, 8, 12, 13 |
 | 5 | Faithfulness and contradiction results with the counterfactual | **PASS** | §5 — 300 generated items (242 main + 58 counterfactual), 0/242 contradictions after the detector was corrected, 58/58 counterfactual rationalisations |
 | 6 | Audit CSV, 100 rows, scoring blank | **PASS** | §5.5 — `audit_hybrid_100.csv` |
-| 7 | Tests pass in both environments | **PASS** | §7 — 539 (app), 536 + 3 skipped (`venv_train`) |
+| 7 | Tests pass in both environments | **PASS** | §7.3 — 544 (app), 541 + 3 skipped (`venv_train`) |
 | 8 | No test data touched | **PASS** | every input is `outputs/benchmark_v2/dataset/val.jsonl` |
 | 9 | Run-1 files unchanged | **PASS** | §7.2 — checkpoint-500 `adapter_model.safetensors` matches its recorded hash, differs from every other checkpoint |
 
@@ -393,7 +393,7 @@ candidate set, the classifier configuration and the threshold rule are frozen.
 | `scripts/hybrid_classifier.py` | train / evaluate / surrogate for the three variants, with hashes |
 | `scripts/hybrid_faithfulness.py` | the 300-item forced-diagnosis batch, counterfactual, audit CSV |
 | `scripts/hybrid_comparison.py` | the three-way table from saved prediction files |
-| `tests/test_hybrid.py` | 21 tests: menu rule, threshold rule, prefix forcing, contradictions, fallback, determinism, feature audit |
+| `tests/test_hybrid.py` | 26 tests: menu rule, threshold rule, prefix forcing, contradictions and their rejection/hedge scoping, empty rankings, fallback, determinism, feature audit |
 
 A defect the tests caught before the batch ran: `contradictions()` matched the diagnosis by
 stripping the zero from the fault number, so it watched for `FAULT 5` while the diagnosis was
@@ -414,8 +414,8 @@ a test that walks `FAULT_05`, `FAULT_13`, `FAULT_15`.
 
 | environment | result |
 |---|---|
-| app env (LightGBM present) | **539 passed** in 13.5 s |
-| `venv_train` | **536 passed, 3 skipped** in 11.6 s (the three LightGBM tests skip there by design) |
+| app env (LightGBM present) | **544 passed** in 13.1 s |
+| `venv_train` | **541 passed, 3 skipped** in 13.2 s (the three LightGBM tests skip there by design) |
 
 ---
 
