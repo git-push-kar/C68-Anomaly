@@ -1,0 +1,1449 @@
+{
+  "definition": {
+    "score": "mean Euclidean distance to the 10 nearest train events, standardised",
+    "threshold_rule": "largest value with out-of-fold false-novel <= 5 % on train menu-present seen-fault events",
+    "decision": "UNCLASSIFIED if the \u00a717 rule abstained OR novelty > threshold; NORMAL_TRANSIENT keeps precedence",
+    "k": 10,
+    "folds": 5,
+    "seed": 42,
+    "budget": 0.05
+  },
+  "threshold": {
+    "threshold": 18.767834,
+    "achieved_false_novel": 0.04941,
+    "budget": 0.05,
+    "items": 1356,
+    "flagged": 67
+  },
+  "train_novelty": {
+    "all_events": {
+      "label": "all",
+      "items": 1919,
+      "min": 0.3549,
+      "p50": 7.7422,
+      "p95": 22.9869,
+      "max": 800000064.0,
+      "mean": 2059148.0061
+    },
+    "seen_fault_menu": {
+      "label": "seen_fault",
+      "items": 1356,
+      "min": 0.3549,
+      "p50": 7.1066,
+      "p95": 18.6743,
+      "max": 499999936.0,
+      "mean": 1126851.237
+    }
+  },
+  "validation": {
+    "parity_vs_stored_novelty_max_abs": 0.0,
+    "before": {
+      "label": "before",
+      "items": 822,
+      "accuracy": 0.9781,
+      "top3": 0.6144,
+      "macro_f1": 0.9708,
+      "abstention": {
+        "abstention_rate": 0.5584,
+        "abstention_precision": 0.9739,
+        "abstention_recall": 0.9933,
+        "false_abstention_rate": 0.0323,
+        "missed_abstention_rate": 0.0067,
+        "abstain_support": 450
+      },
+      "ece": 0.02,
+      "brier": 0.0207,
+      "per_class": {
+        "FAULT_01": {
+          "precision": 0.9259,
+          "recall": 1.0,
+          "f1": 0.9615,
+          "support": 25
+        },
+        "FAULT_02": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_04": {
+          "precision": 0.9259,
+          "recall": 1.0,
+          "f1": 0.9615,
+          "support": 25
+        },
+        "FAULT_05": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_06": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_07": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_08": {
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1": 0.8889,
+          "support": 25
+        },
+        "FAULT_10": {
+          "precision": 1.0,
+          "recall": 0.88,
+          "f1": 0.9362,
+          "support": 25
+        },
+        "FAULT_11": {
+          "precision": 1.0,
+          "recall": 0.96,
+          "f1": 0.9796,
+          "support": 25
+        },
+        "FAULT_12": {
+          "precision": 1.0,
+          "recall": 0.84,
+          "f1": 0.913,
+          "support": 25
+        },
+        "FAULT_13": {
+          "precision": 1.0,
+          "recall": 0.96,
+          "f1": 0.9796,
+          "support": 25
+        },
+        "FAULT_14": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_15": {
+          "precision": 1.0,
+          "recall": 0.96,
+          "f1": 0.9796,
+          "support": 25
+        },
+        "NORMAL_TRANSIENT": {
+          "precision": 0.9592,
+          "recall": 1.0,
+          "f1": 0.9792,
+          "support": 47
+        },
+        "UNCLASSIFIED_OPEN_SET": {
+          "precision": 0.9739,
+          "recall": 0.9933,
+          "f1": 0.9835,
+          "support": 450
+        }
+      },
+      "accuracy_ci": {
+        "point": 0.9781,
+        "low": 0.966,
+        "high": 0.9879,
+        "clusters": 497,
+        "resamples": 1000
+      },
+      "macro_f1_ci": {
+        "point": 0.9708,
+        "low": 0.9532,
+        "high": 0.9841,
+        "clusters": 497,
+        "resamples": 1000
+      }
+    },
+    "after": {
+      "label": "after",
+      "items": 822,
+      "accuracy": 0.9586,
+      "top3": 0.6144,
+      "macro_f1": 0.9457,
+      "abstention": {
+        "abstention_rate": 0.5779,
+        "abstention_precision": 0.9411,
+        "abstention_recall": 0.9933,
+        "false_abstention_rate": 0.0753,
+        "missed_abstention_rate": 0.0067,
+        "abstain_support": 450
+      },
+      "ece": 0.0395,
+      "brier": 0.0401,
+      "per_class": {
+        "FAULT_01": {
+          "precision": 0.92,
+          "recall": 0.92,
+          "f1": 0.92,
+          "support": 25
+        },
+        "FAULT_02": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_04": {
+          "precision": 0.9167,
+          "recall": 0.88,
+          "f1": 0.898,
+          "support": 25
+        },
+        "FAULT_05": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_06": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_07": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "FAULT_08": {
+          "precision": 1.0,
+          "recall": 0.68,
+          "f1": 0.8095,
+          "support": 25
+        },
+        "FAULT_10": {
+          "precision": 1.0,
+          "recall": 0.84,
+          "f1": 0.913,
+          "support": 25
+        },
+        "FAULT_11": {
+          "precision": 1.0,
+          "recall": 0.92,
+          "f1": 0.9583,
+          "support": 25
+        },
+        "FAULT_12": {
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1": 0.8889,
+          "support": 25
+        },
+        "FAULT_13": {
+          "precision": 1.0,
+          "recall": 0.88,
+          "f1": 0.9362,
+          "support": 25
+        },
+        "FAULT_14": {
+          "precision": 1.0,
+          "recall": 0.92,
+          "f1": 0.9583,
+          "support": 25
+        },
+        "FAULT_15": {
+          "precision": 1.0,
+          "recall": 0.92,
+          "f1": 0.9583,
+          "support": 25
+        },
+        "NORMAL_TRANSIENT": {
+          "precision": 0.9592,
+          "recall": 1.0,
+          "f1": 0.9792,
+          "support": 47
+        },
+        "UNCLASSIFIED_OPEN_SET": {
+          "precision": 0.9411,
+          "recall": 0.9933,
+          "f1": 0.9665,
+          "support": 450
+        }
+      },
+      "accuracy_ci": {
+        "point": 0.9586,
+        "low": 0.9429,
+        "high": 0.9719,
+        "clusters": 497,
+        "resamples": 1000
+      },
+      "macro_f1_ci": {
+        "point": 0.9457,
+        "low": 0.9206,
+        "high": 0.9635,
+        "clusters": 497,
+        "resamples": 1000
+      }
+    },
+    "changed_decisions": 16,
+    "changed_improved": 0,
+    "changed_worsened": 16,
+    "fault_named_false_abstention": {
+      "before": 0.0363,
+      "after": 0.0846
+    },
+    "open_set_recall": {
+      "before": 1.0,
+      "after": 1.0
+    },
+    "strata_after": {
+      "observable": {
+        "label": "observable",
+        "items": 822,
+        "accuracy": 0.9586,
+        "top3": 0.6144,
+        "macro_f1": 0.9457,
+        "abstention": {
+          "abstention_rate": 0.5779,
+          "abstention_precision": 0.9411,
+          "abstention_recall": 0.9933,
+          "false_abstention_rate": 0.0753,
+          "missed_abstention_rate": 0.0067,
+          "abstain_support": 450
+        },
+        "ece": 0.0395,
+        "brier": 0.0401,
+        "per_class": {
+          "FAULT_01": {
+            "precision": 0.92,
+            "recall": 0.92,
+            "f1": 0.92,
+            "support": 25
+          },
+          "FAULT_02": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_04": {
+            "precision": 0.9167,
+            "recall": 0.88,
+            "f1": 0.898,
+            "support": 25
+          },
+          "FAULT_05": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_06": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_07": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_08": {
+            "precision": 1.0,
+            "recall": 0.68,
+            "f1": 0.8095,
+            "support": 25
+          },
+          "FAULT_10": {
+            "precision": 1.0,
+            "recall": 0.84,
+            "f1": 0.913,
+            "support": 25
+          },
+          "FAULT_11": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "FAULT_12": {
+            "precision": 1.0,
+            "recall": 0.8,
+            "f1": 0.8889,
+            "support": 25
+          },
+          "FAULT_13": {
+            "precision": 1.0,
+            "recall": 0.88,
+            "f1": 0.9362,
+            "support": 25
+          },
+          "FAULT_14": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "FAULT_15": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "NORMAL_TRANSIENT": {
+            "precision": 0.9592,
+            "recall": 1.0,
+            "f1": 0.9792,
+            "support": 47
+          },
+          "UNCLASSIFIED_OPEN_SET": {
+            "precision": 0.9411,
+            "recall": 0.9933,
+            "f1": 0.9665,
+            "support": 450
+          }
+        },
+        "accuracy_ci": {
+          "point": 0.9586,
+          "low": 0.9429,
+          "high": 0.9719,
+          "clusters": 497,
+          "resamples": 1000
+        },
+        "macro_f1_ci": {
+          "point": 0.9457,
+          "low": 0.9206,
+          "high": 0.9635,
+          "clusters": 497,
+          "resamples": 1000
+        }
+      },
+      "menu_present": {
+        "label": "menu_present",
+        "items": 497,
+        "accuracy": 0.9376,
+        "top3": 0.994,
+        "macro_f1": 0.9445,
+        "abstention": {
+          "abstention_rate": 0.3078,
+          "abstention_precision": 0.817,
+          "abstention_recall": 1.0,
+          "false_abstention_rate": 0.0753,
+          "missed_abstention_rate": 0.0,
+          "abstain_support": 125
+        },
+        "ece": 0.0607,
+        "brier": 0.0603,
+        "per_class": {
+          "FAULT_01": {
+            "precision": 0.9583,
+            "recall": 0.92,
+            "f1": 0.9388,
+            "support": 25
+          },
+          "FAULT_02": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_04": {
+            "precision": 0.9565,
+            "recall": 0.88,
+            "f1": 0.9167,
+            "support": 25
+          },
+          "FAULT_05": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_06": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_07": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_08": {
+            "precision": 1.0,
+            "recall": 0.68,
+            "f1": 0.8095,
+            "support": 25
+          },
+          "FAULT_10": {
+            "precision": 1.0,
+            "recall": 0.84,
+            "f1": 0.913,
+            "support": 25
+          },
+          "FAULT_11": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "FAULT_12": {
+            "precision": 1.0,
+            "recall": 0.8,
+            "f1": 0.8889,
+            "support": 25
+          },
+          "FAULT_13": {
+            "precision": 1.0,
+            "recall": 0.88,
+            "f1": 0.9362,
+            "support": 25
+          },
+          "FAULT_14": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "FAULT_15": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "NORMAL_TRANSIENT": {
+            "precision": 0.9792,
+            "recall": 1.0,
+            "f1": 0.9895,
+            "support": 47
+          },
+          "UNCLASSIFIED_OPEN_SET": {
+            "precision": 0.817,
+            "recall": 1.0,
+            "f1": 0.8993,
+            "support": 125
+          }
+        },
+        "accuracy_ci": {
+          "point": 0.9376,
+          "low": 0.9155,
+          "high": 0.9577,
+          "clusters": 497,
+          "resamples": 1000
+        },
+        "macro_f1_ci": {
+          "point": 0.9445,
+          "low": 0.9207,
+          "high": 0.9612,
+          "clusters": 497,
+          "resamples": 1000
+        }
+      },
+      "menu_removed": {
+        "label": "menu_removed",
+        "items": 325,
+        "accuracy": 0.9908,
+        "top3": 0.0338,
+        "macro_f1": 0.9954,
+        "abstention": {
+          "abstention_rate": 0.9908,
+          "abstention_precision": 1.0,
+          "abstention_recall": 0.9908,
+          "false_abstention_rate": null,
+          "missed_abstention_rate": 0.0092,
+          "abstain_support": 325
+        },
+        "ece": 0.0082,
+        "brier": 0.0093,
+        "per_class": {
+          "FAULT_01": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          },
+          "FAULT_04": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          },
+          "NORMAL_TRANSIENT": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          },
+          "UNCLASSIFIED_OPEN_SET": {
+            "precision": 1.0,
+            "recall": 0.9908,
+            "f1": 0.9954,
+            "support": 325
+          }
+        },
+        "accuracy_ci": {
+          "point": 0.9908,
+          "low": 0.9785,
+          "high": 1.0,
+          "clusters": 325,
+          "resamples": 1000
+        },
+        "macro_f1_ci": {
+          "point": 0.9954,
+          "low": 0.9891,
+          "high": 1.0,
+          "clusters": 325,
+          "resamples": 1000
+        }
+      },
+      "fault_named": {
+        "label": "fault_named",
+        "items": 325,
+        "accuracy": 0.9046,
+        "top3": 0.9908,
+        "macro_f1": 0.9445,
+        "abstention": {
+          "abstention_rate": 0.0862,
+          "abstention_precision": 0.0,
+          "abstention_recall": 0.0,
+          "false_abstention_rate": 0.0862,
+          "missed_abstention_rate": null,
+          "abstain_support": 0
+        },
+        "ece": 0.0933,
+        "brier": 0.092,
+        "per_class": {
+          "FAULT_01": {
+            "precision": 0.9583,
+            "recall": 0.92,
+            "f1": 0.9388,
+            "support": 25
+          },
+          "FAULT_02": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_04": {
+            "precision": 0.9565,
+            "recall": 0.88,
+            "f1": 0.9167,
+            "support": 25
+          },
+          "FAULT_05": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_06": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_07": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 25
+          },
+          "FAULT_08": {
+            "precision": 1.0,
+            "recall": 0.68,
+            "f1": 0.8095,
+            "support": 25
+          },
+          "FAULT_10": {
+            "precision": 1.0,
+            "recall": 0.84,
+            "f1": 0.913,
+            "support": 25
+          },
+          "FAULT_11": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "FAULT_12": {
+            "precision": 1.0,
+            "recall": 0.8,
+            "f1": 0.8889,
+            "support": 25
+          },
+          "FAULT_13": {
+            "precision": 1.0,
+            "recall": 0.88,
+            "f1": 0.9362,
+            "support": 25
+          },
+          "FAULT_14": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "FAULT_15": {
+            "precision": 1.0,
+            "recall": 0.92,
+            "f1": 0.9583,
+            "support": 25
+          },
+          "NORMAL_TRANSIENT": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          },
+          "UNCLASSIFIED_OPEN_SET": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          }
+        },
+        "accuracy_ci": {
+          "point": 0.9046,
+          "low": 0.8708,
+          "high": 0.9354,
+          "clusters": 325,
+          "resamples": 1000
+        },
+        "macro_f1_ci": {
+          "point": 0.9445,
+          "low": 0.9208,
+          "high": 0.962,
+          "clusters": 325,
+          "resamples": 1000
+        }
+      },
+      "normal": {
+        "label": "normal",
+        "items": 47,
+        "accuracy": 1.0,
+        "top3": 1.0,
+        "macro_f1": 1.0,
+        "abstention": {
+          "abstention_rate": 0.0,
+          "abstention_precision": 0.0,
+          "abstention_recall": 0.0,
+          "false_abstention_rate": 0.0,
+          "missed_abstention_rate": null,
+          "abstain_support": 0
+        },
+        "ece": 0.0,
+        "brier": 0.0,
+        "per_class": {
+          "NORMAL_TRANSIENT": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 47
+          }
+        },
+        "accuracy_ci": {
+          "point": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "clusters": 47,
+          "resamples": 1000
+        },
+        "macro_f1_ci": {
+          "point": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "clusters": 47,
+          "resamples": 1000
+        }
+      },
+      "open_set_on_menu": {
+        "label": "open_set_on_menu",
+        "items": 125,
+        "accuracy": 1.0,
+        "top3": 1.0,
+        "macro_f1": 1.0,
+        "abstention": {
+          "abstention_rate": 1.0,
+          "abstention_precision": 1.0,
+          "abstention_recall": 1.0,
+          "false_abstention_rate": null,
+          "missed_abstention_rate": 0.0,
+          "abstain_support": 125
+        },
+        "ece": 0.0046,
+        "brier": 0.0004,
+        "per_class": {
+          "UNCLASSIFIED_OPEN_SET": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 125
+          }
+        },
+        "accuracy_ci": {
+          "point": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "clusters": 125,
+          "resamples": 1000
+        },
+        "macro_f1_ci": {
+          "point": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "clusters": 125,
+          "resamples": 1000
+        }
+      }
+    },
+    "flagged_on_named_fault": 18,
+    "flagged_on_normal": 0
+  },
+  "surrogate": {
+    "FAULT_01": {
+      "threshold": {
+        "threshold": 18.470394,
+        "achieved_false_novel": 0.049402,
+        "budget": 0.05,
+        "items": 1255,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 25,
+      "novelty_flag_rate": 1.0,
+      "s17_named": 25,
+      "s17_declined": 0,
+      "decline_gain_upper_bound": 25,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0556,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 28.7214,
+          "p50": 30.456,
+          "p95": 31.4406,
+          "max": 558.4861,
+          "mean": 72.269
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3723,
+          "p50": 7.9382,
+          "p95": 18.8956,
+          "max": 75.2178,
+          "mean": 8.0716
+        }
+      }
+    },
+    "FAULT_02": {
+      "threshold": {
+        "threshold": 22.177042,
+        "achieved_false_novel": 0.049679,
+        "budget": 0.05,
+        "items": 1248,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 25,
+      "novelty_flag_rate": 1.0,
+      "s17_named": 11,
+      "s17_declined": 14,
+      "decline_gain_upper_bound": 11,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0359,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 225.8009,
+          "p50": 368.6799,
+          "p95": 375.7656,
+          "max": 381.3183,
+          "mean": 352.3486
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3464,
+          "p50": 8.1351,
+          "p95": 21.0609,
+          "max": 75.8282,
+          "mean": 8.4679
+        }
+      }
+    },
+    "FAULT_04": {
+      "threshold": {
+        "threshold": 18.430676,
+        "achieved_false_novel": 0.049679,
+        "budget": 0.05,
+        "items": 1248,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 3,
+      "novelty_flag_rate": 0.12,
+      "s17_named": 0,
+      "s17_declined": 25,
+      "decline_gain_upper_bound": 0,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0556,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 8.3976,
+          "p50": 12.1094,
+          "p95": 23.9514,
+          "max": 25.4299,
+          "mean": 13.2533
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.346,
+          "p50": 6.4751,
+          "p95": 18.4703,
+          "max": 78.501,
+          "mean": 7.4177
+        }
+      }
+    },
+    "FAULT_05": {
+      "threshold": {
+        "threshold": 19.070692,
+        "achieved_false_novel": 0.04956,
+        "budget": 0.05,
+        "items": 1251,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 0,
+      "novelty_flag_rate": 0.0,
+      "s17_named": 25,
+      "s17_declined": 0,
+      "decline_gain_upper_bound": 0,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0556,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 8.9537,
+          "p50": 9.5844,
+          "p95": 9.8603,
+          "max": 10.2899,
+          "mean": 9.575
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3673,
+          "p50": 7.9634,
+          "p95": 19.5129,
+          "max": 75.2816,
+          "mean": 8.0681
+        }
+      }
+    },
+    "FAULT_06": {
+      "threshold": {
+        "threshold": 20.810263,
+        "achieved_false_novel": 0.04964,
+        "budget": 0.05,
+        "items": 1249,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 25,
+      "novelty_flag_rate": 1.0,
+      "s17_named": 9,
+      "s17_declined": 16,
+      "decline_gain_upper_bound": 9,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.049,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 120.659,
+          "p50": 124.2559,
+          "p95": 127.5389,
+          "max": 136.7423,
+          "mean": 124.9558
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3484,
+          "p50": 8.1086,
+          "p95": 20.5301,
+          "max": 75.5721,
+          "mean": 8.4921
+        }
+      }
+    },
+    "FAULT_07": {
+      "threshold": {
+        "threshold": 18.767599,
+        "achieved_false_novel": 0.049402,
+        "budget": 0.05,
+        "items": 1255,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 0,
+      "novelty_flag_rate": 0.0,
+      "s17_named": 13,
+      "s17_declined": 12,
+      "decline_gain_upper_bound": 0,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0556,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 8.2053,
+          "p50": 10.0166,
+          "p95": 10.783,
+          "max": 11.0721,
+          "mean": 10.0535
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3672,
+          "p50": 7.9062,
+          "p95": 19.0108,
+          "max": 75.2193,
+          "mean": 8.0314
+        }
+      }
+    },
+    "FAULT_08": {
+      "threshold": {
+        "threshold": 17.424175,
+        "achieved_false_novel": 0.049759,
+        "budget": 0.05,
+        "items": 1246,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 14,
+      "novelty_flag_rate": 0.56,
+      "s17_named": 4,
+      "s17_declined": 21,
+      "decline_gain_upper_bound": 4,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0588,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 6.7002,
+          "p50": 25.3049,
+          "p95": 999999872.0,
+          "max": 999999872.0,
+          "mean": 268944254.7913
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3476,
+          "p50": 6.4598,
+          "p95": 18.1937,
+          "max": 75.2333,
+          "mean": 7.1669
+        }
+      }
+    },
+    "FAULT_10": {
+      "threshold": {
+        "threshold": 18.627937,
+        "achieved_false_novel": 0.04956,
+        "budget": 0.05,
+        "items": 1251,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 3,
+      "novelty_flag_rate": 0.12,
+      "s17_named": 0,
+      "s17_declined": 25,
+      "decline_gain_upper_bound": 0,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0588,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 12.504,
+          "p50": 15.7565,
+          "p95": 19.4772,
+          "max": 27.2316,
+          "mean": 16.2933
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3475,
+          "p50": 6.488,
+          "p95": 18.8704,
+          "max": 84.7469,
+          "mean": 7.4817
+        }
+      }
+    },
+    "FAULT_11": {
+      "threshold": {
+        "threshold": 19.101351,
+        "achieved_false_novel": 0.049679,
+        "budget": 0.05,
+        "items": 1248,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 23,
+      "novelty_flag_rate": 0.92,
+      "s17_named": 2,
+      "s17_declined": 23,
+      "decline_gain_upper_bound": 2,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0621,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 10.1036,
+          "p50": 1415415040.0,
+          "p95": 1421548416.0,
+          "max": 1428635648.0,
+          "mean": 1246803525.1908
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3464,
+          "p50": 7.0188,
+          "p95": 20.6369,
+          "max": 75.7223,
+          "mean": 7.6394
+        }
+      }
+    },
+    "FAULT_12": {
+      "threshold": {
+        "threshold": 20.034147,
+        "achieved_false_novel": 0.049402,
+        "budget": 0.05,
+        "items": 1255,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 13,
+      "novelty_flag_rate": 0.52,
+      "s17_named": 0,
+      "s17_declined": 25,
+      "decline_gain_upper_bound": 0,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0458,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 7.5999,
+          "p50": 22.3851,
+          "p95": 48.4884,
+          "max": 335.7485,
+          "mean": 34.8637
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3631,
+          "p50": 6.8775,
+          "p95": 19.0764,
+          "max": 75.5569,
+          "mean": 7.3938
+        }
+      }
+    },
+    "FAULT_13": {
+      "threshold": {
+        "threshold": 18.764505,
+        "achieved_false_novel": 0.049363,
+        "budget": 0.05,
+        "items": 1256,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 3,
+      "novelty_flag_rate": 0.12,
+      "s17_named": 0,
+      "s17_declined": 25,
+      "decline_gain_upper_bound": 0,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0523,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 7.8915,
+          "p50": 11.3635,
+          "p95": 41.316,
+          "max": 166.0633,
+          "mean": 21.3598
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3771,
+          "p50": 7.3721,
+          "p95": 18.5782,
+          "max": 34.7768,
+          "mean": 7.3908
+        }
+      }
+    },
+    "FAULT_14": {
+      "threshold": {
+        "threshold": 18.652214,
+        "achieved_false_novel": 0.049402,
+        "budget": 0.05,
+        "items": 1255,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 2,
+      "novelty_flag_rate": 0.08,
+      "s17_named": 25,
+      "s17_declined": 0,
+      "decline_gain_upper_bound": 2,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0556,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 9.4552,
+          "p50": 11.9193,
+          "p95": 15.2039,
+          "max": 22.5416,
+          "mean": 12.7052
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3508,
+          "p50": 6.6318,
+          "p95": 18.7468,
+          "max": 77.558,
+          "mean": 7.5088
+        }
+      }
+    },
+    "FAULT_15": {
+      "threshold": {
+        "threshold": 17.921371,
+        "achieved_false_novel": 0.049402,
+        "budget": 0.05,
+        "items": 1255,
+        "flagged": 62
+      },
+      "held_out_menu_items": 25,
+      "novelty_flagged": 7,
+      "novelty_flag_rate": 0.28,
+      "s17_named": 22,
+      "s17_declined": 3,
+      "decline_gain_upper_bound": 7,
+      "kept_fault_validation_items": 306,
+      "false_novel_on_kept": 0.0719,
+      "novelty_by_stratum": {
+        "held_out": {
+          "label": "held_out",
+          "items": 25,
+          "min": 10.4386,
+          "p50": 15.7396,
+          "p95": 20.0924,
+          "max": 27.6471,
+          "mean": 16.2662
+        },
+        "kept_faults": {
+          "label": "kept_faults",
+          "items": 306,
+          "min": 0.3463,
+          "p50": 6.4115,
+          "p95": 20.2301,
+          "max": 87.6783,
+          "mean": 7.33
+        }
+      }
+    }
+  },
+  "folds": {
+    "fold_1": {
+      "novelty_threshold": {
+        "threshold": 18.15423,
+        "achieved_false_novel": 0.049086,
+        "budget": 0.05,
+        "items": 1039,
+        "flagged": 51
+      },
+      "rule_threshold": 0.9792,
+      "reproduced_vs_stored": {
+        "reproduced": {
+          "declined": 50,
+          "named": 0,
+          "items": 75
+        },
+        "stored": {
+          "items": 75,
+          "declined": 50,
+          "declined_rate": 0.6667,
+          "named_a_fault": 0,
+          "named_rate": 0.0,
+          "named_as": {},
+          "correctly_named_held_out_fault": 0,
+          "accuracy_against_gold": 0.0,
+          "mean_confidence": 0.8958
+        },
+        "matches": true
+      },
+      "held_out_menu": {
+        "items": 75,
+        "old_declined": 50,
+        "old_named": 0,
+        "novelty_flagged": 27,
+        "flags_on_previously_named": 0,
+        "new_declined": 50,
+        "new_declined_rate": 0.6667
+      },
+      "kept_faults_menu": {
+        "items": 381,
+        "old_declined": 132,
+        "novelty_flagged": 18,
+        "false_novel_rate": 0.0472,
+        "old_accuracy": 0.958,
+        "new_accuracy": 0.9213
+      }
+    },
+    "fold_2": {
+      "novelty_threshold": {
+        "threshold": 18.090332,
+        "achieved_false_novel": 0.049393,
+        "budget": 0.05,
+        "items": 1154,
+        "flagged": 57
+      },
+      "rule_threshold": 0.989691,
+      "reproduced_vs_stored": {
+        "reproduced": {
+          "declined": 11,
+          "named": 23,
+          "items": 50
+        },
+        "stored": {
+          "items": 50,
+          "declined": 11,
+          "declined_rate": 0.22,
+          "named_a_fault": 23,
+          "named_rate": 0.46,
+          "named_as": {
+            "FAULT_11": 23
+          },
+          "correctly_named_held_out_fault": 0,
+          "accuracy_against_gold": 0.0,
+          "mean_confidence": 0.8164
+        },
+        "matches": true
+      },
+      "held_out_menu": {
+        "items": 50,
+        "old_declined": 11,
+        "old_named": 23,
+        "novelty_flagged": 5,
+        "flags_on_previously_named": 2,
+        "new_declined": 13,
+        "new_declined_rate": 0.26
+      },
+      "kept_faults_menu": {
+        "items": 406,
+        "old_declined": 136,
+        "novelty_flagged": 20,
+        "false_novel_rate": 0.0493,
+        "old_accuracy": 0.9532,
+        "new_accuracy": 0.9187
+      }
+    }
+  },
+  "verdict": {
+    "criterion_a": {
+      "rule": "reject if seen-fault accuracy drops by more than 2 points on an instrument without a higher held-out decline rate on the same instrument",
+      "instruments": {
+        "validation": {
+          "seen_fault_accuracy_before": 0.9781,
+          "seen_fault_accuracy_after": 0.9586,
+          "accuracy_drop": 0.0195,
+          "decline_gain": -16,
+          "triggers_criterion_a": false
+        },
+        "fold_1": {
+          "seen_fault_accuracy_before": 0.958,
+          "seen_fault_accuracy_after": 0.9213,
+          "accuracy_drop": 0.0367,
+          "decline_gain": 0,
+          "triggers_criterion_a": true
+        },
+        "fold_2": {
+          "seen_fault_accuracy_before": 0.9532,
+          "seen_fault_accuracy_after": 0.9187,
+          "accuracy_drop": 0.0345,
+          "decline_gain": 2,
+          "triggers_criterion_a": false
+        }
+      },
+      "validation_accuracy_drop": 0.0195,
+      "false_abstention_before": 0.0363,
+      "false_abstention_after": 0.0846,
+      "improved_any_held_out": true,
+      "triggered": true,
+      "triggering_instruments": [
+        "fold_1"
+      ]
+    },
+    "criterion_b": {
+      "rule": "reject if it fails to beat the \u00a717 rule on all three instruments",
+      "measured_gains": {
+        "fold_1": 0,
+        "fold_2": 2,
+        "validation": -16
+      },
+      "surrogate_gain_bounds": {
+        "FAULT_01": 25,
+        "FAULT_02": 11,
+        "FAULT_04": 0,
+        "FAULT_05": 0,
+        "FAULT_06": 9,
+        "FAULT_07": 0,
+        "FAULT_08": 4,
+        "FAULT_10": 0,
+        "FAULT_11": 2,
+        "FAULT_12": 0,
+        "FAULT_13": 0,
+        "FAULT_14": 2,
+        "FAULT_15": 7
+      },
+      "instruments_beaten": 1,
+      "instruments": 3,
+      "triggered": false,
+      "note": "the surrogate's per-fault figure is an upper bound (min(named, flagged)) because its stored artefact has counts, not per-item decisions; it is reported and not used to decide"
+    },
+    "accepted": false
+  }
+}

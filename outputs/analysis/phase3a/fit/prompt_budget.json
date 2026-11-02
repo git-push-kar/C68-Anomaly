@@ -1,0 +1,444 @@
+{
+  "tokenizer": {
+    "path": "C:/Users/Admin/Desktop/LY_C68/deepfake_project/models/InternVL3-2B",
+    "truncation_side": "right",
+    "model_max_length": 12288,
+    "padding_side": "right"
+  },
+  "train_mixed_report": {
+    "rows": 1919,
+    "max_length": 4096,
+    "cap": 4096,
+    "prompt_tokens": {
+      "p50": 1400,
+      "p95": 1426,
+      "p99": 1434,
+      "max": 1439,
+      "mean": 1380.2
+    },
+    "answer_tokens": {
+      "p95": 363,
+      "max": 475
+    },
+    "headroom_tokens": {
+      "min": 2215,
+      "p50": 2411
+    },
+    "rows_over_cap": 0,
+    "rows_with_zero_answer_budget": 0,
+    "cut_block_counts": {},
+    "per_class_prompt_max": {
+      "FAULT_01": {
+        "rows": 120,
+        "p50": 1404,
+        "max": 1434
+      },
+      "FAULT_02": {
+        "rows": 120,
+        "p50": 1363,
+        "max": 1367
+      },
+      "FAULT_04": {
+        "rows": 119,
+        "p50": 1297,
+        "max": 1315
+      },
+      "FAULT_05": {
+        "rows": 119,
+        "p50": 1413,
+        "max": 1435
+      },
+      "FAULT_06": {
+        "rows": 120,
+        "p50": 1420,
+        "max": 1428
+      },
+      "FAULT_07": {
+        "rows": 120,
+        "p50": 1417,
+        "max": 1429
+      },
+      "FAULT_08": {
+        "rows": 120,
+        "p50": 1404,
+        "max": 1424
+      },
+      "FAULT_10": {
+        "rows": 118,
+        "p50": 1401,
+        "max": 1419
+      },
+      "FAULT_11": {
+        "rows": 120,
+        "p50": 1322,
+        "max": 1333
+      },
+      "FAULT_12": {
+        "rows": 119,
+        "p50": 1417,
+        "max": 1439
+      },
+      "FAULT_13": {
+        "rows": 113,
+        "p50": 1407,
+        "max": 1420
+      },
+      "FAULT_14": {
+        "rows": 120,
+        "p50": 1357,
+        "max": 1370
+      },
+      "FAULT_15": {
+        "rows": 118,
+        "p50": 1406,
+        "max": 1420
+      },
+      "FAULT_16": {
+        "rows": 52,
+        "p50": 1404,
+        "max": 1414
+      },
+      "FAULT_17": {
+        "rows": 52,
+        "p50": 1311,
+        "max": 1315
+      },
+      "FAULT_18": {
+        "rows": 52,
+        "p50": 1425,
+        "max": 1437
+      },
+      "FAULT_19": {
+        "rows": 53,
+        "p50": 1374,
+        "max": 1428
+      },
+      "FAULT_20": {
+        "rows": 53,
+        "p50": 1319,
+        "max": 1345
+      },
+      "OTHER": {
+        "rows": 111,
+        "p50": 1403,
+        "max": 1417
+      }
+    },
+    "samples": [
+      {
+        "item_id": "EVT-train-f01-r001::menu",
+        "prompt_tokens": 1433,
+        "answer_tokens": 344,
+        "headroom": 2319
+      },
+      {
+        "item_id": "EVT-train-f01-r002::menu",
+        "prompt_tokens": 1411,
+        "answer_tokens": 331,
+        "headroom": 2354
+      },
+      {
+        "item_id": "EVT-train-f01-r003::menu",
+        "prompt_tokens": 1409,
+        "answer_tokens": 391,
+        "headroom": 2296
+      }
+    ]
+  },
+  "train_mixed_dialogue": {
+    "rows": 961,
+    "max_length": 4096,
+    "cap": 4096,
+    "prompt_tokens": {
+      "p50": 749,
+      "p95": 874,
+      "p99": 929,
+      "max": 995,
+      "mean": 750.2
+    },
+    "answer_tokens": {
+      "p95": 110,
+      "max": 171
+    },
+    "headroom_tokens": {
+      "min": 2978,
+      "p50": 3282
+    },
+    "rows_over_cap": 0,
+    "rows_with_zero_answer_budget": 0,
+    "cut_block_counts": {},
+    "per_class_prompt_max": {
+      "OTHER": {
+        "rows": 961,
+        "p50": 749,
+        "max": 995
+      }
+    },
+    "samples": [
+      {
+        "item_id": "FD-train-00967#0",
+        "prompt_tokens": 686,
+        "answer_tokens": 88,
+        "headroom": 3322
+      },
+      {
+        "item_id": "FD-train-00967#1",
+        "prompt_tokens": 793,
+        "answer_tokens": 86,
+        "headroom": 3217
+      },
+      {
+        "item_id": "FD-train-00619#0",
+        "prompt_tokens": 660,
+        "answer_tokens": 87,
+        "headroom": 3349
+      }
+    ]
+  },
+  "val_report": {
+    "rows": 834,
+    "max_length": 4096,
+    "cap": 4096,
+    "prompt_tokens": {
+      "p50": 1112,
+      "p95": 1155,
+      "p99": 1163,
+      "max": 1167,
+      "mean": 1101.5
+    },
+    "answer_tokens": {
+      "p95": 0,
+      "max": 0
+    },
+    "headroom_tokens": {
+      "min": 2929,
+      "p50": 2984
+    },
+    "rows_over_cap": 0,
+    "rows_with_zero_answer_budget": 0,
+    "cut_block_counts": {},
+    "per_class_prompt_max": {
+      "FAULT_01": {
+        "rows": 50,
+        "p50": 1112,
+        "max": 1157
+      },
+      "FAULT_02": {
+        "rows": 50,
+        "p50": 1071,
+        "max": 1098
+      },
+      "FAULT_03": {
+        "rows": 4,
+        "p50": 1135,
+        "max": 1136
+      },
+      "FAULT_04": {
+        "rows": 50,
+        "p50": 1006,
+        "max": 1039
+      },
+      "FAULT_05": {
+        "rows": 50,
+        "p50": 1130,
+        "max": 1163
+      },
+      "FAULT_06": {
+        "rows": 50,
+        "p50": 1128,
+        "max": 1159
+      },
+      "FAULT_07": {
+        "rows": 50,
+        "p50": 1130,
+        "max": 1162
+      },
+      "FAULT_08": {
+        "rows": 50,
+        "p50": 1118,
+        "max": 1157
+      },
+      "FAULT_09": {
+        "rows": 8,
+        "p50": 1133,
+        "max": 1138
+      },
+      "FAULT_10": {
+        "rows": 50,
+        "p50": 1122,
+        "max": 1166
+      },
+      "FAULT_11": {
+        "rows": 50,
+        "p50": 1026,
+        "max": 1060
+      },
+      "FAULT_12": {
+        "rows": 50,
+        "p50": 1123,
+        "max": 1163
+      },
+      "FAULT_13": {
+        "rows": 50,
+        "p50": 1123,
+        "max": 1152
+      },
+      "FAULT_14": {
+        "rows": 50,
+        "p50": 1067,
+        "max": 1099
+      },
+      "FAULT_15": {
+        "rows": 50,
+        "p50": 1126,
+        "max": 1158
+      },
+      "FAULT_16": {
+        "rows": 25,
+        "p50": 1133,
+        "max": 1146
+      },
+      "FAULT_17": {
+        "rows": 25,
+        "p50": 1042,
+        "max": 1045
+      },
+      "FAULT_18": {
+        "rows": 25,
+        "p50": 1154,
+        "max": 1167
+      },
+      "FAULT_19": {
+        "rows": 25,
+        "p50": 1103,
+        "max": 1155
+      },
+      "FAULT_20": {
+        "rows": 25,
+        "p50": 1049,
+        "max": 1056
+      },
+      "OTHER": {
+        "rows": 47,
+        "p50": 1138,
+        "max": 1154
+      }
+    },
+    "samples": [
+      {
+        "item_id": "EVT-val-f01-r301::menu",
+        "prompt_tokens": 1140,
+        "answer_tokens": 0,
+        "headroom": 2956
+      },
+      {
+        "item_id": "EVT-val-f01-r301::openset",
+        "prompt_tokens": 1111,
+        "answer_tokens": 0,
+        "headroom": 2985
+      },
+      {
+        "item_id": "EVT-val-f01-r302::menu",
+        "prompt_tokens": 1141,
+        "answer_tokens": 0,
+        "headroom": 2955
+      }
+    ]
+  },
+  "val_step500_errors": {
+    "rows": 48,
+    "max_length": 4096,
+    "cap": 4096,
+    "prompt_tokens": {
+      "p50": 1135,
+      "p95": 1157,
+      "p99": 1166,
+      "max": 1166,
+      "mean": 1131.9
+    },
+    "answer_tokens": {
+      "p95": 0,
+      "max": 0
+    },
+    "headroom_tokens": {
+      "min": 2930,
+      "p50": 2961
+    },
+    "rows_over_cap": 0,
+    "rows_with_zero_answer_budget": 0,
+    "cut_block_counts": {},
+    "per_class_prompt_max": {
+      "FAULT_06": {
+        "rows": 1,
+        "p50": 1065,
+        "max": 1065
+      },
+      "FAULT_08": {
+        "rows": 2,
+        "p50": 1131,
+        "max": 1157
+      },
+      "FAULT_10": {
+        "rows": 2,
+        "p50": 1140,
+        "max": 1166
+      },
+      "FAULT_12": {
+        "rows": 1,
+        "p50": 1058,
+        "max": 1058
+      },
+      "FAULT_13": {
+        "rows": 2,
+        "p50": 1073,
+        "max": 1138
+      },
+      "FAULT_15": {
+        "rows": 8,
+        "p50": 1136,
+        "max": 1147
+      },
+      "FAULT_16": {
+        "rows": 22,
+        "p50": 1133,
+        "max": 1146
+      },
+      "FAULT_18": {
+        "rows": 1,
+        "p50": 1164,
+        "max": 1164
+      },
+      "FAULT_19": {
+        "rows": 3,
+        "p50": 1152,
+        "max": 1155
+      },
+      "OTHER": {
+        "rows": 6,
+        "p50": 1135,
+        "max": 1144
+      }
+    },
+    "samples": [
+      {
+        "item_id": "EVT-val-f06-r313::menu",
+        "prompt_tokens": 1065,
+        "answer_tokens": 0,
+        "headroom": 3031
+      },
+      {
+        "item_id": "EVT-val-f08-r305::menu",
+        "prompt_tokens": 1157,
+        "answer_tokens": 0,
+        "headroom": 2939
+      },
+      {
+        "item_id": "EVT-val-f08-r319::menu",
+        "prompt_tokens": 1131,
+        "answer_tokens": 0,
+        "headroom": 2965
+      }
+    ]
+  },
+  "error_items": 48
+}

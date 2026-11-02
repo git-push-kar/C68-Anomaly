@@ -1,0 +1,178 @@
+{
+  "model": {
+    "n_features": 323,
+    "classes": 15,
+    "seed": 42,
+    "feature_audit": {
+      "n_features": 323,
+      "banned_tokens": [
+        "item_id",
+        "itemid",
+        "run",
+        "event",
+        "evt",
+        "index",
+        "order",
+        "position_in",
+        "seed",
+        "split",
+        "hash",
+        "simulation"
+      ],
+      "offending_features": [],
+      "clean": true
+    }
+  },
+  "adapter_errors": {
+    "items": 48,
+    "mean_abs_shap_for_gold_class_by_group": {
+      "detector_globals": 4.5676,
+      "z": 0.3634,
+      "deviation": 0.2485,
+      "trend": 0.7355,
+      "onset": 0.0837,
+      "residual": 2.6227,
+      "present": 0.44
+    },
+    "share_of_total": {
+      "detector_globals": 0.5041,
+      "z": 0.0401,
+      "deviation": 0.0274,
+      "trend": 0.0812,
+      "onset": 0.0092,
+      "residual": 0.2894,
+      "present": 0.0486
+    },
+    "ranking": [
+      "detector_globals",
+      "residual",
+      "trend",
+      "present",
+      "z",
+      "deviation",
+      "onset"
+    ],
+    "prompt_shape": {
+      "sensor_lines": {
+        "min": 5,
+        "median": 5,
+        "max": 5
+      },
+      "onset_lines": {
+        "min": 2,
+        "median": 6,
+        "max": 6
+      },
+      "residual_lines": {
+        "min": 5,
+        "median": 5,
+        "max": 5
+      }
+    }
+  },
+  "adapter_correct_sample": {
+    "items": 100,
+    "mean_abs_shap_for_gold_class_by_group": {
+      "detector_globals": 3.3564,
+      "z": 1.6819,
+      "deviation": 0.8935,
+      "trend": 0.4121,
+      "onset": 0.0492,
+      "residual": 3.5215,
+      "present": 0.224
+    },
+    "share_of_total": {
+      "detector_globals": 0.3311,
+      "z": 0.1659,
+      "deviation": 0.0881,
+      "trend": 0.0406,
+      "onset": 0.0049,
+      "residual": 0.3473,
+      "present": 0.0221
+    },
+    "ranking": [
+      "residual",
+      "detector_globals",
+      "z",
+      "deviation",
+      "trend",
+      "present",
+      "onset"
+    ],
+    "prompt_shape": {
+      "sensor_lines": {
+        "min": 5,
+        "median": 5,
+        "max": 5
+      },
+      "onset_lines": {
+        "min": 1,
+        "median": 6,
+        "max": 6
+      },
+      "residual_lines": {
+        "min": 5,
+        "median": 5,
+        "max": 5
+      }
+    }
+  },
+  "visibility": {
+    "detector_globals": "in full (overall score, both detector scores and their ratios, lag, slow-drift ratio, fused trigger, number of listed sensors)",
+    "z": "summarised: the top-5 sensors by |z| are listed, the other 47 tags are only implicit",
+    "deviation": "summarised: same 5 sensor lines, deviation % printed per line",
+    "trend": "summarised: same 5 sensor lines, trend word printed where recorded",
+    "onset": "summarised: the ONSET ORDER block lists the earliest sensors with +min",
+    "residual": "summarised: the CVA residual block lists its top variables' shares",
+    "present": "implicit: a tag that is absent from the list is absent from the prompt too"
+  },
+  "prompt_feature_basis": {
+    "globals_printed": [
+      "overall anomaly score",
+      "LSTM reconstruction error",
+      "CVA Q-statistic",
+      "dominant lag",
+      "slow-drift ratio",
+      "fused trigger",
+      "number of listed sensors"
+    ],
+    "globals_derived": [
+      "LSTM ratio = score / threshold; the ratio is printed, so the classifier's ratio column is a re-parse, not new information"
+    ],
+    "per_tag_printed": [
+      "z",
+      "deviation %",
+      "trend word",
+      "onset minute (ONSET ORDER block)",
+      "residual share (CVA block)"
+    ],
+    "not_in_features": [
+      "the candidate menu (the classifier never sees it)",
+      "the fault names and KB text",
+      "the question/instruction text and the schema line",
+      "the sensor display names and the tag kind (valve vs measurement)",
+      "any event, run, item or split identifier"
+    ],
+    "not_in_prompt": [
+      "the full 52-tag matrix: only the top-5 sensors by |z| are printed, so a tag's absence is implicit on both sides"
+    ]
+  },
+  "error_pairs": {
+    "UNCLASSIFIED_OPEN_SET -> FAULT_10": 20,
+    "NORMAL_TRANSIENT -> FAULT_15": 5,
+    "FAULT_15 -> NORMAL_TRANSIENT": 4,
+    "UNCLASSIFIED_OPEN_SET -> FAULT_15": 4,
+    "FAULT_10 -> FAULT_15": 2,
+    "FAULT_13 -> UNCLASSIFIED_OPEN_SET": 2,
+    "FAULT_15 -> FAULT_10": 2,
+    "FAULT_06 -> FAULT_08": 1,
+    "FAULT_08 -> FAULT_01": 1,
+    "FAULT_08 -> FAULT_13": 1,
+    "FAULT_12 -> UNCLASSIFIED_OPEN_SET": 1,
+    "FAULT_15 -> FAULT_07": 1,
+    "FAULT_15 -> FAULT_11": 1,
+    "UNCLASSIFIED_OPEN_SET -> FAULT_05": 1,
+    "UNCLASSIFIED_OPEN_SET -> FAULT_11": 1,
+    "NORMAL_TRANSIENT -> UNCLASSIFIED_OPEN_SET": 1
+  }
+}

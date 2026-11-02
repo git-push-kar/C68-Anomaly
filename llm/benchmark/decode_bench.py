@@ -33,16 +33,27 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from llm.benchmark.menu_order import reorder_menu  # noqa: E402
+
 DATASET = ROOT / "outputs" / "benchmark_v2" / "dataset"
 DEFAULT_CONFIG = ROOT / "configs" / "config_v2.yaml"
 MODES = ("forward_only", "kv_cache", "merged", "batch4", "batch8", "batch16")
 
 
-def load_prompts(limit: int, split: str = "val") -> List[str]:
+def load_prompts(limit: int, split: str = "val", menu_seed: Optional[int] = None) -> List[str]:
+    """The first ``limit`` prompts of a split, optionally with a shuffled menu (§18.5).
+
+    ``menu_seed=None`` keeps the stored prompt exactly as generated, which is KB order. A
+    seed rewrites only the candidate-menu block, in a permutation fixed per item, so the
+    evidence the model reads is unchanged and the order is the only thing that moved.
+    """
     rows = [json.loads(line) for line in
             (DATASET / f"{split}.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
     rows = [row for row in rows if row.get("prompt")][:limit]
-    return [row["prompt"] for row in rows]
+    if menu_seed is None:
+        return [row["prompt"] for row in rows]
+    return [reorder_menu(row["prompt"], seed=menu_seed, item_id=str(row.get("item_id")))
+            for row in rows]
 
 
 def _dummy(model, size: int, dtype):
@@ -223,6 +234,9 @@ def main() -> int:
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--adapter", default=None)
     parser.add_argument("--config", default=str(DEFAULT_CONFIG))
+    parser.add_argument("--menu-seed", type=int, default=None,
+                        help="shuffle the candidate menu per item with this seed (§18.5); "
+                             "omit for KB order")
     parser.add_argument("--identity-check", action="store_true",
                         help="compare the first 5 sequences against forward_only")
     parser.add_argument("--out", default=None)
@@ -233,7 +247,7 @@ def main() -> int:
     merged = args.mode == "merged"
     model, tokenizer, config, applied = build_model(Path(args.config), args.adapter, merged)
     dummy_size = int(config["llm"].get("dummy_image_size", 448))
-    prompts = load_prompts(args.items)
+    prompts = load_prompts(args.items, menu_seed=args.menu_seed)
 
     torch.cuda.reset_peak_memory_stats()
     started = time.time()
@@ -261,6 +275,8 @@ def main() -> int:
         "adapter": args.adapter,
         "items": len(prompts),
         "max_new_tokens": args.max_new_tokens,
+        "menu_order": "kb" if args.menu_seed is None else "shuffled",
+        "menu_seed": args.menu_seed,
         "tokens_generated": tokens,
         "seconds": round(seconds, 3),
         "seconds_per_item": round(seconds / max(len(prompts), 1), 3),

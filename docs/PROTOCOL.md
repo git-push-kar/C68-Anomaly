@@ -1623,3 +1623,32 @@ No adapter training, **no test component opened**, **no teacher calls**, **no GP
 figure is a validation figure. New artefacts are new files under
 `outputs/analysis/phase3a/hybrid/` and `outputs/analysis/phase3a/fit/`; §16 and §17 artefacts,
 the run-1 adapter and its checkpoints are read-only for this section.
+
+### 18.8 Outcomes, recorded after measuring (dated 2026-11-01)
+
+§18.3 and §18.4 were pre-registrations, and both came back negative. Recorded here so a later
+reader does not mistake either for an active part of the system.
+
+**The novelty channel is rejected**, by §18.6's criterion (a) on `fold_1`: at τ = 18.7678
+(4.94 % out-of-fold false-novel) it costs 3.67 points of kept-fault accuracy there while
+converting **none** of the 25 confidently-normal answers on the held-out faults, and on the 822
+observable validation rows it changed 16 decisions, **all 16 from correct to abstention**. It
+caught 2 of `fold_2`'s 23 confidently-wrong items and flagged **0 of 25** on the two surrogate
+faults that are absorbed whole (`FAULT_05`, `FAULT_14`). The deployed open-set arm remains §17's
+rule alone. Note for whoever re-reads the rule: criterion (a) is per instrument, and computing it
+from validation alone would have let the channel through by 0.05 of a point; the fold is what
+rejects it.
+
+**The evidence-fit score is not feasible** at the bar §18.4 fixed before measuring: mean paired
+AUROC on train **0.6508** against a threshold of 0.80, with `FAULT_14` vs `FAULT_11` inverted at
+**0.00** and three of nine pairs at 1.000 for a structural reason (the lookalike's required
+elements are never printed). The reason is a property of the evidence: the §3.3 lookalike pairs
+differ in **dynamics**, not in which variables move, and a presence-and-direction test cannot see
+the difference. A dynamics-based fit score is a different proposal and is not authorised here.
+No variant was substituted after the number was seen.
+
+**The G1 decision is unchanged** by either result: the classifier plus the menu rule diagnose and
+the adapter writes the prose. What is now open, and is a decision rather than a measurement: the
+shuffled-menu adapter run (§18.5's rule is recorded, the harness exists, the generation needs the
+GPU), a working open-set instrument, the faults-3/9 labelling question, and a prose-target
+grounding verdict that would need a dynamics test.

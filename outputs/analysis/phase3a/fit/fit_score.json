@@ -1,0 +1,288 @@
+{
+  "definition": {
+    "elements": [
+      "initiator_listed",
+      "initiator_direction",
+      "initiator_in_onset",
+      "cascade1_listed",
+      "cascade1_direction",
+      "cascade2_listed",
+      "cascade2_direction",
+      "onset_order_consistent"
+    ],
+    "score": "met elements / 8; no fitted parameter, no threshold",
+    "verdict_rule": "feasible iff mean paired AUROC on train >= 0.80 (\u00a718.4, fixed first)",
+    "threshold": 0.8
+  },
+  "uncomputable_faults": {},
+  "train": {
+    "pairs": {
+      "FAULT_01_vs_FAULT_08": {
+        "true_fault": 1,
+        "lookalike": 8,
+        "why": "surrogate: 25 of 25 absorbed by FAULT_08",
+        "events": 120,
+        "compared": 120,
+        "not_computable": 0,
+        "mean_fit_true": 0.0104,
+        "auroc": 0.5417,
+        "examples": [
+          {
+            "item_id": "EVT-train-f01-r001::menu",
+            "fit_true": 0.0,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f01-r002::menu",
+            "fit_true": 0.0,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f01-r003::menu",
+            "fit_true": 0.0,
+            "fit_lookalike": 0.0
+          }
+        ]
+      },
+      "FAULT_02_vs_FAULT_08": {
+        "true_fault": 2,
+        "lookalike": 8,
+        "why": "surrogate: 11 of 25 absorbed by FAULT_08",
+        "events": 120,
+        "compared": 120,
+        "not_computable": 0,
+        "mean_fit_true": 0.25,
+        "auroc": 1.0,
+        "examples": [
+          {
+            "item_id": "EVT-train-f02-r001::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f02-r002::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f02-r003::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.0
+          }
+        ]
+      },
+      "FAULT_06_vs_FAULT_08": {
+        "true_fault": 6,
+        "lookalike": 8,
+        "why": "surrogate: 9 of 25 absorbed by FAULT_08",
+        "events": 120,
+        "compared": 120,
+        "not_computable": 0,
+        "mean_fit_true": 0.2177,
+        "auroc": 1.0,
+        "examples": [
+          {
+            "item_id": "EVT-train-f06-r001::menu",
+            "fit_true": 0.375,
+            "fit_lookalike": 0.125
+          },
+          {
+            "item_id": "EVT-train-f06-r002::menu",
+            "fit_true": 0.375,
+            "fit_lookalike": 0.125
+          },
+          {
+            "item_id": "EVT-train-f06-r003::menu",
+            "fit_true": 0.375,
+            "fit_lookalike": 0.125
+          }
+        ]
+      },
+      "FAULT_07_vs_FAULT_08": {
+        "true_fault": 7,
+        "lookalike": 8,
+        "why": "surrogate: 13 of 25 absorbed by FAULT_08",
+        "events": 120,
+        "compared": 120,
+        "not_computable": 0,
+        "mean_fit_true": 0.2062,
+        "auroc": 1.0,
+        "examples": [
+          {
+            "item_id": "EVT-train-f07-r001::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f07-r002::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f07-r003::openset",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.0
+          }
+        ]
+      },
+      "FAULT_08_vs_FAULT_01": {
+        "true_fault": 8,
+        "lookalike": 1,
+        "why": "surrogate: 3 of 25 absorbed by FAULT_01",
+        "events": 120,
+        "compared": 120,
+        "not_computable": 0,
+        "mean_fit_true": 0.0219,
+        "auroc": 0.5208,
+        "examples": [
+          {
+            "item_id": "EVT-train-f08-r001::menu",
+            "fit_true": 0.0,
+            "fit_lookalike": 0.125
+          },
+          {
+            "item_id": "EVT-train-f08-r002::openset",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.25
+          },
+          {
+            "item_id": "EVT-train-f08-r003::menu",
+            "fit_true": 0.0,
+            "fit_lookalike": 0.25
+          }
+        ]
+      },
+      "FAULT_08_vs_FAULT_07": {
+        "true_fault": 8,
+        "lookalike": 7,
+        "why": "surrogate: 1 of 25 absorbed by FAULT_07",
+        "events": 120,
+        "compared": 120,
+        "not_computable": 0,
+        "mean_fit_true": 0.0344,
+        "auroc": 0.575,
+        "examples": [
+          {
+            "item_id": "EVT-train-f08-r001::menu",
+            "fit_true": 0.0,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f08-r002::openset",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.125
+          },
+          {
+            "item_id": "EVT-train-f08-r003::menu",
+            "fit_true": 0.0,
+            "fit_lookalike": 0.25
+          }
+        ]
+      },
+      "FAULT_05_vs_FAULT_12": {
+        "true_fault": 5,
+        "lookalike": 12,
+        "why": "surrogate: 25 of 25 absorbed by FAULT_12",
+        "events": 119,
+        "compared": 119,
+        "not_computable": 0,
+        "mean_fit_true": 0.0389,
+        "auroc": 0.5756,
+        "examples": [
+          {
+            "item_id": "EVT-train-f05-r001::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.25
+          },
+          {
+            "item_id": "EVT-train-f05-r002::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.25
+          },
+          {
+            "item_id": "EVT-train-f05-r003::menu",
+            "fit_true": 0.25,
+            "fit_lookalike": 0.25
+          }
+        ]
+      },
+      "FAULT_14_vs_FAULT_11": {
+        "true_fault": 14,
+        "lookalike": 11,
+        "why": "surrogate: 25 of 25 absorbed by FAULT_11",
+        "events": 120,
+        "compared": 120,
+        "not_computable": 0,
+        "mean_fit_true": -0.125,
+        "auroc": 0.0,
+        "examples": [
+          {
+            "item_id": "EVT-train-f14-r001::menu",
+            "fit_true": 0.625,
+            "fit_lookalike": 0.75
+          },
+          {
+            "item_id": "EVT-train-f14-r002::menu",
+            "fit_true": 0.625,
+            "fit_lookalike": 0.75
+          },
+          {
+            "item_id": "EVT-train-f14-r003::menu",
+            "fit_true": 0.625,
+            "fit_lookalike": 0.75
+          }
+        ]
+      },
+      "FAULT_15_vs_FAULT_11": {
+        "true_fault": 15,
+        "lookalike": 11,
+        "why": "KB differential, not the surrogate absorber (that was NORMAL_TRANSIENT)",
+        "events": 118,
+        "compared": 118,
+        "not_computable": 0,
+        "mean_fit_true": 0.0138,
+        "auroc": 0.6441,
+        "examples": [
+          {
+            "item_id": "EVT-train-f15-r001::menu",
+            "fit_true": 0.125,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f15-r002::menu",
+            "fit_true": 0.125,
+            "fit_lookalike": 0.0
+          },
+          {
+            "item_id": "EVT-train-f15-r003::menu",
+            "fit_true": 0.125,
+            "fit_lookalike": 0.0
+          }
+        ]
+      }
+    },
+    "mean_pair_auroc": 0.6508,
+    "pairs_scored": 9,
+    "cannot_compute_share": 0.0
+  },
+  "validation": {
+    "stratum": "fault_named (menu-present, gold is a named fault)",
+    "rows": 325,
+    "scored_correct": 310,
+    "scored_wrong": 2,
+    "no_candidate_prediction": 13,
+    "error_pool": 2,
+    "mean_fit_correct": 0.3323,
+    "mean_fit_wrong": 0.375,
+    "auroc_fit": 0.4782,
+    "error_pairs": {
+      "FAULT_08 -> FAULT_01": 1,
+      "FAULT_11 -> FAULT_04": 1
+    }
+  },
+  "verdict": {
+    "mean_pair_auroc": 0.6508,
+    "threshold": 0.8,
+    "feasible": false
+  }
+}
