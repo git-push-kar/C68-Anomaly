@@ -392,3 +392,74 @@ reuses the previous prose rather than regenerating it, is what the report path w
 What §17 also showed, and what keeps this a proposal: on the twelve unobservable rows both halves
 agree the event looks normal, and the dataset scores that as wrong on six of them. A "no trace"
 answer needs a decision about what the right answer *is* before it needs a model improvement.
+
+### 9.2 A prose-only training contract — PROPOSED, NOT BUILT (dated 2026-11-01)
+
+§9 moved the diagnosis out of the model at inference time. This proposes moving it out of the
+**training target** too, which is a different and larger change: §15.4 measured that the label
+field is only 3 % of the supervised tokens, so the adapter spends almost all its gradient learning
+prose while still being scored on a label it barely practised. **Nothing here is implemented.**
+`llm/train_adapter.py`, `llm/dataset.py`, the prompts, `train_mixed.jsonl` and every hash are
+untouched, and no adapter was trained for this section.
+
+**The contract.**
+
+1. **Supplied in the prompt, not generated:** `fault_id` and `verdict` (the classifier-plus-menu-rule
+   decision), and the classifier's **top-2 with calibrated probabilities**. The model is told these
+   are given and must not be restated differently.
+2. **Loss masked to the prose:** `ranked_hypotheses`, `physical_reasoning`, `narrative`, plus
+   follow-up answers. The supplied prefix is context, not target.
+3. **Shuffled menu** in training and in evaluation, so the menu's order cannot become a feature.
+4. **Tag-kind rejecting validator with one retry** on the report path
+   (`llm/hybrid/tag_kind.py`), because §9.1's third item assumed a failure mode that 3B-7 could not
+   find in 242 answers — see the correction at the end of this section.
+
+**Counting, from the existing `train_mixed.jsonl` (tokenizer of the trained model; no new files):**
+
+| quantity | value |
+|---|---|
+| supervised tokens today (report 573,061 + dialogue 71,067) | **644,128** |
+| supervised tokens with `fault_id` and `verdict` masked | **609,697** |
+| removed | **22,917 tokens, 5.35 %** (`fault_id` 13,774, `verdict` 9,143) |
+| expected change in step time | **≈ 0** |
+| events whose supplied label would be wrong if the cross-fitted prediction were used | **8 of 1,919 (0.42 %)** |
+| events whose supplied label would be an abstention where the gold is a named fault | **254 of 1,919 (13.2 %)** |
+| events where the supplied label differs from the gold at all | **262 of 1,919 (13.7 %)** |
+
+* **Step time does not change, and saying otherwise would be false.** Masking changes which
+  positions contribute to the cross-entropy, not the sequence length, so the forward and backward
+  passes do the same work. The gain is in gradient quality, not speed; the only speed change would
+  come from *shortening* the answer, which this contract does not do.
+* **The label counts use the deduplicated 1,919 events, not the 2,880 rows.** The classifier is
+  fitted per event (an event appears once in the report partition), and the 961 dialogue rows carry
+  no label to supply.
+* **13.2 % is the number to worry about.** Supplying the cross-fitted prediction hands the model an
+  abstention on one event in eight where the truth is a named fault. A mask-and-supply contract
+  trained on that would teach the model to write confident prose around "no listed fault" for
+  events that do have one — the §17 lookalike failure, moved into the training set.
+
+**Data rebuild steps, and which need teacher calls:**
+
+| step | teacher calls |
+|---|---|
+| 1. add the supplied fields to each report row's prompt (the fields come from the cross-fitted classifier, which already exists) | **none** — programmatic |
+| 2. mask the two fields in the answer text | **none** — programmatic |
+| 3. shuffle the menu per row (seeded) | **none** — programmatic |
+| 4. rebuild the manifest and hashes; re-run leak/split/open-set checks | **none** |
+| 5. regenerate dialogue answers if their prompts change (they carry the event, so they may not need to) | **teacher calls**, ≈ 961 rows, ≈ 250–330 calls at the observed 3–4 rows/call — and only if step 1 changes a dialogue prompt |
+| 6. train and evaluate | **none** — GPU, not teacher calls |
+
+**Correction owed to §9.1, recorded here rather than edited into it.** Item 3 of §9.1 says the
+adapter mislabelled a tag's kind in 21 of 242 answers. 3B-7 hand-read all 21 and reproduced the
+40-character window the old rule read: **none is a mislabel.** Twenty are a neighbouring sensor's
+name (`Stripper_Steam_Valve (XMV_50) and Stripper_Temperature (XMEAS_18)`), and the rest are a fault
+name, another tag's own kind, or a downstream consequence. The new rule
+(`llm/hybrid/tag_kind.py`, attribution-only, names masked) flags **0 of 242**, 0 of 58
+counterfactual answers and 0 of the 21 retries. A rejecting validator stays in the contract as a
+guard, but the failure mode it guards against is not one this adapter has been observed to have,
+and no retry budget should be spent on it.
+
+**What would make this proposal wrong.** If the 13.2 % abstention rate on supplied labels cannot be
+reduced by supplying the *gold* label to the classifier's own errors (which is a dataset question,
+not a model one), the contract trains the lookalike failure in rather than around it. Deciding that
+needs an experiment this section does not run.
