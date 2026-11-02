@@ -1720,3 +1720,135 @@ Every figure in this section is a **validation** figure (§15.2: the full valida
 selection set). **No test component is opened, no adapter is trained, no teacher calls are made**
 for §19. The A/B sheet is unblinded by the user, not by this repository, and its key is stored
 apart from the sheet.
+## 20. Fallback v2, the A/B rebuild, and what decides the prose source (dated 2026-11-01, before any number in this section was computed)
+
+§19 fixed the prose-source rule and left two defects it could not repair after the fact: the rule's
+comparator quotes another event's numbers, and the sheet it is scored on still carries 19
+counterfactual rows. Both are amended here, **before any score exists and before either replacement
+is run**.
+
+### 20.1 Amendment to §19.2's comparator, made while the A/B sheet is unscored
+
+The deterministic comparator is **fallback v2** (§20.6), not the `fallback_answer()` measured in
+3B-7. The reason is a defect, not a preference: v1's `physical_reasoning` quotes the knowledge base's
+mechanism text verbatim, and that text carries the KB **example** event's numbers — 1,039 flagged
+numbers over 268 / 834 rows, the same "45.0 kscfm → ~38 kscfm" and "2705 kPa → 2550 kPa" on every
+event of a fault. A comparator that fails §19.2's own grounding criterion on a third of rows cannot
+decide a grounding contest.
+
+* v1's numbers **stay reported** exactly as measured (834 rows, 268 violating, 1,039 numbers, 47 tags).
+* The sheet is **rebuilt blank** (§20.7) before any row is scored, so no score exists under either
+  comparator and nothing was seen.
+* v2 is fixed here and **is not iterated on after the A/B scores are read**. A later change is a new
+  dated section and a new sheet.
+
+### 20.2 §19.2's rule is read on non-counterfactual rows only
+
+The three criteria are evaluated on **100 distinct items, none forced-wrong**. Counterfactual rows —
+where a wrong diagnosis is forced into the prefix and the adapter is required to assert it — are a
+**separate, already-measured result** (§18.5: 58 of 58 rationalised) and enter no part of the prose
+verdict: a prose source cannot be failed for being wrong about a diagnosis it was ordered to assert.
+
+Every percentage is reported with a **95 % Wilson interval**, and the rule is a **point-estimate
+rule**: the decision is taken at the observed point estimate, not at an interval bound. With n = 100
+the Wilson half-width near 85 % is ≈ 7 points, so a 86 % reading is not evidence of being above 85 %.
+
+### 20.3 The decision matrix, fixed now
+
+| outcome | condition | what ships |
+|---|---|---|
+| **A** | adapter prose passes all three §19.2 criteria | **prose-only pilot** (Protocol A, seed 42, the §20.4 pilot gates), then `fold_1`, `fold_2`, then seeds |
+| **B** | adapter prose fails any criterion | reports use **fallback v2**; the adapter is trained for **follow-ups and refusals only**, under the same pilot discipline |
+| **C** | v2 and adapter **tie on preference** — either side within 40–60 % of non-tie pairs — **and** both are **≥ 85 % correct** and **≥ 90 % grounded** | reports use **fallback v2** for determinism; the adapter is trained for follow-ups, as in B |
+
+Under **every** outcome: **no fixed KB menu order in any training prompt** — the menu is shuffled per
+item (seeded) or removed with the diagnosis's own KB entry supplied — and **fold adapters are
+required** for any prose claim (`fold_1`, `fold_2`, §17.5). A prose-only pilot without the folds is
+not an outcome.
+
+### 20.4 Pilot gates (validation only)
+
+A pilot adapter is not a candidate unless, on validation: **schema valid ≥ 98 %**; **completion at
+512 tokens ≥ 95 %**; **genuine grounding flags ≤ 2 % of rows**, under the §16 adjudicated reading
+(rounding, substring and inside-tag matches are not flags); **empty narrative 0 %**; **follow-up
+over-refusal ≤ 10 %** on in-scope controls; **refusal ≥ 90 %** on `out_of_scope` + `false_premise`
+combined. For **any adapter-written field**, **shuffled-order sensitivity is reported** — the 3B-7
+order result (§19.4) makes that a requirement, not an extra.
+
+### 20.5 Every number in this section is validation
+
+The validation split is the selection set (§15.2). **No test component is opened, no adapter is
+trained, no teacher calls are made, no run-1 file is modified.** The GPU is used only for §20.9's
+decode, and only if the card is idle.
+
+### 20.6 What fallback v2 is (fixed before it runs)
+
+Four changes to `fallback_answer()`, all deterministic, CPU, no model and no teacher:
+
+1. **the KB example's numbers and tags never reach the output.** A number or tag absent from *this*
+   event's store is removed from the mechanism text **by rule, not by hand**: a clause carrying a tag
+   that is not in the store is dropped, a numeric span that is not in the store is deleted with its
+   unit, and the sentence is then repaired and re-checked.
+2. **an item-specific evidence sentence** built from the store: the top sensors with z and trend, the
+   onset order, and the detector ratio.
+3. **a differential line** from the classifier's top-2 and their calibrated probabilities. Those
+   probabilities are *supplied* quantities and not prompt text, so grounding is counted **two ways** —
+   against the prompt alone (the same rule that measured v1) and against the prompt plus the supplied
+   classifier values — and the difference is reported as its own category rather than netted out.
+4. **the narrative names the top sensor and the onset.**
+
+**The store** is, per item: every number and every canonical tag printed in that item's prompt
+(DETECTORS, TOP DEVIATING SENSORS, DYNAMIC RESIDUAL ATTRIBUTION, ONSET ORDER), plus the supplied
+classifier quantities for (3). Nothing else is quotable.
+
+### 20.7 The rebuilt A/B sheet
+
+`audit_ab_100_v2.csv`: **100 distinct non-counterfactual items.** The 81 non-counterfactual items of
+the current sheet are kept; the 19 counterfactual rows are replaced by **19 seeded draws from the
+242 main-batch answers**, stratified to the surviving family mix by largest remainder. `text_A` /
+`text_B` are adapter forced-diagnosis prose and fallback v2 under a **random assignment, seed 42**;
+the key is a separate file; every scoring column is blank. The old sheet and key are retained and
+**marked superseded** — neither is edited.
+
+### 20.8 Validator recall, and the permissive variant
+
+The attribution rule (§17.7, `llm/hybrid/tag_kind.py`) was written with the 21 flagged sentences in
+view, so its score on those 21 measures the author, not the rule. §20.8 therefore reports the 21
+**exported with their tag, quantity word, old-rule verdict, new-rule verdict and a blank human
+column**, plus **30 synthetic positives and 30 matched negatives** written after the rule, in varied
+syntax (copula, appositive, kind-noun, passive). A **permissive, appositive-aware variant** is
+measured beside the strict rule. It is **not adopted** without a dated note; the default stays strict.
+
+### 20.9 GPU, budget, and what is skipped
+
+One job, **≤ 25 minutes**, LM-direct, merged adapter copied in memory, adapter files read-only:
+forced-diagnosis prose on **40 menu-present validation items** in KB order and under `--menu-seed 1`,
+reporting schema validity, completion at 512, contradiction rate, **genuine** grounding flags (§16
+adjudicated reading), empty narrative, and the sentence-level change in the faults named. If
+follow-up prompts carry the menu, 40 follow-up turns in both orders; if they do not, that half is
+**not applicable**. If the card is not idle, the whole job is **skipped and reported as skipped**.
+
+### 20.10 Definitions used by the corrections this round owes
+
+Fixed before the numbers are recomputed:
+
+* **the observable gold-fault stratum is 325 rows** — the 331 gold-fault rows of the 822 support,
+  minus the six menu-present faults-3/9 rows, where no observable evidence separates the fault from
+  `NORMAL_TRANSIENT` and which §18.2 scores separately. The supporting table is recomputed on
+  **822 = 450 abstention-class + 325 gold-fault + 47 `NORMAL_TRANSIENT`**.
+* **Two "named" denominators are in circulation and both are kept, labelled.** One is *named on the
+  gold-fault rows* (of 331); the other is *named anywhere in the 822*, which is the denominator for
+  the precision of naming and includes naming on rows where abstaining is correct. The difference is
+  the count of faults asserted on non-gold-fault rows, and it is reported as such.
+* **false-abstention denominators are stated per table**, never inherited: the rate is
+  `false abstentions / gold-fault rows in the population that row names`.
+* **label-error counts are restated on the dataset-target basis**: an error is a deployed diagnosis
+  that differs from `target.fault_id`; an abstention on a row whose target is a named fault is a
+  **false abstention**; an abstention on a row whose target is `UNCLASSIFIED_OPEN_SET` is a **correct
+  abstention**. The "254 / 13.2 %" figure of §9.2 is **withdrawn** under that definition, or justified
+  under one that is stated explicitly.
+
+### 20.11 Status
+
+This section is committed before any number in it is computed. Nothing in it reopens the closed
+instruments of §18.1; nothing in it touches run-1 artefacts, which are read-only throughout.
