@@ -1929,3 +1929,117 @@ every number in §21.1 is **single-rater** and unvalidated against a human.
 * **`llm/hybrid` is the only place a check may live**; nothing from this round enters the live
   diagnosis path without a **dated note**, and none is proposed here.
 * **Every number in this round is validation.** Test rows are not read.
+
+---
+
+# §23 Pre-registration — 3B-11, the v3 outcome and the prose pilot (2026-11-02)
+
+Committed **before any number in this round is computed**, for the same reason §21 was: the 40-row
+sheet has been scored and the outcome is known to the person writing this. What follows is the
+record, the frozen architecture, the post-hoc disclosure, and the gates — in that order.
+
+## §23.1 The record
+
+Sheet: `outputs/analysis/phase3a/fit/audit_ab_100_v3.csv`, key `audit_ab_100_v3_key.csv`, scored
+copy `audit_ab_100_v3_scored_model.csv` (40 rows, `item_id, family, adapter, fallback_v3, pref`;
+each side graded `y`/`p`/`n` over *correct, grounded, consistent, useful*).
+
+**Conditions, stated because they bound what the numbers mean.**
+
+1. **One model rater, not blind.** The sheet carried a `source` column naming the assignment on
+   every row. A blind copy is written in this round (§23.6) for the pending human rescore.
+2. **n = 20 per stratum.** At n = 20 a 90 % rate has a Wilson interval of roughly **70–97 %**, and
+   the classified preference of 4 of 10 non-ties is roughly **17–69 %**. Every figure here is
+   direction, not measurement.
+3. **The partial rule was fixed after the first sheet.** §21.2 counts `y` + `p` as correct and
+   grounded, and only `y` as consistent. That leniency was written with the first 100 rows in view,
+   so it is applied here to a sheet built later but scored against it.
+
+**Per stratum (n = 20 each).** Aggregates are the rater's own, not recomputed by this document:
+
+| stratum | adapter correct / grounded / consistent | fallback v3 same | preference (A / F / T) | §21.2 verdict |
+|---|---|---|---|---|
+| classified faults | 100 / 100 / 90 ("y-only" correct 40) | 100 / 100 / 100 ("y-only" 75) | 4 / 6 / 10 → adapter **40 %** of non-ties | **fallback v3** |
+| abstention + NORMAL | 100 / 100 / 100 | 100 / 100 / 0 | 18 / 1 / 1 → adapter **95 %** of non-ties | **adapter** |
+
+Pooled over all 40 rows, given for completeness and not for a decision (a pooled figure mixes the
+two strata §21.2 forbids mixing): adapter 60 / 80 / 95 / 83, fallback v3 88 / 100 / 50 / 33.
+
+**Applying §21.2 as written** — per stratum, ≥ 85 % correct, ≥ 90 % grounded, ≥ 90 % consistent,
+preference ≥ 60 % of non-ties, ties to the deterministic source — the classified stratum goes to
+**fallback v3** (the adapter fails consistency at 90 % on the boundary and loses preference at
+40 %) and the abstention stratum goes to the **adapter** (fallback v3 fails consistency at 0 %).
+The mixed outcome §21.2(6) said was legitimate is the outcome it produced.
+
+**The adapter's abstention win is measured against a broken comparator.** The 0 % consistency of
+fallback v3 on abstention rows is a **truncated clause** — `"…, of the listed faults, so neither is
+supported by this page."` — caused by the grounding guard cutting the enumerated candidates out of
+the sentence (reproduced and fixed in §23.3(i)). The adapter was preferred 18 of 19 non-ties partly
+because the alternative was visibly malformed. **No prose decision in this document rests on that
+column**, and the pilot gate in §23.5 re-tests it against the repaired v3.1.
+
+A **human rescore of the blind copy is pending**; agreement will be reported per field and per
+stratum when it arrives, with the subset size stated.
+
+## §23.2 Architecture status — frozen by this round
+
+* **Diagnosis** = the classifier plus the §17 menu rule. Unchanged; this round touches neither.
+* **Report prose** = **fallback v3.1 for classified faults**, the **adapter for abstention /
+  `NORMAL_TRANSIENT` / unclassified** rows. This is the outcome of §23.1 under §21.2, and it is
+  frozen here so that the pilot tests the thing that was decided, not a thing chosen after it.
+* **Follow-ups** = the adapter.
+* **Retry fallback** = deterministic `fallback_v3.1`, used when adapter prose fails validation.
+* **Nothing from this round enters the live path** without its own dated note. §23.3 does not
+  propose one: it repairs the comparator, it does not ship it.
+
+## §23.3 Fallback v3.1 — post-hoc, deterministic, seven fixes
+
+Disclosed as post-hoc: these fixes were chosen **after** the sheet was read, from defects visible in
+its text. They are judged by **deterministic checks on the 834 validation rows** — grounding,
+direction, schema, structure, action-sensor binding, word counts — and **not** by a new A/B sheet.
+No model is asked to rescore them, so nothing in §23.3 is evidence that the repaired text *reads*
+better; it is evidence that it is *well-formed*.
+
+1. **(i) The truncated clause.** Reproduce which split cuts it, then make the abstention explainer
+   structurally closed: every parenthesis closed, no sentence ending on an opening fragment, and
+   the candidate list flattened so the guard has nothing to cut. A checker enforces this on all
+   834 rows and a unit test enforces it on the checker.
+2. **(ii) Action selection.** The check action comes from the **subsystem of the leading |z|
+   sensor**, and any sensor it names must be among the printed leading deviations. Reported as a
+   rate over 834 rows.
+3. **(iii) Narrative.** For abstention rows the narrative may not repeat the reasoning: one
+   distinct sentence with the verdict, the leading sensor, and one check.
+4. **(iv) "Largest deviations".** Sorted by |z|, and the sensor named in the narrative is the same
+   one the reasoning calls largest.
+5. **(v) KB text overlay.** Additions for the duplicated "overhead condenser" phrase and the
+   fragment beginning ". but heat duty". New file, new hash; the KB is untouched.
+6. **(vi) Low-signal wording.** When max |z| < 1 **and** every detector ratio < 3, the action reads
+   *check / verify* and never *dispatch / manually open / bypass*.
+7. **(vii) Trend words.** Printed only when the trend agrees with the sign of the printed deviation;
+   otherwise omitted.
+
+## §23.4 Pilot gates — fixed now, validation only, no test component
+
+| gate | threshold |
+|---|---|
+| schema valid | **≥ 98 %** |
+| completion at 512 tokens | **≥ 95 %** |
+| empty narrative | **0 %** |
+| genuine grounding flags (§16 adjudicated reading) | **≤ 2 % of rows** |
+| numeric-comparison flags | **≤ 2 % of abstention/NORMAL rows** |
+| tag-role mismatches | **≤ 2 %** |
+| contradiction with the supplied diagnosis | **0** |
+| over-refusal on in-scope controls | **≤ 10 %** |
+| refusal on `out_of_scope` + `false_premise` | **≥ 90 %** |
+| shuffled-menu sensitivity of adapter-written fields | **reported**, no threshold |
+| adapter abstention/NORMAL prose **preferred over repaired v3.1** on a fresh blind sheet, non-ties | **≥ 60 %** |
+
+The last gate is the only prose-preference gate, and it is the one §23.1 could not answer: it is
+run on a **fresh** sheet against **v3.1**, and a failure there is a real failure of the frozen
+architecture, not a formality.
+
+## §23.5 Scope of this round
+
+**No adapter training. No test component opened. No teacher call. No GPU.** Every number is
+validation. Run-1 files, earlier artefacts, the KB files, `train_mixed.jsonl` and every existing
+hash are left untouched; new files only.
