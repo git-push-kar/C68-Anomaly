@@ -2098,3 +2098,85 @@ abstention-or-unclassified (10 with the menu, 10 menu-removed) and 20 `NORMAL_TR
 pass for *every* column including those correlated with stratum. §23's sheet failed exactly there;
 v4 is balanced within stratum so `family`, `diagnosis` and `verdict` carry no signal by construction.
 Only the scaffold is built in this session; the populated sheet needs the trained adapter.
+
+## §25. PILOT EVALUATION — PRE-REGISTRATION (2026-11-02)
+
+### 25.1 Scope
+
+Evaluation, and only evaluation, of the single authorised prose pilot run
+(`outputs/tep_rca_v2_prose_pilot_seed42`, Protocol A seed 42, `train_prose_v1.jsonl`, 288 steps,
+3 epochs). No tuning, no repair, no re-run with changed data, no second seed, no `fold_1`/`fold_2`.
+Nothing here trains anything or opens a test component. **Every number below is validation.**
+
+### 25.2 Checkpoints
+
+Two checkpoints are named by the brief: the **final** adapter (step 288) and the
+**best-by-validation-loss** checkpoint. The pilot config set `val_file: null`, so no validation loss
+was computed at any step and no checkpoint can be preferred on it. The best-by-validation-loss
+checkpoint is therefore **identical to the final one**, and this round says so rather than inventing a
+selection. The six intermediate checkpoints stay read-only and un-scored.
+
+### 25.3 Prompts, and a defect fixed before scoring
+
+The stored export `prose_eval_val_kb.jsonl` uses the **protocol-A prompt tail** (no `SUPPLIED
+CLASSIFICATION` block, and it asks for `"fault_id", "physical_reasoning", "narrative"`), while
+`prose_eval_val_shuffled-1/2.jsonl` use the training-tail prompt from `build_prompt`. As committed,
+the three "orders" therefore differ in prompt schema as well as menu order, so a difference between
+them would measure the tail, not the order. All three prompts are **rebuilt with the training prompt
+builder** (`scripts/build_prose_dataset.build_prompt`) for this round:
+
+* `kb` — the item's original menu order (identity), true order kept;
+* `shuffled-1`, `shuffled-2` — seeds 1 and 2, exactly as the export built them.
+
+The rebuilt prompts are new files with their own hashes; the export files are read for item identity
+and order only, and their committed hashes are left untouched. A check is recorded that, with the menu
+block removed, all three prompts of an item are byte-identical — otherwise the order comparison is
+invalid and is reported as invalid.
+
+### 25.4 What is scored, and with what
+
+* 520 abstention / `NORMAL_TRANSIENT` / unclassified validation items in each of the three orders
+  (1560 generations, cap 512, greedy), using the item metadata the export carries.
+* all **179** follow-up validation turns from `prose_eval_followups_179.jsonl` (§24.2(a)), generated
+  with `SYSTEM_PROMPT_FOLLOWUP` and scored with `declines` / `overlap_ratio`.
+* the run-1 adapter (`outputs/tep_rca_v2_protocolA_seed42`, read-only) on the same 179 turns, as the
+  comparison; its existing results are not recomputed for any other purpose.
+* raw generations are stored as generated, before parsing or rendering, one file per order plus one
+  per follow-up set.
+
+### 25.5 Gate readings
+
+§23.4's table, unchanged, applied per checkpoint and per menu order. Mechanics fixed here:
+
+| gate | reading |
+|---|---|
+| schema valid | text parses to a JSON object containing string `physical_reasoning` and `narrative` |
+| completion at 512 | schema valid **and** fewer than 512 generated tokens |
+| empty narrative | `narrative.strip()` empty |
+| genuine grounding flag | a tag or number in the prose that is in neither the prompt nor the supplied block, by `evaluate_v2.grounding_violations` on the prompt's own tags and numbers; supplied classifier probabilities are printed in the prompt, so they are grounded |
+| numeric-comparison flag | `adapter_checks_3b9.check_numbers`: a number quoted next to a detector that is not that detector's value/threshold/ratio, or a comparison direction opposite to the stored value-vs-threshold |
+| tag-role mismatch | `adapter_checks_3b9.check_bindings`: a sensor name bound to a tag whose canonical name shares no identity token |
+| contradiction with the supplied diagnosis | the prose prints a `FAULT_NN` identifier other than the supplied diagnosis, or any identifier at all when the supplied verdict withholds one — mechanical, no judgement call |
+| over-refusal | `declines(answer)` over the 40 `in_scope_control` turns |
+| refusal | `declines(answer)` over the 28 `out_of_scope` + `false_premise` turns |
+| shuffled-menu sensitivity | per-metric change between orders; reported, no threshold |
+
+Denominators are 520 rows per order for the first six, 40 controls, 28 refusal turns, 179 turns
+overall. A failed gate is reported as a failure and is not repaired in this round.
+
+### 25.6 Sheet v4, populated
+
+Forty items, both sources on every item (pilot adapter prose vs `fallback_v31`), 20
+abstention-or-unclassified (10 with the menu, 10 menu-removed) and 20 `NORMAL_TRANSIENT`. The key is
+exactly 50/50 inside each stratum, and the items are paired adjacent inside a stratum after sorting on
+the fields a rater cannot see. Columns: `item_id`, `text_A`, `text_B`, `correct_A`, `grounded_A`,
+`consistent_A`, `useful_A`, `correct_B`, `grounded_B`, `consistent_B`, `useful_B`, `preference`,
+`notes` — scoring cells blank, and **no** `family`, `diagnosis`, `verdict`, `source` or assignment
+column. The key file carries `item_id`, `family`, `diagnosis`, `verdict`, `A`, `B`, `seed`. The leak
+test must pass for every visible column, and the stratum-correlated fields must be balanced within
+each stratum in the key.
+
+### 25.7 Prohibitions
+
+No training, no teacher calls, no test component, no modification of run-1 artefacts, the KB,
+`train_mixed.jsonl`, earlier committed hashes or any pilot checkpoint (read only), and no deletion.
