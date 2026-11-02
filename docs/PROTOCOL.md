@@ -1852,3 +1852,80 @@ Fixed before the numbers are recomputed:
 
 This section is committed before any number in it is computed. Nothing in it reopens the closed
 instruments of §18.1; nothing in it touches run-1 artefacts, which are read-only throughout.
+---
+
+## §21 — 3B-9 pre-registration: the scored A/B record, the post-hoc amendment, and what may be decided from it
+
+**Dated 2026-11-01.** Written and committed **before** any new number in this round was computed,
+and before the fresh sheet of §21(b) exists. The A/B record in §21.1 is the rater's summary, quoted
+rather than derived; its per-row verification against the 100-row sheet is reported **separately**
+in `docs/reports/3b9_report.md` and does not change what is recorded here.
+
+### §21.1 The record, as reported
+
+The 100-row A/B sheet (`audit_ab_100_v2.csv` / `_key.csv`) was scored by a **model rater**, **not
+blind** — both styles are identifiable from the text, which is disclosed and is not fixable
+after the fact — **single rater**, per-field scale **y / p / n** over four fields
+(correct, grounded, consistent, useful) per side, plus a preference per row.
+
+| | adapter strict (`y` only) | fallback v2 strict | adapter lenient (`y`+`p`) |
+|---|---|---|---|
+| correct | **48 % (39–58)** | **31 %** | **95 % (89–98)** |
+| grounded | **79 % (70–86)** | **95 %** | **98 % (93–99)** |
+| consistent with the supplied diagnosis | **79 %** | **96 %** | — |
+| useful | **65 %** | **34 %** | — |
+| preferred | **61 rows** | **16 rows** | 23 ties |
+
+Adapter share of non-tie preferences: **61 / 77 = 79 %** (≈ 69–87 %).
+
+By verdict stratum:
+
+| stratum | n | adapter corr / grnd / cons / useful | fallback v2 | preferred |
+|---|---|---|---|---|
+| classified faults (**F**) | 46 | 50 / 72 / 67 / 65 % | 67 / 89 / 91 / 74 % | A 16, F 15, T 15 |
+| normal + open-set + menu-removed (**N, O, R**) | 49 | 51 / 84 / 98 / 71 % | 0 / 100 / 100 / 0 % | A 45, T 4 |
+| unobservable (**U**) | 5 | 0 / 100 / 0 / 0 % | 0 / 100 / 100 / 0 % | F 1, T 4 |
+
+**The pre-registered rule (§19.2: adapter ≥ 85 % correct, ≥ 90 % grounded, ≥ 60 % preferred) does
+not return one outcome.** On strict scoring it fails → **outcome B**. On lenient scoring it passes →
+**outcome A**. §19 never defined how a partial (`p`) counts, so the decision is not made by the rule
+as written; it is a judgement call that has to be made explicitly, and **the 79 % preference is not
+by itself evidence that the adapter's report prose should ship**: 45 of those 61 preferences are
+rows where the fallback side is not scored at all (`=`), i.e. where the comparison is
+adapter-versus-nothing rather than adapter-versus-v2.
+
+### §21.2 The amendment — **post-hoc, and disclosed as post-hoc**
+
+Written after the 100 rows were seen, which is exactly the condition §20 was written to prevent.
+It is therefore **not applied to those 100 rows, never, in any form**, and it is **not** a
+restatement of §19.2. It governs only the **fresh** sheet of 3B-9 step 4 — 40 items that were never
+in the first 100.
+
+1. **Decision is per verdict stratum**, never pooled: *classified fault* vs *abstention stratum*
+   (`UNCLASSIFIED_OPEN_SET` + `NORMAL_TRANSIENT` + menu-removed).
+2. **`y` + `p` counts as acceptable** for **correct** and **grounded**; **consistency is strict**.
+3. **Eligibility**, per stratum: ≥ **85 %** correct, ≥ **90 %** grounded, ≥ **90 %** consistent.
+4. **Preference**: ≥ **60 %** of **non-ties** within the stratum.
+5. **Ties favour the deterministic source** (fallback v3).
+6. A source is chosen **per stratum**; a mixed outcome (adapter for classified faults, v3 for
+   abstentions) is a legitimate outcome of this rule and is the one the 100-row data predicts.
+
+**What this amendment costs, stated plainly:** it was written with the 46-row stratum result in
+view, so its thresholds are not independent of the data that motivated them. Its only honest test is
+the fresh 40-row sheet, which is why the sheet is built **blank** and why nothing in this round may
+be scored against rule §21.2 before that sheet is filled.
+
+### §21.3 Human spot-check
+
+The user is rescoring a subset by hand. **Agreement between the model rater and the human rater will
+be reported when it arrives**, per field and per stratum, with the subset size stated. Until then
+every number in §21.1 is **single-rater** and unvalidated against a human.
+
+### §21.4 The other rules fixed here, before the work
+
+* **Step 6 may run only if `nvidia-smi` shows the card idle**, ≤ 25 minutes total, LM-direct, merged
+  adapter merged **into an in-memory copy**; the adapter on disk is never modified.
+* **No adapter training, no test component, no teacher call** in this round.
+* **`llm/hybrid` is the only place a check may live**; nothing from this round enters the live
+  diagnosis path without a **dated note**, and none is proposed here.
+* **Every number in this round is validation.** Test rows are not read.
