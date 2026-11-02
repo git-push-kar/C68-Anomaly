@@ -1652,3 +1652,71 @@ the adapter writes the prose. What is now open, and is a decision rather than a 
 shuffled-menu adapter run (§18.5's rule is recorded, the harness exists, the generation needs the
 GPU), a working open-set instrument, the faults-3/9 labelling question, and a prose-target
 grounding verdict that would need a dynamics test.
+
+## 19. Prose-source decision pack, and the tag-kind rule (dated 2026-11-01, before any number in this section was computed)
+
+§18 closed two candidate instruments as negative results. That leaves one question the project
+cannot postpone any longer, because it decides what an operator actually reads: **whose prose
+does the report path ship?** This section fixes the rule that will answer it, and the shape of
+the evidence it will be answered from, before the evidence exists.
+
+### 19.1 Architecture status: frozen
+
+* **The hybrid is frozen as recorded in §18.1**: the classifier plus the menu rule diagnose
+  (`fault_id`, `verdict`), the adapter writes `ranked_hypotheses`, `physical_reasoning` and
+  `narrative` with those two fields forced into the prefix, and adapter-only remains a reference
+  row (§14 decode, step 500) and not a candidate.
+* **The novelty second channel is closed** (§18.8): rejected by §18.6(a) on `fold_1`, and by the
+  validation result (16 decisions changed, all 16 correct→abstention).
+* **The hand-coded evidence-fit score is closed** (§18.8): mean paired AUROC 0.6508 against a
+  0.80 bar fixed in advance, with one pair inverted.
+* Neither closed line may be re-opened as a "variant" without a new dated section; a rerun with
+  different thresholds is not a new section.
+
+### 19.2 The prose-source rule, fixed now
+
+The report path keeps **adapter prose** if and only if **all three** hold on the blinded A/B sheet
+and the existing audits:
+
+1. **at least 85 % of adapter-prose rows are correct** — the prose's diagnosis claim agrees with
+   the supplied diagnosis and its physical claim is not false;
+2. **at least 90 % of adapter-prose rows are grounded** — every number and tag it cites appears
+   in that item's evidence block;
+3. **adapter prose is preferred over the deterministic fallback in at least 60 % of non-tie
+   pairs** — the denominator is pairs the scorer did not mark "tie", so "they are both fine" can
+   neither help nor hurt.
+
+**If any of the three fails, reports use the deterministic explanation and the adapter is limited
+to follow-ups.** No fourth criterion, no partial adoption, no "adapter prose only for faults it
+gets right": the choice is one prose source per path, because a path that mixes them cannot be
+audited by a reader who only sees the output.
+
+The gate is on **human scoring**, not on an automatic metric, and that is deliberate: §16/§17
+measured that the automatic contradiction detector reports 0 contradictions over 242 answers
+while the adapter rationalises a deliberately wrong diagnosis on 58 of 58. An automatic metric
+that cannot see disagreement cannot certify the prose either.
+
+### 19.3 The faults-3/9 scoring stops being evidence once it saturates
+
+The §18.2 "acceptable non-diagnosis" reading (`NORMAL_TRANSIENT` or `UNCLASSIFIED_OPEN_SET`
+counts on a 3/9 row) is **reported as uninformative if every system scores 12 of 12 under it**.
+A scoring that gives the classifier, the rule and the adapter the same perfect number has
+measured the scoring, not the systems. It is still reported — beside the strict column — and it
+still enters no headline metric.
+
+### 19.4 Adapter-only numbers in KB order and in two shuffled orders
+
+§18.5 required KB order plus shuffled order; this fixes the material: **KB order, `--menu-seed 1`
+and `--menu-seed 2`**, accuracy, macro-F1 and abstention precision/recall reported per order. The
+classifier-plus-rule row is order-invariant by construction (§18.5, tested) and is reported once
+beside them, so the table has one invariant row and three that are not.
+
+If the GPU is busy, the shuffled-order rows are **skipped and reported as skipped**; a
+KB-order-only table is not a substitute and will say so.
+
+### 19.5 Status of every number
+
+Every figure in this section is a **validation** figure (§15.2: the full validation split is the
+selection set). **No test component is opened, no adapter is trained, no teacher calls are made**
+for §19. The A/B sheet is unblinded by the user, not by this repository, and its key is stored
+apart from the sheet.
