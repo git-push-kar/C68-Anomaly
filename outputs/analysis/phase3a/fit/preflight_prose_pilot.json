@@ -1,0 +1,78 @@
+{
+  "part_a": {
+    "exported_97": {
+      "turns": 97,
+      "categories": {
+        "refusal": 3,
+        "other": 94
+      },
+      "refusal_kinds": [
+        "out_of_scope",
+        "false_premise"
+      ],
+      "sha256": "7e97f31edc746011ab2d0a297f61c1b56dd675e7e8c6dda258d29c62bd37ed20"
+    },
+    "selected_179": {
+      "turns": 179,
+      "by_kind": {
+        "ambiguous_question": 12,
+        "causal_why": 15,
+        "clarification_reply": 15,
+        "false_premise": 15,
+        "hypothesis_comparison": 15,
+        "in_scope_control": 40,
+        "mechanism": 15,
+        "out_of_scope": 13,
+        "repeated_question": 17,
+        "template_sample": 7,
+        "valve_actuator": 15
+      },
+      "refusal_population": 28,
+      "control_population": 40
+    },
+    "containment": {
+      "refusal_turns_in_export": 0,
+      "controls_in_export": 0,
+      "fully_contained": false
+    },
+    "extended": {
+      "path": "outputs\\benchmark_v2\\eval\\prose_pilot\\prose_eval_followups_179.jsonl",
+      "sha256": "6a09d8963bd1d16edf9db16753ed3d625adb4d3afc906fe6bfee935d3dac6bad",
+      "turns": 179,
+      "constructed_controls": 40
+    }
+  },
+  "part_b": {
+    "report": {
+      "row": 0,
+      "prompt_tokens_masked": 1342,
+      "answer_tokens_supervised": 287,
+      "total_tokens": 1629,
+      "supervised_keys": [
+        "narrative",
+        "physical_reasoning"
+      ],
+      "supervised_chars": 1022,
+      "supervised_head": "{\"physical_reasoning\": \"The evidence shows a simultaneous decrease in A_Feed_Stream1 [XMEAS_1] and A_Feed_Flow [XMV_44] at onset (z=17.99, 221.83% deviation), while Stripper_Steam_",
+      "verdict_string_in_supervised": false,
+      "question_in_supervised": false,
+      "supervised_equals_answer": true
+    },
+    "dialogue": {
+      "row": 4,
+      "prompt_tokens_masked": 686,
+      "answer_tokens_supervised": 89,
+      "total_tokens": 775,
+      "supervised_keys": [
+        "answer"
+      ],
+      "supervised_chars": 354,
+      "supervised_head": "{\"answer\": \"The anomaly score is indicated by the LSTM reconstruction error of 0.7604, which exceeds the threshold of 0.6870, and the CVA Q-statistic of 737.6, which exceeds the th",
+      "verdict_string_in_supervised": false,
+      "question_in_supervised": false,
+      "supervised_equals_answer": true
+    },
+    "errors": [],
+    "passed": true
+  }
+}
