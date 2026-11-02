@@ -1,0 +1,92 @@
+{
+  "rows": 100,
+  "distinct_items": 100,
+  "seed": 42,
+  "composition": {
+    "kept_non_counterfactual": 81,
+    "replaced_counterfactual": 19,
+    "drawn_from_main_batch": 19
+  },
+  "family_mix_kept": {
+    "fault_menu": 37,
+    "normal": 15,
+    "open_set": 8,
+    "removed": 17,
+    "unobservable": 4
+  },
+  "draw_allocation": {
+    "fault_menu": 9,
+    "normal": 3,
+    "open_set": 2,
+    "removed": 4,
+    "unobservable": 1
+  },
+  "families_final": {
+    "fault_menu": 46,
+    "normal": 18,
+    "open_set": 10,
+    "removed": 21,
+    "unobservable": 5
+  },
+  "adapter_as_A": 50,
+  "scoring_columns_filled": {
+    "correct_A": 0,
+    "grounded_A": 0,
+    "consistent_A": 0,
+    "useful_A": 0,
+    "correct_B": 0,
+    "grounded_B": 0,
+    "consistent_B": 0,
+    "useful_B": 0,
+    "preference": 0
+  },
+  "replaced_items": [
+    "EVT-val-f01-r319::menu",
+    "EVT-val-f04-r313::menu",
+    "EVT-val-f04-r319::menu",
+    "EVT-val-f05-r320::menu",
+    "EVT-val-f06-r319::menu",
+    "EVT-val-f06-r320::menu",
+    "EVT-val-f07-r313::menu",
+    "EVT-val-f07-r319::menu",
+    "EVT-val-f10-r313::menu",
+    "EVT-val-f10-r317::menu",
+    "EVT-val-f10-r320::menu",
+    "EVT-val-f11-r317::menu",
+    "EVT-val-f12-r319::menu",
+    "EVT-val-f13-r310::menu",
+    "EVT-val-f13-r317::menu",
+    "EVT-val-f13-r320::menu",
+    "EVT-val-f14-r319::menu",
+    "EVT-val-f14-r320::menu",
+    "EVT-val-f15-r319::menu"
+  ],
+  "drawn_items": [
+    "EVT-val-f01-r313::openset",
+    "EVT-val-f03-r302::menu",
+    "EVT-val-f04-r307::menu",
+    "EVT-val-f04-r310::menu",
+    "EVT-val-f05-r310::menu",
+    "EVT-val-f05-r320::openset",
+    "EVT-val-f06-r310::menu",
+    "EVT-val-f07-r306::menu",
+    "EVT-val-f08-r310::menu",
+    "EVT-val-f10-r306::menu",
+    "EVT-val-f10-r317::openset",
+    "EVT-val-f11-r316::menu",
+    "EVT-val-f11-r317::openset",
+    "EVT-val-f15-r311::menu",
+    "EVT-val-f17-r317::menu",
+    "EVT-val-f18-r320::menu",
+    "NORM-val-r350::menu",
+    "NORM-val-r355::menu",
+    "NORM-val-r384::menu"
+  ],
+  "supersedes": [
+    "audit_ab_100.csv",
+    "audit_ab_100_key.csv"
+  ],
+  "sheet": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\audit_ab_100_v2.csv",
+  "key": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\audit_ab_100_v2_key.csv",
+  "comparator": "fallback v2 (PROTOCOL \u00a720.1, \u00a720.6)"
+}
