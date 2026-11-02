@@ -2043,3 +2043,58 @@ architecture, not a formality.
 **No adapter training. No test component opened. No teacher call. No GPU.** Every number is
 validation. Run-1 files, earlier artefacts, the KB files, `train_mixed.jsonl` and every existing
 hash are left untouched; new files only.
+
+## §24. PROSE PILOT — PRE-REGISTRATION (2026-11-02)
+
+### 24.1 What the user authorised, and what that does not cover
+
+One training run, and only one: **Protocol A, seed 42, `train_prose_v1.jsonl` only, 288 steps**
+(3 epochs x 96), hyperparameters identical to run 1 — effective batch 16 (4 x 4), lr 2e-4 cosine,
+warmup 0.03, bf16, gradient checkpointing, max length 4096 — writing to
+`outputs/tep_rca_v2_prose_pilot_seed42/`.
+
+The authorisation does **not** cover: extending the run, restarting it with changed data or changed
+hyperparameters, a second seed, `fold_1`/`fold_2`, another data file, or any follow-on run. Each of
+those needs a new, explicit user approval recorded here before it happens. Evaluation is a **separate
+later task** and is not part of the authorised session: this session ends when the run is launched and
+its first optimizer step is confirmed.
+
+Standing prohibitions for the whole pilot: no test component opened, no teacher calls, no modification
+of run-1 artifacts, the KB, `train_mixed.jsonl` or any earlier committed hash.
+
+### 24.2 Pre-flight, before the GPU is touched
+
+**(a) Follow-up reconciliation.** The §23 export carries 97 follow-up turns. The 179-turn stratified
+check carries 28 refusal turns (13 `out_of_scope` + 15 `false_premise`) and 40 in-scope controls. If
+the 97 do not contain those populations, the export is extended to **all 179** validation follow-up
+turns as a new file with a new hash, and the method is stated; the 97 are never silently substituted.
+
+**(b) Mask proof.** Eight rows of `train_prose_v1.jsonl` go through the real collator. Supervision must
+cover `physical_reasoning`, `narrative` and follow-up answers only. `fault_id`, `verdict`,
+`ranked_hypotheses`, the classifier's top-2 and the supplied-classification block are prompt-side and
+must be `-100`. Masked and unmasked token counts are printed for one report row and one dialogue row.
+
+**(c) GPU idle and headroom.** Idle means no compute process on the card **and** no compute-process
+memory above 2 GB. Three optimizer steps are run, `max_memory_allocated` is logged, and the run aborts
+if headroom is below **1.5 %** of 24 GB (368 MiB). If the card is not idle, the session stops and
+reports instead of training.
+
+**(d) Time.** Estimate = 288 x run-1 seconds/step; proceed only within **1 h 44 m +/- 30 %**
+(1 h 13 m to 2 h 15 m).
+
+### 24.3 Gates
+
+§23.4 applies unchanged, scored on validation only and with no tuning on the result. One clarification
+fixed here rather than later: **supplied classifier probabilities are allowed** by the grounding
+checker, because they are printed in the prompt; a "genuine" grounding flag is a tag or number that
+appears in neither the prompt nor the supplied block. Best-by-validation-loss and final checkpoints are
+both scored, per menu order, and a failed gate is reported as a failure.
+
+### 24.4 Sheet v4 construction
+
+Forty items, **both sources for every item** (pilot adapter prose vs fallback v3.1): 20
+abstention-or-unclassified (10 with the menu, 10 menu-removed) and 20 `NORMAL_TRANSIENT`. The key is
+**exactly 50/50 within each stratum**, and no column may reveal the assignment — the leak test must
+pass for *every* column including those correlated with stratum. §23's sheet failed exactly there;
+v4 is balanced within stratum so `family`, `diagnosis` and `verdict` carry no signal by construction.
+Only the scaffold is built in this session; the populated sheet needs the trained adapter.
