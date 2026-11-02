@@ -1,0 +1,31 @@
+{
+  "sheet": "audit_ab_100_v3.csv",
+  "rows": 40,
+  "distinct_items": 40,
+  "seed": 42,
+  "families": {
+    "fault_menu": 20,
+    "open_set": 5,
+    "removed": 5,
+    "normal": 10
+  },
+  "verdicts": {
+    "classified": 20,
+    "unclassified_open_set": 10,
+    "no_fault": 10
+  },
+  "adapter_side_A": 19,
+  "comparator": "fallback v3 (scripts/fallback_v3.py)",
+  "excluded_items": 100,
+  "classifier_error_rows_included": 0,
+  "unused_pool_by_family": {
+    "fault_menu": 44,
+    "removed": 24,
+    "normal": 17,
+    "open_set": 10,
+    "unobservable": 7
+  },
+  "scoring_columns_filled": 0,
+  "note": "every item is from the 242 main batch and absent from audit_ab_100_v2.csv; no check flag appears anywhere in the sheet",
+  "supersedes": []
+}

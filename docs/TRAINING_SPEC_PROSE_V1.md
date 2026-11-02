@@ -191,3 +191,71 @@ first run of either branch.
 
 **Token accounting behind the estimate**, per epoch: 609,697 supervised tokens after masking,
 2,880 rows, ~299.6 supervised tokens per report row (median 297), 180 steps at effective batch 16.
+---
+
+# Part II — 3B-9 additions (counts only; nothing built, no teacher call)
+
+## 5. Proposed contract change: supply `ranked_hypotheses` too, and mask it
+
+**The claim under test.** The adapter was said to have written ranked lists contradicting the
+supplied diagnosis on **13 of 46 classified rows**, which would mean the ranked list cannot be left
+to the model and must be supplied like the other two fields.
+
+**What the stored texts show.** Measured on all 400 stored adapter answers (242 main + 58
+counterfactual + 100 A/B), the first entry of `ranked_hypotheses` **equals the supplied diagnosis on
+every classified row** — 110/110 main, 58/58 counterfactual, 56/56 A/B. There is no closed-list
+contradiction to fix:
+
+| reading | main 242 | of which abstention rows | counterfactual 58 | A/B 100 |
+|---|---|---|---|---|
+| `ranked[0] != diagnosis`, any verdict | **88** | **88** | 0 | 0 |
+| `ranked[0] != diagnosis`, classified only | **0** | 0 | 0 | 0 |
+| a fault other than the diagnosis is named somewhere without a rejection cue | — | — | — | **56** |
+
+The 88 are exactly the abstention rows, where ranking a candidate is the honest answer, and they are
+the same 88 that §5.2 of the transition report retired the check for. The 56 are the **lookalike
+differential**, which is the field doing its job ("FAULT_02, then FAULT_01"): a crude ±90-character
+rejection window cannot separate a rejected alternative from a ranked one, so 56 is an upper bound,
+not a count of contradictions.
+
+**Therefore: the proposed change is stated, not recommended.** Supplying `ranked_hypotheses` (gold
+diagnosis first, the KB differential next) and masking it would make the answer **fully** determined
+by the prompt and remove the last field the model can contradict. That is a coherent design — and it
+is a different product: the ranked list stops being the model's judgement at all, so the "does it
+disagree with the prefix" question disappears rather than being measured. If it is adopted, this
+document records that **it was adopted against a measured 0-of-224 classified rows, not against 13
+of 46**, and the stated reason becomes determinism rather than a contradiction count.
+
+## 6. The "abstention-only prose" variant, counted
+
+Restrict prose supervision to the abstention stratum — `open_set` + menu-removed + `NORMAL_TRANSIENT`
+report rows — plus every dialogue row, and mask the report prose on classified rows.
+
+| | full `train_mixed.jsonl` | abstention-only variant |
+|---|---|---|
+| report rows supervised | 1,919 | **563** |
+| dialogue rows supervised | 961 | 961 |
+| **rows** | **2,880** | **1,524** |
+| supervised tokens (after `fault_id`/`verdict` masking) | **609,697** | **233,360** |
+| steps per epoch at effective batch 16 | 180 | **96** |
+| steps, 3 epochs | 540 | **288** |
+| **time per run at run-1's 21.71 s/step** | **3 h 20 m** (measured 12,003.5 s) | **1 h 44 m** (104.2 min) |
+
+The variant is **30 % cheaper per run** and needs **no new data**: classified report rows stay in the
+batch as context-only rows, so nothing is regenerated. What it buys is a report explainer that is
+only ever asked to write abstention prose, which is precisely the stratum where the existing adapter
+is strongest (84–98 % grounded/consistent) and where fallback v3 is weakest as a *narrative*.
+
+## 7. Which rebuild steps need teacher calls
+
+| # | step | teacher calls |
+|---|---|---|
+| 1 | supply `ranked_hypotheses` (if §5 is adopted) | **none** — programmatic |
+| 2 | mask the supplied fields, including `ranked_hypotheses` | **none** |
+| 3 | rebuild the abstention-only manifest (a row filter + mask) | **none** |
+| 4 | regenerate dialogue answers **only if** a dialogue prompt changes | **teacher calls**, ≈ 961 rows |
+| 5 | train and evaluate | **none** — GPU |
+
+**Only step 4 can spend teacher calls**, and neither variant proposed here changes a dialogue
+prompt, so **both variants are free of teacher calls end to end**. No teacher call was made for this
+document, and no training file was written.
