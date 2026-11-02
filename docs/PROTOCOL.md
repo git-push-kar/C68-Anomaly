@@ -1519,3 +1519,107 @@ training by construction, which is the property §17.5 needs, so the numbers sta
 earlier plan to add runs 1-300 items to the fold test exports was never written into this file;
 it is dropped rather than retrofitted, since the fold classifiers never train on those runs either
 way.
+
+## 18. G1 decision, the novelty second channel, and what is being corrected (dated 2026-11-01, before any number in this section was computed)
+
+G1 is decided here as a **record**, not inferred from §16/§17 after the fact. It is written
+before any number in this section exists, and it fixes three things that later sections would
+otherwise be free to reinterpret: which system is being shipped, how faults 3/9 are scored, and
+what a second open-set channel is allowed to be.
+
+### 18.1 The decision: hybrid, and no Option-2 retrain
+
+* **The diagnosis is produced by the classifier plus the menu rule** (§16.2, §16.3 as repaired
+  by §17.1-§17.2). The adapter does **not** choose the diagnosis.
+* **The adapter writes the prose** — `ranked_hypotheses`, `physical_reasoning`, `narrative` —
+  with `fault_id` and `verdict` forced into the answer prefix. Both fields are supplied by code;
+  the adapter's continuation is what gets measured.
+* **Adapter-only stays as a reference row**, not a candidate: §14's decode instrument at step
+  500, the same rows, in every comparison table.
+* **No Option-2 retrain is authorised by this section.** §17.6's census of natural wrong labels
+  is context for a future decision, not a data-creation instruction. Nothing here builds
+  training data, and no adapter is trained, merged-for-training or resumed.
+
+### 18.2 Faults 3 and 9 are a separate stratum, scored two ways
+
+These twelve validation rows (six events, two menu variants) ask for a fault whose acting
+variable has no measurement in the evidence block (§17.6). The dataset's target disagrees with
+itself between the two twins: a named fault on the menu-present row, `UNCLASSIFIED_OPEN_SET` on
+the removed one. Both readings are reported, side by side:
+
+* **strict** — the dataset's target is the gold, so a named-fault twin is wrong unless
+  `FAULT_03`/`FAULT_09` is named.
+* **acceptable non-diagnosis** — `NORMAL_TRANSIENT` or `UNCLASSIFIED_OPEN_SET` on a 3/9 row
+  counts as acceptable, because the evidence block contains nothing that would support a name.
+
+**Neither enters headline metrics.** Headline accuracy, macro-F1 and abstention figures are
+computed on the observable rows that exclude the twelve, exactly as §16/§17 did. No threshold,
+calibration, signal or hyper-parameter is chosen using either scoring of these twelve.
+
+### 18.3 The novelty second channel
+
+§17.3's `novelty` is the only signal that is a distance to the training set rather than a
+restatement of the classifier's opinion, and it is the only one that separated fold_2's unseen
+fault from the kept ones (0.877 vs 0.708). It is promoted here from "compared signal" to
+**second abstention channel**, with the following fixed definition:
+
+* **Score:** mean Euclidean distance from the item to its **10 nearest train events** in the
+  standardised feature space, mean and SD taken from the train events (§17.3, unchanged).
+* **Threshold:** the **largest** novelty value that keeps **out-of-fold false-novel ≤ 5 %** on
+  train **menu-present seen-fault** events. Cross-fit **grouped by event**: an event's training
+  reference set is the four folds it was not in, so no event is its own neighbour and its two
+  menu variants never straddle the group. The achieved rate is reported with the threshold.
+* **Decision rule:** a hybrid diagnosis is `UNCLASSIFIED_OPEN_SET` if the §17 rule abstains
+  (predicted class not in the menu, or calibrated maximum below the §17.2 threshold) **or** the
+  novelty score exceeds its threshold. The two channels are OR-ed; neither overrides the other
+  and the menu rule still takes precedence for `no_fault`.
+* **Where it is evaluated:** the 13-fault surrogate (§17.4), `fold_1`, `fold_2` (§17.5) and all
+  834 validation rows. Reported per instrument: decline rate on the held-out fault, **false
+  abstention on seen faults**, how many decisions the channel *changes*, and whether a changed
+  decision was an improvement. **Nothing is tuned on any of them** — the thresholds come from
+  out-of-fold train events only — and every number is validation (§15.2).
+
+### 18.4 Evidence-fit feasibility
+
+A deterministic, code-computed **fit score** between an event and a candidate fault, with no
+fitted parameters: from the KB signature (initiator tag, direction of motion, onset order, the
+sensors that must move), the **fraction of required elements observed** in the rendered evidence
+block.
+
+* **On train events:** candidate = the true label and its nearest KB lookalike, using the pairs
+  §17's absorption table names. Report AUROC of `fit(true)` vs `fit(lookalike)` per pair, the
+  mean, and the share of events where the score cannot be computed.
+* **On validation:** AUROC of the fit score for separating correct from incorrect classifier
+  diagnoses on the named-fault stratum, with the size of that error pool stated explicitly.
+* **Fixed verdict rule, before measuring:** the fit score is feasible as the basis of a
+  system-computed grounding verdict for a counterfactual-aware prose target **iff the mean
+  pair AUROC on train is ≥ 0.80**. If it falls short, that is the answer and no variant of the
+  score is substituted afterwards.
+* **No training data is built** from the score, and it does not touch the live path.
+
+### 18.5 Menu order, and the corrections owed
+
+* **Adapter-only numbers are reported in both KB order and a seeded shuffled order** from now
+  on. A shuffled-menu variant is added to the evaluation harness with a fixed permutation per
+  item, so a menu-order artefact cannot hide inside an adapter score. The classifier plus menu
+  rule is **order-invariant by construction** — membership is a set test — and this is asserted
+  by a test rather than assumed.
+* **A corrections file is written for the 3B-5 report** (`docs/reports/3b5_corrections.md`). The
+  §16/§17 reports are not edited: the corrections state what the old text should have said, and
+  where a sentence or number cannot be supported from the stored artefacts it is withdrawn
+  rather than restated.
+
+### 18.6 What would make the novelty channel unacceptable (stated before measuring)
+
+The channel is rejected if, at the τ that spends the 5 % out-of-fold budget, it either
+(a) lowers seen-fault accuracy by more than 2 points on any instrument without raising the
+held-out-fault decline rate on that same instrument, or (b) fails to exceed §17's rule alone on
+all three held-out instruments. "Exceeds" means a higher decline rate on an instrument where
+abstention is the correct answer; a tie is not an improvement.
+
+### 18.7 Scope of this section
+
+No adapter training, **no test component opened**, **no teacher calls**, **no GPU work**. Every
+figure is a validation figure. New artefacts are new files under
+`outputs/analysis/phase3a/hybrid/` and `outputs/analysis/phase3a/fit/`; §16 and §17 artefacts,
+the run-1 adapter and its checkpoints are read-only for this section.
