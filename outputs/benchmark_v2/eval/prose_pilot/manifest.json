@@ -1,0 +1,27 @@
+{
+  "items": 520,
+  "orders": {
+    "kb": {
+      "path": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\eval\\prose_pilot\\prose_eval_val_kb.jsonl",
+      "sha256": "ffd7feacb1ff910f77506e64311e082bd8ea41716e171b58699813f4e7696baf",
+      "rows": 520
+    },
+    "shuffled-1": {
+      "path": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\eval\\prose_pilot\\prose_eval_val_shuffled-1.jsonl",
+      "sha256": "a9eb1fc3dc1cf2428074b271520c20176e7dbe0c3a23783fd4853da4850ae856",
+      "rows": 520
+    },
+    "shuffled-2": {
+      "path": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\eval\\prose_pilot\\prose_eval_val_shuffled-2.jsonl",
+      "sha256": "f2c9f0e661d72faa9f953761705ccf04a624016d629a578d54bee74caddc0870",
+      "rows": 520
+    }
+  },
+  "followups": {
+    "path": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\eval\\prose_pilot\\prose_eval_followups.jsonl",
+    "sha256": "7e97f31edc746011ab2d0a297f61c1b56dd675e7e8c6dda258d29c62bd37ed20",
+    "turns": 97,
+    "turns_in_flagged_dialogues": 97,
+    "dialogues": 42
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "file": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\sft\\train_prose_v1.jsonl",
+  "sha256": "9d0ecdfb98edcc953a6ea1e93333b4c533c4791a67437eb7823ee770e6888e62",
+  "seed": 7,
+  "rows": 1523,
+  "report_rows": 562,
+  "dialogue_rows": 961,
+  "candidate_report_rows": 563,
+  "dropped_crossfit_disagreement": 1,
+  "dropped_examples": [
+    {
+      "item_id": "EVT-train-f16-r040::menu",
+      "gold": "UNCLASSIFIED_OPEN_SET",
+      "rule_label": "FAULT_10",
+      "rule_verdict": "classified"
+    }
+  ],
+  "menu_identity_order_rows": 0,
+  "menu_chance_identity": 0.0625,
+  "supplied_keys_in_prompt": [
+    "fault_id",
+    "verdict",
+    "ranked_hypotheses"
+  ],
+  "supervised_fields": [
+    "physical_reasoning",
+    "narrative",
+    "answer (dialogue)"
+  ],
+  "train_mixed_sha256": "0f16b82b3fe18728d67476fc842160b4eeaa142031e09105ae03513d980a20d2",
+  "crossfit_train_oof_sha256": "f84f9d8a9e1ed2441c2b6427cc59a82a7e35cbb3366becd9af77aacad46e113c"
+}

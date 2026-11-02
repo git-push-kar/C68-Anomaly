@@ -1,0 +1,27 @@
+{
+  "rows": 40,
+  "columns": [
+    "item_id",
+    "family",
+    "diagnosis",
+    "verdict",
+    "text_A",
+    "text_B",
+    "correct_A",
+    "grounded_A",
+    "consistent_A",
+    "useful_A",
+    "correct_B",
+    "grounded_B",
+    "consistent_B",
+    "useful_B",
+    "preference",
+    "notes"
+  ],
+  "source_column_present": false,
+  "scoring_columns_filled": 0,
+  "texts_identical_to_scored_sheet": 40,
+  "non_text_columns_identical": 40,
+  "kept": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\audit_ab_100_v3.csv",
+  "written": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\audit_ab_100_v3_blind.csv"
+}

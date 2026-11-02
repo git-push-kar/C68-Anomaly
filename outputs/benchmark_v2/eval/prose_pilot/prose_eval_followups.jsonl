@@ -1,0 +1,97 @@
+{"dialogue_id": "FD-val-00000", "turn": 0, "case_type": "out_of_scope", "question": "What is the vibration reading on XMEAS_1?", "answer": null}
+{"dialogue_id": "FD-val-00000", "turn": 1, "case_type": "valve_actuator", "question": "Could the cooling water valve be sticking rather than fouling?", "answer": null}
+{"dialogue_id": "FD-val-00000", "turn": 2, "case_type": "mechanism", "question": "How does the mechanism differ for a step against a drift?", "answer": null}
+{"dialogue_id": "FD-val-00018", "turn": 0, "case_type": "causal_why", "question": "How does the disturbance travel from the feed to the product?", "answer": null}
+{"dialogue_id": "FD-val-00018", "turn": 1, "case_type": "mechanism", "question": "What is the mechanism behind the level decline?", "answer": null}
+{"dialogue_id": "FD-val-00018", "turn": 2, "case_type": "valve_actuator", "question": "Is the actuator hunting at the purge valve?", "answer": null}
+{"dialogue_id": "FD-val-00035", "turn": 0, "case_type": "valve_actuator", "question": "Is the sticking valve on the cooling water side?", "answer": null}
+{"dialogue_id": "FD-val-00035", "turn": 1, "case_type": "valve_actuator", "question": "Could the valve be stuck part-open?", "answer": null}
+{"dialogue_id": "FD-val-00035", "turn": 2, "case_type": "mechanism", "question": "What physical process turns the valve problem into a pressure swing?", "answer": null}
+{"dialogue_id": "FD-val-00036", "turn": 0, "case_type": "causal_why", "question": "What is the propagation path from the valve to the column?", "answer": null}
+{"dialogue_id": "FD-val-00036", "turn": 1, "case_type": "mechanism", "question": "What mechanism would produce this slow oscillation?", "answer": null}
+{"dialogue_id": "FD-val-00036", "turn": 2, "case_type": "valve_actuator", "question": "Which control loop valve is misbehaving?", "answer": null}
+{"dialogue_id": "FD-val-00037", "turn": 0, "case_type": "mechanism", "question": "What is the mechanism behind the level decline?", "answer": null}
+{"dialogue_id": "FD-val-00037", "turn": 1, "case_type": "causal_why", "question": "How does the cooling water flow restriction ripple through the plant?", "answer": null}
+{"dialogue_id": "FD-val-00042", "turn": 0, "case_type": "ambiguous_question", "question": "Explain the anomaly score", "answer": null}
+{"dialogue_id": "FD-val-00042", "turn": 1, "case_type": "valve_actuator", "question": "Is the A feed valve open too far?", "answer": null}
+{"dialogue_id": "FD-val-00056", "turn": 0, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00056", "turn": 1, "case_type": "valve_actuator", "question": "Is the actuator hunting at the purge valve?", "answer": null}
+{"dialogue_id": "FD-val-00062", "turn": 0, "case_type": "valve_actuator", "question": "Is the actuator hunting at the purge valve?", "answer": null}
+{"dialogue_id": "FD-val-00062", "turn": 1, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00071", "turn": 0, "case_type": "causal_why", "question": "What is the knock-on effect of the feed ratio step?", "answer": null}
+{"dialogue_id": "FD-val-00071", "turn": 1, "case_type": "mechanism", "question": "How does the mechanism differ for a step against a drift?", "answer": null}
+{"dialogue_id": "FD-val-00084", "turn": 0, "case_type": "mechanism", "question": "By what mechanism does the coolant flow limit the reactor temperature?", "answer": null}
+{"dialogue_id": "FD-val-00084", "turn": 1, "case_type": "causal_why", "question": "What is the propagation path from the valve to the column?", "answer": null}
+{"dialogue_id": "FD-val-00095", "turn": 0, "case_type": "ambiguous_question", "question": "Explain the anomaly score", "answer": null}
+{"dialogue_id": "FD-val-00095", "turn": 1, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00096", "turn": 0, "case_type": "causal_why", "question": "What is the propagation path from the valve to the column?", "answer": null}
+{"dialogue_id": "FD-val-00096", "turn": 1, "case_type": "mechanism", "question": "What physical process turns the valve problem into a pressure swing?", "answer": null}
+{"dialogue_id": "FD-val-00116", "turn": 0, "case_type": "hypothesis_comparison", "question": "How do we distinguish this from FAULT_04 (Reactor cooling water inlet temperature step)?", "answer": null}
+{"dialogue_id": "FD-val-00116", "turn": 1, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00125", "turn": 0, "case_type": "mechanism", "question": "What mechanism would produce this slow oscillation?", "answer": null}
+{"dialogue_id": "FD-val-00125", "turn": 1, "case_type": "causal_why", "question": "Walk me through how the condenser restriction reaches the reactor.", "answer": null}
+{"dialogue_id": "FD-val-00125", "turn": 2, "case_type": "valve_actuator", "question": "Is the separator liquid valve chattering?", "answer": null}
+{"dialogue_id": "FD-val-00129", "turn": 0, "case_type": "mechanism", "question": "Is the mechanism stiction or fouling?", "answer": null}
+{"dialogue_id": "FD-val-00129", "turn": 1, "case_type": "causal_why", "question": "Walk me through how the condenser restriction reaches the reactor.", "answer": null}
+{"dialogue_id": "FD-val-00146", "turn": 0, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00146", "turn": 1, "case_type": "valve_actuator", "question": "Which control loop valve is misbehaving?", "answer": null}
+{"dialogue_id": "FD-val-00157", "turn": 0, "case_type": "mechanism", "question": "Is the mechanism stiction or fouling?", "answer": null}
+{"dialogue_id": "FD-val-00157", "turn": 1, "case_type": "causal_why", "question": "How does closing the purge valve move the separator pressure?", "answer": null}
+{"dialogue_id": "FD-val-00157", "turn": 2, "case_type": "valve_actuator", "question": "Is the sticking valve on the cooling water side?", "answer": null}
+{"dialogue_id": "FD-val-00162", "turn": 0, "case_type": "ambiguous_question", "question": "Explain the anomaly score", "answer": null}
+{"dialogue_id": "FD-val-00162", "turn": 1, "case_type": "clarification_reply", "question": "Raw evidence, please.", "answer": null}
+{"dialogue_id": "FD-val-00237", "turn": 0, "case_type": "valve_actuator", "question": "Could the valve be stuck part-open?", "answer": null}
+{"dialogue_id": "FD-val-00237", "turn": 1, "case_type": "valve_actuator", "question": "Is the A feed valve open too far?", "answer": null}
+{"dialogue_id": "FD-val-00238", "turn": 0, "case_type": "out_of_scope", "question": "What is the vibration reading on XMEAS_12?", "answer": null}
+{"dialogue_id": "FD-val-00238", "turn": 1, "case_type": "valve_actuator", "question": "Which control loop valve is misbehaving?", "answer": null}
+{"dialogue_id": "FD-val-00239", "turn": 0, "case_type": "valve_actuator", "question": "What is the condenser valve doing?", "answer": null}
+{"dialogue_id": "FD-val-00239", "turn": 1, "case_type": "valve_actuator", "question": "Is the actuator hunting at the purge valve?", "answer": null}
+{"dialogue_id": "FD-val-00240", "turn": 0, "case_type": "valve_actuator", "question": "Could the valve be stuck part-open?", "answer": null}
+{"dialogue_id": "FD-val-00240", "turn": 1, "case_type": "valve_actuator", "question": "Which control loop valve is misbehaving?", "answer": null}
+{"dialogue_id": "FD-val-00240", "turn": 2, "case_type": "mechanism", "question": "What is the mechanism behind the level decline?", "answer": null}
+{"dialogue_id": "FD-val-00241", "turn": 0, "case_type": "valve_actuator", "question": "Is the separator liquid valve chattering?", "answer": null}
+{"dialogue_id": "FD-val-00241", "turn": 1, "case_type": "valve_actuator", "question": "Is the A feed valve open too far?", "answer": null}
+{"dialogue_id": "FD-val-00242", "turn": 0, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00242", "turn": 1, "case_type": "valve_actuator", "question": "Is the valve actuator the thing that moved first?", "answer": null}
+{"dialogue_id": "FD-val-00242", "turn": 2, "case_type": "mechanism", "question": "By what mechanism does the coolant flow limit the reactor temperature?", "answer": null}
+{"dialogue_id": "FD-val-00243", "turn": 0, "case_type": "valve_actuator", "question": "Is the separator liquid valve chattering?", "answer": null}
+{"dialogue_id": "FD-val-00243", "turn": 1, "case_type": "valve_actuator", "question": "Is the separator liquid valve chattering?", "answer": null}
+{"dialogue_id": "FD-val-00243", "turn": 2, "case_type": "mechanism", "question": "Give me the physical mechanism, not the symptom.", "answer": null}
+{"dialogue_id": "FD-val-00244", "turn": 0, "case_type": "mechanism", "question": "What mechanism is consistent with a slow drift at the actuator?", "answer": null}
+{"dialogue_id": "FD-val-00244", "turn": 1, "case_type": "causal_why", "question": "What is the physical path between the two readings?", "answer": null}
+{"dialogue_id": "FD-val-00244", "turn": 2, "case_type": "valve_actuator", "question": "Which control loop valve is misbehaving?", "answer": null}
+{"dialogue_id": "FD-val-00245", "turn": 0, "case_type": "valve_actuator", "question": "Could the valve be stuck part-open?", "answer": null}
+{"dialogue_id": "FD-val-00245", "turn": 1, "case_type": "valve_actuator", "question": "Which control loop valve is misbehaving?", "answer": null}
+{"dialogue_id": "FD-val-00246", "turn": 0, "case_type": "causal_why", "question": "How would a stuck valve show up two loops later?", "answer": null}
+{"dialogue_id": "FD-val-00246", "turn": 1, "case_type": "mechanism", "question": "What mechanism would produce this slow oscillation?", "answer": null}
+{"dialogue_id": "FD-val-00247", "turn": 0, "case_type": "mechanism", "question": "What physical process turns the valve problem into a pressure swing?", "answer": null}
+{"dialogue_id": "FD-val-00247", "turn": 1, "case_type": "causal_why", "question": "How does the cooling water flow restriction ripple through the plant?", "answer": null}
+{"dialogue_id": "FD-val-00248", "turn": 0, "case_type": "valve_actuator", "question": "Is the sticking valve on the cooling water side?", "answer": null}
+{"dialogue_id": "FD-val-00248", "turn": 1, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00249", "turn": 0, "case_type": "causal_why", "question": "How does closing the purge valve move the separator pressure?", "answer": null}
+{"dialogue_id": "FD-val-00249", "turn": 1, "case_type": "mechanism", "question": "What is happening mechanically inside the valve?", "answer": null}
+{"dialogue_id": "FD-val-00250", "turn": 0, "case_type": "valve_actuator", "question": "Could the valve be stuck part-open?", "answer": null}
+{"dialogue_id": "FD-val-00250", "turn": 1, "case_type": "valve_actuator", "question": "Could the cooling water valve be sticking rather than fouling?", "answer": null}
+{"dialogue_id": "FD-val-00251", "turn": 0, "case_type": "valve_actuator", "question": "Which valve do you suspect: feed, purge or cooling water?", "answer": null}
+{"dialogue_id": "FD-val-00251", "turn": 1, "case_type": "valve_actuator", "question": "Could the valve be stuck part-open?", "answer": null}
+{"dialogue_id": "FD-val-00252", "turn": 0, "case_type": "out_of_scope", "question": "What is the vibration reading on XMEAS_12?", "answer": null}
+{"dialogue_id": "FD-val-00252", "turn": 1, "case_type": "valve_actuator", "question": "What is the condenser valve doing?", "answer": null}
+{"dialogue_id": "FD-val-00253", "turn": 0, "case_type": "ambiguous_question", "question": "Explain the anomaly score", "answer": null}
+{"dialogue_id": "FD-val-00253", "turn": 1, "case_type": "clarification_reply", "question": "I mean the overview_fallback side, please.", "answer": null}
+{"dialogue_id": "FD-val-00253", "turn": 2, "case_type": "mechanism", "question": "Give me the physical mechanism, not the symptom.", "answer": null}
+{"dialogue_id": "FD-val-00254", "turn": 0, "case_type": "causal_why", "question": "What is the chain from the actuator to the analyser reading?", "answer": null}
+{"dialogue_id": "FD-val-00254", "turn": 1, "case_type": "mechanism", "question": "What physical process turns the valve problem into a pressure swing?", "answer": null}
+{"dialogue_id": "FD-val-00255", "turn": 0, "case_type": "causal_why", "question": "What is the propagation path from the valve to the column?", "answer": null}
+{"dialogue_id": "FD-val-00255", "turn": 1, "case_type": "mechanism", "question": "By what mechanism does the coolant flow limit the reactor temperature?", "answer": null}
+{"dialogue_id": "FD-val-00256", "turn": 0, "case_type": "ambiguous_question", "question": "Explain the anomaly score", "answer": null}
+{"dialogue_id": "FD-val-00256", "turn": 1, "case_type": "clarification_reply", "question": "I mean the overview_fallback side, please.", "answer": null}
+{"dialogue_id": "FD-val-00257", "turn": 0, "case_type": "valve_actuator", "question": "Is the valve actuator the thing that moved first?", "answer": null}
+{"dialogue_id": "FD-val-00257", "turn": 1, "case_type": "valve_actuator", "question": "Is the valve actuator the thing that moved first?", "answer": null}
+{"dialogue_id": "FD-val-00258", "turn": 0, "case_type": "valve_actuator", "question": "Is the separator liquid valve chattering?", "answer": null}
+{"dialogue_id": "FD-val-00258", "turn": 1, "case_type": "repeat", "question": "Is the separator liquid valve chattering?", "answer": null}
+{"dialogue_id": "FD-val-00258", "turn": 2, "case_type": "valve_actuator", "question": "Is the valve actuator the thing that moved first?", "answer": null}
+{"dialogue_id": "FD-val-00258", "turn": 3, "case_type": "mechanism", "question": "By what mechanism does the coolant flow limit the reactor temperature?", "answer": null}
+{"dialogue_id": "FD-val-00259", "turn": 0, "case_type": "valve_actuator", "question": "Is the valve actuator the thing that moved first?", "answer": null}
+{"dialogue_id": "FD-val-00259", "turn": 1, "case_type": "valve_actuator", "question": "Is the actuator hunting at the purge valve?", "answer": null}
+{"dialogue_id": "FD-val-00260", "turn": 0, "case_type": "valve_actuator", "question": "Is the A feed valve open too far?", "answer": null}
+{"dialogue_id": "FD-val-00260", "turn": 1, "case_type": "valve_actuator", "question": "Is the sticking valve on the cooling water side?", "answer": null}

@@ -1,0 +1,138 @@
+{
+  "rows": 834,
+  "overlay": {
+    "path": "C:\\Users\\Admin\\Desktop\\anomaly\\configs\\kb_overlay_v2.json",
+    "sha256": "3106612ab584688d4082b4ec62be3d2085f68aedc324111e6952cc0936bd9138",
+    "faults": [
+      "14"
+    ],
+    "global_repairs": 3
+  },
+  "kb": {
+    "path": "C:\\Users\\Admin\\Desktop\\anomaly\\scripts\\fault_knowledge.py",
+    "sha256": "b914fd94e8f0edf37f73a56f1c50664d26e518d381ce138e3f06149f6d1b71cc",
+    "git_status": "clean"
+  },
+  "v3": {
+    "rows": 834,
+    "schema_valid": 834,
+    "rows_with_any_violation_prompt_only": 308,
+    "violation_kinds_prompt_only": {
+      "numbers": 308,
+      "pairs": 0,
+      "ranges": 0,
+      "tags": 0
+    },
+    "rows_with_any_violation_prompt_plus_supplied": 0,
+    "violation_kinds_prompt_plus_supplied": {
+      "numbers": 0,
+      "pairs": 0,
+      "ranges": 0,
+      "tags": 0
+    },
+    "rows_with_structural_issue": 520,
+    "structural_issues": {
+      "candidate opener with no candidates": 780,
+      "orphan conclusion": 1036,
+      "stub": 1,
+      "unbalanced parentheses 6/5": 258,
+      "unbalanced parentheses 5/6": 2
+    },
+    "rows_with_direction_conflict": 0,
+    "direction_conflicts": 0,
+    "empty_narrative": 0,
+    "narrative_equals_reasoning": 520,
+    "action_names_leading_sensor": 520,
+    "action_rows_with_a_sensor": 520,
+    "mean_words": {
+      "physical_reasoning": 80.3,
+      "narrative": 59.4
+    },
+    "identical_prose": {
+      "rows_whose_reasoning_repeats_inside_its_group": 40,
+      "rows": 834,
+      "rate": 0.048,
+      "distinct_texts_per_diagnosis": {
+        "FAULT_01": 26,
+        "FAULT_02": 25,
+        "FAULT_04": 26,
+        "FAULT_05": 25,
+        "FAULT_06": 25,
+        "FAULT_07": 25,
+        "FAULT_08": 20,
+        "FAULT_10": 22,
+        "FAULT_11": 24,
+        "FAULT_12": 21,
+        "FAULT_13": 24,
+        "FAULT_14": 25,
+        "FAULT_15": 24,
+        "NORMAL_TRANSIENT": 55,
+        "UNCLASSIFIED_OPEN_SET": 447
+      }
+    }
+  },
+  "v31": {
+    "rows": 834,
+    "schema_valid": 834,
+    "rows_with_any_violation_prompt_only": 308,
+    "violation_kinds_prompt_only": {
+      "numbers": 308,
+      "pairs": 0,
+      "ranges": 0,
+      "tags": 0
+    },
+    "rows_with_any_violation_prompt_plus_supplied": 0,
+    "violation_kinds_prompt_plus_supplied": {
+      "numbers": 0,
+      "pairs": 0,
+      "ranges": 0,
+      "tags": 0
+    },
+    "rows_with_structural_issue": 0,
+    "structural_issues": {},
+    "rows_with_direction_conflict": 0,
+    "direction_conflicts": 0,
+    "empty_narrative": 0,
+    "narrative_equals_reasoning": 0,
+    "action_names_leading_sensor": 520,
+    "action_rows_with_a_sensor": 520,
+    "mean_words": {
+      "physical_reasoning": 84.3,
+      "narrative": 32.7
+    },
+    "identical_prose": {
+      "rows_whose_reasoning_repeats_inside_its_group": 40,
+      "rows": 834,
+      "rate": 0.048,
+      "distinct_texts_per_diagnosis": {
+        "FAULT_01": 26,
+        "FAULT_02": 25,
+        "FAULT_04": 26,
+        "FAULT_05": 25,
+        "FAULT_06": 25,
+        "FAULT_07": 25,
+        "FAULT_08": 20,
+        "FAULT_10": 22,
+        "FAULT_11": 24,
+        "FAULT_12": 21,
+        "FAULT_13": 24,
+        "FAULT_14": 25,
+        "FAULT_15": 24,
+        "NORMAL_TRANSIENT": 55,
+        "UNCLASSIFIED_OPEN_SET": 447
+      }
+    }
+  },
+  "v31_process": {
+    "action_replaced": 59,
+    "action_replaced_reasons": {
+      "action names a sensor outside the printed leading deviations": 56,
+      "low-signal event with emergency verb": 3
+    },
+    "sentences_dropped_by_structure": 60,
+    "trend_words_omitted": 819,
+    "trend_words_printed": 1163
+  },
+  "low_signal_rows": 115,
+  "low_signal_abstention_rows": 91
+}

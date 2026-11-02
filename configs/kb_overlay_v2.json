@@ -1,0 +1,57 @@
+{
+  "version": "kb_overlay_v2",
+  "date": "2026-11-02",
+  "why": "Two defects in the KB's own strings: FAULT_14's mechanism contains a mangled degree sign (a U+FFFD in place of the degree symbol) and its action is written in emergency language that the event does not support; the KB also repeats an equipment phrase in one place. The KB files are not edited; this overlay is applied after loading and is hashed in the run output. v2 adds the two defects found in 3B-11: a duplicated 'overhead condenser' that survives when the second copy arrives without a leading 'the', and a clause that starts '. but heat duty' after the scrubber drops the clause before it. Both are rewrites of the KB's own string; the KB files remain untouched.",
+  "faults": {
+    "14": {
+      "recommended_action": "Dispatch a field technician to stroke the cooling water valve XMV_51 and to open the manual jacket bypass. If the reactor temperature keeps climbing, reduce the reactant feeds on the A feed line, the D feed header and the combined feed header.",
+      "text_repairs": [
+        [
+          "120\\.4\\s*[^\\x00-\\x7F]\\s*C",
+          "120.4 degC"
+        ],
+        [
+          "Extreme risk of thermal runaway and emergency relief venting!",
+          "Sustained heat generation with reduced jacket removal risks a reactor trip."
+        ]
+      ]
+    }
+  },
+  "collapse": [
+    [
+      "the overhead condenser\\s+overhead condenser",
+      "the overhead condenser"
+    ],
+    [
+      "\\boverhead condenser\\s+condenser\\b",
+      "the overhead condenser"
+    ],
+    [
+      "the (reactor|separator|recycle compressor)\\s+the \\1",
+      "the \\1"
+    ],
+    [
+      "\boverhead condenser\\s+overhead condenser\b",
+      "the overhead condenser"
+    ],
+    [
+      "\bthe overhead condenser\\s+condenser\b",
+      "the overhead condenser"
+    ]
+  ],
+  "supersedes": "kb_overlay_v1",
+  "global_text_repairs": [
+    [
+      "\\.\\s+but\\s+heat duty",
+      ", but heat duty"
+    ],
+    [
+      "\\.\\s+but\\s+",
+      ", but "
+    ],
+    [
+      "\bcondenser overhead condenser\b",
+      "the overhead condenser"
+    ]
+  ]
+}

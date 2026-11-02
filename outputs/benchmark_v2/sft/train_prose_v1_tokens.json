@@ -1,0 +1,19 @@
+{
+  "file": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\sft\\train_prose_v1.jsonl",
+  "rows": 1523,
+  "cap": 4096,
+  "completion_cap": 512,
+  "prompt_tokens": 1447079,
+  "answer_tokens": 223631,
+  "supervised_tokens_at_512": 223631,
+  "max_prompt_tokens": 1382,
+  "mean_prompt_tokens": 950.2,
+  "max_answer_tokens": 388,
+  "rows_over_4096_prompt": 0,
+  "steps_per_epoch": 96,
+  "steps": 288,
+  "seconds_per_step": 21.71,
+  "estimated_seconds": 6252.5,
+  "estimated_hours": 1.74,
+  "note": "supervised tokens clip each answer at the 512-token completion budget; the estimate reuses run-1's measured 21.71 s/step rather than a measurement of this file"
+}
