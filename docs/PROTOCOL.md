@@ -2397,3 +2397,87 @@ recomputed differently, nothing was trained, and no model was loaded.
 Evidence: `pilot_join_table.csv`, `pilot_anchor_rows.csv`, `pilot_anchor_examples.csv`,
 `pilot_join_check.json`, `pilot_gate_table_joined.md` in `outputs/analysis/phase3a/fit/`, with the
 summary and the old-vs-new table copied to `docs/judging/pilot_v5/`.
+## 28. Re-specifying the contradiction, tag-role and anchor gates (3B-16, 2026-11-02)
+
+### 28.1 Why the two stored gates are not prose defects
+
+The pilot answers contain exactly two fields, `physical_reasoning` and `narrative`. The section
+23.4 readings called `tag_role` (396/520 flagged) and `contradiction` (462/520 flagged) were
+produced by checkers written for a different output format: the protocol-A checker treats every
+fault id the text names as a contradiction, which on an answer that discusses alternatives and
+rejects them is not a contradiction at all, and the binding checker was built for `Name (TAG)`
+pairs in a structured answer. The two stored numbers are recorded as measured and are **not**
+interpreted as prose defects. They are superseded by the re-specified checks below, which are
+fixed here before any of them is run.
+
+### 28.2 Contradiction, re-specified
+
+A row is flagged when the text names a fault id other than the supplied diagnosis **as the
+cause**, or asserts a verdict different from the supplied one.
+
+- Assertion of a cause: a sentence that names `FAULT_nn` and carries a causal phrase (`caused
+  by`, `due to`, `the cause is`, `the fault is`, `diagnosis:`, `diagnosed as`, `classified as`,
+  `best fit`, `responsible`, `attributable to`), or reads `FAULT_nn is the fault`.
+- Rejections and hypotheticals never count: a sentence is skipped when it carries a rejection,
+  comparison, or hypothetical marker (`not`, `never`, `neither`, `nor`, `contradicts`, `rules
+  out`, `excludes`, `unlike`, `rather than`, `instead of`, `would show`, `would have`, `if`,
+  `unless`, `expected`, `should`, `could`, `alternative`, `candidate`, `differential`). Rejecting
+  a differential is the correct behaviour on an abstention row.
+- Verdict claims: `verdict is X` / `verdict: X`, or the unqualified claims `this is a normal
+  operation`, `no fault is present`, `a fault is present`, `this is a classified fault`. A claim
+  matching the supplied verdict does not count, and the abstention phrasing `no listed fault is
+  asserted`, which carries `listed` or `asserted`, is not a verdict claim.
+- A row is flagged at most once. Threshold 2%.
+
+### 28.3 Tag role, re-specified
+
+A row is flagged only when a tag is described with a physical quantity class that contradicts
+its canonical kind or name, using the repository's own tag table (`evidence.process_relationships
+.SENSOR_NAMES`, `XMEAS_1..41`, `XMV_42..52`).
+
+- The text is read for explicit bindings `Name (TAG)` and `Name [TAG]`.
+- Quantity vocabulary: temperature, pressure, flow/rate, level, composition/fraction/mole, work,
+  valve, stream. A tag's canonical class comes from the same vocabulary applied to its canonical
+  name.
+- Flag `class_mismatch` when the claimed name's class and the canonical class are disjoint, and
+  `name_does_not_match_tag` when the classes intersect but the claimed and canonical identity
+  words are disjoint (generic process words excluded). An unknown tag is flagged; nothing is
+  flagged as "unverifiable", and a tag mentioned without a name claim is not checked here.
+- Threshold 2%.
+
+### 28.4 Anchor, re-specified
+
+The anchor gate asks whether the text states the top-|z| sensor of its own prompt with the z the
+prompt prints. Pass when the tag is present and some numeral in the text equals z within 0.01.
+Statuses, one per row: `exact` (pass), `sensor_absent` (tag absent), `z_omitted` (tag present,
+no numeral within 0.5 of z in the 120 characters after it), `contradicting_value` (a numeral
+within 0.5 of z follows the tag but none is within 0.01). Threshold **90%** of rows whose top
+|z| is at least 1.0. Rows below 1.0 are reported but not gated.
+
+### 28.5 Numeric and grounding, decomposed
+
+Numeric failures (about 12% stored) are split by cause: `wrong_inequality_direction` (an
+above/below claim that the stored value and threshold contradict), `threshold_misquoted` (a
+number quoted as the threshold that is not it), `value_not_stored` (a number quoted beside a
+detector that is none of its value, threshold or ratio). Grounding failures are split into
+numbers and tags by the code prefix the grounding checker already emits. Rows may carry more
+than one kind; both flag counts and row attribution are reported.
+
+### 28.6 Comparator
+
+Fallback v3.1 is generated for the same 520 items from the same supplied diagnosis and verdict,
+and measured by the identical rules on its rendering (`physical_reasoning` and `narrative`
+joined). Its format has no JSON wrapper, so parsing is skipped for it and nothing else is.
+
+### 28.7 Synthetic calibration
+
+Forty hand-written cases (14 contradiction, 12 tag role, 8 anchor, 6 numeric) with known labels,
+including `Condenser_Cooling_Water_Outlet_Temperature (XMEAS_17)`, `the condenser valve
+(XMV_47)`, and `LSTM 0.6971, below the threshold 0.6870`. Precision and recall of each check on
+that set are reported before the pilot numbers are read.
+
+### 28.8 Scope
+
+Every number here is validation on stored outputs. Nothing is trained, no model is loaded, no
+teacher is called. Nothing in this section changes an earlier recorded result: the stored pilot
+values stand as recorded, and the re-specified values are additional.
