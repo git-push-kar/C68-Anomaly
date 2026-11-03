@@ -1,0 +1,780 @@
+{
+  "rows": 520,
+  "calibration": {
+    "contradiction": {
+      "cases": 14,
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "tn": 7,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "tag_role": {
+      "cases": 12,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 6,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "anchor": {
+      "cases": 8,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 4,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "numeric": {
+      "cases": 6,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 3,
+      "precision": 1.0,
+      "recall": 1.0
+    }
+  },
+  "strata": {
+    "removed": 329,
+    "classified": 19,
+    "menu": 125,
+    "normal": 47
+  },
+  "orders": {
+    "kb": {
+      "counts": {
+        "tag_role": 57,
+        "grounding": 33,
+        "numeric": 62
+      },
+      "anchors": {
+        "exact": 188,
+        "z_omitted": 230,
+        "contradicting_value": 34,
+        "sensor_absent": 68
+      }
+    },
+    "shuffled-1": {
+      "counts": {
+        "tag_role": 39,
+        "grounding": 36,
+        "numeric": 49
+      },
+      "anchors": {
+        "exact": 179,
+        "z_omitted": 228,
+        "contradicting_value": 41,
+        "sensor_absent": 72
+      }
+    },
+    "shuffled-2": {
+      "counts": {
+        "grounding": 36,
+        "tag_role": 38,
+        "numeric": 46
+      },
+      "anchors": {
+        "exact": 184,
+        "z_omitted": 225,
+        "contradicting_value": 40,
+        "sensor_absent": 71
+      }
+    }
+  },
+  "main": {
+    "counts": {
+      "tag_role": 57,
+      "grounding": 33,
+      "numeric": 62
+    },
+    "strata": {
+      "anchor_ge_5": {
+        "exact": 115,
+        "z_omitted": 81,
+        "contradicting_value": 7,
+        "sensor_absent": 3
+      },
+      "tag_role": {
+        "removed": 40,
+        "classified": 5,
+        "menu": 12
+      },
+      "grounding": {
+        "removed": 25,
+        "classified": 2,
+        "menu": 3,
+        "normal": 3
+      },
+      "anchor_lt_1": {
+        "exact": 18,
+        "contradicting_value": 23,
+        "sensor_absent": 61,
+        "z_omitted": 89
+      },
+      "anchor_1_to_5": {
+        "exact": 55,
+        "z_omitted": 60,
+        "sensor_absent": 4,
+        "contradicting_value": 4
+      },
+      "numeric": {
+        "classified": 2,
+        "removed": 23,
+        "menu": 1,
+        "normal": 36
+      }
+    },
+    "anchors": {
+      "exact": 188,
+      "z_omitted": 230,
+      "contradicting_value": 34,
+      "sensor_absent": 68
+    },
+    "examples": {
+      "anchor_z_omitted": [
+        {
+          "item_id": "EVT-val-f01-r302::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 17.94,
+          "phrase": ") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+        },
+        {
+          "item_id": "EVT-val-f01-r304::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_1",
+          "top_z": 18.07,
+          "phrase": ") with a 222.71% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Flow (XMEAS_19) rises with"
+        },
+        {
+          "item_id": "EVT-val-f01-r309::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_1",
+          "top_z": 18.02,
+          "phrase": ") and A_Feed_Flow (XMV_44) with a 222% deviation, while Stripper_Steam_Valve (XMV_50) increases with 66% deviation. The"
+        },
+        {
+          "item_id": "EVT-val-f01-r311::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 18.08,
+          "phrase": ") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+        },
+        {
+          "item_id": "EVT-val-f01-r314::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 17.71,
+          "phrase": ") and A_Feed_Stream1 (XMEAS_1) with a 218.35% deviation, while Stripper_Steam_Valve (XMV_50) increases with a 65.15% dev"
+        },
+        {
+          "item_id": "EVT-val-f01-r315::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 17.97,
+          "phrase": ") and A_Feed_Stream1 (XMEAS_1) with a 221.57% deviation, while Stripper_Steam_Valve (XMV_50) shows a 70.27% increase. Th"
+        },
+        {
+          "item_id": "EVT-val-f01-r316::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 18.13,
+          "phrase": ") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+        },
+        {
+          "item_id": "EVT-val-f01-r321::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_1",
+          "top_z": 17.84,
+          "phrase": ") and A_Feed_Flow (XMV_44) with a 219.91% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Fl"
+        },
+        {
+          "item_id": "EVT-val-f01-r323::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 18.17,
+          "phrase": ") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+        },
+        {
+          "item_id": "EVT-val-f01-r325::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 18.05,
+          "phrase": ") and A_Feed_Stream1 (XMEAS_1) with a 222.51% and 222.32% deviation, respectively, while Stripper_Steam_Valve (XMV_50) i"
+        }
+      ],
+      "anchor_contradicting_value": [
+        {
+          "item_id": "EVT-val-f01-r303::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 17.87,
+          "phrase": ") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Temperature (XMEAS_18) following. The dynamic residual attri"
+        },
+        {
+          "item_id": "EVT-val-f01-r322::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_44",
+          "top_z": 17.87,
+          "phrase": ") at onset, with Stripper_Temperature (XMEAS_18) rising 5.99% and Stripper_Steam_Valve (XMV_50) increasing 66.63% at +0."
+        },
+        {
+          "item_id": "EVT-val-f03-r302::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_24",
+          "top_z": 0.19,
+          "phrase": "), and Separator_Underflow_Stream10 (XMEAS_14), all increasing with z-scores above 0.15. The Reactor_Cooling_Water_Flow"
+        },
+        {
+          "item_id": "EVT-val-f06-r303::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_16",
+          "top_z": 30.98,
+          "phrase": ", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+        },
+        {
+          "item_id": "EVT-val-f06-r306::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_16",
+          "top_z": 30.98,
+          "phrase": "), reactor (XMEAS_7), and separator (XMEAS_13), while Component_C_Stream9 (XMEAS_31) increases by 37.67% and Component_A"
+        },
+        {
+          "item_id": "EVT-val-f06-r309::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_16",
+          "top_z": 31.24,
+          "phrase": ") and reactor (XMEAS_7), and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases."
+        },
+        {
+          "item_id": "EVT-val-f06-r320::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_16",
+          "top_z": 31.14,
+          "phrase": ", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+        },
+        {
+          "item_id": "EVT-val-f06-r325::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_16",
+          "top_z": 31.1,
+          "phrase": ", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+        },
+        {
+          "item_id": "EVT-val-f08-r316::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_16",
+          "top_z": 1.24,
+          "phrase": ", XMEAS_7, XMEAS_13) rising 1.4 and 1.5 minutes after the feed stream change. The dynamic residual attribution points to"
+        },
+        {
+          "item_id": "EVT-val-f09-r301::menu",
+          "stratum": "classified",
+          "top_tag": "XMEAS_24",
+          "top_z": 0.36,
+          "phrase": ") with a +0.42% deviation, Recycle_Flow_Stream8 (XMEAS_5) with a +0.14% deviation, and Stripper_Liquid_Product_Flow (XMV"
+        }
+      ],
+      "tag_role": [
+        {
+          "item_id": "EVT-val-f01-r307::openset",
+          "stratum": "removed",
+          "phrase": "he onset order shows the valve position change (XMV_50)"
+        },
+        {
+          "item_id": "EVT-val-f04-r303::openset",
+          "stratum": "removed",
+          "phrase": "is ruled out because the flow valve position (XMV_51)"
+        },
+        {
+          "item_id": "EVT-val-f04-r303::openset",
+          "stratum": "removed",
+          "phrase": "and the cooling water flow measurement (XMEAS_21)"
+        },
+        {
+          "item_id": "EVT-val-f04-r305::openset",
+          "stratum": "removed",
+          "phrase": "and the dominant sensor is the valve position (XMV_51)"
+        },
+        {
+          "item_id": "EVT-val-f04-r308::openset",
+          "stratum": "removed",
+          "phrase": "is ruled out because the valve position (XMV_51)"
+        },
+        {
+          "item_id": "EVT-val-f04-r308::openset",
+          "stratum": "removed",
+          "phrase": "and the cooling water flow (XMEAS_21)"
+        },
+        {
+          "item_id": "EVT-val-f04-r309::openset",
+          "stratum": "removed",
+          "phrase": "d the valve position is a manipulated variable (XMV_51)"
+        },
+        {
+          "item_id": "EVT-val-f04-r311::openset",
+          "stratum": "removed",
+          "phrase": "d the valve position is a manipulated variable (XMV_51)"
+        },
+        {
+          "item_id": "EVT-val-f04-r316::openset",
+          "stratum": "removed",
+          "phrase": "is ruled out because the flow valve position (XMV_51)"
+        },
+        {
+          "item_id": "EVT-val-f04-r316::openset",
+          "stratum": "removed",
+          "phrase": "and the cooling water flow measurement (XMEAS_21)"
+        }
+      ],
+      "grounding": [
+        {
+          "item_id": "EVT-val-f01-r309::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:222"
+        },
+        {
+          "item_id": "EVT-val-f01-r309::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:66"
+        },
+        {
+          "item_id": "EVT-val-f02-r301::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:15.12"
+        },
+        {
+          "item_id": "EVT-val-f02-r301::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:15.57"
+        },
+        {
+          "item_id": "EVT-val-f02-r305::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:6"
+        },
+        {
+          "item_id": "EVT-val-f02-r305::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:9"
+        },
+        {
+          "item_id": "EVT-val-f02-r310::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:9"
+        },
+        {
+          "item_id": "EVT-val-f02-r310::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:6"
+        },
+        {
+          "item_id": "EVT-val-f02-r314::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:11.77"
+        },
+        {
+          "item_id": "EVT-val-f02-r314::openset",
+          "stratum": "removed",
+          "phrase": "number_not_in_store:12.06"
+        }
+      ],
+      "anchor_sensor_absent": [
+        {
+          "item_id": "EVT-val-f03-r317::menu",
+          "stratum": "classified",
+          "top_tag": "XMEAS_32",
+          "top_z": -0.23,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f03-r317::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_32",
+          "top_z": -0.23,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f06-r321::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_16",
+          "top_z": 31.08,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f08-r303::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_31",
+          "top_z": -1.99,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f08-r312::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_50",
+          "top_z": 6.6,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f08-r317::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_34",
+          "top_z": -2.76,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f08-r321::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_11",
+          "top_z": -1.28,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f08-r322::openset",
+          "stratum": "removed",
+          "top_tag": "XMV_50",
+          "top_z": 5.56,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f09-r317::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_32",
+          "top_z": -0.23,
+          "phrase": ""
+        },
+        {
+          "item_id": "EVT-val-f09-r319::openset",
+          "stratum": "removed",
+          "top_tag": "XMEAS_17",
+          "top_z": 0.22,
+          "phrase": ""
+        }
+      ],
+      "numeric": [
+        {
+          "item_id": "EVT-val-f08-r325::menu",
+          "stratum": "classified",
+          "phrase": "The CVA Q-statistic (940.1) and LSTM error (5.7571) confirm the anomaly matches FAULT_08's signature of random"
+        },
+        {
+          "item_id": "EVT-val-f10-r320::menu",
+          "stratum": "classified",
+          "phrase": "The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, with dynamic residual att"
+        },
+        {
+          "item_id": "EVT-val-f10-r320::openset",
+          "stratum": "removed",
+          "phrase": "The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, but the top deviating sen"
+        },
+        {
+          "item_id": "EVT-val-f10-r322::openset",
+          "stratum": "removed",
+          "phrase": "The CVA Q-statistic alarm (1161.8 > 194.6) indicates a significant process deviation, but the top deviating se"
+        },
+        {
+          "item_id": "EVT-val-f10-r323::openset",
+          "stratum": "removed",
+          "phrase": "The CVA Q-statistic alarm (1303.5 > 194.6) indicates a significant process deviation, with top deviating senso"
+        },
+        {
+          "item_id": "EVT-val-f13-r301::openset",
+          "stratum": "removed",
+          "phrase": "The slow-drift ratio of 0.46 and high-lag share in the CVA attribution further indicate a disturbance not matc"
+        },
+        {
+          "item_id": "EVT-val-f15-r301::openset",
+          "stratum": "removed",
+          "phrase": "The CVA Q-statistic alarm (211.0 > 194.6) indicates a significant process deviation, but the top deviating sen"
+        },
+        {
+          "item_id": "EVT-val-f15-r303::openset",
+          "stratum": "removed",
+          "phrase": "The CVA Q-statistic alarm (228.0 > 194.6) indicates a significant process deviation, but the top deviating sen"
+        },
+        {
+          "item_id": "EVT-val-f15-r304::openset",
+          "stratum": "removed",
+          "phrase": "The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separa"
+        },
+        {
+          "item_id": "EVT-val-f15-r306::openset",
+          "stratum": "removed",
+          "phrase": "The CVA Q-statistic alarm (212.3 > 194.6) indicates a process deviation, but the top deviating sensors show in"
+        }
+      ]
+    }
+  },
+  "anchor_bands": {
+    "ge_5": {
+      "rows": 206,
+      "exact": 115,
+      "rate": 0.5583
+    },
+    "1_to_5": {
+      "rows": 123,
+      "exact": 55,
+      "rate": 0.4472
+    },
+    "lt_1": {
+      "rows": 191,
+      "exact": 18,
+      "rate": 0.0942
+    }
+  },
+  "anchor_gate": {
+    "rows": 329,
+    "rows_top_abs_z_ge_1": 329,
+    "exact": 170,
+    "rate": 0.5167,
+    "threshold": 0.9,
+    "pass": false
+  },
+  "numeric_breakdown": {
+    "by_flag": {
+      "value_not_stored": 34,
+      "wrong_inequality_direction": 47,
+      "threshold_misquoted": 1
+    },
+    "by_row_first_kind": {
+      "value_not_stored": 34,
+      "wrong_inequality_direction": 27,
+      "threshold_misquoted": 1
+    }
+  },
+  "grounding_breakdown": {
+    "by_row": {
+      "numbers": 28,
+      "tags": 5
+    },
+    "by_code": {
+      "number_not_in_store": 45,
+      "tag_not_in_evidence": 5
+    }
+  },
+  "old_vs_new": [
+    {
+      "gate": "contradiction",
+      "old_count": 462,
+      "old_rate": 0.8885,
+      "new_count": 0,
+      "new_rate": 0.0,
+      "threshold": 0.02,
+      "note": "re-specified 28.2; stored value not a prose defect"
+    },
+    {
+      "gate": "tag_role",
+      "old_count": 396,
+      "old_rate": 0.7615,
+      "new_count": 57,
+      "new_rate": 0.1096,
+      "threshold": 0.02,
+      "note": "re-specified 28.3; stored value not a prose defect"
+    },
+    {
+      "gate": "numeric",
+      "old_count": 69,
+      "old_rate": 0.1327,
+      "new_count": 62,
+      "new_rate": 0.1192,
+      "threshold": 0.02,
+      "note": "same checker, decomposed by cause"
+    },
+    {
+      "gate": "grounding",
+      "old_count": 33,
+      "old_rate": 0.0635,
+      "new_count": 33,
+      "new_rate": 0.0635,
+      "threshold": 0.02,
+      "note": "same checker, split into numbers and tags"
+    },
+    {
+      "gate": "anchor",
+      "old_count": 187,
+      "old_rate": 0.3596,
+      "new_count": 170,
+      "new_rate": 0.5167,
+      "threshold": 0.9,
+      "note": "higher is better; rows with top |z| >= 1"
+    }
+  ],
+  "fallback_v31": {
+    "counts": {
+      "numeric": 19
+    },
+    "anchors": {
+      "exact": 520
+    },
+    "by_stratum": {
+      "anchor_ge_1": {
+        "exact": 329
+      },
+      "numeric": {
+        "classified": 19
+      }
+    },
+    "anchor_gate": {
+      "rows": 329,
+      "exact": 329,
+      "rate": 1.0
+    },
+    "examples": {
+      "numeric": [
+        {
+          "item_id": "EVT-val-f03-r302::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.99x and CVA Q-statistic 0"
+        },
+        {
+          "item_id": "EVT-val-f03-r317::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0"
+        },
+        {
+          "item_id": "EVT-val-f08-r315::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.59x and CVA Q-statistic 6"
+        },
+        {
+          "item_id": "EVT-val-f08-r318::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 17.33x and CVA Q-statistic "
+        },
+        {
+          "item_id": "EVT-val-f08-r324::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.98x and CVA Q-statistic 3"
+        },
+        {
+          "item_id": "EVT-val-f08-r325::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4"
+        },
+        {
+          "item_id": "EVT-val-f09-r301::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0"
+        },
+        {
+          "item_id": "EVT-val-f09-r302::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0"
+        },
+        {
+          "item_id": "EVT-val-f09-r317::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0"
+        },
+        {
+          "item_id": "EVT-val-f09-r319::menu",
+          "stratum": "classified",
+          "phrase": "Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 0"
+        }
+      ]
+    }
+  },
+  "top_phrases": [
+    {
+      "phrase": "number_not_in_store:<N>",
+      "count": 145
+    },
+    {
+      "phrase": "The CVA Q-statistic (<N>) is below threshold (<N>), and the LSTM autoencoder reconstruction error (<",
+      "count": 88
+    },
+    {
+      "phrase": "The CVA Q-statistic alarm (<N> > <N>) indicates a process deviation, but the top deviating sensors (",
+      "count": 28
+    },
+    {
+      "phrase": "The CVA Q-statistic alarm (<N> > <N>) indicates a significant process deviation, but the top deviati",
+      "count": 18
+    },
+    {
+      "phrase": "The CVA Q-statistic alarm (<N> > <N>) indicates a process deviation, but the top deviating sensors s",
+      "count": 18
+    },
+    {
+      "phrase": "The CVA Q-statistic alarm (<N> vs threshold <N>) indicates a minor process deviation, but the LSTM r",
+      "count": 15
+    },
+    {
+      "phrase": "but the temperature measurement (<TAG>)",
+      "count": 13
+    },
+    {
+      "phrase": "tag_not_in_evidence:<TAG>",
+      "count": 11
+    },
+    {
+      "phrase": "but the valve position (<TAG>)",
+      "count": 9
+    },
+    {
+      "phrase": "let conditions and flow control valve position (<TAG>)",
+      "count": 8
+    },
+    {
+      "phrase": "but here the flow valve position (<TAG>)",
+      "count": 6
+    },
+    {
+      "phrase": "water inlet temperature and flow control valve (<TAG>)",
+      "count": 6
+    },
+    {
+      "phrase": "The CVA Q-statistic (<N>) is just below threshold (<N>), and the LSTM autoencoder reconstruction err",
+      "count": 6
+    },
+    {
+      "phrase": "The CVA Q-statistic (<N>) remains below threshold (<N>), and the LSTM autoencoder reconstruction err",
+      "count": 6
+    },
+    {
+      "phrase": "viation in the cooling water inlet temperature (<TAG>)",
+      "count": 5
+    },
+    {
+      "phrase": "is ruled out because the valve position (<TAG>)",
+      "count": 4
+    },
+    {
+      "phrase": "d the valve position is a manipulated variable (<TAG>)",
+      "count": 4
+    },
+    {
+      "phrase": "C feed flow (<TAG>)",
+      "count": 4
+    },
+    {
+      "phrase": "iation in the cooling water outlet temperature (<TAG>)",
+      "count": 4
+    },
+    {
+      "phrase": "but the flow valve position (<TAG>)",
+      "count": 4
+    }
+  ],
+  "by_order": {
+    "kb": {
+      "tag_role": 57,
+      "grounding": 33,
+      "numeric": 62
+    },
+    "shuffled-1": {
+      "tag_role": 39,
+      "grounding": 36,
+      "numeric": 49
+    },
+    "shuffled-2": {
+      "grounding": 36,
+      "tag_role": 38,
+      "numeric": 46
+    }
+  }
+}

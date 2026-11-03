@@ -1,0 +1,71 @@
+source,check,item_id,stratum,phrase
+adapter,anchor_z_omitted,EVT-val-f01-r302::openset,removed,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+adapter,anchor_z_omitted,EVT-val-f01-r304::openset,removed,") with a 222.71% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Flow (XMEAS_19) rises with"
+adapter,anchor_z_omitted,EVT-val-f01-r309::openset,removed,") and A_Feed_Flow (XMV_44) with a 222% deviation, while Stripper_Steam_Valve (XMV_50) increases with 66% deviation. The"
+adapter,anchor_z_omitted,EVT-val-f01-r311::openset,removed,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+adapter,anchor_z_omitted,EVT-val-f01-r314::openset,removed,") and A_Feed_Stream1 (XMEAS_1) with a 218.35% deviation, while Stripper_Steam_Valve (XMV_50) increases with a 65.15% dev"
+adapter,anchor_z_omitted,EVT-val-f01-r315::openset,removed,") and A_Feed_Stream1 (XMEAS_1) with a 221.57% deviation, while Stripper_Steam_Valve (XMV_50) shows a 70.27% increase. Th"
+adapter,anchor_z_omitted,EVT-val-f01-r316::openset,removed,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+adapter,anchor_z_omitted,EVT-val-f01-r321::openset,removed,") and A_Feed_Flow (XMV_44) with a 219.91% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Fl"
+adapter,anchor_z_omitted,EVT-val-f01-r323::openset,removed,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+adapter,anchor_z_omitted,EVT-val-f01-r325::openset,removed,") and A_Feed_Stream1 (XMEAS_1) with a 222.51% and 222.32% deviation, respectively, while Stripper_Steam_Valve (XMV_50) i"
+adapter,anchor_contradicting_value,EVT-val-f01-r303::openset,removed,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Temperature (XMEAS_18) following. The dynamic residual attri"
+adapter,anchor_contradicting_value,EVT-val-f01-r322::openset,removed,") at onset, with Stripper_Temperature (XMEAS_18) rising 5.99% and Stripper_Steam_Valve (XMV_50) increasing 66.63% at +0."
+adapter,anchor_contradicting_value,EVT-val-f03-r302::openset,removed,"), and Separator_Underflow_Stream10 (XMEAS_14), all increasing with z-scores above 0.15. The Reactor_Cooling_Water_Flow"
+adapter,anchor_contradicting_value,EVT-val-f06-r303::openset,removed,", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+adapter,anchor_contradicting_value,EVT-val-f06-r306::openset,removed,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_C_Stream9 (XMEAS_31) increases by 37.67% and Component_A"
+adapter,anchor_contradicting_value,EVT-val-f06-r309::openset,removed,") and reactor (XMEAS_7), and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases."
+adapter,anchor_contradicting_value,EVT-val-f06-r320::openset,removed,", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+adapter,anchor_contradicting_value,EVT-val-f06-r325::openset,removed,", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+adapter,anchor_contradicting_value,EVT-val-f08-r316::openset,removed,", XMEAS_7, XMEAS_13) rising 1.4 and 1.5 minutes after the feed stream change. The dynamic residual attribution points to"
+adapter,anchor_contradicting_value,EVT-val-f09-r301::menu,classified,") with a +0.42% deviation, Recycle_Flow_Stream8 (XMEAS_5) with a +0.14% deviation, and Stripper_Liquid_Product_Flow (XMV"
+adapter,tag_role,EVT-val-f01-r307::openset,removed,he onset order shows the valve position change (XMV_50)
+adapter,tag_role,EVT-val-f04-r303::openset,removed,is ruled out because the flow valve position (XMV_51)
+adapter,tag_role,EVT-val-f04-r303::openset,removed,and the cooling water flow measurement (XMEAS_21)
+adapter,tag_role,EVT-val-f04-r305::openset,removed,and the dominant sensor is the valve position (XMV_51)
+adapter,tag_role,EVT-val-f04-r308::openset,removed,is ruled out because the valve position (XMV_51)
+adapter,tag_role,EVT-val-f04-r308::openset,removed,and the cooling water flow (XMEAS_21)
+adapter,tag_role,EVT-val-f04-r309::openset,removed,d the valve position is a manipulated variable (XMV_51)
+adapter,tag_role,EVT-val-f04-r311::openset,removed,d the valve position is a manipulated variable (XMV_51)
+adapter,tag_role,EVT-val-f04-r316::openset,removed,is ruled out because the flow valve position (XMV_51)
+adapter,tag_role,EVT-val-f04-r316::openset,removed,and the cooling water flow measurement (XMEAS_21)
+adapter,grounding,EVT-val-f01-r309::openset,removed,number_not_in_store:222
+adapter,grounding,EVT-val-f01-r309::openset,removed,number_not_in_store:66
+adapter,grounding,EVT-val-f02-r301::openset,removed,number_not_in_store:15.12
+adapter,grounding,EVT-val-f02-r301::openset,removed,number_not_in_store:15.57
+adapter,grounding,EVT-val-f02-r305::openset,removed,number_not_in_store:6
+adapter,grounding,EVT-val-f02-r305::openset,removed,number_not_in_store:9
+adapter,grounding,EVT-val-f02-r310::openset,removed,number_not_in_store:9
+adapter,grounding,EVT-val-f02-r310::openset,removed,number_not_in_store:6
+adapter,grounding,EVT-val-f02-r314::openset,removed,number_not_in_store:11.77
+adapter,grounding,EVT-val-f02-r314::openset,removed,number_not_in_store:12.06
+adapter,anchor_sensor_absent,EVT-val-f03-r317::menu,classified,
+adapter,anchor_sensor_absent,EVT-val-f03-r317::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f06-r321::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f08-r303::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f08-r312::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f08-r317::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f08-r321::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f08-r322::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f09-r317::openset,removed,
+adapter,anchor_sensor_absent,EVT-val-f09-r319::openset,removed,
+adapter,numeric,EVT-val-f08-r325::menu,classified,The CVA Q-statistic (940.1) and LSTM error (5.7571) confirm the anomaly matches FAULT_08's signature of random
+adapter,numeric,EVT-val-f10-r320::menu,classified,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, with dynamic residual att"
+adapter,numeric,EVT-val-f10-r320::openset,removed,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, but the top deviating sen"
+adapter,numeric,EVT-val-f10-r322::openset,removed,"The CVA Q-statistic alarm (1161.8 > 194.6) indicates a significant process deviation, but the top deviating se"
+adapter,numeric,EVT-val-f10-r323::openset,removed,"The CVA Q-statistic alarm (1303.5 > 194.6) indicates a significant process deviation, with top deviating senso"
+adapter,numeric,EVT-val-f13-r301::openset,removed,The slow-drift ratio of 0.46 and high-lag share in the CVA attribution further indicate a disturbance not matc
+adapter,numeric,EVT-val-f15-r301::openset,removed,"The CVA Q-statistic alarm (211.0 > 194.6) indicates a significant process deviation, but the top deviating sen"
+adapter,numeric,EVT-val-f15-r303::openset,removed,"The CVA Q-statistic alarm (228.0 > 194.6) indicates a significant process deviation, but the top deviating sen"
+adapter,numeric,EVT-val-f15-r304::openset,removed,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separa"
+adapter,numeric,EVT-val-f15-r306::openset,removed,"The CVA Q-statistic alarm (212.3 > 194.6) indicates a process deviation, but the top deviating sensors show in"
+fallback_v31,numeric,EVT-val-f03-r302::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.99x and CVA Q-statistic 0
+fallback_v31,numeric,EVT-val-f03-r317::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0
+fallback_v31,numeric,EVT-val-f08-r315::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.59x and CVA Q-statistic 6
+fallback_v31,numeric,EVT-val-f08-r318::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 17.33x and CVA Q-statistic 
+fallback_v31,numeric,EVT-val-f08-r324::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.98x and CVA Q-statistic 3
+fallback_v31,numeric,EVT-val-f08-r325::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4
+fallback_v31,numeric,EVT-val-f09-r301::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0
+fallback_v31,numeric,EVT-val-f09-r302::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0
+fallback_v31,numeric,EVT-val-f09-r317::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0
+fallback_v31,numeric,EVT-val-f09-r319::menu,classified,Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 0
