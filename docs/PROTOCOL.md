@@ -2180,3 +2180,85 @@ each stratum in the key.
 
 No training, no teacher calls, no test component, no modification of run-1 artefacts, the KB,
 `train_mixed.jsonl`, earlier committed hashes or any pilot checkpoint (read only), and no deletion.
+
+---
+
+## 26. The v4 sheet is invalid: diagnosis and rebuild (2026-11-02)
+
+### 26.1 What the review found
+
+The owner read `outputs/analysis/phase3a/fit/audit_ab_100_v4.csv` and `_key.csv` and reported
+four defects. All four are confirmed and none is a rendering artefact:
+
+1. **The two texts on a row describe different events.** `text_A` and `text_B` are not two
+   explanations of one event, so a preference between them has no referent.
+2. **The key does not match text style.** Rows the key labels `adapter`/`fallback` carry two
+   texts from the same generator, so the label cannot be checked against the prose.
+3. **Seven classified-fault rows sit inside the NORMAL family.** The NORMAL stratum was meant
+   to be `verdict no_fault` with gold `NORMAL_TRANSIENT`; it contains 7 rows whose gold is a
+   `FAULT_NN` and whose verdict is `classified`.
+4. **The NORMAL stratum has 13 `NORMAL_TRANSIENT` rows, not 20.**
+
+The sheet is therefore **invalid**: it cannot be rated, and no number computed from it may be
+reported. It is kept on disk unchanged and marked SUPERSEDED; it is not deleted.
+
+### 26.2 No preference gate is applied to the invalid sheet
+
+No rater scored v4 and no preference number exists for it. The v4 sheet contributes nothing to
+any gate: the section 25 preference gate remains `unmeasured`, and it must not be re-read as
+failed, passed or partially measured from this sheet. Any preference claim waits for v5, which
+is scored by a rater who has not seen the key.
+
+### 26.3 Rebuild rules, fixed before the rebuild
+
+- **40 rows**: 10 open-set items presented on a menu, 10 menu-removed, and 20
+  `NORMAL_TRANSIENT` (verdict `no_fault`, gold `NORMAL_TRANSIENT`). **No classified-fault row
+  in any stratum.**
+- **Same item on both sides, asserted in code** before the sheet is written: identical
+  `item_id`, identical top-sensor tag, identical z value to 2 decimals. The build fails if any
+  row breaks this.
+- **Key exactly 50/50 inside each stratum** (5/5, 5/5, 10/10), columns
+  `item_id, family, diagnosis, verdict, A, B, seed`.
+- **Sheet columns** exactly
+  `item_id, text_A, text_B, correct_A, grounded_A, consistent_A, useful_A, correct_B,
+  grounded_B, consistent_B, useful_B, preference, notes`; every scoring cell blank; no family,
+  diagnosis, verdict or source column.
+- **One identical plain-text layout for both sides**: `Diagnosis:`, `Reasoning:`, `Narrative:`.
+  The adapter's JSON answer is converted into that layout and the fallback's section labels are
+  unified into it. No generator-specific boilerplate may survive on one side only (for example
+  a `Differential:` line that only the fallback writes, or JSON punctuation only the adapter
+  carries).
+- **Format-identity test**: a test compares layout features of the two sides (section label set,
+  line prefixes, brace and quote punctuation, bullet characters, label vocabulary) and fails if
+  a rater could tell the source from the layout. Text length is explicitly not compared: the
+  two explainers differ in length by design.
+
+### 26.4 Diagnosis obligations
+
+For every one of the 40 v4 rows: the `item_id` in the key, the item each text was actually
+generated for (recovered from the stored generation records by exact text match), whether the
+two texts name the same top sensor and the same z to 2 decimals, whether each text's style
+matches the key's label, and the verdict stratum the row really belongs to. The root cause must
+be named by file and line, and a regression test must fail against v4 and pass against v5.
+
+### 26.5 Evaluation re-check
+
+The section 25 evaluation is a separate code path from the sheet builder. Whether any evaluation
+metric joined adapter generations to items by position is established and stated plainly. If a
+metric depended on a positional join, it is recomputed by `item_id` and both numbers are
+reported. The pilot gate table stands only if no such join is found; if one is found, the table
+is qualified or withdrawn in the report, never silently amended.
+
+### 26.6 What does not change
+
+No training. No teacher call. No test component is opened. The pilot checkpoints, the run-1
+outputs, the KB, `train_mixed.jsonl`, the earlier hashes and the section 25 numbers are read
+only. Stored adapter prose is reused; new adapter generations are made only if a chosen item
+has none and the GPU is idle (no compute process; compute memory below 2 GB), in KB order, and
+the report says how many were made. The v4 sheet and its key stay on disk as SUPERSEDED.
+
+### 26.7 Outcome
+
+The diagnosis table, the evaluation re-check result, the rebuild result and the format-identity
+test are appended below once measured, in a later commit. Nothing in 26.1 to 26.6 depends on
+their values.
