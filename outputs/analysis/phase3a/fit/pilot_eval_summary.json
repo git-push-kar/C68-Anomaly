@@ -1,0 +1,354 @@
+{
+  "orders": {
+    "kb": {
+      "rows": 520,
+      "denominator": 520,
+      "counts": {
+        "schema_valid": 520,
+        "complete": 520,
+        "empty_narrative": 0,
+        "grounding": 33,
+        "numeric": 69,
+        "tag_role": 396,
+        "contradiction": 462
+      },
+      "rates": {
+        "schema_valid": 1.0,
+        "complete": 1.0,
+        "empty_narrative": 0.0,
+        "grounding": 0.0635,
+        "numeric": 0.1327,
+        "tag_role": 0.7615,
+        "contradiction": 0.8885
+      },
+      "mean_tokens": 287.3,
+      "mean_prose_chars": 1086.2,
+      "errors": {},
+      "extra_key_rows": 0,
+      "contradiction_ids": {
+        "FAULT_06": 26,
+        "FAULT_07": 50,
+        "FAULT_01": 382,
+        "FAULT_03": 32,
+        "FAULT_02": 174,
+        "FAULT_14": 50,
+        "FAULT_15": 77,
+        "FAULT_04": 75,
+        "FAULT_05": 54,
+        "FAULT_08": 1
+      }
+    },
+    "shuffled-1": {
+      "rows": 520,
+      "denominator": 520,
+      "counts": {
+        "schema_valid": 520,
+        "complete": 520,
+        "empty_narrative": 0,
+        "grounding": 36,
+        "numeric": 58,
+        "tag_role": 396,
+        "contradiction": 464
+      },
+      "rates": {
+        "schema_valid": 1.0,
+        "complete": 1.0,
+        "empty_narrative": 0.0,
+        "grounding": 0.0692,
+        "numeric": 0.1115,
+        "tag_role": 0.7615,
+        "contradiction": 0.8923
+      },
+      "mean_tokens": 283.9,
+      "mean_prose_chars": 1080.3,
+      "errors": {},
+      "extra_key_rows": 0,
+      "contradiction_ids": {
+        "FAULT_06": 26,
+        "FAULT_07": 50,
+        "FAULT_01": 383,
+        "FAULT_03": 32,
+        "FAULT_02": 185,
+        "FAULT_14": 50,
+        "FAULT_15": 76,
+        "FAULT_04": 76,
+        "FAULT_09": 1,
+        "FAULT_05": 55
+      }
+    },
+    "shuffled-2": {
+      "rows": 520,
+      "denominator": 520,
+      "counts": {
+        "schema_valid": 520,
+        "complete": 520,
+        "empty_narrative": 0,
+        "grounding": 36,
+        "numeric": 54,
+        "tag_role": 398,
+        "contradiction": 464
+      },
+      "rates": {
+        "schema_valid": 1.0,
+        "complete": 1.0,
+        "empty_narrative": 0.0,
+        "grounding": 0.0692,
+        "numeric": 0.1038,
+        "tag_role": 0.7654,
+        "contradiction": 0.8923
+      },
+      "mean_tokens": 283.0,
+      "mean_prose_chars": 1075.0,
+      "errors": {},
+      "extra_key_rows": 0,
+      "contradiction_ids": {
+        "FAULT_06": 28,
+        "FAULT_07": 50,
+        "FAULT_01": 380,
+        "FAULT_03": 33,
+        "FAULT_02": 181,
+        "FAULT_14": 49,
+        "FAULT_15": 77,
+        "FAULT_04": 69,
+        "FAULT_05": 55,
+        "FAULT_08": 1
+      }
+    }
+  },
+  "gates": {
+    "kb": {
+      "schema_valid": {
+        "value": 1.0,
+        "threshold": 0.98,
+        "pass": true,
+        "count": 520,
+        "denominator": 520
+      },
+      "complete": {
+        "value": 1.0,
+        "threshold": 0.95,
+        "pass": true,
+        "count": 520,
+        "denominator": 520
+      },
+      "empty_narrative": {
+        "value": 0.0,
+        "threshold": 0.0,
+        "pass": true,
+        "count": 0,
+        "denominator": 520
+      },
+      "grounding": {
+        "value": 0.0635,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 33,
+        "denominator": 520
+      },
+      "numeric": {
+        "value": 0.1327,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 69,
+        "denominator": 520
+      },
+      "tag_role": {
+        "value": 0.7615,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 396,
+        "denominator": 520
+      },
+      "contradiction": {
+        "value": 0.8885,
+        "threshold": 0.0,
+        "pass": false,
+        "count": 462,
+        "denominator": 520
+      },
+      "over_refusal": {
+        "value": 0.0,
+        "threshold": 0.1,
+        "pass": true,
+        "count": null,
+        "denominator": 40
+      },
+      "refusal": {
+        "value": 1.0,
+        "threshold": 0.9,
+        "pass": true,
+        "count": null,
+        "denominator": 28
+      }
+    },
+    "shuffled-1": {
+      "schema_valid": {
+        "value": 1.0,
+        "threshold": 0.98,
+        "pass": true,
+        "count": 520,
+        "denominator": 520
+      },
+      "complete": {
+        "value": 1.0,
+        "threshold": 0.95,
+        "pass": true,
+        "count": 520,
+        "denominator": 520
+      },
+      "empty_narrative": {
+        "value": 0.0,
+        "threshold": 0.0,
+        "pass": true,
+        "count": 0,
+        "denominator": 520
+      },
+      "grounding": {
+        "value": 0.0692,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 36,
+        "denominator": 520
+      },
+      "numeric": {
+        "value": 0.1115,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 58,
+        "denominator": 520
+      },
+      "tag_role": {
+        "value": 0.7615,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 396,
+        "denominator": 520
+      },
+      "contradiction": {
+        "value": 0.8923,
+        "threshold": 0.0,
+        "pass": false,
+        "count": 464,
+        "denominator": 520
+      },
+      "over_refusal": {
+        "value": 0.0,
+        "threshold": 0.1,
+        "pass": true,
+        "count": null,
+        "denominator": 40
+      },
+      "refusal": {
+        "value": 1.0,
+        "threshold": 0.9,
+        "pass": true,
+        "count": null,
+        "denominator": 28
+      }
+    },
+    "shuffled-2": {
+      "schema_valid": {
+        "value": 1.0,
+        "threshold": 0.98,
+        "pass": true,
+        "count": 520,
+        "denominator": 520
+      },
+      "complete": {
+        "value": 1.0,
+        "threshold": 0.95,
+        "pass": true,
+        "count": 520,
+        "denominator": 520
+      },
+      "empty_narrative": {
+        "value": 0.0,
+        "threshold": 0.0,
+        "pass": true,
+        "count": 0,
+        "denominator": 520
+      },
+      "grounding": {
+        "value": 0.0692,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 36,
+        "denominator": 520
+      },
+      "numeric": {
+        "value": 0.1038,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 54,
+        "denominator": 520
+      },
+      "tag_role": {
+        "value": 0.7654,
+        "threshold": 0.02,
+        "pass": false,
+        "count": 398,
+        "denominator": 520
+      },
+      "contradiction": {
+        "value": 0.8923,
+        "threshold": 0.0,
+        "pass": false,
+        "count": 464,
+        "denominator": 520
+      },
+      "over_refusal": {
+        "value": 0.0,
+        "threshold": 0.1,
+        "pass": true,
+        "count": null,
+        "denominator": 40
+      },
+      "refusal": {
+        "value": 1.0,
+        "threshold": 0.9,
+        "pass": true,
+        "count": null,
+        "denominator": 28
+      }
+    }
+  },
+  "preference_gate": {
+    "status": "unmeasured",
+    "why": "no rater; the sheet is delivered blank"
+  },
+  "pilot_followups": {
+    "items": 179,
+    "by_kind": {
+      "ambiguous_question": 12,
+      "causal_why": 15,
+      "clarification_reply": 15,
+      "false_premise": 15,
+      "hypothesis_comparison": 15,
+      "mechanism": 15,
+      "out_of_scope": 13,
+      "repeated_question": 17,
+      "template_sample": 7,
+      "valve_actuator": 15,
+      "in_scope_control": 40
+    },
+    "refusal_on_out_of_scope_and_false_premise": 1.0,
+    "refusal_denominator": 28,
+    "over_refusal_on_controls": 0.0,
+    "control_denominator": 40,
+    "refusal_on_other_cases": 0.2342,
+    "mean_answer_chars": 270.1
+  },
+  "order_sensitivity": {
+    "rows": 520,
+    "identical_text_kb_vs_shuffled1": 2,
+    "per_metric_max_minus_min": {
+      "schema_valid": 0.0,
+      "complete": 0.0,
+      "empty_narrative": 0.0,
+      "grounding": 0.0057,
+      "numeric": 0.0289,
+      "tag_role": 0.0039,
+      "contradiction": 0.0038
+    }
+  }
+}

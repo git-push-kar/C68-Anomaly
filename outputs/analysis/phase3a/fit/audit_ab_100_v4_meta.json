@@ -1,0 +1,409 @@
+{
+  "sheet": "audit_ab_100_v4.csv",
+  "key": "audit_ab_100_v4_key.csv",
+  "rows": 40,
+  "distinct_items": 40,
+  "seed": 42,
+  "strata": {
+    "abstention_menu": 10,
+    "abstention_removed": 10,
+    "normal": 20
+  },
+  "item_map": [
+    {
+      "item_id": "v4-11",
+      "corpus_item_id": "EVT-val-f16-r314::menu"
+    },
+    {
+      "item_id": "v4-24",
+      "corpus_item_id": "EVT-val-f16-r304::menu"
+    },
+    {
+      "item_id": "v4-19",
+      "corpus_item_id": "EVT-val-f16-r315::menu"
+    },
+    {
+      "item_id": "v4-30",
+      "corpus_item_id": "EVT-val-f16-r318::menu"
+    },
+    {
+      "item_id": "v4-09",
+      "corpus_item_id": "EVT-val-f17-r304::menu"
+    },
+    {
+      "item_id": "v4-32",
+      "corpus_item_id": "EVT-val-f17-r307::menu"
+    },
+    {
+      "item_id": "v4-33",
+      "corpus_item_id": "EVT-val-f17-r311::menu"
+    },
+    {
+      "item_id": "v4-06",
+      "corpus_item_id": "EVT-val-f19-r307::menu"
+    },
+    {
+      "item_id": "v4-25",
+      "corpus_item_id": "EVT-val-f19-r320::menu"
+    },
+    {
+      "item_id": "v4-36",
+      "corpus_item_id": "EVT-val-f19-r312::menu"
+    },
+    {
+      "item_id": "v4-40",
+      "corpus_item_id": "EVT-val-f01-r317::openset"
+    },
+    {
+      "item_id": "v4-29",
+      "corpus_item_id": "EVT-val-f01-r316::openset"
+    },
+    {
+      "item_id": "v4-31",
+      "corpus_item_id": "EVT-val-f02-r323::openset"
+    },
+    {
+      "item_id": "v4-35",
+      "corpus_item_id": "EVT-val-f02-r320::openset"
+    },
+    {
+      "item_id": "v4-23",
+      "corpus_item_id": "EVT-val-f06-r310::openset"
+    },
+    {
+      "item_id": "v4-13",
+      "corpus_item_id": "EVT-val-f06-r318::openset"
+    },
+    {
+      "item_id": "v4-15",
+      "corpus_item_id": "EVT-val-f11-r313::openset"
+    },
+    {
+      "item_id": "v4-37",
+      "corpus_item_id": "EVT-val-f13-r305::openset"
+    },
+    {
+      "item_id": "v4-02",
+      "corpus_item_id": "EVT-val-f14-r301::openset"
+    },
+    {
+      "item_id": "v4-26",
+      "corpus_item_id": "EVT-val-f14-r324::openset"
+    },
+    {
+      "item_id": "v4-14",
+      "corpus_item_id": "EVT-val-f03-r302::menu"
+    },
+    {
+      "item_id": "v4-38",
+      "corpus_item_id": "EVT-val-f08-r318::menu"
+    },
+    {
+      "item_id": "v4-04",
+      "corpus_item_id": "EVT-val-f10-r304::menu"
+    },
+    {
+      "item_id": "v4-12",
+      "corpus_item_id": "EVT-val-f09-r319::menu"
+    },
+    {
+      "item_id": "v4-01",
+      "corpus_item_id": "EVT-val-f12-r306::menu"
+    },
+    {
+      "item_id": "v4-08",
+      "corpus_item_id": "EVT-val-f12-r309::menu"
+    },
+    {
+      "item_id": "v4-16",
+      "corpus_item_id": "EVT-val-f13-r314::menu"
+    },
+    {
+      "item_id": "v4-39",
+      "corpus_item_id": "NORM-val-r307::menu"
+    },
+    {
+      "item_id": "v4-27",
+      "corpus_item_id": "NORM-val-r319::menu"
+    },
+    {
+      "item_id": "v4-21",
+      "corpus_item_id": "NORM-val-r313::menu"
+    },
+    {
+      "item_id": "v4-20",
+      "corpus_item_id": "NORM-val-r337::menu"
+    },
+    {
+      "item_id": "v4-03",
+      "corpus_item_id": "NORM-val-r322::menu"
+    },
+    {
+      "item_id": "v4-07",
+      "corpus_item_id": "NORM-val-r353::menu"
+    },
+    {
+      "item_id": "v4-18",
+      "corpus_item_id": "NORM-val-r368::menu"
+    },
+    {
+      "item_id": "v4-10",
+      "corpus_item_id": "NORM-val-r372::menu"
+    },
+    {
+      "item_id": "v4-17",
+      "corpus_item_id": "NORM-val-r371::menu"
+    },
+    {
+      "item_id": "v4-22",
+      "corpus_item_id": "NORM-val-r382::menu"
+    },
+    {
+      "item_id": "v4-34",
+      "corpus_item_id": "NORM-val-r377::menu"
+    },
+    {
+      "item_id": "v4-28",
+      "corpus_item_id": "NORM-val-r385::menu"
+    },
+    {
+      "item_id": "v4-05",
+      "corpus_item_id": "NORM-val-r386::menu"
+    }
+  ],
+  "verdicts": {
+    "unclassified_open_set": 20,
+    "classified": 7,
+    "no_fault": 13
+  },
+  "adapter_on_A": 20,
+  "adapter_on_A_by_stratum": {
+    "abstention_menu": {
+      "rows": 10,
+      "adapter_on_A": 5,
+      "fallback_on_A": 5
+    },
+    "abstention_removed": {
+      "rows": 10,
+      "adapter_on_A": 5,
+      "fallback_on_A": 5
+    },
+    "normal": {
+      "rows": 20,
+      "adapter_on_A": 10,
+      "fallback_on_A": 10
+    }
+  },
+  "columns_visible": [
+    "item_id",
+    "text_A",
+    "text_B",
+    "correct_A",
+    "grounded_A",
+    "consistent_A",
+    "useful_A",
+    "correct_B",
+    "grounded_B",
+    "consistent_B",
+    "useful_B",
+    "preference",
+    "notes"
+  ],
+  "scoring_cells_blank": 400,
+  "scoring_cells_total": 400,
+  "leak_report": {
+    "rows": 40,
+    "columns": {
+      "item_id": {
+        "positional": true,
+        "tested": false
+      },
+      "stratum": {
+        "balanced": true,
+        "per_stratum": {
+          "abstention_menu": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "abstention_removed": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "normal": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 10,
+              "fallback": 10
+            }
+          }
+        }
+      },
+      "family": {
+        "balanced": true,
+        "per_stratum": {
+          "abstention_menu": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "abstention_removed": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "normal": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 10,
+              "fallback": 10
+            }
+          }
+        }
+      },
+      "diagnosis": {
+        "balanced": true,
+        "per_stratum": {
+          "abstention_menu": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "abstention_removed": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "normal": {
+            "values": 7,
+            "balanced": true,
+            "max_gap": 1,
+            "side_totals": {
+              "adapter": 10,
+              "fallback": 10
+            }
+          }
+        }
+      },
+      "verdict": {
+        "balanced": true,
+        "per_stratum": {
+          "abstention_menu": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "abstention_removed": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "normal": {
+            "values": 2,
+            "balanced": true,
+            "max_gap": 1,
+            "side_totals": {
+              "adapter": 10,
+              "fallback": 10
+            }
+          }
+        }
+      },
+      "menu_present": {
+        "balanced": true,
+        "per_stratum": {
+          "abstention_menu": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "abstention_removed": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 5,
+              "fallback": 5
+            }
+          },
+          "normal": {
+            "values": 1,
+            "balanced": true,
+            "max_gap": 0,
+            "side_totals": {
+              "adapter": 10,
+              "fallback": 10
+            }
+          }
+        }
+      }
+    },
+    "per_stratum": {
+      "abstention_menu": {
+        "rows": 10,
+        "adapter_on_A": 5,
+        "fallback_on_A": 5
+      },
+      "abstention_removed": {
+        "rows": 10,
+        "adapter_on_A": 5,
+        "fallback_on_A": 5
+      },
+      "normal": {
+        "rows": 20,
+        "adapter_on_A": 10,
+        "fallback_on_A": 10
+      }
+    },
+    "passed": true
+  },
+  "rows_where_the_two_texts_are_identical": 0,
+  "comparator": "fallback_v31 (scripts/fallback_v31.py)",
+  "adapter_source": "raw_pilot_kb.jsonl (pilot, kb order)",
+  "checks": {
+    "no_family_diagnosis_verdict_source_columns": true,
+    "key_carries_assignment": true,
+    "exactly_50_50_per_stratum": true
+  }
+}
