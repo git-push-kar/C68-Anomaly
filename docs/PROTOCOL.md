@@ -2301,3 +2301,68 @@ already had stored prose. The preference gate stays `unmeasured`.
 Regression tests: `tests/test_ab_sheet_v5.py`, 8 tests. Three fail against v4 by design (40/40
 different items, 40/40 style mismatch, 7 classified rows) and pass against v5, which is audited
 clean on pairing, strata, balance, columns and layout identity.
+## 27. Join rules for the pilot evaluation (3B-15, 2026-11-02)
+
+### 27.1 What this section fixes
+
+3B-14 reported that only 187 of the 520 evaluation generations name the top sensor and z of
+their own prompt (35.96%) while 6 name the next row's (1.15%), and read that as evidence the
+section 25 numbers were not misaligned. The read is right, but the reasoning behind it is weak:
+the three raw files were written in the same row order as `build_orders()`, so a positional join
+and an item_id join select the same prompt for every row. The anchor rate therefore cannot
+distinguish the two, and the join has to be checked in the code. This section fixes, before any
+number is recomputed, what counts as a join error, how the anchor rate decomposes, and which
+join the gate table is judged by.
+
+### 27.2 A join error
+
+A generation is joined wrongly when the `item_id` stored beside it is not the `item_id` of the
+prompt it was produced from, or when any evaluation step pairs rows by position instead of by
+`item_id`. Follow-up turns are joined by `dialogue_id`, cross-checked by `kind`; their `index`
+field is written metadata and is never a key. Pairing a decode result with the prompt of the
+same batch element is not a join between items: the prompt and the written row are the same row
+object, and the decoded text belongs to it by construction.
+
+### 27.3 What the gate table is judged by
+
+Item_id joins only. A gate number is valid when its prompt is the prompt of the row's own
+`item_id` and its denominator is the number of rows carrying that item. The three report files
+hold 520 generations each (1,560 total) and the follow-up file 179 turns, of which 28 are
+out-of-scope or false-premise turns and 40 are in-scope controls.
+
+### 27.4 The anchor rate, decomposed
+
+Top sensor of the prompt: the sensor with the largest |z| in the prompt's parsed sensor list, z
+rounded to two decimals. Extraction from the generation: the tag is matched as a literal with a
+digit boundary, so `XMEAS_1` does not match `XMEAS_18`; numerals are read anywhere in the text.
+Every row falls in exactly one class:
+
+1. `exact` — the two-decimal string of z appears in the generation (the 26.4 rule).
+2. `sensor_absent` — the top sensor's tag does not appear anywhere in the generation.
+3. `z_format_differs` — the tag appears, the two-decimal string does not, but some numeral equals
+   z within 0.05 in another form (one decimal, integer, three decimals, trailing zero trimmed,
+   sign dropped).
+4. `z_true_mismatch` — the tag appears and no numeral anywhere equals z within 0.05, so the prose
+   cites the sensor without its z. Sub-classed as `z_omitted` when no decimal numeral occurs in
+   the 120 characters after the tag, and `contradicting_value` when one does.
+
+Classes 2-4 are the three counts 3B-15 reports; `exact` plus them covers all 520 rows. The anchor
+rate measures what the prose cites, not how rows are joined; a low value neither shows nor rules
+out a join error.
+
+### 27.5 Recomputing the gates
+
+`read_gates` is rerun unchanged, once per row, against `prompts[row["item_id"]][order]`, and the
+stored summary is read back for comparison. Denominators are reported beside every rate. If any
+stored count or rate differs, the gate table changes; if rows cannot be matched to prompts, it is
+invalid. The verdict is one sentence: stands, changes, or invalid.
+
+### 27.6 Regression test
+
+Two checks, each failing if a positional join is introduced: permuting a raw file must leave
+every per-item reading unchanged, and a static scan must find no zip over two row lists and no
+row list indexed by a counter name.
+
+### 27.7 Outcome
+
+Appended below once measured.
