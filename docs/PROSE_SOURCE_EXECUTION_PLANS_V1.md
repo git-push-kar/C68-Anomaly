@@ -3,7 +3,8 @@
 Status: consolidation of the readings already recorded in `docs/PROTOCOL.md` §29 and the
 follow-up specification. No new measurement is claimed here, nothing was trained, and no stored
 generation, sheet, key or checkpoint was modified. Where this document and a dated protocol
-section disagree, the protocol section wins and the discrepancy is listed in §7.
+section disagree, the protocol section wins and the discrepancy is listed in §7. Sections 9 to 11
+extend it with the combination matrix and the alternatives that were never costed.
 
 ---
 
@@ -217,3 +218,74 @@ anchors a row the fallback misses.
   §29.
 - No plan in this document may change the diagnosis, verdict, severity or confidence.
 - Plan F runs only after explicit approval, and its gates are fixed before the first step.
+
+---
+
+## 9. Combinations that can be implemented
+
+The six plans are not mutually exclusive alternatives on one axis. They split across three
+independent axes, and a delivered system is a point on each:
+
+| axis | options |
+|---|---|
+| **1. who writes report prose** | A (fallback, deterministic) · B (validated adapter) · C (code writes numbers, adapter writes mechanism) · D excluded |
+| **2. who writes follow-up prose** | template lookup only · the existing adapter as-is · the adapter retrained on follow-ups (F) |
+| **3. training spend** | none · F (180 steps) · E (retrain the report adapter) |
+
+A clarification on the shorthand used in the earlier cost table: "A + B" and "A + C" are
+redundant labels, because B and C already contain A as the fallback guarantee for reports. The only
+combination that genuinely adds a surface is **A + F**.
+
+| # | report | follow-ups | training | GPU | wall clock | protocol status | verdict |
+|---|---|---|---|---|---|---|---|
+| 1 | A | template only | none | 0 | 0 | legal | cheapest; the free-form follow-ups are lost — the three LLM intents and the valve/causal cases degrade to refusals |
+| 2 | A | adapter **as-is** | none | inference only, 97-row eval | ~10 min | legal | a probe, not a destination: tests whether the pilot adapter transfers to dialogue at all |
+| **3** | **A** | **F** | **F, 180 steps** | **38–65 min** | **~1.5 h** | **legal, spec written** | **the recommendation: every gate either passed or pre-registered** |
+| 4 | A, then C | F | F, then C on §30 | 38–65 min + minutes | ~1.5 h, then +1 day of code | C needs a dated §30 | the staged path if adapter mechanism prose is wanted in reports later |
+| 5 | B | F | F | ~15–20 min + 38–65 min | ~2 h | legal but conditional | validator and retry on the report path; most likely breaches the 25 % ceiling and falls through to 4 |
+| 6 | C | F | F | 38–65 min + minutes | ~1.5 h + a day of code | needs a §30 | the strongest measured-quality combination, with the largest code change |
+| 7 | B + post-hoc repair | F | F | minutes ×2 + 38–65 min | ~2 h + code | needs a §30 | more moving parts than 6 for the same destination |
+| 8 | stratified routing: adapter only on menu-removed | F | F | 38–65 min + minutes | ~1.5 h + a routing rule | needs a §30 | wins a 10-row stratum; C delivers the same benefit without a per-item voice switch |
+| 9 | E | F | E + F | 3.6–5.4 h | days | needs a §30 | only if the adapter must author reports as well |
+| 10 | A | retired (no adapter anywhere) | none | 0 | 0 | legal | the free-form follow-up surface is given up entirely |
+
+### 9.1 What would actually be run, in order
+
+1. **#3** — the only combination whose report gates are already passed and whose training run is
+   specified. 38–65 minutes, one session.
+2. **#2** as a zero-cost probe before #3 is launched, if the transfer of the pilot adapter to
+   dialogue is in doubt: it costs an evaluation, not a training run.
+3. **#4** only on a dated §30, and only if adapter mechanism prose in reports is wanted.
+
+Rejected: **#1** and **#10** (give up the follow-up surface for no saving), **#5** and **#7** (spend
+GPU to arrive at #4), **#9** (3.6–5.4 h to duplicate what a deterministic writer already does at 0
+defects), **#6** and **#8** without a §30.
+
+## 10. Options that were never costed
+
+Five alternatives are real and absent from §2. None has been run, so none has evidence behind it.
+
+| option | what it is | GPU | why it is not in §2 |
+|---|---|---|---|
+| **post-hoc repair** | keep the adapter text; a deterministic fixer rewrites only the flagged phrases (inequality direction, stored value, tag role) instead of replacing the whole item with fallback | minutes | a genuine third way between B (retry) and C (seam) that was never costed; by the time the fixer handles every number, the code is writing them, so it converges on C with a generation step still attached |
+| **best-of-n** | generate 3 candidates, ship the first that passes validation | minutes ×3 | a cheaper cousin of B's retry-once; unbudgeted |
+| **stratified routing** | adapter authors only the strata where it is preferred (menu-removed, 0.889), fallback elsewhere | 0 | the most tempting omission and the flattest: it wins on a 10-row stratum and adds a per-item voice switch an operator would notice — a product cost the preference score does not measure |
+| **constrained decoding / slot filling** | the adapter writes around placeholders and code substitutes every number | minutes | a softer C, at prompt level rather than at section level |
+| **different base model or scale** | retrain at a larger model, or a quantised larger one, for numeric fidelity | hours and up | a variant of E with a different model, not a different plan family |
+
+Of these, **post-hoc repair** is the one worth costing first: it targets the defect class directly
+(18 of the 23 defect instances are numeric), needs no retraining, and unlike B does not discard the
+item when the retry fails.
+
+## 11. What §9 is not
+
+§9 is a list of what has been measured, costed or pre-registered — **not a proof that these are the
+only ways this can be implemented.** No finite table exhausts a design space.
+
+What is genuinely closed is narrower:
+
+- **Report prose.** §29.3 admits three outcomes only — fallback authors, validated adapter prose, or
+  the hybrid rebuild. A fourth report path needs a dated §30.
+- **Training runs.** F is specified; E requires a §30.
+- **Everything else** in §10 is possible, uncosted, and would arrive the same way: a dated section,
+  a fixed gate, and a measurement, in that order.
