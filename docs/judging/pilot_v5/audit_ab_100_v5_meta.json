@@ -1,0 +1,51 @@
+{
+  "sheet": "audit_ab_100_v5.csv",
+  "key": "audit_ab_100_v5_key.csv",
+  "rows": 40,
+  "seed": 42,
+  "strata": {
+    "abstention_menu": 10,
+    "abstention_removed": 10,
+    "normal": 20
+  },
+  "verdicts": {
+    "unclassified_open_set": 20,
+    "no_fault": 20
+  },
+  "adapter_on_A_by_stratum": {
+    "abstention_menu": {
+      "rows": 10,
+      "adapter_on_A": 5
+    },
+    "abstention_removed": {
+      "rows": 10,
+      "adapter_on_A": 5
+    },
+    "normal": {
+      "rows": 20,
+      "adapter_on_A": 10
+    }
+  },
+  "format_identity": {
+    "rows": 40,
+    "rows_whose_two_sides_differ_in_layout": 0,
+    "generator_labels_found": 0,
+    "identical_layout_both_sides": true
+  },
+  "source": "raw_pilot_kb.jsonl (pilot) vs fallback_v31 on the same prompt",
+  "columns_visible": [
+    "item_id",
+    "text_A",
+    "text_B",
+    "correct_A",
+    "grounded_A",
+    "consistent_A",
+    "useful_A",
+    "correct_B",
+    "grounded_B",
+    "consistent_B",
+    "useful_B",
+    "preference",
+    "notes"
+  ]
+}

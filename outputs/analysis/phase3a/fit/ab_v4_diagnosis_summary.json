@@ -1,0 +1,24 @@
+{
+  "sheet": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\ab_v4_diagnosis.csv",
+  "rows": 40,
+  "rows_pairing_different_items": 40,
+  "rows_with_style_mismatch": 40,
+  "classified_rows_in_non_classified_stratum": 7,
+  "key_verdict_counts": {
+    "unclassified_open_set": 20,
+    "classified": 7,
+    "no_fault": 13
+  },
+  "root_cause": {
+    "different_events": "scripts/make_ab_sheet_v4.py:51 puts b['text_adapter'] on row_a beside a['text_adapter'], and line 55 puts a['text_fallback'] on row_b beside b['text_fallback']: the pair is two items, not two explainers of one item",
+    "style_vs_key": "same two lines: the key calls the pair adapter/fallback while both texts of a row come from one generator",
+    "classified_in_normal": "scripts/build_v4_sheet.py:45 returns 'normal' for every row whose gold fault id is not UNCLASSIFIED_OPEN_SET, so the 19 classified (menu, FAULT_nn) items enter the NORMAL pool"
+  },
+  "evaluation_join": {
+    "rows": 520,
+    "own_prompt_top_sensor_and_z": 187,
+    "next_rows_top_sensor_and_z": 6,
+    "own_rate": 0.3596,
+    "other_rate": 0.0115
+  }
+}
