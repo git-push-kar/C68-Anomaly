@@ -338,6 +338,28 @@
     "refusal_on_other_cases": 0.2342,
     "mean_answer_chars": 270.1
   },
+  "run1_followups": {
+    "items": 179,
+    "by_kind": {
+      "ambiguous_question": 12,
+      "causal_why": 15,
+      "clarification_reply": 15,
+      "false_premise": 15,
+      "hypothesis_comparison": 15,
+      "mechanism": 15,
+      "out_of_scope": 13,
+      "repeated_question": 17,
+      "template_sample": 7,
+      "valve_actuator": 15,
+      "in_scope_control": 40
+    },
+    "refusal_on_out_of_scope_and_false_premise": 1.0,
+    "refusal_denominator": 28,
+    "over_refusal_on_controls": 0.0,
+    "control_denominator": 40,
+    "refusal_on_other_cases": 0.2072,
+    "mean_answer_chars": 276.1
+  },
   "order_sensitivity": {
     "rows": 520,
     "identical_text_kb_vs_shuffled1": 2,
