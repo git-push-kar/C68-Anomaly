@@ -1,0 +1,521 @@
+item_id,top_tag,top_z,class,sub_class,context
+EVT-val-f01-r301::openset,XMEAS_1,18.12,exact,,
+EVT-val-f01-r302::openset,XMV_44,17.94,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+EVT-val-f01-r303::openset,XMV_44,17.87,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Temperature (XMEAS_18) following. The dynamic residual attri"
+EVT-val-f01-r304::openset,XMEAS_1,18.07,z_true_mismatch,contradicting_value,") with a 222.71% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Flow (XMEAS_19) rises with"
+EVT-val-f01-r305::openset,XMV_44,17.98,exact,,
+EVT-val-f01-r306::openset,XMEAS_1,18.03,exact,,
+EVT-val-f01-r307::openset,XMEAS_1,17.95,exact,,
+EVT-val-f01-r308::openset,XMEAS_1,18.0,exact,,
+EVT-val-f01-r309::openset,XMEAS_1,18.02,z_true_mismatch,z_omitted,") and A_Feed_Flow (XMV_44) with a 222% deviation, while Stripper_Steam_Valve (XMV_50) increases with 66% deviation. The"
+EVT-val-f01-r310::openset,XMEAS_1,18.13,exact,,
+EVT-val-f01-r311::openset,XMV_44,18.08,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+EVT-val-f01-r312::openset,XMEAS_1,18.02,exact,,
+EVT-val-f01-r313::openset,XMEAS_1,18.0,z_format_differs,,
+EVT-val-f01-r314::openset,XMV_44,17.71,z_true_mismatch,contradicting_value,") and A_Feed_Stream1 (XMEAS_1) with a 218.35% deviation, while Stripper_Steam_Valve (XMV_50) increases with a 65.15% dev"
+EVT-val-f01-r315::openset,XMV_44,17.97,z_true_mismatch,contradicting_value,") and A_Feed_Stream1 (XMEAS_1) with a 221.57% deviation, while Stripper_Steam_Valve (XMV_50) shows a 70.27% increase. Th"
+EVT-val-f01-r316::openset,XMV_44,18.13,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+EVT-val-f01-r317::openset,XMEAS_1,18.07,exact,,
+EVT-val-f01-r318::openset,XMEAS_1,17.91,exact,,
+EVT-val-f01-r319::openset,XMEAS_1,18.02,exact,,
+EVT-val-f01-r320::openset,XMEAS_1,17.97,exact,,
+EVT-val-f01-r321::openset,XMEAS_1,17.84,z_true_mismatch,contradicting_value,") and A_Feed_Flow (XMV_44) with a 219.91% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Fl"
+EVT-val-f01-r322::openset,XMV_44,17.87,z_true_mismatch,contradicting_value,") at onset, with Stripper_Temperature (XMEAS_18) rising 5.99% and Stripper_Steam_Valve (XMV_50) increasing 66.63% at +0."
+EVT-val-f01-r323::openset,XMV_44,18.17,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+EVT-val-f01-r324::openset,XMEAS_1,17.93,exact,,
+EVT-val-f01-r325::openset,XMV_44,18.05,z_true_mismatch,contradicting_value,") and A_Feed_Stream1 (XMEAS_1) with a 222.51% and 222.32% deviation, respectively, while Stripper_Steam_Valve (XMV_50) i"
+EVT-val-f02-r301::openset,XMEAS_10,28.12,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 104.55% and 101.93% deviation, respectively, while Component_F_Stream9 (XMEAS_34) and"
+EVT-val-f02-r302::openset,XMEAS_10,29.09,exact,,
+EVT-val-f02-r303::openset,XMEAS_10,28.02,exact,,
+EVT-val-f02-r304::openset,XMEAS_10,28.43,exact,,
+EVT-val-f02-r305::openset,XMEAS_10,29.21,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1-minute delay between them, while Component_F_Stream6 (XMEAS_28) and Component_F_St"
+EVT-val-f02-r306::openset,XMEAS_10,28.8,exact,,
+EVT-val-f02-r307::openset,XMEAS_10,28.05,exact,,
+EVT-val-f02-r308::openset,XMEAS_10,29.32,exact,,
+EVT-val-f02-r309::openset,XMEAS_10,29.32,z_true_mismatch,z_omitted,") and Purge_Valve (XMV_47) at onset, with Component_F_Stream9 (XMEAS_34) and Component_F_Stream6 (XMEAS_28) decreasing."
+EVT-val-f02-r310::openset,XMEAS_10,28.18,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1 min delay between them, while Component_F_Stream9 (XMEAS_34) and Component_F_Strea"
+EVT-val-f02-r311::openset,XMEAS_10,28.97,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1-minute delay between them, while Component_F_Stream9 (XMEAS_34) and Component_F_St"
+EVT-val-f02-r312::openset,XMEAS_10,29.13,exact,,
+EVT-val-f02-r313::openset,XMEAS_10,29.38,exact,,
+EVT-val-f02-r314::openset,XMEAS_10,24.91,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 92.60% and 90.16% deviation, respectively, while Component_F_Stream9 (XMEAS_34) and Co"
+EVT-val-f02-r315::openset,XMEAS_10,29.32,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1-minute delay between them, while Component_F_Stream6 (XMEAS_28) and Component_F_St"
+EVT-val-f02-r316::openset,XMEAS_10,29.27,exact,,
+EVT-val-f02-r317::openset,XMEAS_10,28.77,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1-minute lag, while Component_F_Stream9 (XMEAS_34) and Component_F_Stream6 (XMEAS_28"
+EVT-val-f02-r318::openset,XMEAS_10,28.96,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1-minute lag, while Component_F_Stream6 (XMEAS_28) and Component_F_Stream9 (XMEAS_34"
+EVT-val-f02-r319::openset,XMEAS_10,29.0,z_true_mismatch,z_omitted,") and Purge_Valve (XMV_47) at onset, with Component_F_Stream9 (XMEAS_34) and Component_F_Stream6 (XMEAS_28) decreasing."
+EVT-val-f02-r320::openset,XMEAS_10,28.36,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 105.44% and 102.99% deviation, respectively, both trending upward. This contradicts FA"
+EVT-val-f02-r321::openset,XMEAS_10,28.98,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1-minute delay between them, while Component_F_Stream6 (XMEAS_28) and Component_F_St"
+EVT-val-f02-r322::openset,XMEAS_10,29.18,exact,,
+EVT-val-f02-r323::openset,XMEAS_10,27.23,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 101.25% and 98.75% deviation, respectively, both trending upward. This contradicts FAU"
+EVT-val-f02-r324::openset,XMEAS_10,29.15,z_true_mismatch,contradicting_value,") and Purge_Valve (XMV_47) with a 0.1-minute delay between them, while Component_F_Stream6 (XMEAS_28) and Component_F_St"
+EVT-val-f02-r325::openset,XMEAS_10,29.14,exact,,
+EVT-val-f03-r302::menu,XMEAS_24,0.19,exact,,
+EVT-val-f03-r302::openset,XMEAS_24,0.19,z_format_differs,,
+EVT-val-f03-r317::menu,XMEAS_32,-0.23,sensor_absent,,
+EVT-val-f03-r317::openset,XMEAS_32,-0.23,sensor_absent,,
+EVT-val-f04-r301::openset,XMV_51,6.97,exact,,
+EVT-val-f04-r302::openset,XMV_51,7.04,exact,,
+EVT-val-f04-r303::openset,XMV_51,6.97,exact,,
+EVT-val-f04-r304::openset,XMV_51,6.89,exact,,
+EVT-val-f04-r305::openset,XMV_51,7.08,exact,,
+EVT-val-f04-r306::openset,XMV_51,6.96,exact,,
+EVT-val-f04-r307::openset,XMV_51,6.9,exact,,
+EVT-val-f04-r308::openset,XMV_51,6.9,exact,,
+EVT-val-f04-r309::openset,XMV_51,6.93,exact,,
+EVT-val-f04-r310::openset,XMV_51,6.91,exact,,
+EVT-val-f04-r311::openset,XMV_51,6.96,exact,,
+EVT-val-f04-r312::openset,XMV_51,6.92,exact,,
+EVT-val-f04-r313::openset,XMV_51,6.8,exact,,
+EVT-val-f04-r314::openset,XMV_51,7.0,exact,,
+EVT-val-f04-r315::openset,XMV_51,6.92,exact,,
+EVT-val-f04-r316::openset,XMV_51,6.98,exact,,
+EVT-val-f04-r317::openset,XMV_51,6.8,exact,,
+EVT-val-f04-r318::openset,XMV_51,6.94,exact,,
+EVT-val-f04-r319::openset,XMV_51,6.81,exact,,
+EVT-val-f04-r320::openset,XMV_51,6.98,exact,,
+EVT-val-f04-r321::openset,XMV_51,7.04,exact,,
+EVT-val-f04-r322::openset,XMV_51,6.81,exact,,
+EVT-val-f04-r323::openset,XMV_51,6.97,exact,,
+EVT-val-f04-r324::openset,XMV_51,6.96,exact,,
+EVT-val-f04-r325::openset,XMV_51,6.89,exact,,
+EVT-val-f05-r301::openset,XMEAS_19,-4.17,exact,,
+EVT-val-f05-r302::openset,XMEAS_19,-4.0,exact,,
+EVT-val-f05-r303::openset,XMEAS_19,-4.45,z_true_mismatch,contradicting_value,") with a -21.65% deviation, while Stripper_Temperature (XMEAS_18) increases with a -2.39% deviation. The dominant lag is"
+EVT-val-f05-r304::openset,XMEAS_19,-2.89,z_true_mismatch,contradicting_value,") with a -13.72% deviation, while Stripper_Temperature (XMEAS_18) shows a -1.40% increase. The Compressor_Work (XMEAS_20"
+EVT-val-f05-r305::openset,XMEAS_19,-4.32,z_true_mismatch,contradicting_value,") with a 21.59% deviation, while Stripper_Temperature (XMEAS_18) increases by 2.23% with a 3.45% deviation. The onset or"
+EVT-val-f05-r306::openset,XMEAS_19,-4.65,z_true_mismatch,contradicting_value,") with a -23.25% deviation, while Stripper_Temperature (XMEAS_18) increases with a -2.53% deviation. The dominant lag 0"
+EVT-val-f05-r307::openset,XMEAS_19,-3.21,z_true_mismatch,contradicting_value,", -14.34%) and increasing trends in Stripper_Temperature (XMEAS_18, +1.57%) and Separator_Temperature (XMEAS_11, +0.26%)"
+EVT-val-f05-r308::openset,XMEAS_19,-3.14,z_true_mismatch,contradicting_value,") with a -14.97% deviation, while Stripper_Temperature (XMEAS_18) increases with a -1.50% deviation. The dynamic residua"
+EVT-val-f05-r309::openset,XMEAS_19,-4.04,exact,,
+EVT-val-f05-r310::openset,XMEAS_19,-3.08,exact,,
+EVT-val-f05-r311::openset,XMEAS_19,-3.06,z_true_mismatch,contradicting_value,", -13.68%) and increasing trends in Separator_Temperature (XMEAS_11, +0.33%) and Stripper_Temperature (XMEAS_18, +1.42%)"
+EVT-val-f05-r312::openset,XMEAS_19,-3.83,exact,,
+EVT-val-f05-r313::openset,XMEAS_19,-4.07,z_true_mismatch,contradicting_value,") and Stripper_Steam_Valve (XMV_50) with a -20.41% deviation, while Stripper_Temperature (XMEAS_18) shows a -2.10% incre"
+EVT-val-f05-r314::openset,XMEAS_19,-3.25,exact,,
+EVT-val-f05-r315::openset,XMEAS_19,-3.04,exact,,
+EVT-val-f05-r316::openset,XMEAS_19,-3.27,z_true_mismatch,contradicting_value,") with a -16.20% deviation, while Stripper_Temperature (XMEAS_18) and Separator_Temperature (XMEAS_11) show increasing t"
+EVT-val-f05-r317::openset,XMEAS_19,-3.96,z_true_mismatch,contradicting_value,") with a -19.37% deviation, while Stripper_Temperature (XMEAS_18) shows a -2.13% increase. The dominant lag in CVA resid"
+EVT-val-f05-r318::openset,XMEAS_19,-4.41,z_true_mismatch,contradicting_value,") with a -21.32% deviation, while Stripper_Temperature (XMEAS_18) shows a -2.30% increase. The dominant lag in CVA resid"
+EVT-val-f05-r319::openset,XMEAS_19,-3.35,exact,,
+EVT-val-f05-r320::openset,XMEAS_19,-4.21,z_true_mismatch,contradicting_value,") with a -20.90% deviation, while Stripper_Temperature (XMEAS_18) increases with a -2.17% deviation. The onset order sho"
+EVT-val-f05-r321::openset,XMEAS_19,-3.46,exact,,
+EVT-val-f05-r322::openset,XMEAS_19,-4.35,z_true_mismatch,contradicting_value,") with a -21.26% deviation, while Stripper_Temperature (XMEAS_18) shows a -2.32% increase. The Compressor_Work (XMEAS_20"
+EVT-val-f05-r323::openset,XMEAS_19,-2.63,exact,,
+EVT-val-f05-r324::openset,XMEAS_19,-3.86,z_true_mismatch,contradicting_value,") with a -18.89% deviation, while Stripper_Temperature (XMEAS_18) increases with a -1.94% deviation. The dominant lag is"
+EVT-val-f05-r325::openset,XMEAS_19,-4.1,z_true_mismatch,contradicting_value,", -18.31%) and increasing trends in Stripper_Temperature (XMEAS_18, +2.16%) and Separator_Temperature (XMEAS_11, +0.18%)"
+EVT-val-f06-r301::openset,XMEAS_16,32.37,z_true_mismatch,z_omitted,) measurements. The dynamic residual attribution identifies XMV_44 and XMEAS_1 as dominant variables with high residual
+EVT-val-f06-r302::openset,XMEAS_16,31.72,z_true_mismatch,z_omitted,"), Reactor_Pressure (XMEAS_7), and Component_C_Stream9 (XMEAS_31), while Component_A_Stream9 (XMEAS_29) decreases. The d"
+EVT-val-f06-r303::openset,XMEAS_16,30.98,z_format_differs,,
+EVT-val-f06-r304::openset,XMEAS_16,31.96,z_true_mismatch,z_omitted,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_A_Stream9 (XMEAS_29) decreases and Component_C_Stream9 ("
+EVT-val-f06-r305::openset,XMEAS_16,31.88,z_true_mismatch,contradicting_value,", +6.70%), and Component_A_Stream9 (XMEAS_29, -24.47%), with Component_C_Stream9 (XMEAS_31, +38.36%) trending upward. Th"
+EVT-val-f06-r306::openset,XMEAS_16,30.98,z_format_differs,,
+EVT-val-f06-r307::openset,XMEAS_16,30.48,z_true_mismatch,z_omitted,", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+EVT-val-f06-r308::openset,XMEAS_16,31.94,z_true_mismatch,z_omitted,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_A_Stream9 (XMEAS_29) decreases and Component_C_Stream9 ("
+EVT-val-f06-r309::openset,XMEAS_16,31.24,z_true_mismatch,z_omitted,") and reactor (XMEAS_7), and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases."
+EVT-val-f06-r310::openset,XMEAS_16,31.75,z_true_mismatch,z_omitted,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_A_Stream9 (XMEAS_29) decreases and Component_C_Stream9 ("
+EVT-val-f06-r311::openset,XMEAS_16,31.8,z_true_mismatch,z_omitted,") measurements. The dynamic residual attribution identifies XMEAS_23, XMV_44, and XMEAS_1 as dominant variables with hig"
+EVT-val-f06-r312::openset,XMEAS_16,31.79,z_true_mismatch,z_omitted,") and reactor (XMEAS_7), and a decreasing Component_A_Stream9 (XMEAS_29) while increasing Component_C_Stream9 (XMEAS_31)"
+EVT-val-f06-r313::openset,XMEAS_16,30.33,z_true_mismatch,z_omitted,") and Compressor_Recycle_Valve (XMV_46) with increasing trends, while Component_C_Stream9 (XMEAS_31) increases significa"
+EVT-val-f06-r314::openset,XMEAS_16,29.65,z_true_mismatch,z_omitted,") and reactor (XMEAS_7), and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases."
+EVT-val-f06-r315::openset,XMEAS_16,31.68,exact,,
+EVT-val-f06-r316::openset,XMEAS_16,31.87,z_true_mismatch,z_omitted,") and Compressor_Recycle_Valve (XMV_46) positions, with Stripper_Pressure trending upward while Compressor_Recycle_Valve"
+EVT-val-f06-r317::openset,XMEAS_16,31.63,z_true_mismatch,contradicting_value,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_C_Stream9 (XMEAS_31) increases significantly (37.74% dev"
+EVT-val-f06-r318::openset,XMEAS_16,31.4,exact,,
+EVT-val-f06-r319::openset,XMEAS_16,31.7,z_true_mismatch,z_omitted,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_A_Stream9 (XMEAS_29) decreases and Component_C_Stream9 ("
+EVT-val-f06-r320::openset,XMEAS_16,31.14,z_true_mismatch,z_omitted,", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+EVT-val-f06-r321::openset,XMEAS_16,31.08,sensor_absent,,
+EVT-val-f06-r322::openset,XMEAS_16,31.34,z_true_mismatch,z_omitted,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_A_Stream9 (XMEAS_29) decreases and Component_C_Stream9 ("
+EVT-val-f06-r323::openset,XMEAS_16,33.01,z_true_mismatch,z_omitted,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_A_Stream9 (XMEAS_29) decreases and Component_C_Stream9 ("
+EVT-val-f06-r324::openset,XMEAS_16,30.92,z_true_mismatch,z_omitted,"), reactor (XMEAS_7), and separator (XMEAS_13), while Component_A_Stream9 (XMEAS_29) decreases and Component_C_Stream9 ("
+EVT-val-f06-r325::openset,XMEAS_16,31.1,z_true_mismatch,z_omitted,", XMEAS_7, XMEAS_13) and a decreasing Component_A_Stream9 (XMEAS_29) while Component_C_Stream9 (XMEAS_31) increases. The"
+EVT-val-f07-r301::openset,XMV_45,12.09,z_true_mismatch,contradicting_value,", A_C_Feed_Flow) shows a 24.54% increase while the Stripper_Steam_Valve (XMV_50) shows a -2.74% decrease. The dynamic re"
+EVT-val-f07-r302::openset,XMV_45,12.29,z_true_mismatch,z_omitted,) increases while the expected decrease in A_Feed_Flow is absent. FAULT_02 (B composition step change) is ruled out beca
+EVT-val-f07-r303::openset,XMV_45,12.23,z_true_mismatch,contradicting_value,"(A_C_Feed_Flow) with a 24.82% deviation, while Component_E_Stream11 (XMEAS_38) shows a small increasing trend. The dyna"
+EVT-val-f07-r304::openset,XMV_45,12.14,z_true_mismatch,z_omitted,"and XMV_50) and increasing measurements (XMEAS_20, XMEAS_13, XMEAS_38), with no significant decrease in any measured fl"
+EVT-val-f07-r305::openset,XMV_45,12.14,z_true_mismatch,contradicting_value,and XMV_50) with A_C_Feed_Flow (XMV_45) increasing by 24.63% and Stripper_Steam_Valve (XMV_50) increasing by -0.16%. Th
+EVT-val-f07-r306::openset,XMV_45,12.07,exact,,
+EVT-val-f07-r307::openset,XMV_45,12.3,z_true_mismatch,contradicting_value,) increasing at 24.97% deviation. The dynamic residual attribution points to XMEAS_23 and XMEAS_1 as dominant variables
+EVT-val-f07-r308::openset,XMV_45,12.18,z_true_mismatch,z_omitted,"), Stripper_Steam_Valve (XMV_50), and Component_E_Stream11 (XMEAS_38), while Compressor_Work (XMEAS_20) and Separator_Pr"
+EVT-val-f07-r309::openset,XMV_45,12.03,exact,,
+EVT-val-f07-r310::openset,XMV_45,12.21,z_true_mismatch,contradicting_value,"and XMV_50) and increasing measurements (XMEAS_38, XMEAS_19), with A_C_Feed_Flow (XMV_45) increasing by 24.77% while St"
+EVT-val-f07-r311::openset,XMV_45,12.02,z_true_mismatch,z_omitted,"and XMV_50) and increasing measurements (XMEAS_20, XMEAS_38, XMEAS_13), with no significant decrease in any measured fl"
+EVT-val-f07-r312::openset,XMV_45,12.02,z_true_mismatch,contradicting_value,"(A_C_Feed_Flow) with a 24.39% deviation, while Stripper_Steam_Valve (XMV_50) shows a decreasing trend with a -0.57% dev"
+EVT-val-f07-r313::openset,XMV_45,12.21,z_true_mismatch,contradicting_value,) as required by FAULT_01 (A/C feed ratio step change). The dominant lag 2 window and slow-drift ratio (0.27) indicate a
+EVT-val-f07-r314::openset,XMV_45,12.07,z_true_mismatch,z_omitted,"(A_C_Feed_Flow valve position) increasing at onset, while XMV_46 (Compressor_Recycle_Valve) decreases. The top deviatin"
+EVT-val-f07-r315::openset,XMV_45,12.03,z_true_mismatch,z_omitted,"and XMV_50) and increasing measurements (XMEAS_38, XMEAS_13, XMEAS_20), with the A_C_Feed_Flow (XMV_45) increasing by 2"
+EVT-val-f07-r316::openset,XMV_45,12.23,exact,,
+EVT-val-f07-r317::openset,XMV_45,11.98,z_true_mismatch,z_omitted,"), Component_E_Stream11 (XMEAS_38), Separator_Pressure (XMEAS_13), and Reactor_Pressure (XMEAS_7), while Stripper_Steam_"
+EVT-val-f07-r318::openset,XMV_45,12.24,z_true_mismatch,z_omitted,"), Component_E_Stream11 (XMEAS_38), and Separator_Pressure (XMEAS_13), while Stripper_Steam_Valve (XMV_50) shows a sligh"
+EVT-val-f07-r319::openset,XMV_45,12.23,z_true_mismatch,z_omitted,"and XMV_50) and increasing measurements (XMEAS_38, XMEAS_13, XMEAS_16, XMEAS_7, XMEAS_20), with the A_C_Feed_Flow (XMV_"
+EVT-val-f07-r320::openset,XMV_45,12.19,z_true_mismatch,contradicting_value,"(A_C_Feed_Flow) with a 24.73% deviation, while other measurements like XMEAS_38 (Component_E_Stream11) and XMEAS_13 (Se"
+EVT-val-f07-r321::openset,XMV_45,12.22,z_true_mismatch,z_omitted,) and Compressor_Work (XMEAS_20) with no corresponding decrease in A_C_Feed_Flow as required by FAULT_01 (A/C feed ratio
+EVT-val-f07-r322::openset,XMV_45,12.33,z_true_mismatch,contradicting_value,") increasing by 25.02% and Component_E_Stream11 (XMEAS_38) increasing by 4.06%, while Stripper_Steam_Valve (XMV_50) decr"
+EVT-val-f07-r323::openset,XMV_45,12.13,z_true_mismatch,z_omitted,"and XMV_50) and increasing measurements (XMEAS_13, XMEAS_7, XMEAS_16, XMEAS_38), with the A_C_Feed_Flow (XMV_45) increa"
+EVT-val-f07-r324::openset,XMV_45,12.38,z_true_mismatch,contradicting_value,") also increasing. The dynamic residual attribution identifies XMV_45 as dominant (51.8% residual share), while XMEAS_20"
+EVT-val-f07-r325::openset,XMV_45,12.29,z_true_mismatch,z_omitted,") increasing at onset, but the pressure measurements rise without a corresponding decrease in feed flow. FAULT_01 (A/C f"
+EVT-val-f08-r301::openset,XMEAS_31,-0.35,z_true_mismatch,z_omitted,", XMEAS_17, XMEAS_11, and XMEAS_36 as dominant variables, but none match the expected behavior for the listed faults."","
+EVT-val-f08-r302::openset,XMEAS_1,3.66,z_true_mismatch,z_omitted,") with a 45% deviation, while Stripper_Pressure (XMEAS_16) and Component_C_Stream9 (XMEAS_31) increase with 45% deviatio"
+EVT-val-f08-r303::openset,XMEAS_31,-1.99,sensor_absent,,
+EVT-val-f08-r304::openset,XMEAS_16,-2.65,z_true_mismatch,contradicting_value,", XMEAS_19, XMEAS_11, and XMEAS_20 as dominant variables, with a slow-drift ratio of 0.52. FAULT_01 (A/C feed ratio step"
+EVT-val-f08-r306::openset,XMEAS_29,2.35,exact,,
+EVT-val-f08-r307::openset,XMEAS_16,2.91,z_true_mismatch,z_omitted,"), Component_C_Stream9 (XMEAS_31), and Reactor_Pressure (XMEAS_7), while Component_A_Stream6 (XMEAS_23) shows a decreasi"
+EVT-val-f08-r308::openset,XMEAS_1,1.4,z_true_mismatch,contradicting_value,", +17.27%), with Component_A_Stream9 (XMEAS_29) trending increasing while Component_C_Stream9 (XMEAS_31) remains stable."
+EVT-val-f08-r309::openset,XMEAS_29,-0.5,z_true_mismatch,contradicting_value,"), A_C_Feed_Stream4 (XMEAS_4), and Compressor_Work (XMEAS_20), all increasing with a slow-drift ratio of 0.47. The onset"
+EVT-val-f08-r310::openset,XMEAS_16,2.14,exact,,
+EVT-val-f08-r311::openset,XMV_44,3.78,z_true_mismatch,contradicting_value,") and A_Feed_Stream1 (XMEAS_1) with a 46.61% deviation, while Component_A_Stream6 (XMEAS_23) and Component_A_Stream9 (XM"
+EVT-val-f08-r312::openset,XMV_50,6.6,sensor_absent,,
+EVT-val-f08-r313::openset,XMEAS_18,-2.48,z_true_mismatch,contradicting_value,) increases with a deviation of -1.60%. This contradicts FAULT_01 (A/C feed ratio step change) which would show a decrea
+EVT-val-f08-r314::openset,XMEAS_16,2.11,z_true_mismatch,z_omitted,") shows a small increasing trend. The dynamic residual attribution points to XMEAS_20, XMEAS_18, XMEAS_16, XMEAS_21, and"
+EVT-val-f08-r315::menu,XMV_50,3.73,exact,,
+EVT-val-f08-r315::openset,XMV_50,3.73,z_true_mismatch,z_omitted,"), Stripper_Temperature (XMEAS_18), Reactor_Pressure (XMEAS_7), and Stripper_Steam_Flow (XMEAS_19) with increasing trend"
+EVT-val-f08-r316::openset,XMEAS_16,1.24,z_true_mismatch,contradicting_value,", XMEAS_7, XMEAS_13) rising 1.4 and 1.5 minutes after the feed stream change. The dynamic residual attribution points to"
+EVT-val-f08-r317::openset,XMEAS_34,-2.76,sensor_absent,,
+EVT-val-f08-r318::menu,XMEAS_10,5.03,z_true_mismatch,contradicting_value,", +18.70%), Purge_Valve (XMV_47, +17.56%), and Stripper_Pressure (XMEAS_16, +0.48%), with Reactor_Pressure (XMEAS_7, +0."
+EVT-val-f08-r318::openset,XMEAS_10,5.03,z_true_mismatch,contradicting_value,", +18.70%), Purge_Valve (XMV_47, +17.56%), and Stripper_Pressure (XMEAS_16, +0.48%) with no prior change in feed streams"
+EVT-val-f08-r319::openset,XMEAS_16,2.19,z_true_mismatch,z_omitted,") with a trend increasing, while A_Feed_Flow (XMV_44) and A_Feed_Stream1 (XMEAS_1) also show increasing trends. The dyna"
+EVT-val-f08-r320::openset,XMV_44,-3.06,exact,,
+EVT-val-f08-r321::openset,XMEAS_11,-1.28,sensor_absent,,
+EVT-val-f08-r322::openset,XMV_50,5.56,sensor_absent,,
+EVT-val-f08-r323::openset,XMV_44,-3.35,z_true_mismatch,z_omitted,") and A_Feed_Stream1 (XMEAS_1) with a decreasing trend, while Stripper_Steam_Flow (XMEAS_19) and Stripper_Steam_Valve (X"
+EVT-val-f08-r324::menu,XMEAS_10,-6.14,z_true_mismatch,contradicting_value,", -22.81%) and Purge_Valve (XMV_47, -22.64%), with a corresponding decrease in Reactor_Pressure (XMEAS_7, -0.25%) and in"
+EVT-val-f08-r324::openset,XMEAS_10,-6.14,z_true_mismatch,contradicting_value,", -22.81%) and Purge_Valve (XMV_47, -22.64%), with a simultaneous increase in Stripper_Pressure (XMEAS_16, +0.23%) and C"
+EVT-val-f08-r325::menu,XMV_44,2.13,exact,,
+EVT-val-f08-r325::openset,XMV_44,2.13,exact,,
+EVT-val-f09-r301::menu,XMEAS_24,0.36,z_true_mismatch,contradicting_value,") with a +0.42% deviation, Recycle_Flow_Stream8 (XMEAS_5) with a +0.14% deviation, and Stripper_Liquid_Product_Flow (XMV"
+EVT-val-f09-r301::openset,XMEAS_24,0.36,z_true_mismatch,contradicting_value,") with a +0.42% deviation, Recycle_Flow_Stream8 (XMEAS_5) with a +0.14% deviation, and Stripper_Liquid_Product_Flow (XMV"
+EVT-val-f09-r302::menu,XMEAS_34,-0.19,z_true_mismatch,z_omitted,") and Stripper_Liquid_Product_Flow (XMV_49). The dynamic residual attribution points to XMEAS_7, XMEAS_25, XMV_52, XMEAS"
+EVT-val-f09-r302::openset,XMEAS_34,-0.19,z_true_mismatch,z_omitted,") and Stripper_Liquid_Product_Flow (XMV_49). The dynamic residual attribution points to XMEAS_7, XMEAS_25, XMV_52, XMEAS"
+EVT-val-f09-r317::menu,XMEAS_32,-0.23,exact,,
+EVT-val-f09-r317::openset,XMEAS_32,-0.23,sensor_absent,,
+EVT-val-f09-r319::menu,XMEAS_17,0.22,z_true_mismatch,contradicting_value,"), with small deviations (0.32%, 0.80%, 0.58% respectively). The Condenser_Cooling_Water_Flow (XMV_52) shows a stable tr"
+EVT-val-f09-r319::openset,XMEAS_17,0.22,sensor_absent,,
+EVT-val-f10-r301::openset,XMEAS_40,0.22,sensor_absent,,
+EVT-val-f10-r302::openset,XMEAS_18,0.73,sensor_absent,,
+EVT-val-f10-r303::openset,XMEAS_19,1.53,z_true_mismatch,z_omitted,"), Stripper_Temperature (XMEAS_18), and Stripper_Steam_Valve (XMV_50), while Component_G_Stream11 (XMEAS_40) and D_Feed_"
+EVT-val-f10-r304::menu,XMV_48,0.2,z_true_mismatch,z_omitted,) and Separator_Level (XMEAS_12) also trend upward. The dynamic residual attribution identifies XMEAS_18 as dominant (26
+EVT-val-f10-r304::openset,XMV_48,0.2,sensor_absent,,
+EVT-val-f10-r305::openset,XMEAS_19,2.35,z_true_mismatch,z_omitted,"), Stripper_Steam_Valve (XMV_50), and Component_G_Stream11 (XMEAS_40), while Stripper_Temperature (XMEAS_18) shows a sli"
+EVT-val-f10-r306::openset,XMEAS_19,-1.9,z_true_mismatch,contradicting_value,) decreasing by 8.48% while Stripper_Temperature (XMEAS_18) increases by 0.97%. The dynamic residual attribution identif
+EVT-val-f10-r307::openset,XMEAS_19,-2.4,z_true_mismatch,z_omitted,") and Stripper_Steam_Valve (XMV_50) with increasing deviations, while Stripper_Temperature (XMEAS_18) shows a small incr"
+EVT-val-f10-r308::openset,XMEAS_18,1.57,z_true_mismatch,contradicting_value,"as dominant contributors, with a slow-drift ratio of 0.28. The onset order shows simultaneous changes in multiple feed"
+EVT-val-f10-r309::openset,XMEAS_19,2.19,z_true_mismatch,contradicting_value,", +9.76%), Stripper_Temperature (XMEAS_18, +1.04%), and Stripper_Steam_Valve (XMV_50, +12.21%), with no corresponding ch"
+EVT-val-f10-r310::openset,XMEAS_19,4.95,z_true_mismatch,z_omitted,"), Stripper_Steam_Valve (XMV_50), and Stripper_Temperature (XMEAS_18) with no corresponding change in Component_G_Stream"
+EVT-val-f10-r311::openset,XMEAS_18,0.81,z_true_mismatch,z_omitted,"), Component_G_Stream11 (XMEAS_40), and Component_F_Stream6 (XMEAS_28), while Component_D_Stream11 (XMEAS_37) decreases"
+EVT-val-f10-r312::openset,XMEAS_19,-3.35,z_true_mismatch,contradicting_value,", -14.97% deviation), Stripper_Temperature (XMEAS_18, -0.90% deviation), and Stripper_Steam_Valve (XMV_50, -16.23% devia"
+EVT-val-f10-r313::openset,XMEAS_18,-0.65,z_true_mismatch,z_omitted,"), and Stripper_Steam_Valve (XMV_50), while Component_G_Stream11 (XMEAS_40) and Separator_Underflow_Stream10 (XMEAS_14)"
+EVT-val-f10-r314::openset,XMEAS_38,-0.26,z_true_mismatch,z_omitted,"). The dynamic residual attribution points to XMEAS_19, XMEAS_18, and XMV_50 as dominant contributors, with no significa"
+EVT-val-f10-r315::openset,XMEAS_19,2.04,z_format_differs,,
+EVT-val-f10-r316::openset,XMEAS_18,0.53,z_true_mismatch,z_omitted,"), and Condenser_Cooling_Water_Flow (XMV_52), with increasing trends in all. The dynamic residual attribution points to"
+EVT-val-f10-r317::openset,XMEAS_19,-0.56,z_true_mismatch,z_omitted,") and Stripper_Temperature (XMEAS_18) with increasing deviations, while Component_E_Stream11 (XMEAS_38) and Component_H_"
+EVT-val-f10-r318::openset,XMEAS_19,-1.39,z_true_mismatch,z_omitted,"), and Stripper_Liquid_Product_Flow (XMV_49), while Stripper_Level (XMEAS_15) and Component_G_Stream11 (XMEAS_40) show m"
+EVT-val-f10-r319::openset,XMEAS_19,1.81,z_true_mismatch,contradicting_value,", +8.06%) and Stripper_Temperature (XMEAS_18, +0.94%), with Stripper_Liquid_Product_Flow (XMV_49, -0.65%) trending upwar"
+EVT-val-f10-r320::menu,XMEAS_18,0.42,z_true_mismatch,contradicting_value,as dominant contributors (residual shares 0.363 and 0.203). The onset order shows simultaneous changes across multiple
+EVT-val-f10-r320::openset,XMEAS_18,0.42,z_true_mismatch,z_omitted,"), and Condenser_Cooling_Water_Flow (XMV_52), with no corresponding decrease in feed flows as required by FAULT_01 (A/C"
+EVT-val-f10-r321::openset,XMEAS_19,-1.56,z_true_mismatch,contradicting_value,") decreasing and Stripper_Steam_Valve (XMV_50) closing. The dominant lag is 0 window with slow-drift ratio 0.28, indicat"
+EVT-val-f10-r322::openset,XMEAS_18,-0.22,z_true_mismatch,contradicting_value,", XMEAS_32, XMEAS_34) show small negative deviations (z-scores ≤ -0.03) with increasing trends. The dynamic residual att"
+EVT-val-f10-r323::openset,XMEAS_18,0.54,z_true_mismatch,z_omitted,"), and Reactor_Feed_Rate (XMEAS_6). The dynamic residual attribution shows high-lag share for XMEAS_19 and XMEAS_18, whi"
+EVT-val-f10-r324::openset,XMEAS_19,1.09,z_true_mismatch,z_omitted,") and Stripper_Temperature (XMEAS_18), while Component_G_Stream11 (XMEAS_40) and Component_F_Stream6 (XMEAS_28) show min"
+EVT-val-f10-r325::menu,XMEAS_5,-0.26,z_true_mismatch,contradicting_value,"), all trending upward with increasing z-scores. The dominant lag 0 window and slow-drift ratio of 0.37 indicate a gradu"
+EVT-val-f10-r325::openset,XMEAS_5,-0.26,z_true_mismatch,contradicting_value,"), all trending upward with increasing z-scores. The dominant lag 0 window and slow-drift ratio of 0.37 indicate a gradu"
+EVT-val-f11-r301::openset,XMEAS_26,0.08,z_format_differs,,
+EVT-val-f11-r302::openset,XMV_51,3.13,exact,,
+EVT-val-f11-r303::openset,XMV_51,1.06,exact,,
+EVT-val-f11-r304::openset,XMV_51,-2.17,exact,,
+EVT-val-f11-r305::openset,XMV_51,-0.94,exact,,
+EVT-val-f11-r306::openset,XMV_51,1.75,exact,,
+EVT-val-f11-r308::openset,XMV_51,-1.51,exact,,
+EVT-val-f11-r309::openset,XMV_51,-1.44,exact,,
+EVT-val-f11-r310::openset,XMV_51,0.85,exact,,
+EVT-val-f11-r311::openset,XMV_51,4.39,exact,,
+EVT-val-f11-r312::openset,XMV_51,0.2,exact,,
+EVT-val-f11-r313::openset,XMV_51,-1.58,exact,,
+EVT-val-f11-r314::openset,XMEAS_41,-0.35,sensor_absent,,
+EVT-val-f11-r315::openset,XMV_51,1.86,exact,,
+EVT-val-f11-r316::openset,XMV_51,-2.55,exact,,
+EVT-val-f11-r317::openset,XMV_51,-0.79,exact,,
+EVT-val-f11-r318::openset,XMV_51,2.62,exact,,
+EVT-val-f11-r319::openset,XMV_51,-0.74,exact,,
+EVT-val-f11-r320::openset,XMV_51,1.39,z_true_mismatch,contradicting_value,"] increasing at +0.0 min with a 1.84% deviation, while Reactor_Temperature [XMEAS_9] and Component_D_Stream6 [XMEAS_26]"
+EVT-val-f11-r321::openset,XMV_51,-1.15,exact,,
+EVT-val-f11-r322::openset,XMV_51,0.33,exact,,
+EVT-val-f11-r323::openset,XMV_51,0.81,exact,,
+EVT-val-f11-r324::openset,XMV_51,3.27,exact,,
+EVT-val-f11-r325::openset,XMV_51,2.75,exact,,
+EVT-val-f12-r301::openset,XMEAS_16,0.24,sensor_absent,,
+EVT-val-f12-r302::openset,XMEAS_22,0.35,z_true_mismatch,z_omitted,) with no initial change in cooling water flows. FAULT_05 (Condenser cooling water inlet temperature step) would require
+EVT-val-f12-r303::openset,XMEAS_11,-3.88,z_true_mismatch,z_omitted,"), Stripper_Pressure (XMEAS_16), Reactor_Pressure (XMEAS_7), and Separator_Pressure (XMEAS_13), with a dominant lag of 4"
+EVT-val-f12-r304::openset,XMEAS_16,0.26,sensor_absent,,
+EVT-val-f12-r305::openset,XMEAS_11,1.46,z_true_mismatch,z_omitted,") and Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22) with no prior change in cooling water flows, contradicting F"
+EVT-val-f12-r306::menu,XMEAS_11,-2.96,z_true_mismatch,z_omitted,"), Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22), and Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21) with i"
+EVT-val-f12-r306::openset,XMEAS_11,-2.96,z_true_mismatch,z_omitted,"), Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22), and Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21) with n"
+EVT-val-f12-r307::openset,XMEAS_11,-0.45,sensor_absent,,
+EVT-val-f12-r308::openset,XMEAS_11,-2.65,z_true_mismatch,z_omitted,"), Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22), and Component_E_Stream11 (XMEAS_38), all trending upward with"
+EVT-val-f12-r309::menu,XMEAS_11,-1.48,z_true_mismatch,z_omitted,", XMEAS_22, XMEAS_18, XMEAS_20, XMEAS_35) show increasing trends, consistent with a cooling water inlet temperature dist"
+EVT-val-f12-r309::openset,XMEAS_11,-1.48,z_true_mismatch,z_omitted,"), Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22), and Stripper_Temperature (XMEAS_18), all with z-scores above 0"
+EVT-val-f12-r310::openset,XMEAS_11,1.41,z_true_mismatch,z_omitted,"), Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22), and Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21) with i"
+EVT-val-f12-r311::openset,XMEAS_11,-0.16,sensor_absent,,
+EVT-val-f12-r312::openset,XMEAS_13,0.69,sensor_absent,,
+EVT-val-f12-r313::openset,XMEAS_11,-1.14,z_true_mismatch,contradicting_value,) with no corresponding decrease in cooling water flow (XMEAS_22 shows a -0.18% deviation while XMEAS_21 shows 0.00% dev
+EVT-val-f12-r314::openset,XMEAS_11,-0.73,z_true_mismatch,z_omitted,"), Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22), and Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21) with i"
+EVT-val-f12-r315::openset,XMEAS_16,0.58,z_true_mismatch,z_omitted,"), Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21), and Condenser_Cooling_Water_Outlet_Temperature (XMEAS_22) at ons"
+EVT-val-f12-r316::openset,XMEAS_16,0.43,sensor_absent,,
+EVT-val-f12-r317::menu,XMEAS_21,0.28,sensor_absent,,
+EVT-val-f12-r317::openset,XMEAS_21,0.28,sensor_absent,,
+EVT-val-f12-r318::openset,XMEAS_7,1.95,exact,,
+EVT-val-f12-r319::openset,XMEAS_11,-2.34,z_true_mismatch,z_omitted,"), Separator_Pressure (XMEAS_13), and Reactor_Pressure (XMEAS_7), with a dominant lag of 0 window and slow-drift ratio 0"
+EVT-val-f12-r320::openset,XMEAS_20,-1.41,z_true_mismatch,z_omitted,") and Reactor_Pressure (XMEAS_7) trending upward. The Compressor_Recycle_Valve (XMV_46) position is increasing, but the"
+EVT-val-f12-r321::openset,XMEAS_20,-1.52,exact,,
+EVT-val-f12-r322::openset,XMEAS_13,0.83,sensor_absent,,
+EVT-val-f12-r323::openset,XMEAS_20,-0.99,z_true_mismatch,contradicting_value,"), with a dominant lag of 4 windows and slow-drift ratio 0.36. The onset order begins with Condenser_Cooling_Water_Outle"
+EVT-val-f12-r324::openset,XMEAS_20,-1.45,sensor_absent,,
+EVT-val-f12-r325::menu,XMV_46,1.71,z_true_mismatch,contradicting_value,") with z-scores above 1.33, indicating significant deviations. The dynamic residual attribution points to XMEAS_23 (resi"
+EVT-val-f12-r325::openset,XMV_46,1.71,z_true_mismatch,contradicting_value,") with z-scores above 1.33, indicating significant deviations. The dynamic residual attribution points to XMEAS_23 (resi"
+EVT-val-f13-r301::openset,XMV_50,14.1,z_true_mismatch,contradicting_value,") and Stripper_Steam_Flow (XMEAS_19) with a 79.89% deviation, while Stripper_Pressure (XMEAS_16) increases by 2.53% with"
+EVT-val-f13-r302::openset,XMEAS_16,10.86,exact,,
+EVT-val-f13-r303::openset,XMEAS_16,3.06,z_true_mismatch,z_omitted,", XMEAS_7, XMEAS_13) with a decreasing Stripper_Steam_Valve (XMV_50) position. The dynamic residual attribution points t"
+EVT-val-f13-r304::openset,XMEAS_16,-8.64,exact,,
+EVT-val-f13-r305::openset,XMEAS_16,17.58,z_true_mismatch,z_omitted,") with increasing trends, while Stripper_Steam_Flow (XMEAS_19) and Stripper_Steam_Valve (XMV_50) also rise. The dynamic"
+EVT-val-f13-r306::openset,XMEAS_16,12.72,z_true_mismatch,z_omitted,"] and Reactor_Pressure [XMEAS_7] also rising. The dynamic residual attribution identifies XMEAS_21, XMEAS_17, XMEAS_18,"
+EVT-val-f13-r307::openset,XMV_50,8.53,exact,,
+EVT-val-f13-r308::openset,XMV_50,12.68,z_true_mismatch,contradicting_value,"] with a 71.83% deviation, increasing valve position. This is followed by a 53.00% increase in Stripper_Steam_Flow [XMEA"
+EVT-val-f13-r309::openset,XMEAS_18,-6.73,exact,,
+EVT-val-f13-r310::openset,XMV_50,9.93,z_true_mismatch,contradicting_value,"] and Stripper_Steam_Flow [XMEAS_19] with a 56.25% deviation, while Stripper_Temperature [XMEAS_18] increases and Stripp"
+EVT-val-f13-r311::openset,XMEAS_19,-13.39,exact,,
+EVT-val-f13-r312::openset,XMV_50,13.12,z_true_mismatch,contradicting_value,") position, while Stripper_Steam_Flow (XMEAS_19) increases by 57.58%. The dynamic residual attribution shows XMEAS_16 as"
+EVT-val-f13-r313::openset,XMV_50,14.18,exact,,
+EVT-val-f13-r314::menu,XMEAS_16,-5.75,z_true_mismatch,z_omitted,") with increasing trends, while Stripper_Steam_Flow (XMEAS_19) decreases and Stripper_Temperature (XMEAS_18) increases."
+EVT-val-f13-r314::openset,XMEAS_16,-5.75,z_true_mismatch,z_omitted,") with increasing trends, while Stripper_Steam_Flow (XMEAS_19) decreases and Stripper_Temperature (XMEAS_18) increases."
+EVT-val-f13-r315::openset,XMV_50,3.19,exact,,
+EVT-val-f13-r316::openset,XMEAS_19,-14.26,exact,,
+EVT-val-f13-r317::openset,XMEAS_19,-11.69,z_true_mismatch,contradicting_value,") with a -52.19% deviation, while Stripper_Pressure (XMEAS_16) and Stripper_Temperature (XMEAS_18) show increasing trend"
+EVT-val-f13-r318::openset,XMEAS_19,-12.43,z_true_mismatch,contradicting_value,", -55.50% deviation), Stripper_Temperature (XMEAS_18, -6.80% deviation), and Stripper_Steam_Valve (XMV_50, -54.87% devia"
+EVT-val-f13-r319::openset,XMEAS_16,21.0,z_format_differs,,
+EVT-val-f13-r320::openset,XMV_50,11.0,exact,,
+EVT-val-f13-r321::openset,XMV_50,9.61,z_true_mismatch,z_omitted,"] position and Stripper_Steam_Flow [XMEAS_19] measurement, with Stripper_Pressure [XMEAS_16] and Reactor_Pressure [XMEAS"
+EVT-val-f13-r322::openset,XMEAS_16,-5.67,z_true_mismatch,z_omitted,") also rises. The dynamic residual attribution identifies XMEAS_21, XMEAS_16, and XMEAS_11 as dominant variables with hi"
+EVT-val-f13-r323::openset,XMEAS_16,5.05,z_true_mismatch,z_omitted,"), and Separator_Pressure (XMEAS_13) with increasing trends, while Stripper_Steam_Valve (XMV_50) also increases. The dyn"
+EVT-val-f13-r324::openset,XMEAS_19,-8.93,z_true_mismatch,contradicting_value,", -39.85% deviation) with a trend increasing, while Stripper_Pressure (XMEAS_16) and Reactor_Pressure (XMEAS_7) also sho"
+EVT-val-f13-r325::openset,XMV_50,12.13,exact,,
+EVT-val-f14-r301::openset,XMEAS_28,-0.29,sensor_absent,,
+EVT-val-f14-r302::openset,XMV_51,0.21,z_true_mismatch,z_omitted,") at onset, with Reactor_Cooling_Water_Flow trending increasing while the outlet temperature trend increases. FAULT_04 ("
+EVT-val-f14-r303::openset,XMEAS_24,-0.25,sensor_absent,,
+EVT-val-f14-r304::openset,XMEAS_39,0.12,z_true_mismatch,contradicting_value,", XMEAS_36 show small increases, not decreases). The slow-drift ratio (0.69) and dominant lag 4 window suggest a slow pr"
+EVT-val-f14-r305::openset,XMEAS_24,-0.27,sensor_absent,,
+EVT-val-f14-r306::openset,XMEAS_28,-0.32,sensor_absent,,
+EVT-val-f14-r307::openset,XMV_51,0.1,z_true_mismatch,z_omitted,) and Reactor_Temperature (XMEAS_9) with no prior deviation in cooling water inlet temperature. The dynamic residual att
+EVT-val-f14-r308::openset,XMEAS_21,-0.13,z_true_mismatch,z_omitted,"), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with Reactor_Cooling_Water_Flow trending increasing while the other"
+EVT-val-f14-r309::openset,XMEAS_37,-0.19,z_true_mismatch,contradicting_value,) shows a stable deviation of -10.71% while Component_D_Stream9 (XMEAS_32) shows a small increasing trend. The dynamic r
+EVT-val-f14-r310::openset,XMEAS_21,0.18,z_true_mismatch,z_omitted,"), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with the flow valve position increasing while the temperature measu"
+EVT-val-f14-r311::openset,XMEAS_28,0.32,sensor_absent,,
+EVT-val-f14-r312::openset,XMEAS_28,-0.39,sensor_absent,,
+EVT-val-f14-r313::openset,XMEAS_9,-0.14,z_true_mismatch,z_omitted,"), Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with the flow"
+EVT-val-f14-r314::openset,XMEAS_41,-0.34,z_true_mismatch,z_omitted,) and Component_D_Stream9 (XMEAS_32) show increasing trends. The dynamic residual attribution shows XMV_51 as dominant (
+EVT-val-f14-r315::openset,XMV_51,0.13,z_true_mismatch,z_omitted,) and Reactor_Temperature (XMEAS_9) with no prior change in cooling water inlet temperature. The dynamic residual attrib
+EVT-val-f14-r316::openset,XMEAS_6,-0.14,z_true_mismatch,z_omitted,) also increasing. FAULT_04 (Reactor cooling water inlet temperature step) would cause Reactor_Cooling_Water_Flow to inc
+EVT-val-f14-r317::openset,XMEAS_5,0.18,sensor_absent,,
+EVT-val-f14-r318::openset,XMEAS_41,-0.12,sensor_absent,,
+EVT-val-f14-r319::openset,XMV_49,-0.14,sensor_absent,,
+EVT-val-f14-r320::openset,XMV_51,0.12,z_true_mismatch,z_omitted,") at onset, with the cooling water flow increasing while the outlet temperature rises. FAULT_04 (Reactor cooling water i"
+EVT-val-f14-r321::openset,XMV_51,0.22,z_true_mismatch,z_omitted,) and Reactor_Temperature (XMEAS_9) with no prior deviation in cooling water inlet temperature. The dynamic residual att
+EVT-val-f14-r322::openset,XMEAS_21,0.18,z_true_mismatch,z_omitted,"), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with Reactor_Cooling_Water_Flow trending increasing while the tempe"
+EVT-val-f14-r323::openset,XMEAS_39,-0.16,sensor_absent,,
+EVT-val-f14-r324::openset,XMEAS_28,0.12,sensor_absent,,
+EVT-val-f14-r325::openset,XMEAS_5,-0.23,sensor_absent,,
+EVT-val-f15-r301::openset,XMEAS_28,-0.25,z_true_mismatch,contradicting_value,", XMEAS_36, XMEAS_15, XMV_49) show minimal deviations (z-scores ≤ 0.02) with increasing trends. The dynamic residual att"
+EVT-val-f15-r302::openset,XMEAS_22,0.14,z_true_mismatch,z_omitted,"(Condenser_Cooling_Water_Outlet_Temperature), with increasing trends in all. The dominant lag window is 4, indicating a"
+EVT-val-f15-r303::openset,XMEAS_36,-0.22,z_true_mismatch,z_omitted,"), with no clear initial disturbance in feed streams. The onset order shows simultaneous changes across multiple streams"
+EVT-val-f15-r304::openset,XMV_48,0.2,sensor_absent,,
+EVT-val-f15-r305::openset,XMEAS_24,-0.17,z_true_mismatch,z_omitted,"). The dynamic residual attribution points to XMEAS_17, XMV_52, XMV_46, XMEAS_22, and XMEAS_7 as dominant variables, but"
+EVT-val-f15-r306::openset,XMEAS_28,-0.28,sensor_absent,,
+EVT-val-f15-r307::openset,XMEAS_40,-0.35,sensor_absent,,
+EVT-val-f15-r308::openset,XMEAS_24,-0.25,exact,,
+EVT-val-f15-r309::openset,XMEAS_37,-0.23,z_true_mismatch,contradicting_value,") with a -12.66% deviation, Separator_Level (XMEAS_12) with -0.17%, and Separator_Pot_Liquid_Flow (XMV_48) with -0.67%,"
+EVT-val-f15-r310::openset,XMEAS_28,0.32,z_true_mismatch,z_omitted,") show minimal deviations. The dynamic residual attribution shows high-lag share for XMEAS_17, XMV_52, and XMV_47, but t"
+EVT-val-f15-r311::openset,XMEAS_28,0.39,sensor_absent,,
+EVT-val-f15-r312::openset,XMEAS_41,0.43,z_format_differs,,
+EVT-val-f15-r313::openset,XMEAS_14,0.13,z_format_differs,,
+EVT-val-f15-r314::openset,XMEAS_36,0.09,sensor_absent,,
+EVT-val-f15-r315::openset,XMEAS_6,-0.1,z_true_mismatch,z_omitted,"), with no significant decrease in any feed flow or temperature as required by the listed candidates. FAULT_05 (Condense"
+EVT-val-f15-r316::openset,XMEAS_41,0.18,z_format_differs,,
+EVT-val-f15-r317::openset,XMEAS_5,0.14,z_true_mismatch,z_omitted,"), and Separator_Underflow_Stream10 (XMEAS_14), all with small z-scores and increasing deviations. The dynamic residual"
+EVT-val-f15-r318::menu,XMEAS_40,-0.08,z_true_mismatch,z_omitted,") with increasing deviations, but no significant step change in flow rates or temperatures. The dynamic residual attribu"
+EVT-val-f15-r318::openset,XMEAS_40,-0.08,z_true_mismatch,z_omitted,") with increasing deviations, but no significant change in key process variables like Reactor_Temperature or Condenser_C"
+EVT-val-f15-r319::openset,XMEAS_36,-0.17,z_true_mismatch,contradicting_value,", XMV_52, XMEAS_14, and XMEAS_5, with a slow-drift ratio of 0.44. The onset order shows simultaneous changes across mult"
+EVT-val-f15-r320::openset,XMEAS_32,0.13,z_true_mismatch,z_omitted,"), Condenser_Cooling_Water_Flow (XMV_52), and Stripper_Underflow_Stream11 (XMEAS_17), while Condenser_Cooling_Water_Outl"
+EVT-val-f15-r321::openset,XMEAS_34,-0.19,z_true_mismatch,z_omitted,"), and Reactor_Temperature (XMEAS_9), with no significant changes in feed flows or temperatures as required by the candi"
+EVT-val-f15-r322::openset,XMEAS_28,-0.29,z_true_mismatch,contradicting_value,") show increasing trends with small negative deviations (-0.44%, -0.68%, -0.45%), while the manipulated variables (XMV_4"
+EVT-val-f15-r323::openset,XMEAS_39,-0.14,z_true_mismatch,z_omitted,"), Reactor_Feed_Rate (XMEAS_6), and other measurements without a clear leading variable. The dynamic residual attributio"
+EVT-val-f15-r324::openset,XMEAS_28,0.12,z_true_mismatch,z_omitted,"), Separator_Underflow_Stream10 (XMEAS_14), and Separator_Pot_Liquid_Flow (XMV_48), with no clear leading sensor. The on"
+EVT-val-f15-r325::openset,XMEAS_5,-0.29,z_true_mismatch,z_omitted,"), with A_C_Feed_Flow (XMV_45) also trending up. The dynamic residual attribution shows XMV_52 and XMEAS_17 as dominant"
+EVT-val-f16-r301::menu,XMEAS_28,-0.22,z_true_mismatch,z_omitted,"), Stripper_Temperature (XMEAS_18), Component_H_Stream9 (XMEAS_36), and Component_B_Stream6 (XMEAS_24), all with positiv"
+EVT-val-f16-r302::menu,XMV_50,1.45,z_true_mismatch,z_omitted,") and Stripper_Steam_Flow (XMEAS_19), while Component_D_Stream11 (XMEAS_37) decreases slightly. The dynamic residual att"
+EVT-val-f16-r303::menu,XMV_50,0.43,z_true_mismatch,z_omitted,] and Stripper_Steam_Flow [XMEAS_19] with no corresponding change in A_C_Feed_Flow [XMV_45] or Recycle_Flow_Stream8 [XME
+EVT-val-f16-r304::menu,XMEAS_18,0.9,z_true_mismatch,z_omitted,) trend increasing while Component_F_Stream11 and Component_F_Stream6 trend increasing suggests a different process beha
+EVT-val-f16-r305::menu,XMV_50,-0.79,z_true_mismatch,contradicting_value,") with a -4.50% deviation, while Stripper_Steam_Flow (XMEAS_19) increases by 0.03% with a z-score of 0.01. This contradi"
+EVT-val-f16-r306::menu,XMV_50,-1.25,z_true_mismatch,z_omitted,"), while Component_F_Stream6 (XMEAS_28) and Stripper_Underflow_Stream11 (XMEAS_17) show minor increasing trends. The dyn"
+EVT-val-f16-r307::menu,XMEAS_19,0.78,z_true_mismatch,z_omitted,"), Stripper_Temperature (XMEAS_18), and Stripper_Steam_Valve (XMV_50), while Component_G_Stream11 (XMEAS_40) shows a sma"
+EVT-val-f16-r308::menu,XMV_50,0.31,z_true_mismatch,z_omitted,") is responding to a planned process adjustment.""}"
+EVT-val-f16-r309::menu,XMEAS_19,-0.26,z_true_mismatch,z_omitted,", XMEAS_11, and XMEAS_22, but no single sensor dominates the residual. The onset order shows simultaneous changes across"
+EVT-val-f16-r310::menu,XMEAS_19,0.37,z_true_mismatch,z_omitted,", XMEAS_11, XMEAS_18, and XMV_50 as dominant variables with high residual shares. The onset order shows Reactor_Temperat"
+EVT-val-f16-r311::menu,XMEAS_28,0.32,exact,,
+EVT-val-f16-r312::menu,XMV_50,-1.13,z_true_mismatch,contradicting_value,") with increasing trends, but the dominant lag window is 4 with slow-drift ratio 0.45, indicating a gradual process chan"
+EVT-val-f16-r313::menu,XMV_50,0.51,z_true_mismatch,z_omitted,") and Stripper_Steam_Flow (XMEAS_19), while other measurements like Separator_Underflow_Stream10 (XMEAS_14) and Componen"
+EVT-val-f16-r314::menu,XMV_50,1.44,z_true_mismatch,z_omitted,"), while Separator_Pot_Liquid_Flow (XMV_48) and Separator_Level (XMEAS_12) show increasing trends in the opposite direct"
+EVT-val-f16-r315::menu,XMV_50,2.47,z_true_mismatch,z_omitted,") with increasing position, accompanied by rising Stripper_Steam_Flow (XMEAS_19) and Stripper_Temperature (XMEAS_18) mea"
+EVT-val-f16-r316::menu,XMEAS_18,-0.25,z_true_mismatch,z_omitted,"), and Component_E_Stream11 (XMEAS_38), all with small negative z-scores and increasing trends. The Stripper_Steam_Valve"
+EVT-val-f16-r317::menu,XMV_50,-1.2,z_true_mismatch,contradicting_value,") and Stripper_Steam_Flow (XMEAS_19), but the dominant lag is 4 windows with slow-drift ratio 0.54, indicating a gradual"
+EVT-val-f16-r318::menu,XMEAS_19,-1.33,z_true_mismatch,z_omitted,"), Stripper_Temperature (XMEAS_18), and Stripper_Liquid_Product_Flow (XMV_49), while Stripper_Level (XMEAS_15) and Compo"
+EVT-val-f16-r319::menu,XMV_50,0.71,z_true_mismatch,z_omitted,"), and Stripper_Temperature (XMEAS_18), with increasing trends in both the manipulated variable (XMV_50) and the measure"
+EVT-val-f16-r320::menu,XMV_50,0.53,z_true_mismatch,z_omitted,"), Stripper_Temperature (XMEAS_18), and Component_E_Stream11 (XMEAS_38), while Component_D_Stream9 (XMEAS_32) shows a sm"
+EVT-val-f16-r321::menu,XMV_50,0.82,z_true_mismatch,z_omitted,"), and Stripper_Temperature (XMEAS_18), while Recycle_Flow_Stream8 (XMEAS_5) and Separator_Level (XMEAS_12) show minor i"
+EVT-val-f16-r322::menu,XMV_50,-1.06,z_true_mismatch,z_omitted,"), while Component_F_Stream11 (XMEAS_39) and Component_D_Stream9 (XMEAS_32) show decreasing trends. The dynamic residual"
+EVT-val-f16-r323::menu,XMEAS_19,0.28,z_true_mismatch,z_omitted,"), Stripper_Temperature (XMEAS_18), and Reactor_Feed_Rate (XMEAS_6), with a dominant lag of 4 windows and slow-drift rat"
+EVT-val-f16-r324::menu,XMEAS_19,-0.69,z_true_mismatch,contradicting_value,"), but the dominant lag window (4) and slow-drift ratio (0.52) suggest a gradual process change rather than a step distu"
+EVT-val-f16-r325::menu,XMV_50,0.65,z_true_mismatch,z_omitted,") with increasing position, but no corresponding decrease in feed flows or temperatures that would indicate a feed loss"
+EVT-val-f17-r301::menu,XMEAS_21,-28.73,exact,,
+EVT-val-f17-r302::menu,XMEAS_21,-29.15,exact,,
+EVT-val-f17-r303::menu,XMEAS_21,-28.27,exact,,
+EVT-val-f17-r304::menu,XMEAS_21,-29.34,exact,,
+EVT-val-f17-r305::menu,XMEAS_21,-30.65,exact,,
+EVT-val-f17-r306::menu,XMEAS_21,-29.01,exact,,
+EVT-val-f17-r307::menu,XMEAS_21,-28.42,exact,,
+EVT-val-f17-r308::menu,XMEAS_21,-29.91,exact,,
+EVT-val-f17-r309::menu,XMEAS_21,-29.41,exact,,
+EVT-val-f17-r310::menu,XMEAS_21,-29.18,exact,,
+EVT-val-f17-r311::menu,XMEAS_21,-25.8,exact,,
+EVT-val-f17-r312::menu,XMEAS_21,-28.95,exact,,
+EVT-val-f17-r313::menu,XMEAS_21,-27.91,exact,,
+EVT-val-f17-r314::menu,XMEAS_21,-27.83,exact,,
+EVT-val-f17-r315::menu,XMEAS_21,-30.95,exact,,
+EVT-val-f17-r316::menu,XMEAS_21,-32.46,exact,,
+EVT-val-f17-r317::menu,XMEAS_21,-31.84,exact,,
+EVT-val-f17-r318::menu,XMEAS_21,-29.33,exact,,
+EVT-val-f17-r319::menu,XMEAS_21,-30.55,exact,,
+EVT-val-f17-r320::menu,XMEAS_21,-30.15,exact,,
+EVT-val-f17-r321::menu,XMEAS_21,-29.42,exact,,
+EVT-val-f17-r322::menu,XMEAS_21,-29.35,exact,,
+EVT-val-f17-r323::menu,XMEAS_21,-34.11,exact,,
+EVT-val-f17-r324::menu,XMEAS_21,-30.21,exact,,
+EVT-val-f17-r325::menu,XMEAS_21,-31.04,exact,,
+EVT-val-f18-r301::menu,XMEAS_22,-14.62,exact,,
+EVT-val-f18-r302::menu,XMEAS_22,-16.17,exact,,
+EVT-val-f18-r303::menu,XMEAS_22,-14.73,exact,,
+EVT-val-f18-r304::menu,XMEAS_22,-15.24,exact,,
+EVT-val-f18-r305::menu,XMEAS_22,-16.69,exact,,
+EVT-val-f18-r306::menu,XMEAS_22,-15.14,exact,,
+EVT-val-f18-r307::menu,XMEAS_22,-15.21,exact,,
+EVT-val-f18-r308::menu,XMEAS_22,-15.66,exact,,
+EVT-val-f18-r309::menu,XMEAS_22,-15.96,exact,,
+EVT-val-f18-r310::menu,XMEAS_22,-15.0,exact,,
+EVT-val-f18-r311::menu,XMEAS_22,-14.64,exact,,
+EVT-val-f18-r312::menu,XMEAS_22,-16.27,exact,,
+EVT-val-f18-r313::menu,XMEAS_22,-13.0,exact,,
+EVT-val-f18-r314::menu,XMEAS_22,-16.14,exact,,
+EVT-val-f18-r315::menu,XMEAS_22,-17.34,exact,,
+EVT-val-f18-r316::menu,XMEAS_22,-16.24,exact,,
+EVT-val-f18-r317::menu,XMEAS_22,-18.29,exact,,
+EVT-val-f18-r318::menu,XMEAS_22,-15.5,exact,,
+EVT-val-f18-r319::menu,XMEAS_22,-16.86,exact,,
+EVT-val-f18-r320::menu,XMEAS_22,-15.43,exact,,
+EVT-val-f18-r321::menu,XMEAS_22,-15.88,exact,,
+EVT-val-f18-r322::menu,XMEAS_22,-14.5,exact,,
+EVT-val-f18-r323::menu,XMEAS_22,-16.19,exact,,
+EVT-val-f18-r324::menu,XMEAS_22,-17.21,exact,,
+EVT-val-f18-r325::menu,XMEAS_22,-16.43,exact,,
+EVT-val-f19-r301::menu,XMEAS_28,-0.31,sensor_absent,,
+EVT-val-f19-r302::menu,XMEAS_5,0.55,z_true_mismatch,z_omitted,") and Compressor_Recycle_Valve (XMV_46) at onset, with no prior deviation in the listed candidate faults. FAULT_01 requi"
+EVT-val-f19-r303::menu,XMV_46,0.77,z_true_mismatch,z_omitted,") at onset, with no initial deviation in Reactor_Feed_Rate (XMEAS_6) or Reactor_Temperature (XMEAS_9). The dynamic resid"
+EVT-val-f19-r304::menu,XMEAS_5,-0.24,z_true_mismatch,z_omitted,"), Compressor_Recycle_Valve (XMV_46), Reactor_Temperature (XMEAS_9), and Reactor_Cooling_Water_Flow (XMV_51) at onset, w"
+EVT-val-f19-r305::menu,XMV_51,0.15,z_true_mismatch,z_omitted,") at onset, with no initial decrease in any flow or temperature as required by FAULT_01 (A/C feed ratio step change) or"
+EVT-val-f19-r306::menu,XMV_46,0.77,z_true_mismatch,z_omitted,") and Reactor_Cooling_Water_Flow (XMV_51) valve positions, with Recycle_Flow_Stream8 (XMEAS_5) and Reactor_Feed_Rate (XM"
+EVT-val-f19-r307::menu,XMV_46,-0.24,z_true_mismatch,z_omitted,"), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with no initial decrease in any flow or temperature as required by"
+EVT-val-f19-r308::menu,XMEAS_5,-0.31,z_true_mismatch,z_omitted,) and Reactor_Feed_Rate (XMEAS_6) measurements trending upward. The dynamic residual attribution identifies XMV_46 as do
+EVT-val-f19-r309::menu,XMEAS_5,0.24,z_true_mismatch,z_omitted,"), Reactor_Feed_Rate (XMEAS_6), Reactor_Temperature (XMEAS_9), Component_D_Stream11 (XMEAS_37), Compressor_Recycle_Valve"
+EVT-val-f19-r310::menu,XMEAS_32,-0.12,sensor_absent,,
+EVT-val-f19-r311::menu,XMV_46,-0.25,z_true_mismatch,z_omitted,") at onset, with no initial decrease in any measured flow or temperature. FAULT_01 (A/C feed ratio step change) is ruled"
+EVT-val-f19-r312::menu,XMV_46,0.2,z_true_mismatch,z_omitted,") at onset, with no prior deviation in Reactor_Temperature (XMEAS_9) or Reactor_Cooling_Water_Flow (XMV_51). FAULT_01 (A"
+EVT-val-f19-r313::menu,XMV_51,-0.23,z_true_mismatch,z_omitted,") at onset, with no prior deviation in the listed candidates. FAULT_01 requires a decrease in A_C_Feed_Flow first, but n"
+EVT-val-f19-r314::menu,XMEAS_41,-0.35,z_true_mismatch,z_omitted,) with no initial decrease in any feed flow or temperature. FAULT_01 (A/C feed ratio step change) is ruled out because i
+EVT-val-f19-r315::menu,XMEAS_9,-0.17,sensor_absent,,
+EVT-val-f19-r316::menu,XMV_46,0.42,z_true_mismatch,z_omitted,") at onset, with Reactor_Cooling_Water_Flow (XMV_51) also increasing. The dynamic residual attribution shows high-lag sh"
+EVT-val-f19-r317::menu,XMV_46,0.29,z_true_mismatch,z_omitted,") at onset, with no initial decrease in any measured flow or temperature. FAULT_01 (A/C feed ratio step change) is ruled"
+EVT-val-f19-r318::menu,XMV_46,0.29,z_true_mismatch,z_omitted,"), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with no initial decrease in any flow or temperature as required by"
+EVT-val-f19-r319::menu,XMV_46,-0.4,z_true_mismatch,z_omitted,) valve positions at onset. FAULT_01 (A/C feed ratio step change) is ruled out because it would show a decrease in A_C_F
+EVT-val-f19-r320::menu,XMEAS_5,-0.25,z_true_mismatch,z_omitted,"), Compressor_Recycle_Valve (XMV_46), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with all trending upward. The dy"
+EVT-val-f19-r321::menu,XMV_46,-0.11,z_true_mismatch,z_omitted,") at onset, with no initial decrease in any measured flow or temperature. FAULT_01 (A/C feed ratio step change) is ruled"
+EVT-val-f19-r322::menu,XMEAS_5,-0.49,z_true_mismatch,z_omitted,) and Reactor_Temperature (XMEAS_9) measurements trending upward. FAULT_01 (A/C feed ratio step change) is ruled out bec
+EVT-val-f19-r323::menu,XMEAS_39,-0.15,z_true_mismatch,contradicting_value,") at 0.4 min. The dynamic residual attribution identifies XMEAS_13, XMV_46, and XMEAS_16 as dominant variables with high"
+EVT-val-f19-r324::menu,XMV_46,0.3,z_true_mismatch,z_omitted,"), and Reactor_Cooling_Water_Flow (XMV_51) at onset, with no initial decrease in any measured flow or temperature. FAULT"
+EVT-val-f19-r325::menu,XMEAS_5,-0.48,z_true_mismatch,z_omitted,) and Reactor_Temperature (XMEAS_9) measurements trending upward. The dynamic residual attribution identifies XMV_46 and
+EVT-val-f20-r301::menu,XMV_46,-4.06,exact,,
+EVT-val-f20-r302::menu,XMV_46,-4.04,exact,,
+EVT-val-f20-r303::menu,XMV_46,-4.06,exact,,
+EVT-val-f20-r304::menu,XMV_46,-5.13,exact,,
+EVT-val-f20-r305::menu,XMV_46,-4.92,z_true_mismatch,contradicting_value,") deviating simultaneously at onset, with Compressor_Work decreasing (-1.51%) and Compressor_Recycle_Valve increasing (-"
+EVT-val-f20-r306::menu,XMV_46,-4.17,exact,,
+EVT-val-f20-r307::menu,XMV_46,-4.0,exact,,
+EVT-val-f20-r308::menu,XMV_46,-4.31,exact,,
+EVT-val-f20-r309::menu,XMV_46,-4.03,exact,,
+EVT-val-f20-r310::menu,XMV_46,-4.35,exact,,
+EVT-val-f20-r311::menu,XMV_46,-4.43,exact,,
+EVT-val-f20-r312::menu,XMV_46,-4.01,exact,,
+EVT-val-f20-r313::menu,XMV_46,-4.68,exact,,
+EVT-val-f20-r314::menu,XMV_46,-4.36,exact,,
+EVT-val-f20-r315::menu,XMV_46,-4.48,exact,,
+EVT-val-f20-r316::menu,XMV_46,-4.56,z_true_mismatch,contradicting_value,") deviating simultaneously at onset, with Compressor_Work decreasing (-1.26%) and Compressor_Recycle_Valve increasing (-"
+EVT-val-f20-r317::menu,XMV_46,-4.7,exact,,
+EVT-val-f20-r318::menu,XMV_46,-4.5,exact,,
+EVT-val-f20-r319::menu,XMV_46,-4.97,exact,,
+EVT-val-f20-r320::menu,XMV_46,-4.63,exact,,
+EVT-val-f20-r321::menu,XMV_46,-4.57,exact,,
+EVT-val-f20-r322::menu,XMV_46,-4.2,exact,,
+EVT-val-f20-r323::menu,XMV_46,-4.02,exact,,
+EVT-val-f20-r324::menu,XMV_46,-4.73,exact,,
+EVT-val-f20-r325::menu,XMV_46,-4.07,exact,,
+NORM-val-r302::menu,XMV_43,-0.32,sensor_absent,,
+NORM-val-r304::menu,XMEAS_14,-0.16,z_true_mismatch,contradicting_value,", XMEAS_8) show stable trends with small deviations (0.22%, 0.00%, -0.65%, -0.00% respectively), and the onset order sho"
+NORM-val-r307::menu,XMEAS_32,0.36,sensor_absent,,
+NORM-val-r308::menu,XMV_45,0.28,sensor_absent,,
+NORM-val-r310::menu,XMEAS_28,0.51,sensor_absent,,
+NORM-val-r311::menu,XMV_48,-0.26,z_true_mismatch,contradicting_value,", XMEAS_12, XMEAS_17, XMV_52) show stable trends with small deviations (z-scores ≤0.26), and the onset order shows simul"
+NORM-val-r313::menu,XMEAS_32,0.28,z_true_mismatch,z_omitted,"), and Separator_Pot_Liquid_Flow (XMV_48), with no significant deviations in key process variables like Reactor_Temperat"
+NORM-val-r317::menu,XMEAS_30,0.39,z_format_differs,,
+NORM-val-r319::menu,XMV_49,0.16,exact,,
+NORM-val-r322::menu,XMEAS_37,-0.36,sensor_absent,,
+NORM-val-r323::menu,XMEAS_17,0.3,sensor_absent,,
+NORM-val-r324::menu,XMEAS_39,0.19,sensor_absent,,
+NORM-val-r327::menu,XMEAS_6,-0.13,sensor_absent,,
+NORM-val-r328::menu,XMEAS_28,0.36,z_true_mismatch,contradicting_value,", XMEAS_32, XMEAS_5, XMV_48, XMEAS_12) show stable trends with small deviations (z-scores ≤0.05), and the onset order sh"
+NORM-val-r329::menu,XMEAS_39,-0.83,sensor_absent,,
+NORM-val-r330::menu,XMEAS_14,0.13,sensor_absent,,
+NORM-val-r332::menu,XMEAS_28,-0.22,exact,,
+NORM-val-r336::menu,XMEAS_15,-0.16,z_true_mismatch,contradicting_value,", XMV_49) show increasing trends with small deviations (0.11% to 0.87%), consistent with a slow process adjustment rathe"
+NORM-val-r337::menu,XMEAS_41,-0.78,sensor_absent,,
+NORM-val-r339::menu,XMEAS_34,0.55,sensor_absent,,
+NORM-val-r343::menu,XMEAS_34,0.72,sensor_absent,,
+NORM-val-r344::menu,XMV_48,-0.11,sensor_absent,,
+NORM-val-r348::menu,XMEAS_36,0.54,sensor_absent,,
+NORM-val-r350::menu,XMEAS_24,-0.42,exact,,
+NORM-val-r352::menu,XMEAS_24,-0.31,z_true_mismatch,contradicting_value,", XMEAS_17, XMV_45, XMV_52) show minimal deviations (z-scores ≤ 0.31) with stable trends. The dynamic residual attributi"
+NORM-val-r353::menu,XMEAS_9,0.11,exact,,
+NORM-val-r355::menu,XMEAS_32,0.36,sensor_absent,,
+NORM-val-r356::menu,XMEAS_36,0.32,exact,,
+NORM-val-r367::menu,XMV_45,-0.23,z_true_mismatch,contradicting_value,", XMV_48) show stable trends with small deviations (0.01% to -0.85%), and the onset order shows simultaneous changes acr"
+NORM-val-r368::menu,XMEAS_39,-0.8,z_true_mismatch,contradicting_value,", XMEAS_17, XMV_52, XMEAS_15, XMV_49) show stable trends with small deviations (z-scores between -0.18% and -0.90), cons"
+NORM-val-r370::menu,XMEAS_37,-0.46,z_true_mismatch,contradicting_value,", XMEAS_5) show stable trends with small deviations (0.25%, -25.66%, 0.08%), and the onset order shows simultaneous chan"
+NORM-val-r371::menu,XMEAS_36,0.24,sensor_absent,,
+NORM-val-r372::menu,XMEAS_5,0.32,z_true_mismatch,contradicting_value,"] +2.44%, Condenser_Cooling_Water_Flow [XMV_52] +2.44%) show stable trends with small deviations, consistent with a tran"
+NORM-val-r374::menu,XMEAS_35,0.36,sensor_absent,,
+NORM-val-r377::menu,XMV_45,0.31,sensor_absent,,
+NORM-val-r380::menu,XMEAS_28,-0.21,z_true_mismatch,contradicting_value,", XMEAS_12, XMEAS_15) show stable trends with small deviations (z-scores ≤0.21), and the onset order shows simultaneous"
+NORM-val-r382::menu,XMEAS_34,0.37,exact,,
+NORM-val-r383::menu,XMEAS_39,0.39,sensor_absent,,
+NORM-val-r384::menu,XMEAS_14,-0.24,z_true_mismatch,contradicting_value,", XMEAS_35, XMEAS_25, XMEAS_34) show stable trends with small deviations (z-scores ≤0.10), suggesting a minor, non-impac"
+NORM-val-r385::menu,XMEAS_24,0.36,sensor_absent,,
+NORM-val-r386::menu,XMV_48,0.19,sensor_absent,,
+NORM-val-r389::menu,XMEAS_39,-0.21,z_true_mismatch,contradicting_value,", XMEAS_17, XMEAS_37) show stable trends with small deviations (z-scores between -0.05 and 0.13), and the onset order sh"
+NORM-val-r391::menu,XMEAS_36,0.34,exact,,
+NORM-val-r395::menu,XMV_49,-0.29,exact,,
+NORM-val-r396::menu,XMV_47,0.34,z_true_mismatch,contradicting_value,") show stable trends with small deviations (0.17% to 1.29%), and the onset order shows simultaneous changes across multi"
+NORM-val-r399::menu,XMEAS_36,0.22,sensor_absent,,
+NORM-val-r400::menu,XMV_49,-0.5,sensor_absent,,

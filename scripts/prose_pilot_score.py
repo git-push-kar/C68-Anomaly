@@ -60,6 +60,18 @@ def followup_summary(path: Path) -> dict:
                                        / max(len(scored), 1), 1)}
 
 
+def readings_for(rows, prompts, order):
+    """Score every row against the prompt of its own item_id, never against a position (27.2)."""
+    readings = []
+    for row in rows:
+        gates = read_gates(prompts[row["item_id"]][order], row["text"], row["tokens"],
+                           row["gold_fault_id"], cap=512)
+        gates["item_id"] = row["item_id"]
+        gates["tokens"] = row["tokens"]
+        readings.append(gates)
+    return readings
+
+
 def score_order(readings) -> dict:
     total = len(readings)
     counts = {"schema_valid": sum(1 for r in readings if r["schema_valid"]),
@@ -135,19 +147,16 @@ def main() -> int:
     if run1.exists():
         summary["run1_followups"] = followup_summary(run1)
     for order in ORDERS:
-        readings = []
-        for row in rows_by_order[order]:
-            gates = read_gates(prompts[row["item_id"]][order], row["text"], row["tokens"],
-                               row["gold_fault_id"], cap=512)
-            gates["item_id"] = row["item_id"]
-            gates["tokens"] = row["tokens"]
-            readings.append(gates)
+        readings = readings_for(rows_by_order[order], prompts, order)
         summary["orders"][order] = score_order(readings)
         summary["gates"][order] = gated(summary["orders"][order], followups)
-    pair = zip(rows_by_order["kb"], rows_by_order["shuffled-1"])
+    kb_rows = {row["item_id"]: row for row in rows_by_order["kb"]}
+    shuffled_rows = {row["item_id"]: row for row in rows_by_order["shuffled-1"]}
+    shared = sorted(set(kb_rows) & set(shuffled_rows))
     summary["order_sensitivity"] = {
-        "rows": len(rows_by_order["kb"]),
-        "identical_text_kb_vs_shuffled1": sum(1 for a, b in pair if a["text"] == b["text"]),
+        "rows": len(shared),
+        "identical_text_kb_vs_shuffled1": sum(1 for item in shared
+                                              if kb_rows[item]["text"] == shuffled_rows[item]["text"]),
         "per_metric_max_minus_min": {
             metric: round(max(summary["orders"][order]["rates"][metric] for order in ORDERS)
                           - min(summary["orders"][order]["rates"][metric] for order in ORDERS), 4)

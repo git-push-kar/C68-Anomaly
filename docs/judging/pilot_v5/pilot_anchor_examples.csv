@@ -1,0 +1,31 @@
+item_id,top_tag,top_z,class,sub_class,context
+EVT-val-f03-r317::menu,XMEAS_32,-0.23,sensor_absent,,
+EVT-val-f03-r317::openset,XMEAS_32,-0.23,sensor_absent,,
+EVT-val-f06-r321::openset,XMEAS_16,31.08,sensor_absent,,
+EVT-val-f08-r303::openset,XMEAS_31,-1.99,sensor_absent,,
+EVT-val-f08-r312::openset,XMV_50,6.6,sensor_absent,,
+EVT-val-f08-r317::openset,XMEAS_34,-2.76,sensor_absent,,
+EVT-val-f08-r321::openset,XMEAS_11,-1.28,sensor_absent,,
+EVT-val-f08-r322::openset,XMV_50,5.56,sensor_absent,,
+EVT-val-f09-r317::openset,XMEAS_32,-0.23,sensor_absent,,
+EVT-val-f09-r319::openset,XMEAS_17,0.22,sensor_absent,,
+EVT-val-f01-r313::openset,XMEAS_1,18.0,z_format_differs,,
+EVT-val-f03-r302::openset,XMEAS_24,0.19,z_format_differs,,
+EVT-val-f06-r303::openset,XMEAS_16,30.98,z_format_differs,,
+EVT-val-f06-r306::openset,XMEAS_16,30.98,z_format_differs,,
+EVT-val-f10-r315::openset,XMEAS_19,2.04,z_format_differs,,
+EVT-val-f11-r301::openset,XMEAS_26,0.08,z_format_differs,,
+EVT-val-f13-r319::openset,XMEAS_16,21.0,z_format_differs,,
+EVT-val-f15-r312::openset,XMEAS_41,0.43,z_format_differs,,
+EVT-val-f15-r313::openset,XMEAS_14,0.13,z_format_differs,,
+EVT-val-f15-r316::openset,XMEAS_41,0.18,z_format_differs,,
+EVT-val-f01-r302::openset,XMV_44,17.94,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+EVT-val-f01-r303::openset,XMV_44,17.87,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Temperature (XMEAS_18) following. The dynamic residual attri"
+EVT-val-f01-r304::openset,XMEAS_1,18.07,z_true_mismatch,contradicting_value,") with a 222.71% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Flow (XMEAS_19) rises with"
+EVT-val-f01-r309::openset,XMEAS_1,18.02,z_true_mismatch,z_omitted,") and A_Feed_Flow (XMV_44) with a 222% deviation, while Stripper_Steam_Valve (XMV_50) increases with 66% deviation. The"
+EVT-val-f01-r311::openset,XMV_44,18.08,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+EVT-val-f01-r314::openset,XMV_44,17.71,z_true_mismatch,contradicting_value,") and A_Feed_Stream1 (XMEAS_1) with a 218.35% deviation, while Stripper_Steam_Valve (XMV_50) increases with a 65.15% dev"
+EVT-val-f01-r315::openset,XMV_44,17.97,z_true_mismatch,contradicting_value,") and A_Feed_Stream1 (XMEAS_1) with a 221.57% deviation, while Stripper_Steam_Valve (XMV_50) shows a 70.27% increase. Th"
+EVT-val-f01-r316::openset,XMV_44,18.13,z_true_mismatch,z_omitted,") at onset, with Stripper_Steam_Valve (XMV_50) and Stripper_Steam_Flow (XMEAS_19) also rising. The dynamic residual attr"
+EVT-val-f01-r321::openset,XMEAS_1,17.84,z_true_mismatch,contradicting_value,") and A_Feed_Flow (XMV_44) with a 219.91% deviation, while Stripper_Steam_Valve (XMV_50) increases and Stripper_Steam_Fl"
+EVT-val-f01-r322::openset,XMV_44,17.87,z_true_mismatch,contradicting_value,") at onset, with Stripper_Temperature (XMEAS_18) rising 5.99% and Stripper_Steam_Valve (XMV_50) increasing 66.63% at +0."
