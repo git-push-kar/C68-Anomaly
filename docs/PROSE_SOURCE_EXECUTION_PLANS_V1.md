@@ -190,6 +190,7 @@ a rate that keeps the fallback share under 25 %.
 | Path | What it holds |
 |---|---|
 | `docs/PROTOCOL.md` §29 | the pre-registered question, rule, branch tree, 3B-17 loop, gates, measured outcome |
+| `docs/PROTOCOL.md` §30 | the factorial comparison study over the plans in this document, and the 22-item clarification set that must be signed off before any condition runs |
 | `docs/TRAINING_SPEC_FOLLOWUP_V1.md` | the Plan F run: data, hyperparameters, 180 steps, cost range, gates |
 | `scripts/audit_v5_sheet.py` | structure audit, scoring packet, join, adjudication, reveal |
 | `tests/test_v5_scoring_decision.py` | regression test locking the structural gate and the 14/11/15 reading |

@@ -2750,3 +2750,126 @@ Consequences, recorded rather than acted on:
 
 No stored generation, sheet, key or checkpoint was modified. Nothing was trained and no model was
 loaded.
+
+## 30. The factorial comparison of prose sources: plan and pre-registration (2026-11-04)
+
+### 30.1 Intent, and what this section does not do
+
+Section 29 decided one thing: which writer supplies the three open strata's report prose under the
+preference rule. This section records the **comparison study** that would let the same question be
+answered with a confidence interval instead of a boundary story, and to extend it to the follow-up
+surface. It is a plan and a pre-registration. Nothing here is launched, **no condition has been run**,
+and no stored artefact is changed.
+
+Stated plainly, so that it cannot be read as a route around the earlier decision:
+
+- The study does **not** reopen 29.9. Its outcome feeds a **new dated decision**, never an amendment
+to 29.9.
+- It runs on fit and validation items only. The test set stays untouched until the single pass of
+  29.3, which runs the winning condition alone.
+- It does not change what the system says a fault is. Diagnosis, verdict, severity and confidence
+  remain code outputs in every condition (29.1).
+- Training happens only where it buys a claim: F under its own spec, and E only if authorised under
+  this section.
+
+The gap it exists to close: on 40 items, 25 non-ties and strata of 10, no condition can be separated
+from another at publication strength. A comparison of six conditions on this sheet would be a
+demonstration, not a result.
+
+### 30.2 The factorial
+
+Four of the six plans are not alternatives on one axis; they are cells of a 2x2 over *who writes
+which part of the report*.
+
+| | numbers written by code | numbers written by adapter |
+|---|---|---|
+| **mechanism written by code** | **A** (fallback v3.1) | missing cell — assembled from B's mechanism section, 0 GPU |
+| **mechanism written by adapter** | **C** (hybrid) | **B** (full adapter) |
+
+Two toggles complete the set:
+
+- **D against B** — the validation ablation: identical prose delivered with and without the
+  check-retry-fallback wrapper. D costs no GPU; its text is the stored generation.
+- **E** — the training ablation: an adapter trained for report prose against the pilot checkpoint.
+
+Conditions measured on the report surface: **A, B, C, D, the missing cell, and E if authorised.**
+Conditions measured on the follow-up surface, separately and against their own gates: **template
+lookup only, the adapter as-is, and F.**
+
+Not conditions, and recorded as such so they are not smuggled in: **post-hoc repair** (a repair mode
+of B, converging on C) and **stratified routing** (a deployment rule applied after the factorial says
+which cell wins where).
+
+### 30.3 Stages
+
+| stage | items | what is measured | human rating |
+|---|---|---|---|
+| 1 | 200 fit items (recommended) | automated gates only: defect rate by kind, anchor rate, fallback rate, cost per 1,000 reports | none |
+| 2 | 40-60 items, two or three surviving conditions | preference, blind, with agreement reported | two raters, kappa reported, third read for disagreements |
+| 3 | the test set, once | the winning condition against the 29.5 gates | none |
+
+The 40 v5 rows may be reused in stage 1 as fit data, declared **non-confirmatory**: they have
+already been read once and cannot carry a confirmatory claim. The 520-item evaluation named in 29.5
+is the intended vehicle for stage 3.
+
+A known limitation is recorded rather than worked around: in this checkout `val.jsonl` is absent, so
+the fallback side of a sheet cannot be re-derived from `Sources`. Fallback conditions are therefore
+read from stored sheets, and any sheet built in a checkout without `val.jsonl` is marked
+fallback-unverified.
+
+### 30.4 The clarification set (fixed before the first condition runs)
+
+`recommended` means the value below is proposed and awaits sign-off; `fixed` means an existing
+dated section already determines it and it is not for negotiation in this study.
+
+| # | item | value | status |
+|---|---|---|---|
+| 1 | report conditions | A, B, C, D, missing cell; E conditional | recommended |
+| 2 | follow-up conditions | template only, adapter as-is, F | recommended |
+| 3 | excluded as conditions | post-hoc repair, stratified routing | recommended |
+| 4 | test-set exposure | none until stage 3 | fixed (29.8) |
+| 5 | stage 1 n | 200 fit items | recommended |
+| 6 | reuse of the 40 v5 rows | yes, declared non-confirmatory (stage 1 only) | recommended |
+| 7 | stratum balance and key split | 50/50 inside each stratum | fixed (26.3, 29.2) |
+| 8 | follow-up measurement set | the 97-row `prose_eval_followups.jsonl` | fixed (follow-up spec) |
+| 9 | absent `val.jsonl` | fallback conditions read from stored sheets, marked fallback-unverified | recommended |
+| 10 | cells | four cells plus preference, verbatim from 29.2 | fixed (29.2) |
+| 11 | checkers | the re-specified 28.2-28.4 instruments | fixed (28.9) |
+| 12 | known false positives | v5-05 mixed-direction, v5-20 stored value, v5-08 hypothetical tag, v5-37 XMV rule: **bracketed by sensitivity analysis, not corrected**, because correction would invalidate the 28.9 calibration | recommended |
+| 13 | delivered-text rule | measured on what is delivered, never first attempts | fixed (29.4) |
+| 14 | primary outcome | **numeric-defect rate**; secondary: anchor, grounding, tag role, preference, fallback rate, cost per 1,000 reports | recommended |
+| 15 | paired test | McNemar per defect kind on per-item flags; preference by exact binomial | recommended |
+| 16 | minimum detectable difference | stated at the chosen n before the run; at n = 40 it is roughly 15-20 points, which is why stage 2 carries 2-3 conditions only | recommended |
+| 17 | multiplicity | single primary; secondaries under Holm | recommended |
+| 18 | rater agreement | two raters, kappa at least 0.6, third read for disagreements | recommended |
+| 19 | E authorisation | required under this section; 3 seeds, 288 steps, teacher corpus fixed before seed 1 | recommended |
+| 20 | cells after results | never redefined; a reversal is a new dated section | fixed (29.8) |
+| 21 | test passes | one, winning condition only | fixed (29.3) |
+| 22 | artefact paths and timestamps | declared before launch so "recorded beforehand" is checkable | recommended |
+
+Until items 1, 2, 5, 12, 14, 15-18 and 22 are signed off, this section is a plan and not a
+pre-registration, and no condition may be run under it.
+
+### 30.5 Cost
+
+| condition | GPU | wall clock |
+|---|---|---|
+| A, D, missing cell | 0 | assembly only |
+| B | minutes; up to 21 retry generations | one session |
+| C | minutes; one 40-item generation pass | one session |
+| E (3 seeds, 288 steps) | 1.0 h per seed at 12.5 s/step, 1 h 44 m at 21.71 s/step; **3.0-5.2 h** | a day including the teacher rebuild |
+| F (180 steps) | **38 min at 12.5 s/step, 65 min at 21.71 s/step** | ~1.5 h including gates |
+
+The full report sweep without E is a few GPU hours; with E it is 3-5 h more. Compute is not the
+binding constraint; human rating volume is (360 entries per rater per condition pair).
+
+### 30.6 Prohibitions
+
+- No condition is run before the clarification set is signed off and dated.
+- No cell, primary outcome or stage size is changed after any result is visible.
+- No condition is measured on the test set, and stage 3 runs the winner only.
+- E is a training run outside the 29.3 order and does not proceed without explicit approval.
+- No condition may change the diagnosis, verdict, severity or confidence.
+
+Nothing was trained, no model was loaded, no teacher was called, and no stored generation, sheet,
+key or checkpoint was modified in writing this section.
