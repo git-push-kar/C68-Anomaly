@@ -2366,3 +2366,34 @@ row list indexed by a counter name.
 ### 27.7 Outcome
 
 Appended below once measured.
+### 27.8 Measured outcome (2026-11-02)
+
+**Join.** All 1,739 stored generations resolve to their own prompt: 520 in each of the three menu
+orders and 179 follow-up turns, with 0 unequal, 0 rows without a matching prompt and 0 rows whose
+written order field disagrees with its file. Following turns match a `dialogue_id` in the source
+with the same `kind`. A positional join would pick the same prompt in 1,739 of 1,739 rows, because
+the raw files are in build order; that is exactly why the anchor rate cannot settle the question
+and why the join is asserted in code and pinned by a test instead.
+
+**Anchor.** Of the 520 kb-order rows, 187 (35.96%) state the top sensor's z to two decimals,
+against 6 (1.15%) stating the next row's, so the 26.4 figures are reproduced. The other 333
+decompose as: `sensor_absent` 68 (13.08%), `z_format_differs` 11 (2.12%), `z_true_mismatch` 254
+(48.85%). Within the last class 148 rows print no decimal after the tag and 106 do, the latter
+sub-labelled `contradicting_value` by the 27.4 window rule; the ten examples show those numerals
+are deviation percentages (222.71%) and onset times rather than a competing z. The 36% therefore
+measures how the adapter prose cites the prompt - usually by sensor name and deviation, often not
+by z at all - not whether rows were joined to the right prompt.
+
+**Gates.** Recomputed by item_id, all 27 gated cells reproduce the stored counts, denominators and
+pass/FAIL state exactly, including the three order-dependent ones (numeric 69/58/54, grounding
+33/36/36, tag_role 396/396/398, contradiction 462/464/464, schema and completion 520/520,
+empty narrative 0/520). Follow-up readings reproduce too: refusal 100.00% on 28 out-of-scope and
+false-premise turns, over-refusal 0.00% on 40 in-scope controls. Per-order spreads are unchanged,
+and the identical-text count between the kb and shuffled-1 orders is 2 in both runs. Nothing was
+recomputed differently, nothing was trained, and no model was loaded.
+
+**Verdict.** The pilot gate table stands. The preference gate remains unmeasured.
+
+Evidence: `pilot_join_table.csv`, `pilot_anchor_rows.csv`, `pilot_anchor_examples.csv`,
+`pilot_join_check.json`, `pilot_gate_table_joined.md` in `outputs/analysis/phase3a/fit/`, with the
+summary and the old-vs-new table copied to `docs/judging/pilot_v5/`.
