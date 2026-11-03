@@ -2262,3 +2262,42 @@ the report says how many were made. The v4 sheet and its key stay on disk as SUP
 The diagnosis table, the evaluation re-check result, the rebuild result and the format-identity
 test are appended below once measured, in a later commit. Nothing in 26.1 to 26.6 depends on
 their values.
+
+### 26.8 Measured outcome (2026-11-02)
+
+**Diagnosis.** All 40 v4 rows pair two different items (40/40), and in every row the key's
+label fails to match the text style (40/40). The NORMAL stratum holds 7 classified-fault rows
+and only 13 `NORMAL_TRANSIENT` rows; key verdict counts are 20 `unclassified_open_set`, 7
+`classified`, 13 `no_fault`. Per-row evidence: `outputs/analysis/phase3a/fit/ab_v4_diagnosis.csv`.
+
+Root cause, by line:
+
+- `scripts/make_ab_sheet_v4.py:51` writes `b["text_adapter"]` onto row_a beside
+  `a["text_adapter"]`, and line 55 writes `a["text_fallback"]` onto row_b beside
+  `b["text_fallback"]`. The unit being paired was two **items**, not two explainers of one
+  item, so half the rows are adapter-versus-adapter and half fallback-versus-fallback. The key
+  was written from `side_A_source`/`side_B_source`, which that function sets to a constant, so
+  it could not detect the mismatch either.
+- `scripts/build_v4_sheet.py:45` returns `normal` for every row whose gold fault id is not
+  `UNCLASSIFIED_OPEN_SET`. That admits the 19 classified `(menu, FAULT_nn)` items into the
+  NORMAL pool, which is how 7 of them were sampled.
+
+**Evaluation re-check.** No metric depended on a positional join. `prose_pilot_run.py` builds
+each prompt from the row it then writes, and both the scorer and the sheet builder key on
+`item_id`. As an external check, a row's prose names the top sensor tag and z of its own prompt
+in 187 of 520 rows (35.96%) but the next row's in 6 of 520 (1.15%): the filed text belongs to
+its filed item. **The section 25 pilot gate table stands unchanged**; no number was recomputed,
+because none was misaligned.
+
+**Rebuild.** `audit_ab_100_v5.csv` has 40 rows: 10 open-set on a menu, 10 menu-removed, 20
+`NORMAL_TRANSIENT` with verdict `no_fault`, and no classified row. Key balance is 5/5, 5/5,
+10/10. Both sides of every row were generated for the same `item_id`, asserted at build time and
+recorded in `audit_ab_100_v5_provenance.json`. Every side uses the identical
+`Diagnosis / Reasoning / Narrative` layout: 0 rows differ in layout features, 0 generator labels
+remain (`Differential:`, `Recommended:`, stock verdict openers are normalised away). Scoring is
+blank. **0 new adapter generations were made** and the GPU was not touched: all 40 chosen items
+already had stored prose. The preference gate stays `unmeasured`.
+
+Regression tests: `tests/test_ab_sheet_v5.py`, 8 tests. Three fail against v4 by design (40/40
+different items, 40/40 style mismatch, 7 classified rows) and pass against v5, which is audited
+clean on pairing, strata, balance, columns and layout identity.
