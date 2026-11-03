@@ -2526,3 +2526,227 @@ tag-role and grounding flags.
 Nothing was trained, no model was loaded, no teacher was called, and no stored generation, sheet,
 key or checkpoint was modified. The stored values in section 25 stand as recorded; these are
 additional readings.
+
+## 29. The prose-source decision: v5 scoring and the 3B-17 path (3B-17, 2026-11-03)
+
+### 29.1 The question this section decides, and the one it does not
+
+One question is open: for the three strata whose report prose is not yet frozen
+(`UNCLASSIFIED_OPEN_SET` events whose diagnosis is on the menu, the same events with the menu
+removed, and `NORMAL_TRANSIENT` events with verdict `no_fault`), does the delivered report carry
+the pilot adapter's prose or fallback v3.1's prose. Classified-fault prose is already frozen to
+fallback v3.1 and is not rescored here. Follow-up answers are a separate decision and are not
+covered by this section.
+
+The diagnosis, the verdict, the severity and the confidence are code outputs in every branch.
+Nothing in this section lets prose change what the system says a fault is.
+
+### 29.2 How the v5 sheet is scored, fixed before it is scored
+
+`audit_ab_100_v5.csv` (40 rows: 10 open-set on a menu, 10 menu-removed, 20 `NORMAL_TRANSIENT`;
+both sides of a row are the same item, one layout, key 50/50 inside each stratum; section 26.8)
+is scored blind. Concretely:
+
+- The scoring pass reads only the visible columns. The key is joined **after** all 40 rows have
+  been written to disk, in a separate step, and the scoring file is not edited after the join.
+- Six cells per row: `correct`, `grounded`, `consistent`, `useful` for each side, and one
+  `preference` cell over the pair.
+- The cells mean exactly this, and are not reinterpreted later:
+  - **correct** — every claim about the diagnosis and the verdict agrees with the diagnosis the
+    prompt supplied and with the item's own evidence; no fault, verdict or mechanism that the
+    prompt does not support.
+  - **grounded** — every number and every tag in the text is a value the prompt or the supplied
+    classifier output contains, and any comparison states the right direction.
+  - **consistent** — the text does not contradict itself: numbers against direction, tag against
+    quantity (a flow sensor called a valve, a valve called a composition stream), verdict against
+    narrative.
+  - **useful** — the text names the top sensor with its direction of deviation and offers an
+    operator next step. A text that omits both fails; one that gives the sensor but no next step
+    is `0`.
+  - **preference** — `A`, `B`, or `tie`. `tie` only when the two texts are equivalent **for the
+    operator's decision**: both name the sensor and the next step and neither is wrong. A tie is
+    not a vote for the more fluent text.
+- The decision statistic is the pooled preference share over non-tie rows, reported per stratum
+  as well. Ties leave the denominator.
+- The rater is a model rater, and the limitation stands: styles are identifiable even with one
+  layout, so this is not blinding against style, only against the key. A human rescore of the
+  same 40 rows supersedes this reading when it exists and is reported beside it, never merged
+  with it.
+- No cell is filled by the sheet builder, and no row is dropped after scoring.
+
+### 29.3 The decision rule, fixed before the score is read
+
+Order of operations, all three items decided from numbers, not from taste:
+
+1. **Preference.** Adapter preferred if the pooled non-tie share is at least 60%. Otherwise
+   fallback v3.1 writes the three strata.
+2. **3B-17 viability.** Run the validate-retry-fallback path of 29.4. It is viable if the
+   delivered text is fallback v3.1 on at most 25% of the 40 items, and if the delivered text
+   passes the harness gates of 29.5 on the text it actually delivers.
+3. **Branch.**
+   - Adapter not preferred → fallback v3.1 writes all reports; the adapter is kept for follow-ups
+     only, and the follow-up-only run is specified separately, before it is launched.
+   - Adapter preferred and 3B-17 viable → validated adapter prose writes the three strata, with
+     the fallback as the delivery guarantee.
+   - Adapter preferred and 3B-17 not viable → one rebuild is authorised: numbers and threshold
+     comparisons come from a deterministic sentence written by code, the adapter writes only the
+     mechanism narrative, and the same gates are re-measured on that output. If it still fails,
+     fallback v3.1 wins by default, stated as a measured outcome rather than a preference.
+4. No branch trains anything, opens test data, or changes a frozen artefact.
+
+### 29.4 3B-17: validate, retry once, fall back
+
+For each of the 40 items, in the order the delivered system would run:
+
+1. **Generate.** Take the adapter's stored prose for the item (no new sampling in the primary
+   path; a stored generation is reused, so this is deterministic and free).
+2. **Validate.** Run the four re-specified checks of section 28 against the prompt plus supplied
+   classifier values: grounding (numbers and tags), numeric comparison (inequality direction,
+   threshold quoted, value stored), tag role, and anchor (top sensor with its z to 0.01).
+3. **Retry once.** If any check flags, regenerate a single time with a corrective suffix naming
+   the specific failures (the missing or wrong top sensor and z, the misquoted threshold, the
+   mislabelled tag) and no other change to the prompt. One retry, never two.
+4. **Fall back.** If the retry is still flagged, deliver fallback v3.1 for that item. The
+   delivered text, not the first generation, is what is counted.
+
+The path is measured on the delivered text: fallback rate, and each gate of 29.5 recomputed over
+what was actually delivered. Nothing is scored on a saved first attempt.
+
+### 29.5 Gates the delivered text must pass
+
+The same thresholds as the pilot gate table (section 25.5), applied to delivered text so that the
+number being compared is the one an operator would read: schema/completion 98%, empty narrative
+0%, contradiction 2%, tag role 2%, numeric comparison 2%, grounding 2%, anchor 90% on rows with
+top |z| at least 1.0, and the follow-up refusal gates unchanged (over-refusal at most 10%,
+refusal at least 90%). A gate that cannot be measured on 40 items is reported as unmeasured for
+this sheet and carried to the 520-item evaluation that follows the decision.
+
+### 29.6 The v6 sheet
+
+If branch 1 yields adapter-preferred, `audit_ab_100_v6.csv` is built to the rules of section 26.3
+from the same 40 items: delivered text against fallback v3.1, identical layout, 50/50 key inside
+each stratum, blank scoring cells. It is scored under 29.2 and reported beside v5, not instead of
+it. v5 is never edited.
+
+### 29.7 Where the work runs
+
+The 3B-17 run needs the adapter, the base model and the GPU, so it runs on the training device
+with `venv_train`, after explicit approval, and the session ends once training or generation is
+launched. Everything else in this section — sheet audit, blind scoring, key join, decision,
+documentation — is CPU work on stored artefacts and runs wherever the repository is.
+
+### 29.8 Prohibitions
+
+No training, no teacher call, no new adapter sampling without approval, no test component opened,
+no edit to any stored generation, sheet, key or checkpoint, and no number written here before it
+is measured. The 40 rows of v5 stay as built; if the scoring finds a structural defect in the
+sheet, the sheet is withdrawn and rebuilt, and no preference claim is made from it.
+
+### 29.9 Measured outcome (2026-11-03)
+
+**Sheet audit.** Run on the stored artefacts by `scripts/audit_v5_sheet.py structure`
+(`outputs/analysis/phase3a/fit/audit_v5_structure.json`), which does not read the key. 40 rows,
+40 unique ids, no source/family/diagnosis/verdict column, 0 filled scoring cells, 0 empty sides,
+0 rows whose two sides are identical. **Pairing: 40 of 40 rows** recover the adapter side to the
+`corpus_item_id` that `audit_ab_100_v5_provenance.json` records for that row, by exact match
+against `raw_pilot_kb.jsonl`; 0 rows pair a wrong item, 0 rows carry two adapter sides, 0 carry
+none. The fallback side cannot be re-derived in this checkout, because `Sources` needs
+`outputs/benchmark_v2/dataset/val.jsonl` and `outputs/analysis/phase3a/hybrid/
+crossfit_val_rows.jsonl`, which are not present here; it is evidenced instead by the provenance
+record's tag and z agreeing with the exported prompt in 40 of 40 rows.
+
+**Format.** Section labels and line prefixes are identical on both sides in 40 of 40 rows and 0
+generator labels survive. 7 rows differ only in whether a hyphen or a semicolon occurs at all —
+an ordinary prose punctuation difference, not a label, and not treated as a source tell.
+
+**Content asymmetry the rater sees.** Both sides state the item's top sensor with its z in 7 of
+40 rows; exactly one side does in 33 of 40. That is the anchor gap of section 28.9 showing up in
+the sheet, not a construction defect, and it is the feature the `useful` cell was written around.
+
+**Blind scoring.** `audit_ab_100_v5_scored_rater1.csv` (40 rows, all six cells filled, key joined
+afterwards by `scripts/audit_v5_sheet.py join`, `audit_v5_join.json`). Model rater, one pass, no
+key and no provenance in the packet (`audit_v5_scoring_packet.md`).
+
+| Stratum | Adapter | Fallback | Tie | Adapter share of non-ties |
+|---|---|---|---|---|
+| open-set, menu present | 4 | 5 | 1 | 0.444 |
+| open-set, menu removed | 8 | 1 | 1 | 0.889 |
+| `NORMAL_TRANSIENT` | 2 | 5 | 13 | 0.286 |
+| **pooled** | **14** | **11** | **15** | **0.560** |
+
+Cells, adapter against fallback over 40 rows: `correct` 40/40 both; `grounded` 37/40 against
+40/40; `consistent` 35/40 against 40/40; `useful` 40/40 both. Every adapter flag is a specific
+text defect, listed with the row: v5-09 grounded (a percentage called a z-score, `-0.07` given to
+`Reactor_Feed_Rate` whose z is `-0.13`), v5-21 consistent (`increasing trends in the opposite
+direction`), v5-22 consistent (`z-scores 0.13 to 0.37` while listing a sensor at `-0.11`), v5-23
+grounded and consistent (`z-scores <= 0.10` while listing `-0.24` and `-0.15`), v5-33 grounded
+(LSTM `0.6954` said to be below `0.6870`), v5-34 consistent (FAULT_14 attributed to the
+compressor recycle valve), v5-38 consistent (a stated z range that contradicts its own list).
+The fallback side has no flagged cell.
+
+**Decision.** Pooled adapter share of non-ties is 0.560, below the 0.60 fixed in 29.3.
+**Fallback v3.1 writes the three strata.** The adapter is kept for follow-ups only, and the
+follow-up-only run is specified in `docs/TRAINING_SPEC_FOLLOWUP_V1.md` before it is launched.
+Under 29.3 the 3B-17 run is conditional on an adapter-preferred v5, so it is **not run**, no GPU
+work is needed for the report prose, and no v6 sheet is built. The 3B-17 instruction set stays in
+29.4 and in the handoff appendix, ready if a later reading reverses the preference.
+
+**Why this decision is reported, not celebrated.** It is one row from the boundary: 15 of 25
+would be 0.600 and would flip it. The tie rate is 37.5%, concentrated in `NORMAL_TRANSIENT`
+(13 of 20), where the two texts are near-identical in what they tell an operator. The pooled rule
+also hides a split that matters: the adapter is preferred 8 to 1 when the menu is removed and
+loses 2 to 5 on `NORMAL_TRANSIENT`. The rater is a model, blind to the key and not blind to
+style. This reading stands as the pre-registered outcome and is superseded, never merged, by a
+human rescore of the same 40 rows; the NORMAL stratum is where that rescore should start.
+
+Nothing was trained, no model was loaded, no teacher was called, no stored generation, sheet, key
+or checkpoint was modified, and no test component was opened.
+
+### 29.10 Instrument cross-check on the v5 rows (2026-11-03, post-hoc)
+
+Recorded after 29.9 and **not a rescore**: the decision in 29.9 stands unchanged. What follows is a
+check of the section 28 checkers against the 40 v5 texts, run by
+`scripts/audit_v5_sheet.py adjudicate`, so that a human rater has a factual reading beside a
+preference reading.
+
+Method: for each side of each row, the `Reasoning` and `Narrative` sections (the `Diagnosis` line
+is supplied identically on both sides and is excluded) are passed to
+`scripts/pilot_rechecks.measure` with the exported prompt, the store, the gold fault id and the
+gold verdict. The checkers are the re-specified 28.2 to 28.4 instruments, whose synthetic
+precision and recall are 1.00 on the 40 hand-written cases (28.9).
+
+Measured:
+
+- **21 of 40 rows** have at least one flag, and in every one of them the flagged side is the
+  adapter: numeric 18 rows, grounding 3 rows, tag role 2 rows (two rows carry two kinds).
+- **The fallback side is flagged in 0 of 40 rows.**
+- 19 of 40 rows are clean on both sides; 0 rows are clean on neither.
+- Anchor: the top sensor's z is stated exactly on both sides in 9 rows, on the fallback side only
+  in 31, and on the adapter side only in 0.
+
+Read against the texts, at least three flag families are **false positives of the instrument**,
+which matters for any paper number taken from it:
+
+- v5-05, twice `wrong_inequality_direction` on "The CVA Q-statistic (186.9) is below threshold
+  (194.6), and the LSTM autoencoder reconstruction error (0.7026) is only slightly above threshold
+  (0.6870)". Both inequalities are true. The pattern is two comparisons in one sentence with
+  opposite directions; the synthetic calibration set of 28.7 contains no such sentence.
+- v5-20, `value_not_stored` on a sentence quoting `-2.48%` and `z=-0.24`, both of which are in the
+  store's number set.
+- v5-08, `tag_not_in_evidence:XMV_52`, a tag cited only inside a hypothetical ("FAULT_15 … would
+  cause a decrease in XMV_52"), not asserted about this page.
+- v5-37, `name_does_not_match_tag` for "the valve position (XMV_51)", which the 28.3 XMV rule
+  ("every manipulated variable is a valve position that meters a flow") is meant to accept.
+
+Consequences, recorded rather than acted on:
+
+1. The direction of 29.9 is confirmed and its magnitude is understated: on this instrument the
+   adapter is materially defective in about half the rows, not the 7 my cells caught.
+2. The numeric-comparison gate (2 %) as reported in 28.9 must not be quoted in the paper until
+   mixed-direction sentences are excluded or the checker is corrected, because that sentence shape
+   alone accounts for demonstrable false positives here.
+3. A human rater should read the flag, then read the quoted sentence, then decide. The instrument
+   is a searchlight, not an oracle.
+
+No stored generation, sheet, key or checkpoint was modified. Nothing was trained and no model was
+loaded.
