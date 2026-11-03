@@ -2481,3 +2481,48 @@ that set are reported before the pilot numbers are read.
 Every number here is validation on stored outputs. Nothing is trained, no model is loaded, no
 teacher is called. Nothing in this section changes an earlier recorded result: the stored pilot
 values stand as recorded, and the re-specified values are additional.
+### 28.9 Measured outcome (2026-11-02)
+
+**Calibration.** Every check scores precision 1.00 and recall 1.00 on the 40 hand-written cases
+(contradiction 14, tag role 12, anchor 8, numeric 6), including `Condenser_Cooling_Water_Outlet
+_Temperature (XMEAS_17)` as a class mismatch, `the condenser valve (XMV_47)` as a name mismatch,
+and `LSTM 0.6971, below the threshold 0.6870` as a direction failure.
+
+**Contradiction.** 0 of 520 rows, against 462 stored. The stored 88.85% was the old checker
+counting every fault id the text names: the adapter discusses alternatives and rejects them, which
+the new rule does not count. The re-specified gate passes at 0.00%.
+
+**Tag role.** 57 of 520 rows (10.96%), against 396 stored: 12 open-set on menu, 40 menu-removed,
+5 classified, 0 `NORMAL_TRANSIENT`. The gate **fails** its 2% threshold. The recurring pattern is
+a sensor named by the wrong quantity: `C feed valve (<TAG>)` for a composition stream, `the
+temperature measurement (<TAG>)` for a flow, `water inlet temperature and flow control valve
+(<TAG>)` for a flow. Two implementation rules keep this honest: every `XMV` tag accepts `valve`
+and `flow` descriptions, because a manipulated variable is a valve position; without that rule the
+same run flagged 90 rows, and the difference is the correction, not a threshold change.
+
+**Numeric.** 62 of 520 rows (11.92%), against 69 stored. Flags split as `wrong_inequality_
+direction` 47, `value_not_stored` 34, `threshold_misquoted` 1; rows by first cause 27/34/1. Two
+detector ratios quoted in one sentence are now attributed to both detectors rather than counted
+against whichever was read first, and a tag's digits are no longer read as a quantity; those two
+corrections account for 69 to 62. The gate fails at 2%.
+
+**Grounding.** 33 of 520 rows (6.35%), unchanged: 28 rows on numbers, 5 on tags, 45 number codes
+(`number_not_in_store`) and 5 tag codes. Gate fails at 2%.
+
+**Anchor.** 188 of 520 rows name the top sensor with its z to within 0.01; statuses are
+`z_omitted` 230, `sensor_absent` 68, `contradicting_value` 34. On rows whose top |z| is at least
+1.0 the rate is 170 of 329 = 51.67%, so the 90% anchor gate **fails**. Large signals are cited
+better than quiet ones: 55.83% for top |z| >= 5, 44.72% for 1 to 5, 9.42% below 1.
+
+**Comparator.** Fallback v3.1, generated from the same supplied diagnosis and measured by the
+same rules, flags 0 contradiction rows, 0 tag-role rows, 19 numeric rows (all classified), 0
+grounding rows, and states the top sensor's z in 329 of 329 rows with top |z| >= 1 (100%). Its
+anchor behaviour is therefore the adapter's clearest gap, while the adapter is the only source of
+tag-role and grounding flags.
+
+**Per order.** kb: contradiction 0, tag role 57, numeric 62, grounding 33; shuffled-1: 0, 39, 49,
+36; shuffled-2: 0, 38, 46, 36. The order changes the prose but not the sign of any finding.
+
+Nothing was trained, no model was loaded, no teacher was called, and no stored generation, sheet,
+key or checkpoint was modified. The stored values in section 25 stand as recorded; these are
+additional readings.
