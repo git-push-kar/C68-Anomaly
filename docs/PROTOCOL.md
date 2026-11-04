@@ -2873,3 +2873,46 @@ binding constraint; human rating volume is (360 entries per rater per condition 
 
 Nothing was trained, no model was loaded, no teacher was called, and no stored generation, sheet,
 key or checkpoint was modified in writing this section.
+
+### 30.7 Where the paper-level work is specified, and the two items this section proposes to amend
+
+`docs/PAPER_LEVEL_BENCHMARK_PLAN_V1.md` consolidates the implementation of this study: the artefacts
+that already exist at 520 items, the closed grid and the reason a combinatorial search is not a
+grid, the single primary contrast, the selection rule, the paired confirmatory pass, the nine builds
+with their files and acceptance tests, the statistics specification, the ten open decisions and the
+limitations. It is a plan document; this section remains the pre-registration, and nothing in it is
+in force until the clarification set is signed.
+
+Two readings recorded here because they change what can be claimed, and neither is a new
+measurement of a condition:
+
+1. **The instrument's dominant numeric family is a known false positive at scale.** In
+   `scripts/pilot_rechecks.py` the direction check evaluates `above`/`below` sentence-wide while
+   iterating over every detector a sentence names, so a sentence quoting two detectors in opposite
+   directions is flagged on both by construction (the v5-05 family). Of the adapter's 62 numeric
+   rows at 520, **47 flags are `wrong_inequality_direction`, 27 of them first-cause**, and the
+   summary's phrase table shows the mixed-direction sentence shape 88 times plus six variants. The
+   11.92% in 28.9 is therefore not yet quotable as a prose property.
+2. **Selection inflates the selected condition, and the margin is where it bites.** A paired
+   simulation at n = 520 puts the optimistic bias on the selected cell at 0.03 points for two
+   conditions, 0.54 for four, 0.70 for six and 1.24 for twelve, with the chance of selecting a
+   non-best condition rising from 0% to 89% as the candidate set grows. One condition's standard
+   error is 0.86 points at a 4% rate. A against B is safe on fit data; C against the missing cell
+   against A is not. Exact McNemar at n = 520 with a 15% discordance rate reaches 80% power at a
+   4.9-point difference, and at n = 200 even 6 points reaches 53%.
+
+30.4 item 21 and 30.6 both say the test pass runs the winner only. `docs/PAPER_LEVEL_BENCHMARK_PLAN_V1.md`
+proposes they be amended to **winner plus A, paired, one pass**: A is deterministic and free, and
+without it the confirmatory reading is a point estimate with no baseline in the same run. That too
+is a proposal; item 21 and 30.6 stand as written until signed.
+
+**Proposed change to 30.4 item 12.** That item recommends bracketing the four known false positives
+rather than correcting them, because correction would invalidate the 28.9 calibration. Given
+paragraph 1 above, bracketing alone leaves the **primary outcome** dominated by an artefact. The
+proposal is that item 12 read instead: correct the comparator binding, extend the calibration set
+from 40 to 46 cases with the four families, re-run it to precision 1.00 and recall 1.00, record a
+new dated reading rather than editing 28.9, and bracket whatever residual survives. This is a
+proposal and not an amendment: item 12 stands as written until it is signed.
+
+Nothing was trained, no model was loaded, no teacher was called, and no stored generation, sheet,
+key or checkpoint was modified in writing this subsection.
