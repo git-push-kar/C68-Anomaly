@@ -5,10 +5,11 @@ authoritative plan; V1 is retained as the discussion record. Dated `docs/PROTOCO
 win where they disagree with this document, and every place this document proposes to change one is
 listed in §11 as a decision, never as a decision already taken.
 
-Written for a **different machine** that holds the full checkout (including `data/`, the teacher
-corpus, the base model and the training artefacts). Everything below marked *this device* was
-verified here on 2026-11-05; everything marked *GPU device* needs the machine that produced
-`outputs/tep_rca_v2_prose_pilot_seed42/preflight_gpu.json` (A5000-class, 23.988 GiB).
+**Revised on the receiving machine, 2026-11-05 00:25 IST — see §15.** The receiving machine and the
+*GPU device* of V2 are one machine: this checkout holds the adapter weights, the base model, the
+teacher corpus and the A5000 that produced `outputs/tep_rca_v2_prose_pilot_seed42/preflight_gpu.json`.
+Every "GPU device only" row in §§4 and 7 is therefore local work. §15 lists every fact that changed,
+with the command that established it; facts marked *this device* below were re-verified after revision.
 
 ---
 
@@ -47,11 +48,11 @@ one of the two is missing.
 | check | state | evidence |
 |---|---|---|
 | 40-case calibration | **passes** | `outputs/analysis/phase3a/fit/pilot_rechecks.json`: contradiction 14, tag_role 12, anchor 8, numeric 6 — precision 1.00, recall 1.00 on all four |
-| numeric clause binding | **defective** | `scripts/pilot_rechecks.py` `numeric_flags` evaluates `above\|below` sentence-wide, so a sentence naming two detectors with opposite true directions flags both. 47 of 62 adapter numeric rows are this family; 27 of 62 have it as first cause |
-| contradiction | **defective, and duplicated** | `scripts/prose_pilot_prompts.contradiction` returns *every* printed `FAULT_nn` ≠ gold with no negation logic. It fires on **462 of 520 rows (88.85%)**, 382 of them on plain rejections ("this pattern contradicts FAULT_01 …"). The calibrated implementation is `scripts/pilot_rechecks.contradiction_flags` — two implementations, one calibrated, one driving the gate |
+| numeric clause binding | **half fixed** | `numeric_flags` now splits on `;` and sentence end and attributes the quoted number to the detector named in that segment, but not on `, and` / `, while` / `, whereas`, and `above`-`below` is still searched across the whole segment, so a segment naming two detectors with opposite true directions still flags both. All 62 adapter numeric rows stay one family until the clause split is finished |
+| contradiction | **calibrated reader exists; the wrong one still drives the gate** | `pilot_rechecks.contradiction_flags` is now negate-aware (`CAUSE`, `IS_FAULT`, `REJECT`, `VERDICT`, `NORMAL_CLAIM`) and reads **0 of 520**; `prose_pilot_prompts.contradiction` is still the naive id scan, reads **462 of 520 (88.85%)**, and is the one `read_gates` calls. Two implementations, one calibrated — P0.1 has become a de-duplication, not a design |
 | tag_role | **two readers disagree 7×** | `pilot_rechecks.json` 57 rows (10.96%) vs `pilot_eval_summary.json` 396 rows (76.15%) on the same 520 stored generations |
 | preference | **instrument built, study not** | `scripts/make_blind_sheet.py`; 40-row pilot at **0.560**; no κ implementation anywhere |
-| judge | **absent** | no `judge_validate.py` |
+| judge | **absent, and now harder to satisfy** | no `judge_validate.py`, and `qwen3:30b` is the only model installed while D5 requires one outside its family |
 | mechanism validity / order invariance / sufficiency | **absent** | no code; order invariance is free (three orders already stored) |
 
 ### 2.3 The 520-row readings already on file
@@ -72,12 +73,13 @@ cells — C, M, E — are where the study actually has something to decide.
 
 | fact | value | consequence |
 |---|---|---|
-| CUDA on *this device* | `torch.cuda.is_available() == False`, no NVIDIA driver | no training, no generation here; all GPU work is *GPU device* only |
-| GPU device of record | peak 16.218 GiB of 23.988, 12.83 s/step, 288 steps projected 1.03 h | one job at a time; two seeds cannot run concurrently |
-| adapter weights | **absent** — no `.safetensors` in the tree; `outputs/tep_rca_v2_prose_pilot_seed42/` holds only `preflight_gpu.json` | any *new* adapter generation needs a retrain first; C and M must be text-level seams over stored B |
-| base model | **absent** at the configured path `configs/config_prose_pilot_seed42.yaml:165` | E, F and D's retry are unrunnable until it is staged |
-| teacher | **absent** — Ollama answers on `localhost:11434` but holds only `llama3.1:latest` (4.6 GiB); `qwen3:30b` not installed | E's corpus rebuild needs the teacher restored; measured 7.8–9.2 s/call, 44/50 accepted under the final filter |
-| stored data | 520 items × 3 orders, 1,560 generations, 179 + 97 dialogue turns | the report and dialogue surfaces are **measurement, not generation** |
+| CUDA on *this device* | `torch 2.11.0+cu128`, `cuda True`; RTX A5000, 24,564 MiB total, 1,112 MiB in use at check | **the GPU device and this device are the same machine**; no GPU phase needs a handover |
+| GPU of record | peak 16.218 GiB of 23.988, 12.83 s/step, 288 steps projected 1.03 h | unchanged: one job at a time, seeds sequential |
+| adapter weights | **present** — `outputs/tep_rca_v2_prose_pilot_seed42/tep_rca_v2_prose_pilot_seed42/adapter_model.safetensors` plus checkpoints 48/96/144/192/240/288; 33 `.safetensors` in the tree | D's retry is real and a fresh generation pass is possible; C and M may be generated rather than seamed |
+| base model | **present** at `C:/Users/Admin/Desktop/LY_C68/deepfake_project/models/InternVL3-2B`; `models/internvl3_2b_lr_fused` also present | E, F and D's retry are runnable here |
+| teacher | **present** — `qwen3:30b` Q4_K_M, 18.6 GB, on `localhost:11434`; **`llama3.1` is no longer installed** | E's corpus rebuild is unblocked; D5's judge model must be pulled, because nothing outside the Qwen family is present |
+| interpreters | `python` 3.11.5 carries `datasets 5.0.1`, `transformers 5.15.0`, **no `peft`**; `venv_train/Scripts/python.exe` carries `peft 0.20.0`, `torch 2.13.0+cu130`, `transformers 4.57.6`, **no `datasets`** | adapter loading and GPU generation need `venv_train`; dataset prep needs `python`; an unattended chain must name its interpreter per step |
+| stored data | 520 items × 3 orders, 1,560 generations, 179 + 179 + 97 dialogue turns | the report and dialogue surfaces are **measurement, not generation** |
 
 ---
 
@@ -112,17 +114,16 @@ The grid is a 2×2 over who writes which part of a report, plus two toggles:
 | **B** | adapter authors the whole report | **stored**, 520 × 3 orders | 0 GPU |
 | **C** | code writes every numeric sentence, adapter writes mechanism only | text-level seam over stored B: split B at sentence level, keep B's mechanism sentences, replace every numeric sentence with A's. Verified by the instrument, not by reading | ~1 h CPU |
 | **M** | adapter's numbers, code's mechanism grammar | text-level seam: A's mechanism sentences with the adapter's numeric values substituted | ~1 h CPU |
-| **D** | check–retry–fallback wrapper on B, prose otherwise identical | `llm/hybrid/generate.py` applied to stored B; **retries need the adapter**, so on this checkout D degenerates to "B with fallback on invalid rows" and must be labelled that way | 0 GPU here; minutes on GPU device |
-| **E** | adapter retrained on report prose, 3 seeds | `scripts/prose_crossfit_train.py`; corpus `outputs/benchmark_v2/sft/train_prose_v1.jsonl` (1,523 rows: 562 report, 961 dialogue, seed 7) | **GPU device, 3.0–5.2 h** |
-| **F** | adapter retrained on follow-ups | 961 dialogue rows; `docs/TRAINING_SPEC_FOLLOWUP_V1.md` | **38–65 min** |
+| **D** | check–retry–fallback wrapper on B, prose otherwise identical | `llm/hybrid/generate.py` applied to stored B, **with real retries now that the adapter is present**; the retry budget must be declared before the run | minutes on the local GPU |
+| **E** | adapter retrained on report prose, 3 seeds | `scripts/train_tep_adapter.py --config <cfg>` → `llm/train_adapter.py`, reading `llm.training.train_file` (`train_prose_v1.jsonl`, 1,523 rows); 3 epochs, 288 steps, `save_steps` 48, 12.83 s/step = 1.03 h per seed. The pilot config authorises **one** run and requires a new PROTOCOL 24.1 approval for a second, so E needs three new configs (seed, `adapter_name`, `output_dir`) plus that approval. `prose_crossfit_train.py` is the cross-fitted rule, **not** a trainer | **local GPU, 3.1–5.2 h** |
+| **F** | adapter retrained on follow-ups | the same trainer with `train_file: followup_train.jsonl` (2,405 rows on disk; the 961 in the corpus is the dialogue share of `train_prose_v1.jsonl`); gates in `docs/TRAINING_SPEC_FOLLOWUP_V1.md` | **local GPU, 38–65 min** |
 
 Rules the grid imposes:
 
 - **closed**: fixed before the first run; nothing added or dropped afterwards.
 - **paired**: every condition scored on every item — twelve disjoint cells over 520 items is 43 items
   per cell and carries no claim.
-- **C and M are seams, not generations.** With no adapter weights on the checkout, a fresh
-  mechanism-only generation pass is impossible without a 1.0–3.4 h retrain first. The seam is lawful
+- **C and M are seams, not generations.** Adapter weights are present here, so a fresh mechanism-only generation pass is possible at 1.0–3.4 h on the local GPU; the seam stays the default because it is cheaper, not because generation is impossible. The seam is still lawful only if the instrument, not a reader, certifies the split. The seam is lawful
   only if the instrument — not a reader — certifies that no numeric sentence in C comes from the
   adapter and no mechanism sentence in M comes from the template.
 - **D is not a writer axis.** It is a delivery wrapper on B and is reported as an ablation row.
@@ -260,7 +261,7 @@ Command: `python scripts/fit_operating_point_v2.py --rebuild-cache` (~5–6 min 
 cache — note `op_point_cache.npz` is **not** in this checkout, so the first run pays the rebuild).
 
 Acceptance: every arm's realised run FAR on 251–500 sits inside its budget; else the refit is wrong
-and nothing is reported. Artefact: `outputs/evaluation/detector_v2/arms_far_matched.md`, reported as
+and nothing is reported. Measured baseline from the stored sweep: only **6 of 12** rows carry `passes_run_far: true` — persistence 8 and 12 at all three targets, persistence 3 and 5 at none of 0.005 and 0.01 — so the budget today is met only by heavy persistence, which is why P1.2 allocates it per component. Artefact: `outputs/evaluation/detector_v2/arms_far_matched.md`, reported as
 a frontier with delay on the second axis.
 
 ### P2 — Classifier (0.5–1 day CPU, 0 GPU)
@@ -315,9 +316,10 @@ over-refusal are always reported as a pair.
 timestamp — then run **winner + A only**, on the test export, paired, exact McNemar plus paired
 bootstrap CI. One pass. A second one is a new dated section, not a re-run.
 
-**Blocked here:** `data/llm/` holds only `split_metadata.json` — no `val.jsonl`, no test export — so
-the fallback side cannot be re-derived from `Sources`. This phase runs on the machine that has the
-full dataset (D9).
+**No longer blocked:** `outputs/benchmark_v2/dataset/val.jsonl` (4.3 MB) and `test.jsonl` (16.4 MB)
+are present, and `data/llm/{train,val,test}` hold the arrow splits (2376/396/396), so the fallback
+side can be re-derived here and **D9 closes**. The one-shot rule is unchanged: the signed receipt
+gates the run.
 
 ### P8 — Release set (1 day)
 
@@ -342,11 +344,12 @@ P0 → P3 → P4 → P7; everything else has slack.
 
 ### Two-night shape
 
-- **Night 1 (CPU):** P0, P1, P2, P3, P5 (minus the hand check), P6 scoring, P8 packaging. ~4–6 h. Stop
-  before P7.
-- **45 minutes of a human:** sign the 46 cases, read the six-cell table, commit `m`, decide E.
-- **Night 2 (GPU device):** E (3 seeds sequential, 3.0–5.2 h) and/or F (38–65 min), then the sealed
-  confirmatory pass.
+- **The night (this device, CPU then GPU):** P0, P1, P2, P3, P5 (minus the hand check), P6 scoring,
+  P8 packaging — ~4–6 h; then D's retries on the real adapter and, only on approval, F and E. Stop
+  before P7 (§15.3 gives the slot table).
+- **45 minutes of a human:** sign the 46 cases, read the six-cell table, commit `m`, approve or
+  decline E, and restore or re-score `audit_ab_100_v5_scored_rater1.csv`.
+- **After signature:** the sealed confirmatory pass, once, on this machine.
 
 ### Referee conditions for any unattended run
 
@@ -475,22 +478,27 @@ D3 and D6 change existing recommendations; the rest confirm or extend them.
 
 ## 13. Handover checklist for the receiving device
 
-**Must be present** (verify, do not assume):
+**Verified present on this device, 2026-11-05:**
 
-- [ ] `data/raw/` TEP CSVs and `data/processed/` including `manifests/detector_split.json`;
-- [ ] `data/llm/val.jsonl` and the test export (absent in this checkout — D9);
-- [ ] `outputs/tep_rca_v2_prose_pilot_seed42/` **with weights** (absent here: only `preflight_gpu.json`);
-- [ ] the base model at `configs/config_prose_pilot_seed42.yaml:165`;
-- [ ] `qwen3:30b` in Ollama if E runs;
-- [ ] `outputs/benchmark_v2/eval/prose_pilot/` (the 1,560 stored generations);
-- [ ] `outputs/analysis/phase3a/fit/` (the v5 readings that must not be overwritten).
+- [x] `data/raw/` TEP CSVs and `data/processed/` including `manifests/detector_split.json`;
+- [x] `outputs/benchmark_v2/dataset/val.jsonl` and `test.jsonl`, plus `data/llm/{train,val,test}`
+      arrow splits (2376/396/396) — **D9 closes**;
+- [x] `outputs/tep_rca_v2_prose_pilot_seed42/` **with weights** (checkpoints 48–288 and the final adapter);
+- [x] the base model at `configs/config_prose_pilot_seed42.yaml:165`;
+- [x] `qwen3:30b` in Ollama (18.6 GB) — but nothing outside its family, so D5's judge must be pulled;
+- [x] `outputs/benchmark_v2/eval/prose_pilot/` (the 1,560 stored generations, 520 × 3);
+- [x] `outputs/analysis/phase3a/fit/` (the v5 readings that must not be overwritten);
+- [ ] `outputs/analysis/phase3a/fit/audit_ab_100_v5_scored_rater1.csv` — **absent**, and its two tests
+      fail without it (`python -m pytest tests -q` → 631 passed, 2 failed).
 
 **First commands on arrival:**
 
 ```
-python -m scripts.recheck_cases          # expect 40/40 today; 46/46 after P0.3
-python -c "import torch; print(torch.cuda.is_available())"
-python scripts/fit_operating_point_v2.py --no-freeze   # confirms the cache rebuilds
+python -m scripts.recheck_cases            # 40/40 until P0.3; calibration 14/12/8/6 at 1.00/1.00
+python -c "import torch; print(torch.cuda.is_available())"      # True: RTX A5000
+python scripts/fit_operating_point_v2.py --no-freeze            # cache present: seconds
+venv_train/Scripts/python.exe -c "import peft, torch; print(peft.__version__, torch.cuda.is_available())"
+python -m pytest tests -q                                       # 631 pass, 2 fail on the missing scored sheet
 ```
 
 **Definition of done for the whole plan:** six report cells and three dialogue arms scored on their
@@ -516,3 +524,81 @@ number recomputable.
 
 No model was loaded, no teacher was called, nothing was trained, and no stored generation, sheet, key
 or checkpoint was modified in writing this document.
+
+---
+
+## 15. Machine delta, 2026-11-05 — the receiving device is the GPU device
+
+Re-verified on `DESKTOP-6EOC710` at 00:25 IST. Each row was a V2 assumption; the third column is what
+follows for the schedule.
+
+| V2 recorded | actually true | consequence |
+|---|---|---|
+| CUDA unavailable, no NVIDIA driver | `torch 2.11.0+cu128`, `cuda True`, RTX A5000 24,564 MiB | every GPU phase runs here; §7's GPU column is local |
+| adapter weights absent | final adapter plus checkpoints 48–288 present | D retries for real; a fresh generation pass is possible; C/M need not be seams |
+| base model absent | present at the configured path | E, F and D's retry unblocked |
+| teacher absent, only `llama3.1` | `qwen3:30b` installed; `llama3.1` gone | E's corpus rebuild unblocked; D5's judge must be pulled |
+| `op_point_cache.npz` absent | present | P1's first run is seconds, not ~6 min |
+| `data/llm/` only `split_metadata.json`; P7 blocked | `val.jsonl`, `test.jsonl` and arrow splits present | D9 closes; P7 can run here after signature |
+| 97 + 179 stored dialogue turns | plus `raw_run1_followups.jsonl` (179) | a second stored arm for T/U/F |
+
+### 15.1 What the tree already contains that V2 listed as new work
+
+| V2 step | actual state |
+|---|---|
+| P0.1 one canonical contradiction reader | the calibrated, negate-aware reader exists (`pilot_rechecks.contradiction_flags`, 0/520); the naive one still drives `read_gates` (462/520). De-duplication only |
+| P0.2 clause binding | segmented split done; clause conjunctions and segment-wide direction words outstanding |
+| P0.3 46 cases | still 40 (`CASES`: 14 contradiction, 12 tag_role, 8 anchor, 6 numeric; all 1.00/1.00) |
+| P0.4 prose parity | `scripts/scorer_parity.py` exists but compares the **label scorer with the decoder**; P0.4 is a `--prose` subcommand, not a new file |
+| P6 scorer | `scripts/followup_rescore.py` exists |
+| P1.4, P2, P3.4, P3.5, P4, P5, P7, P8 scripts | absent, confirmed by listing `scripts/` |
+
+### 15.2 Three defects found by running, not reading
+
+1. `python -m pytest tests -q` reports **631 passed, 2 failed**, both in
+   `tests/test_v5_scoring_decision.py` for the missing
+   `outputs/analysis/phase3a/fit/audit_ab_100_v5_scored_rater1.csv` (the sheet, key and provenance
+   *are* present). The 0.560 preference reading therefore cannot be reproduced from the sheet here,
+   and `outputs/` is gitignored: it exists only if restored or re-scored. Until then P4's starting
+   value is a report, not an artefact.
+2. **Interpreter split** — see §2.4. `peft` lives only in `venv_train`, `datasets` only in `python`.
+   An unattended chain fails at the first `import peft` unless each step names its interpreter.
+3. **Disk** — 56 GB free of 885 GB (94% used). Adapters are small; three merged seed checkpoints are
+   not. Budget the disk before E starts, or train adapters only and merge afterwards.
+
+### 15.3 What can run overnight here, unattended
+
+CPU first, GPU last, one job at a time, under the §7 supervisor (staged directories, `BLOCKED.md` on
+a calibration miss, denominators recorded, refusals rather than silent shrinkage).
+
+| slot | work | interpreter | expected | gate that must be green |
+|---|---|---|---|---|
+| N1 | P0.1 de-duplicate, P0.2 finish the clause split, P0.3 to 46 cases, P0.4 `--prose`, P0.5 dated re-score | `python` | 2–3 h | 46/46; parity identical on 520 rows; v5 untouched |
+| N2 | P1 arm table, DPCA fused, `and` mode, per-component budget, `detector_arm_contrasts.py` | `python` | 1–2 h | every arm inside budget on runs 251–500 |
+| N3 | P2 `classifier_contrasts.py` on stored labels | `python` | 1 h | one merged row, paired McNemar, abstention gates |
+| N4 | P3.1–P3.3 seams C and M, D on stored B, six cells scored; P3.5 per-item flags | `python` | 2–3 h | 520 rows per cell per order; totals reconcile |
+| N5 | P5 order invariance (free) and `mechanism_validity.py`; P6 `followup_rescore.py` on 97 turns | `python` | 1–2 h | 30 hand-checked sentences are the morning check |
+| N6 | P8 `package_prose_release.py` — without it no number is citable | `python` | 1 h | manifest hashes recompute |
+| G1 | D's retries on the real adapter; optional fresh B generation | `venv_train` | 1.0–3.4 h | schema validity, retry rate declared |
+| G2 | F (38–65 min), then E (3.0–5.2 h, three seeds) **only on D7 approval** | `venv_train` | 4–6 h | three seeds reported as mean and range |
+| A–F coverage | see the grid table below | — | — | five cells by default; E and F conditional |
+
+**Signatures gate the table, not the night.** §12 forbids running any *condition* before D1–D4 and D6 are signed and dated. N1, N2, N3 and N5 are instrument and surface measurements; **N4 is the first slot that scores real conditions**, so it waits for that signature — roughly 15 minutes of human decisions at about T+4 h — or it moves to after the morning signature, and the night ends with the instrument, the arms, the classifier and the content measures complete, but no cell table.
+
+**A–F coverage of the night.** The report surface has six cells (A, B, C, M, D, E) and the dialogue surface has F; only two of the seven labels need a GPU.
+
+| label | produced by | slot | GPU | default |
+|---|---|---|---|---|
+| **A** | `fallback_v31` regenerated deterministically | N4 | none | yes |
+| **B** | the stored 520 × 3 generations, re-scored | N4 | none | yes |
+| **C** | numeric-by-code seam over stored B | N4 | none | yes |
+| **M** | mechanism-by-code seam over stored B | N4 | none | yes |
+| **D** | validator over stored B; retries only in G1 | N4, G1 | optional | yes, labelled degraded without G1 |
+| **E** | three retrained checkpoints | G2 | 3.1–5.2 h | **no — D7** |
+| **F** | the follow-up checkpoint | G2 | 38–65 min | **no — same approval line** |
+
+So the night covers A, B, C, M and D completely and leaves the report table at five of six cells unless E is approved. That is a claim consequence, not a table cosmetic: §10's Version B — "retraining three more times does not change that" — presupposes E, so declining E moves the paper to a version that makes no training-robustness claim at all. E cannot change which cell ships; it can only confirm or refute that training closes the numeric gap.
+
+**Measured compute on this checkout, not estimated:** `build_orders` 0.1 s for 520 items × 3 prompts; one instrument pass (520 rows, all four checks) **1.2 s**; the 40-case calibration 0.0 s; all six cells × three orders ≈ **22 s**. The night's hours are therefore authoring the seams, contrasts and receipts — the compute inside them is minutes. The long jobs are training only: E **1.03 h per seed** (288 steps × 12.83 s), F **38 min** at the 961-row share or **1.6 h** at the 2,405 rows on disk, and a fresh generation pass would be ~**24 min per 520-row order** (the spacing of the stored `raw_pilot_*` files).
+
+**Not overnight, by design:** P3.4 `select_condition.py` must refuse while `m` is unsigned; P4 needs two humans and κ; P7 is one sealed shot behind a signed receipt. Those are the morning's 45 minutes.
