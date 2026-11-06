@@ -52,6 +52,7 @@ from llm.followup.filters import declines  # noqa: E402
 from llm.response.router import LOOKUP_INTENTS, ResponseRouter  # noqa: E402
 
 FOLLOWUP_VAL = ROOT / "outputs/benchmark_v2/followup/val.jsonl"
+FOLLOWUPS_179 = ROOT / "outputs/benchmark_v2/eval/prose_pilot/prose_eval_followups_179.jsonl"
 FOLLOWUP_TRAIN = ROOT / "outputs/benchmark_v2/followup/train.jsonl"
 SANITY = ROOT / "outputs/benchmark_v2/eval/followup_sanity_200.json"
 TRAIN_MIXED = ROOT / "outputs/benchmark_v2/sft/train_mixed.jsonl"
@@ -72,6 +73,31 @@ MIXED_DIALOGUE = re.compile(r"^(FD-train-\d+)#(\d+)$")
 def load_jsonl(path: Path) -> List[Dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
             if line.strip()]
+
+
+def load_answers(path: Path, questions_path: Path) -> List[Dict]:
+    """Rows in the shape `rescore` expects, from a generation file and its questions.
+
+    Generation rows carry `index` into the 179-turn question file and a JSON `text` whose
+    `answer` key is the delivered reply; refusal is read from that reply with the same
+    detector the stored sanity rows were scored with.
+    """
+    questions = load_jsonl(questions_path)
+    out = []
+    for row in load_jsonl(path):
+        index = row.get("index")
+        base = questions[index] if isinstance(index, int) and 0 <= index < len(questions) else {}
+        raw = str(row.get("text") or "")
+        try:
+            answer = str(json.loads(raw).get("answer") or "")
+        except ValueError:
+            answer = raw
+        out.append({"dialogue_id": row.get("dialogue_id") or base.get("dialogue_id"),
+                    "kind": row.get("kind") or base.get("kind"),
+                    "question": base.get("question") or "",
+                    "answer": answer,
+                    "refused": bool(declines(answer))})
+    return out
 
 
 def bare_question(text: str) -> str:
@@ -212,11 +238,21 @@ def training_decline(mixed: Sequence[Dict], dialogues: Dict[str, Dict]) -> Dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", default=str(OUT))
+    parser.add_argument("--answers", default="",
+                        help="generation JSONL to rescore (dialogue_id, kind, index, text); "
+                             "omitted, the stored sanity answers are used")
     args = parser.parse_args()
 
     dialogues = {row["dialogue_id"]: row for row in load_jsonl(FOLLOWUP_VAL)}
     train_dialogues = {row["dialogue_id"]: row for row in load_jsonl(FOLLOWUP_TRAIN)}
-    rows = json.loads(SANITY.read_text(encoding="utf-8"))["rows"]
+    if args.answers:
+        answers_path = Path(args.answers)
+        if not answers_path.is_absolute():
+            answers_path = ROOT / answers_path
+        rows = load_answers(answers_path, FOLLOWUPS_179)
+    else:
+        answers_path = SANITY
+        rows = json.loads(SANITY.read_text(encoding="utf-8"))["rows"]
     rescored = rescore(rows, dialogues, event_index())
     train = training_decline(load_jsonl(TRAIN_MIXED), train_dialogues)
 
@@ -241,7 +277,7 @@ def main() -> int:
               "by_kind_router": rescored["by_kind_router"],
               "store_coverage": rescored["store_coverage"],
               "train_mixed_decline": train, "comparison": comparison,
-              "rows": rescored["rows"]}
+              "answers_file": str(answers_path), "rows": rescored["rows"]}
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2), encoding="utf-8")
