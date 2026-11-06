@@ -8,6 +8,8 @@ it on a fresh base.
 """
 from __future__ import annotations
 
+import os
+
 import hashlib
 import json
 import logging
@@ -25,6 +27,10 @@ from llm.model import load_base_model, print_training_header, wrap_peft
 from utils import ensure_dir, get_device, load_json, save_json, set_seed
 
 logger = logging.getLogger(__name__)
+
+# Resource guard, not a correctness gate: the default stays 45 s. A machine that
+# legitimately runs slower (measured, recorded) can raise it via the environment.
+MAX_STEP_SECONDS = float(os.environ.get("TEP_MAX_STEP_SECONDS", "45"))
 
 
 def _load_tokenized_datasets(config: Dict, tokenizer):
@@ -133,10 +139,10 @@ def training_watch(output_dir: Path, logging_steps: int):
                         f"{state.global_step}; stopping")
             else:
                 self.hot_since = None
-            self.slow_streak = self.slow_streak + 1 if step_seconds > 45.0 else 0
+            self.slow_streak = self.slow_streak + 1 if step_seconds > MAX_STEP_SECONDS else 0
             if self.slow_streak >= 3:
                 raise RuntimeError(
-                    f"sustained step time {step_seconds:.1f}s above 45s at step "
+                    f"sustained step time {step_seconds:.1f}s above {MAX_STEP_SECONDS:.0f}s at step "
                     f"{state.global_step}; stopping")
             self.pending = {"step": int(state.global_step),
                             "step_seconds": round(step_seconds, 2), **sample}
