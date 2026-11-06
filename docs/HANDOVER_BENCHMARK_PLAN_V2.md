@@ -602,3 +602,86 @@ So the night covers A, B, C, M and D completely and leaves the report table at f
 **Measured compute on this checkout, not estimated:** `build_orders` 0.1 s for 520 items × 3 prompts; one instrument pass (520 rows, all four checks) **1.2 s**; the 40-case calibration 0.0 s; all six cells × three orders ≈ **22 s**. The night's hours are therefore authoring the seams, contrasts and receipts — the compute inside them is minutes. The long jobs are training only: E **1.03 h per seed** (288 steps × 12.83 s), F **38 min** at the 961-row share or **1.6 h** at the 2,405 rows on disk, and a fresh generation pass would be ~**24 min per 520-row order** (the spacing of the stored `raw_pilot_*` files).
 
 **Not overnight, by design:** P3.4 `select_condition.py` must refuse while `m` is unsigned; P4 needs two humans and κ; P7 is one sealed shot behind a signed receipt. Those are the morning's 45 minutes.
+
+---
+
+## 16. Machine delta, 2026-11-06 — D29 and D30 ran, and both fail their gate
+
+Dated result section, appended per the rule that a superseding result is a new section and never an
+edit. It supersedes two §2.2 rows (preference: "study not … no κ implementation anywhere") and the
+§15.2 item 1 status of the v5 sheet. Nothing above is modified.
+
+### 16.1 D30 — the scored sheet arrived and the join runs
+
+Inputs: `outputs/analysis/phase3a/fit/audit_ab_100_v5_scored_rater1.csv`, 40 rows, **320/320 score
+cells** filled, preference 20 A / 20 B / 0 TIE. The sheet's `text_A` and `text_B` are byte-identical
+to `audit_ab_100_v5.csv` on 40/40 rows, so there is no column swap; the key is balanced 20 adapter /
+20 fallback and agrees with `audit_ab_100_v5_provenance.json` on every row inspected.
+
+Commands: `scripts/audit_v5_sheet.py join --scored <csv> --out v5_join_report.json`, then `reveal
+--scored <csv> --out audit_v5_reveal.csv`. Both return 0.
+
+| reading | adapter | fallback |
+|---|---|---|
+| correct | 19 / 40 | 40 / 40 |
+| grounded | **0 / 40** | 40 / 40 |
+| consistent | 33 / 40 | 40 / 40 |
+| useful | 12 / 40 | 40 / 40 |
+| **preferred** | **0** | **40** |
+
+Pooled: adapter 0, fallback 40, tie 0, share **0.0000**, decision **`fallback_v31`**. Per stratum:
+`removed` 0/10, `open_set` 0/10, `normal` 0/20. The preference column agrees with the higher-scored
+side on 40 of 40 rows, so it is internally coherent — this is not a sign inversion.
+
+Two facts must be settled by the owner before this is frozen:
+
+1. The fallback is `1` on **all 160 cells** while the adapter is `0` on grounded in every row. A
+   strict reading of "every number appears in the panel" does produce this: the v5 template writes
+   derived multiples (`reconstruction error 333.60x`) that are not panel values, and the fallback
+   prose does not. But 160/160 with zero variance is also what a default-filled column looks like.
+2. `flagged_cells` records 47 adapter grounding/consistency failures and 0 fallback failures.
+
+Test consequence: `pytest tests/test_v5_scoring_decision.py` → **3 passed, 1 failed**.
+`test_decision_reading_reproduces_from_the_stored_scoring` now reads 0/40/0 against the
+pre-registered 14/11/15, share 0.56. The assertion encodes the pre-registered reading and is **not**
+edited; the disagreement is the finding.
+
+### 16.2 D29 — κ 0.2556, below the 0.60 floor
+
+Inputs: `sheet_rater1_human.csv` (59 left / 58 right / 63 tie) and `sheet_rater2.csv` (88 left / 70
+right / 22 tie), 180 shared pairs, identical side order on all 180. Rater 1's filename said `_llm`;
+the owner confirmed it is a human read, so the sheet is stored as `_human`.
+
+`scripts/preference_agreement.py --rater1 … --rater2 … --out d29/kappa.json` returns: agree 90/180,
+po 0.5000, pe 0.3283, **κ 0.2556**, `meets_0_60: false`.
+
+Second reading, excluding 17 pairs whose two texts are byte-identical: 163 pairs, po 0.4479,
+**κ 0.1415**. Both raters said `tie` on all 17, so those pairs are free agreements, not noise.
+
+Defect recorded, not fixed: `scripts/preference_sheet.py` does not reject a pair whose two texts are
+identical, so **17/180 (9.4 %)** of the instrument is uninformative. The guard belongs to the next
+generation — regenerating now would void both human reads.
+
+What makes the failure informative: rater 1 chooses `tie` almost three times as often (63 vs 22), and
+on the 163 discriminable pairs the two agree 44.8 % of the time.
+
+### 16.3 What each gate is now blocked by
+
+| gate | state | blocker |
+|---|---|---|
+| D29 | **failed**, κ 0.2556 | third read over the 90 disagreed pairs (human, ~20 min), then re-κ; or accept instrument failure |
+| D30 | measured, **not frozen** | owner confirms the 160/160 fallback column or re-scores; the 0/40 result is otherwise recorded as-is |
+| D31 | unblocked to write, not run | `judge_validate.py` absent; needs a frozen sheet and a judge outside the Qwen family |
+| D32 | blocked | D29 gives rung 2 no preference input; the rung-3 rule choice (rate-with-n vs abstain vs raw counts) is still unsigned |
+| D33 | blocked | D32 must leave the receipt non-provisional |
+
+### 16.4 Carried forward: the F arm ran
+
+`scripts/prose_pilot_run.py --config configs/config_followup_f_seed42.yaml --adapter
+outputs/tep_rca_v2_followup_seed42 --mode followups` generated **179/179** turns in 267 s
+(1.52 s/item) into `outputs/analysis/phase3a/fit/farm_2026-11-06/`. Rescored through the new
+`--answers` path of `scripts/followup_rescore.py`: agreement 0.7318 vs the stored baseline 0.7374,
+refusals 57 vs 64, over-refusal 26 vs 29, under-refusal 22 vs 18. F trades over-refusal for
+under-refusal on `causal_why` (over 0.7778 → 0.5556, under 0.3333 → 1.0). Rescoring the stored
+baseline reproduces `outputs/analysis/phase3a/followup_rescore.json` exactly, so the edit changed no
+existing number.
