@@ -1,0 +1,46 @@
+{
+  "record": "pre-registration signature of PROTOCOL 30.4 clarification set",
+  "signed_at_local": "2026-11-05T01:05:00+05:30",
+  "signed_by": "project owner, session approval",
+  "basis": "all decisions approved at the recommended value stated in docs/HANDOVER_BENCHMARK_PLAN_V2.md section 11; no value was changed from the recommendation",
+  "supersedes": "none - this is the first signature; PROTOCOL 30.4 was previously an unsigned plan",
+  "clarification_items_covered": [1, 2, 5, 12, 14, 15, 16, 17, 18, 22],
+  "decisions": {
+    "D1": {"value": "520 items x 3 orders, stored generations", "status": "approved",
+           "if_declined": "200 items; MDE widens to 15-20 points", "gates": ["N4", "P5"]},
+    "D2": {"value": "B vs A on numeric-defect rate, paired", "status": "approved",
+           "if_declined": "C vs A", "gates": ["N4", "P7"]},
+    "D3": {"value": "six rungs: numeric gate, preference, mechanism validity, order invariance, cost, A wins ties; m = 0.010", "status": "approved",
+           "if_declined": "undeclared selection reimports the winner's curse", "gates": ["N4 receipt"]},
+    "D4": {"value": "winner + A, one pass, paired, receipted before launch", "status": "approved",
+           "blocked_by": "one-shot test-set release deferred to the morning read (human)", "gates": ["P7"]},
+    "D5": {"value": "judge model outside the SFT teacher's (Qwen) family, validated on the human sample", "status": "approved",
+           "blocked_by": "no non-Qwen instruction model is installed; only qwen3:30b is present. Pull required before P4.",
+           "gates": ["P4"]},
+    "D6": {"value": "fix clause binding and contradiction, extend calibration 40 to 46, bracket the residual", "status": "approved",
+           "amends": "PROTOCOL 30.4 item 12 (was: bracket only, do not correct)", "gates": ["N1", "N4"]},
+    "D7": {"value": "E and F in scope: E 3 seeds x 288 steps, F 180 steps", "status": "approved",
+           "gates": ["G2"], "authorised_by": "this signature, as required by 30.4 item 19"},
+    "D8": {"value": "120 items x 3 pairings, two raters, adjudicator, kappa >= 0.60", "status": "approved",
+           "blocked_by": "human labour, 360 entries per rater per condition pair; cannot be automated", "gates": ["P4"]},
+    "D9": {"value": "closed - val.jsonl and test.jsonl are present on this checkout", "status": "closed",
+           "residual": "the fallback-unverified label drops only once re-derivation matches the stored sheets", "gates": []},
+    "D10": {"value": "release set: sheets, keys, prompts, 520 texts, instrument hash, configs, selection receipt", "status": "approved",
+            "gates": ["N6", "P8"]},
+    "D11": {"value": "C and M built as text-level seams over stored B (seams, not fresh generation)", "status": "approved",
+            "note": "the weight-absence constraint that forced this is no longer true on this checkout; seams chosen on cost",
+            "gates": ["N4"]}
+  },
+  "prohibitions_in_force": [
+    "no condition runs before this signature and its date",
+    "no cell, primary outcome, stage size or selection rule changes after any result is visible",
+    "no condition is measured on the test set except the single pass of P7",
+    "a superseding result is a new dated section, never an edit"
+  ],
+  "human_bound": [
+    "freezing the 46 calibration cases",
+    "the 30-sentence mechanism-validity hand check",
+    "the two-rater preference study and kappa",
+    "releasing the one-shot confirmatory pass"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "record": "FREEZE of the 46-case calibration (D6 / D27)",
+  "generated": true,
+  "generated_by": "scripts/audit_human_gates.py",
+  "signed_by": "pushkar (project owner)",
+  "signed_at_local": "2026-11-06T00:47:35+05:30",
+  "cases": 46,
+  "distribution": {
+    "contradiction": 15,
+    "tag_role": 14,
+    "anchor": 8,
+    "numeric": 9
+  },
+  "machine_certified": 31,
+  "needs_human_judgement": 15,
+  "checker_label_disagreements": 0,
+  "files_sha256": {
+    "scripts/recheck_cases.py": "d7470445a4897708d635e706d1d5a037364ec05618ba93495cf0343c3df11d5f",
+    "scripts/cases46.py": "cee3ed06923a4cec3d4f74220c2f1041482a5593eb94a1ce0f9e880d0aeed320"
+  },
+  "note": "frozen: these hashes are the answer key every checker count is measured against. A later change is a new dated section, not an edit.",
+  "attested_via": "chat session 2026-11-06: owner reported 'checked D27, 15 rows are a contradiction' after reading docs/judging/confirm/cases46_audit.md",
+  "attested_claim": {
+    "rows_reviewed": 15,
+    "rows_confirmed_as_contradiction": 15,
+    "rows_rejected": 0,
+    "scope": "the 15 contradiction-shape rows only; the 31 machine rows were not part of the owner read"
+  },
+  "transcribed_by": "agent: the verdict is the owner's and was recorded verbatim; the agent did not decide any of the 15",
+  "independence": "the machine-certified rows were decided by a second implementation (tag table + arithmetic), not by the checker"
+}

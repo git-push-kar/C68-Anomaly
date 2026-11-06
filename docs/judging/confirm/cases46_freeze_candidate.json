@@ -1,0 +1,22 @@
+{
+  "record": "freeze candidate for the 46-case calibration (D6 / D27)",
+  "generated": true,
+  "generated_by": "scripts/audit_human_gates.py",
+  "signed_by": null,
+  "signed_at_local": null,
+  "cases": 46,
+  "distribution": {
+    "contradiction": 15,
+    "tag_role": 14,
+    "anchor": 8,
+    "numeric": 9
+  },
+  "machine_certified": 31,
+  "needs_human_judgement": 15,
+  "checker_label_disagreements": 0,
+  "files_sha256": {
+    "scripts/recheck_cases.py": "d7470445a4897708d635e706d1d5a037364ec05618ba93495cf0343c3df11d5f",
+    "scripts/cases46.py": "cee3ed06923a4cec3d4f74220c2f1041482a5593eb94a1ce0f9e880d0aeed320"
+  },
+  "note": "hashes cover BOTH files: 40 of the 46 cases live in recheck_cases.py. This file is a candidate, not a freeze; it carries no signature"
+}

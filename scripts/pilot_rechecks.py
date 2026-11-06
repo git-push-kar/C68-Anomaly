@@ -227,6 +227,17 @@ def numeric_flags(prose: str, store: Dict) -> List[Dict]:
                 kind = "value_not_stored"
             flags.append({"kind": kind, "detector": detector_key(named[0]), "quoted": quoted,
                           "sentence": sentence[:220]})
+        if not any(flag["kind"] == "threshold_misquoted" for flag in flags):
+            allowed_thresholds = set()
+            for entry in named:
+                allowed_thresholds |= variants(entry.get("threshold") or "")
+            for match in re.finditer(r"threshold[^0-9]{0,24}(-?[0-9]+(?:[.][0-9]+)?)", bare, re.I):
+                if match.group(1) not in allowed_thresholds:
+                    flags.append({"kind": "threshold_misquoted",
+                                  "detector": detector_key(named[0]),
+                                  "quoted": [match.group(1)],
+                                  "sentence": sentence[:220]})
+                    break
         for entry in named:
             try:
                 value, threshold = float(entry["value"]), float(entry["threshold"])
