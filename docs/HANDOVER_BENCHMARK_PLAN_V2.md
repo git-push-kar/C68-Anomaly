@@ -685,3 +685,60 @@ refusals 57 vs 64, over-refusal 26 vs 29, under-refusal 22 vs 18. F trades over-
 under-refusal on `causal_why` (over 0.7778 → 0.5556, under 0.3333 → 1.0). Rescoring the stored
 baseline reproduces `outputs/analysis/phase3a/followup_rescore.json` exactly, so the edit changed no
 existing number.
+
+## 17. D29 third read, 2026-11-06
+
+The 90 disputed pairs were read a third time, blind to both earlier sheets and to the condition
+key. Sheet `docs/judging/confirm/d29_sheets/third_read_sheet.csv`, sha256 `6ae78d8dd29ac6f37cc88d46539bf8a04d0de9e3bdd164752cb08188cde5e477`, 90 rows, 0 blank,
+0 invalid, texts byte-identical to the rater-1 sheet. The third reader chose left 32,
+right 38, tie 20.
+
+| comparison | result |
+|---|---|
+| third read against rater 1, 90 pairs | 34 agree, kappa 0.0968 |
+| third read against rater 2, 90 pairs | 28 agree, kappa -0.1124 |
+| third read agrees with neither | 28 |
+| three-reader majority | 152/180 pairs carry one; 28 have none |
+| tie rate | rater 1 0.350, rater 2 0.122, third 0.222 |
+
+Across three categories chance agreement is 30 of 90, so 34 and 28 are chance-level: the third
+reader is no closer to either earlier rater than to a coin. Adjudication settles 62 disputed pairs
+by majority and leaves 28 with no majority, so it does not produce a usable label set.
+
+The pre-adjudication statistic is unchanged: kappa 0.2556 on 180 pairs (po 0.5000, pe
+0.3283). Restricting to the 114 pairs where neither rater abstained gives agreement
+0.6228 and kappa 0.2433, so the failure is not merely a difference in how often the two
+abstained; they disagree about which answer is better when both commit.
+
+D29 stands failed, and adjudicated labels are not passed to D32 as a preference input. A majority
+that exists on 62 of 90 disputed pairs, from readers who agree at chance with one another, is a
+third opinion rather than a standard.
+
+## 18. D30 confirmation evidence, 2026-11-06
+
+This section adds no new score; the numbers in section 16 stand. It records the property of the
+sheet that the owner's confirmation has to answer for, because it is visible only by joining the
+answers to the panel field by field.
+
+Numbers cited by each answer, checked against the four panel fields of the same row:
+
+| side | numbers cited | not present verbatim in the panel | rows with at least one |
+|---|---|---|---|
+| adapter | 540 | 243 | 40 of 40 |
+| fallback | 566 | 227 | 40 of 40 |
+
+The fallback scored grounded 40 of 40 while itself citing 227 numbers that do not appear verbatim
+in the panel; `v5-01` carries `333.60x` and `13286.16x`, neither of which is a panel value. The
+adapter scored grounded 0 of 40 while citing 243 such numbers. So the applied rule cannot have
+been "every number appears in the panel", and it was not applied alike to the two sides.
+
+One sentence is being asked of the owner: name the rule, and apply it to both sides. The gate
+outcome is robust to the answer - the adapter is behind on correct 19 against 40, useful 12
+against 40, and preference 0 against 40 - but the fallback's clean sweep is not: under the strict
+reading the fallback's grounded column would also fall to 0 of 40, and then no condition in the
+sheet meets the 90 % grounded bar. Under the permissive reading the adapter's grounded column has
+to be re-read, and its correct column still fails the 85 % bar at 19 of 40.
+
+Either way the pre-registered rule returns a decision against the adapter, and the claim that
+would survive is the narrow one: the adapter does not meet the bar, not that the fallback passes
+it.

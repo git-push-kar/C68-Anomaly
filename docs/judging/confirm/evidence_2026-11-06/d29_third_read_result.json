@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-06",
+  "sheet": "docs\\judging\\confirm\\d29_sheets\\third_read_sheet.csv",
+  "sha256": "6ae78d8dd29ac6f37cc88d46539bf8a04d0de9e3bdd164752cb08188cde5e477",
+  "rows": 90,
+  "blanks": 0,
+  "invalid": 0,
+  "texts_match_rater1": true,
+  "third_counts": {
+    "right": 38,
+    "left": 32,
+    "tie": 20
+  },
+  "agrees_rater1": 34,
+  "agrees_rater2": 28,
+  "agrees_neither": 28,
+  "disputed_by_pairing": {
+    "A-C": 28,
+    "A-D": 21,
+    "C-D": 41
+  },
+  "kappa_third_vs_rater1_90": 0.0968,
+  "kappa_third_vs_rater2_90": -0.1124,
+  "kappa_rater1_vs_rater2_180": 0.2556,
+  "merged_labels": 180,
+  "unresolved": 0,
+  "merged_counts": {
+    "tie": 39,
+    "left": 73,
+    "right": 68
+  },
+  "threshold": 0.6,
+  "meets_threshold": false,
+  "decisive_pairs": 114,
+  "agreement_decisive": 0.6228,
+  "kappa_decisive": 0.2433,
+  "three_rater_majority": 152,
+  "three_rater_no_majority": 28,
+  "tie_rate_rater1": 0.35,
+  "tie_rate_rater2": 0.1222,
+  "tie_rate_third": 0.2222,
+  "pe_decisive": 0.5015,
+  "disputed_pairs": 114
+}
