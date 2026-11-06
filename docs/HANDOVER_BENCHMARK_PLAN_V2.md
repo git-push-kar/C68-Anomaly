@@ -742,3 +742,31 @@ to be re-read, and its correct column still fails the 85 % bar at 19 of 40.
 Either way the pre-registered rule returns a decision against the adapter, and the claim that
 would survive is the narrow one: the adapter does not meet the bar, not that the fallback passes
 it.
+
+## 19. D29 rater identities, 2026-11-06
+
+Recorded on the owner's instruction in chat: the first reader was **Claude** (Anthropic), the
+second **ChatGPT** (OpenAI), and the third read stored as `third_read_sheet.csv` was a **human**.
+
+This supersedes the note in section 16.2 that rater 1's `_llm` filename was wrong and the sheet a
+human read. Both statements were made in chat on the same day, the second after the first; neither
+is edited, and the authority is now `docs/judging/confirm/d29_sheets/provenance.json`. The file
+keeps its old name because sections 16 and 17 cite it, and P8 packaging must rename it before
+release.
+
+Restated with the identities attached:
+
+- the kappa of 0.2556 is agreement between **two model readers**, not two humans;
+- the human third read, on the 90 disputed pairs, matched Claude 34 times and ChatGPT 28 times,
+  against 30 expected by chance across three categories, so the human is at chance with both;
+- because neither original rater is human, D29 contains **no human-versus-human kappa at all**.
+  The 0.60 floor is a human-reliability requirement and nothing in this project measures it.
+
+D29 therefore fails on two grounds: the observed agreement is far below the floor, and the design
+it was meant to license has no human pair to measure. Nothing in section 17 changes, and the
+conclusion strengthens - a human reader also fails to side consistently with either model reader,
+which points at the pairs rather than at one reader's habits.
+
+If a human tier is still wanted, the smallest honest version is one more human read of the same 90
+pairs, which yields a human-versus-human kappa on a disputed-pair sample and nothing more. The full
+P4 pass at 120 items x 3 pairings remains the two-day item the plan priced.

@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-06",
+  "scope": "D29 blind preference study, 180 pairs drawn from conditions A, C and D",
+  "raters": {
+    "rater1": {
+      "identity": "Claude (Anthropic)",
+      "kind": "model",
+      "file": "sheet_rater1_human.csv",
+      "filename_note": "the _human suffix is a historical error, corrected 2026-11-06",
+      "choices": {
+        "left": 59,
+        "right": 58,
+        "tie": 63
+      }
+    },
+    "rater2": {
+      "identity": "ChatGPT (OpenAI)",
+      "kind": "model",
+      "file": "sheet_rater2.csv",
+      "choices": {
+        "left": 88,
+        "right": 70,
+        "tie": 22
+      }
+    },
+    "third": {
+      "identity": "human",
+      "kind": "human",
+      "file": "third_read_sheet.csv",
+      "scope": "the 90 pairs the two model readers disputed",
+      "choices": {
+        "left": 32,
+        "right": 38,
+        "tie": 20
+      }
+    }
+  },
+  "attestation": {
+    "channel": "chat",
+    "by": "owner",
+    "date": "2026-11-06",
+    "supersedes": {
+      "statement": "rater 1 was a human read despite its _llm filename",
+      "recorded": "section 16.2 of docs/HANDOVER_BENCHMARK_PLAN_V2.md"
+    }
+  },
+  "consequence": "no human-versus-human kappa exists in D29; kappa 0.2556 is model-versus-model"
+}
