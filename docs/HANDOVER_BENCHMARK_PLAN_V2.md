@@ -770,3 +770,78 @@ which points at the pairs rather than at one reader's habits.
 If a human tier is still wanted, the smallest honest version is one more human read of the same 90
 pairs, which yields a human-versus-human kappa on a disputed-pair sample and nothing more. The full
 P4 pass at 120 items x 3 pairings remains the two-day item the plan priced.
+## 20. D30 rescored under a strict grounded rule, 2026-11-06
+
+The owner returned a rescored 40-row sheet, archived as delivered at
+`docs/judging/confirm/evidence_2026-11-06/audit_ab_100_v5_scored_rater2_strict_grounded.csv`, with
+its join report and reveal alongside it as `v5_join_report_strict.json` and
+`audit_v5_reveal_strict.csv`. The nine score cells were merged onto the archived sheet, so the
+panel fields and both text columns are the ones scored in section 16, byte for byte;
+`scripts/import_blind_scores.py --check` reports 40/40 ids, 320/320 score cells filled, no blank or
+illegal cell, `text_edits: []`.
+
+Rule applied, as delivered: **strict** - a number that is not in the panel is not grounded, whether
+or not it can be derived from panel values. This is the rule section 18 said had not been named.
+
+### What moved, against section 16's sheet
+
+60 of 360 cells changed, in five columns:
+
+| column | cells | where |
+|---|---|---|
+| grounded | 42 | 40 that were 1 became 0; the adapter's two 0s (v5-08, v5-31) became 1 |
+| preference | 10 | 8 became `tie` (v5-01, 02, 05, 12, 14, 32, 36, 40); 2 moved to the adapter (v5-08, v5-31) |
+| correct_B | 3 | v5-02, v5-13, v5-32, all 0 -> 1 (adapter side) |
+| consistent_B | 4 | v5-16, v5-26, v5-33: 1 -> 0; v5-32: 0 -> 1 (adapter side) |
+| useful_A | 1 | v5-05: 0 -> 1 (adapter side) |
+
+The two preference flips to the adapter are the same rows that pass grounding, which is coherent
+rather than contradictory: where the adapter cites only panel numbers, the owner also judged it
+better.
+
+### The counts
+
+| cell | adapter | fallback |
+|---|---|---|
+| correct | 22 / 40 (55.0 %) | 40 / 40 (100 %) |
+| grounded | 2 / 40 (5.0 %) | 0 / 40 (0 %) |
+| consistent | 31 / 40 (77.5 %) | 40 / 40 (100 %) |
+| useful | 13 / 40 (32.5 %) | 40 / 40 (100 %) |
+| preferred | 2 / 40 | 30 / 40, with 8 ties |
+
+The fallback is preferred in 30 of 40 rows and in 30 of the 32 non-tie rows (93.75 %), so it clears
+the 60 % floor on either count. The adapter clears nothing: 55 % correct against 85 %, 5 % grounded
+against 90 %, 33 % useful.
+
+Per stratum the adapter's two wins are spread thin - removed 1/10, open_set 1/10, normal 0/20 - with
+ties 3 / 4 / 1. Its pooled non-tie share is 0.0625 against the 0.60 the rule requires, so
+`audit_v5_sheet.py join` returns `decision: fallback_v31` on this sheet as it did on the previous
+one.
+
+### What this supersedes
+
+Sections 16 and 18 reported adapter 19 / 0 / 33 / 12, fallback 40 / 40 / 40 / 40, and the fallback
+preferred on all 40 rows. Those counts are superseded by the table above and are not edited.
+
+Section 18's asymmetry finding stands as a measurement and changes meaning. The two writers do cite
+different kinds of numbers: the fallback cites ratios of panel values (333.60x is
+229.2001 / 0.6870), the adapter cites percentage deviations and slow-drift ratios the panel cannot
+supply. But the original sheet recorded both kinds with one column and no stated rule, so that
+column measured neither writer; under strict both fail and 78 of 80 cells are 0. Under an arithmetic
+rule - panel values, or arithmetic on panel values that checks out - only the adapter would fail.
+The owner chose strict; the arithmetic reading remains available as a future dated section, not as a
+silent correction.
+
+### One caveat on provenance
+
+The file is named `rater2`; whether this is an independent second reader or the section-16 reader
+revising under a newly named rule is unstated. The 8 new ties and the 8 revised non-grounded cells
+are recorded as delivered. If it is a revision it cannot be used to estimate rater reliability, and
+nothing here treats it as such.
+
+### Consequence
+
+D30 is frozen under strict at the counts above. The grounded instrument does not discriminate
+between conditions at all - 2 of 80 cells pass - so the admissible sentence is that neither writer
+grounds its numbers against the panel, not that one of them does. The preference result is 30 wins,
+8 ties, 2 losses for the fallback: a preference result the fallback still wins.
