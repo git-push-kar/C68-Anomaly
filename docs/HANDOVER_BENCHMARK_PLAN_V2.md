@@ -845,3 +845,64 @@ D30 is frozen under strict at the counts above. The grounded instrument does not
 between conditions at all - 2 of 80 cells pass - so the admissible sentence is that neither writer
 grounds its numbers against the panel, not that one of them does. The preference result is 30 wins,
 8 ties, 2 losses for the fallback: a preference result the fallback still wins.
+## 21. D30's second reader is independent, 2026-11-06
+
+Owner attestation, chat, 2026-11-06: the strict-grounded sheet recorded in section 20 was scored by
+an independent second rater, not by the reader whose sheet section 16 reports. Recorded as attested
+by the owner in chat and transcribed here, with the channel named; the reader's identity was not
+stated, so none is inferred and the `rater2` filename is not treated as evidence of identity. The
+durable copy of the attestation is
+`docs/judging/confirm/evidence_2026-11-06/provenance.json`.
+
+This resolves section 20's provenance caveat. The two sheets are now two independent readings of the
+same 40 items, so the rule of section 19 applies and an agreement statistic is due. Section 20's
+counts are unchanged: they are rater 2's, and are reported as rater 2's.
+
+### Agreement, rater 1 against rater 2
+
+270 of 320 score cells agree (84.4%); 50 differ.
+
+| metric (80 side-cells) | agree | po | pe | kappa | adapter rater 1 | adapter rater 2 |
+|---|---|---|---|---|---|---|
+| correct | 77/80 | 0.9625 | 0.6306 | +0.8985 | 19/40 | 22/40 |
+| grounded | 38/80 | 0.4750 | 0.5000 | -0.0500 | 0/40 | 2/40 |
+| consistent | 76/80 | 0.9500 | 0.8197 | +0.7227 | 33/40 | 31/40 |
+| useful | 79/80 | 0.9875 | 0.5487 | +0.9723 | 12/40 | 13/40 |
+
+Preference over 40 rows: both readers name the fallback on 30; rater 2 ties 8
+rows that rater 1 had decided; the two name opposite writers on 2
+(v5-08, v5-31). Among the 32 rows rater 2 decided, 30 agree
+with rater 1 (93.8%). A three-category kappa is not computed because
+rater 1 never used the tie category, which would make the coefficient a statement about that asymmetry
+rather than about agreement.
+
+### What the numbers mean, and what they do not
+
+The three content columns agree closely - 232 of 240 cells (96.7%, kappa +0.9057) - and they point the same way in both readings:
+the adapter takes
+19 correct cells under rater 1 and 22 under rater 2,
+33 and 31 consistent, 12 and
+13 useful, against a fallback that takes 40 of 40 on all three under both.
+
+The grounded column is the exception and it explains the whole disagreement: 42 of
+the 50 differing score cells are grounded cells, kappa -0.0500, with rater 1
+certifying 40 grounded cells out of 80 and rater 2 2. That is a rule difference, not reader
+noise: rater 1's rule was never written down, and section 18 showed it accepted derived multiples
+(333.60x from 229.2001 / 0.6870), while rater 2 was asked for the strict reading. Neither number is a
+reliability coefficient for grounding, and none is quoted as one.
+
+### What this changes for the claims
+
+The preference direction survives an independent reading: rater 1 named the fallback on all 40 rows,
+rater 2 on 30 with 8 abstentions and 2 in the other direction, so the
+`fallback_v31` decision of PROTOCOL 29.3 holds under both readings.
+
+The fallback's clean-numbers claim does not survive. Rater 1 recorded it grounded on 40 of 40 items;
+an independent reader under a stated rule records it grounded on none. The admissible sentence is
+that the fallback's figures are arithmetic on panel values rather than panel values themselves, and
+that no writer in this sheet grounds its numbers under the rule now on record. A "40/40 grounded"
+figure for the fallback is one reader's unnamed threshold, not a result, and it should not be
+quoted.
+
+Nothing here changes the numbers in sections 16 to 20, and the fallback still wins D30 on
+preference, 30 to 2 with 8 ties.

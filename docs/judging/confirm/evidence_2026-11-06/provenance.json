@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-06",
+  "scope": "D30 v5 audit sheet, 40 items, two writers, two independent readers",
+  "raters": {
+    "rater1": {
+      "file": "audit_ab_100_v5_scored_rater1.csv",
+      "independent": true,
+      "identity": "not stated",
+      "rule": "not named; section 18 shows derived multiples were accepted as grounded",
+      "ones_of_80": {
+        "correct": 59,
+        "grounded": 40,
+        "consistent": 73,
+        "useful": 52
+      },
+      "preference": "fallback on 40 / 40 rows"
+    },
+    "rater2": {
+      "file": "audit_ab_100_v5_scored_rater2_strict_grounded.csv",
+      "independent": true,
+      "identity": "not stated",
+      "rule": "strict grounded: a number absent from the panel is not grounded, derived or not",
+      "ones_of_80": {
+        "correct": 62,
+        "grounded": 2,
+        "consistent": 71,
+        "useful": 53
+      },
+      "per_condition": {
+        "adapter": {
+          "correct": 22,
+          "grounded": 2,
+          "consistent": 31,
+          "useful": 13
+        },
+        "fallback": {
+          "correct": 40,
+          "grounded": 0,
+          "consistent": 40,
+          "useful": 40
+        }
+      },
+      "preference": "fallback 30, tie 8, adapter 2"
+    }
+  },
+  "attestation": {
+    "channel": "chat",
+    "by": "owner",
+    "date": "2026-11-06",
+    "statement": "the strict-grounded D30 sheet was scored by an independent second rater",
+    "transcribed_by": "agent",
+    "records": "docs/HANDOVER_BENCHMARK_PLAN_V2.md section 21"
+  },
+  "consequence": "D30 preference direction is read twice independently; the grounded column is the only place the two readings conflict, and it conflicts because the rule differed"
+}
