@@ -50,27 +50,32 @@ No preference claim, no severity claim, no subsystem claim, no composite score.
 
 | cell | numeric defect rows | rate | grounding | tag-role | contradiction | anchor exact / 520 |
 |---|---|---|---|---|---|---|
-| A | **19** | 0.0365 | 0 | 0 | 0 | **520** |
-| B | 62 | 0.1192 | 33 | 57 | 0 | 188 |
-| C | **19** | 0.0365 | 1 | 17 | 0 | **520** |
-| M | 62 | 0.1192 | 32 | 43 | 0 | 191 |
-| D | 7 | 0.0135 | 0 | 0 | 0 | 286 |
+| A | **13** | 0.0250 | 0 | 0 | 0 | **520** |
+| B | 50 | 0.0962 | 33 | 57 | 0 | 188 |
+| C | **13** | 0.0250 | 1 | 17 | 0 | **520** |
+| M | 50 | 0.0962 | 32 | 43 | 0 | 191 |
+| D | 6 | 0.0115 | 0 | 0 | 0 | 279 |
 
-Source: `outputs/overnight_2026-11-05/n4_cells.json` (`summary`), reproduced flag-for-flag in §25.
+Regenerated 2026-11-16 with the corrected `numeric_flags` (see §9b): the checker had counted stored sensor
+and lag values as invented whenever a sentence also named a detector, which inflated A from 13 to 19 and B
+from 50 to 62. Only the numeric count and D's anchor row moved; grounding, tag-role and contradiction are
+unchanged, which is itself evidence that the fix was narrow. The pre-revision table is preserved as
+`n4_cells_preinstrument_2026-11-16.json`. Source: `outputs/overnight_2026-11-05/n4_cells.json`.
 
 **Seam certification** (`n4_cells.seam_certification`): C leaks 0 of B's numeric values, M leaks 0 of A's;
 C leaves 88 donor sentences unused, M leaves 584. The seams are doing what they claim.
 
-**D's ceiling.** D fell back to A on **142 of 520 rows (27.3 %)** against a declared 25 % ceiling. It is
-therefore reported as **"A with extra steps"**: its numeric count of 7 is published with the fallback rate
-beside it, and no claim is made that D reduces defects on the rows it wrote itself. Signed acceptance:
+**D's ceiling.** D fell back to A on **132 of 520 rows (25.4 %)** against a declared 25 % ceiling. It is
+therefore reported as **"A with extra steps"**: its numeric count of 6 is published with the fallback rate
+beside it, and no claim is made that D reduces defects on the rows it wrote itself. The corrected instrument
+moves the rate from 27.3 % to 25.4 % and the verdict does not change. Signed acceptance:
 `docs/judging/confirm/d_ceiling_decision_2026-11-16.json`. No re-cut, no threshold moved.
 
 ## 4. Primary contrast
 
-**B vs A, numeric-defect rows, paired.** B has 62, A has 19; discordant pairs 60 (B only) and 17 (A only);
-exact McNemar p < 1e-06. This is the paper's main claim and it is measured on the fit set only — the test
-confirmation is prepared and unspent (§9).
+**B vs A, numeric-defect rows, paired.** B has 50, A has 13; discordant pairs 49 (B only) and 12 (A only);
+exact McNemar p < 1e-06. This is the paper's main claim and it is measured on the fit set; the test contrast
+is reported separately in §9b and points the other way, so the split must be named wherever this is quoted.
 
 ## 5. Classifier track (P2 merged row)
 

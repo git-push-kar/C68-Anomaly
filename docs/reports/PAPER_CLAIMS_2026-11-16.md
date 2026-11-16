@@ -9,7 +9,8 @@ claim names the split it holds on. Anything not measured is listed in §3 and is
 ## 1. Claims the paper can make
 
 **C1 — A deterministic writer is not dominated by the 2B adapter, and the adapter is not dominated by it.**
-On the 520-item validation cell table the adapter carries 9.62 % numeric defects against A's 2.50 %; on 3,168
+On the 520-item validation cell table the adapter carries 9.62 % numeric defects (50/520) against A's
+2.50 % (13/520); on 3,168
 held-out test items the ordering reverses (B 3.50 % against A 19.54 %; McNemar 97 vs 605, p ≈ 0). The split
 must be named; neither writer wins on both. Sources: `n4_cells.summary.json`,
 `d33/test_contrast.json`.
@@ -37,7 +38,7 @@ mechanism claim); rung 5 compares seconds per 520-row pass on a signed basis and
 No dollar figure is claimed.
 
 **C6 — The "A with extra steps" wrapper is bounded and exceeded.** Condition D substitutes the fallback
-report when the adapter is flagged; it falls back on 142/520 rows, 27.3 % against a pre-registered 25 %
+report when the adapter is flagged; it falls back on 132/520 rows, 25.4 % against a pre-registered 25 %
 ceiling. Reported as A with extra steps, no re-cut. Source: `n4_cells.summary.json` seam certification.
 
 **C7 — Generation is not batch-invariant, so batch size is a measurement parameter.**
@@ -53,12 +54,12 @@ architectural claim rests on that separation, not on model accuracy.
 
 | quantity | value | source |
 |---|---|---|
-| cell-table numeric defects | A 19/520, B 62/520, C 19/520, M 62/520, D 7/520 | `n4_cells.summary.json` |
+| cell-table numeric defects (corrected instrument) | A 13/520, B 50/520, C 13/520, M 50/520, D 6/520 | `n4_cells.json` summary |
 | corrected-instrument numeric defects (validation) | A 13/520 (2.50 %), B 50/520 (9.62 %) | this revision, §1 of `D33_TEST_CONTRAST_2026-11-16.md` |
 | test numeric defects | A 619/3,168 (19.54 %), B 111/3,168 (3.50 %) | `d33/test_contrast.json` |
 | test grounding / contradiction / tag-role | A 7.89 / 0 / 0 %, B 10.26 / 0.16 / 14.46 % | same |
 | anchors exact | validation A 520/520, B 188/520; test A 3,168/3,168, B 1,170/3,168 | same |
-| primary validation contrast | B vs A McNemar 60/17, p < 1e-06; order invariance 0.7077 | `n4_cells`, overnight receipt |
+| primary validation contrast | B vs A McNemar 49/12, p < 1e-06; order invariance 0.7077 | `n4_cells`, overnight receipt |
 | classifier contrast | hybrid 0.9940 = LightGBM 0.9940, 2/2, p = 1 | `p2_classifier_contrasts` |
 | preference | κ 0.5776 over 360 pairs | `preference_2026-11-16_result.json` |
 | cost basis | seconds per 520-row pass, tie-break signed | `cost_basis_seconds_2026-11-16.json` |
