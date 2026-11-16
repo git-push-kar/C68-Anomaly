@@ -204,39 +204,41 @@ fit set by configuration, not by replayed text.
 of about 3.7 h from the 160-row checkpoint. D33's B-versus-A contrast cannot be reported until that file reaches 3,168 rows and the
 fallback texts are generated for the same rows.
 
-## 9b. D33 executed: B measured on the test split, A not comparable
+## 9b. D33 executed: B versus A on 3,168 test items (revised 2026-11-16)
 
-**The pass ran.** 3,168 test rows, kb order, batch 16, adapter seed 42:
-`outputs/benchmark_v2/eval/prose_test/run_kb16/raw_testkb_kb.jsonl`, 3,168 rows,
-`mean_seconds_per_item 3.57`, `total_seconds 11,314` (**3.14 h**), no missing rows.
+*Supersedes the earlier §9b, which reported the A column as incomparable. The cause was found and fixed, and
+the fix changes the validation numeric counts as well — recorded honestly below rather than hidden.*
 
-| condition B (adapter), 3,168 test rows | count | rate | validation B (520) |
+**The pass.** 3,168 test rows, kb order, batch 16, adapter seed 42 —
+`outputs/benchmark_v2/eval/prose_test/run_kb16/raw_testkb_kb.jsonl`, `mean_seconds_per_item 3.57`,
+`total_seconds 11,314` (**3.14 h**), no missing rows.
+
+| check | A (fallback v3.1) | B (adapter) | gate |
 |---|---|---|---|
-| numeric defect | 182 | **5.74 %** | 11.92 % |
-| grounding violation | 325 | **10.26 %** | 6.35 % |
-| negate-aware contradiction | 5 | **0.16 %** | 0.00 % |
-| tag-role claim | 458 | **14.46 %** | 11.0 % |
-| anchor exact | 1,170 | **36.93 %** | 36.2 % |
-| anchor z omitted | 1,459 | 46.06 % | — |
-| anchor contradicting value | 203 | 6.41 % | — |
-| anchor sensor absent | 336 | 10.61 % | — |
+| **numeric defect** | **19.54 % (619)** | **3.50 % (111)** | ≤ 2 % — both fail |
+| grounding violation | 7.89 % (250) | 10.26 % (325) | ≤ 2 % — both fail |
+| negate-aware contradiction | 0.00 % (0) | 0.16 % (5) | ≤ 2 % — both pass |
+| tag-role claim | 0.00 % (0) | 14.46 % (458) | ≤ 2 % — B fails |
+| **anchor exact** | **100 % (3,168)** | **36.93 % (1,170)** | ≥ 90 % — B fails |
 
-On the test split the adapter's numeric defect rate **halves** (11.92 % → 5.74 %) while its grounding
-violations **rise** (6.35 % → 10.26 %) and contradictions appear for the first time (5 rows, 0.16 %). Anchor
-exactness is flat at 36.9 %, still far under the 90 % gate.
+McNemar on the primary check: **B-only 97, A-only 605, p ≈ 0**. On held-out items A invents a number where B
+does not 6.2 times as often as the reverse — the validation ordering (A 2.50 % vs B 9.62 %) reverses on test.
 
-**The A column is not a measurement and is not used.** Rebuilding A on the test rows yields
-1,314/3,168 = 41.48 % numeric defects, against 3.65 % on validation. That is not the same writer failing
-more often; it is an instrument artefact. The same rebuild code reproduces validation exactly — A 19/520 and
-B 62/520, both matching the stored cell table — and the flagged test sentences quote values that *are* in the
-evidence store (17.99, 0.52, 4 all present), so `numeric_flags` is attributing them to the wrong detector on
-the much longer test prompts (3,270 tokens against 1,030 on validation). Until that attribution is fixed,
-**D33 cannot be scored as a B-versus-A gate**, and no contrast claim is made. What is reported is B's
-absolute rate on held-out test items, which needs no A column.
+**Instrument revision, declared.** `numeric_flags` attributed a number only to the detectors named in its
+sentence, so a sentence naming LSTM and CVA while quoting a stored sensor z-score counted that value as
+invented. The fix allows values from the non-detector evidence sections to satisfy the stored test while
+detector numbers are still checked against the named detector. Consequence: validation becomes **A 13/520
+(2.50 %) and B 50/520 (9.62 %)**, against 19/520 and 62/520 as stored — six A items and twelve B items were
+false positives, so a check that reproduced the old numbers would have reproduced the bug. Both conditions
+still exceed the 2 % gate, so the rung-1 veto direction is unchanged, and anchor, grounding, contradiction
+and tag-role counts are untouched.
 
-Supporting artefacts: `scripts/crossfit_test_rows.py` (test probabilities; `--check-val` reproduces all 834
-stored validation probability vectors exactly), `scripts/score_test_pass.py`,
-`outputs/analysis/phase3a/d33/test_contrast.json`.
+**Reading.** The adapter is the more numerically faithful writer on held-out events and the less faithful
+one on validation; the paper must name the split. Anchor exactness is the structural failure (36.9 % against
+100 %, with the z-score omitted in 46 % of texts). Nothing here changes the shipped condition: A is chosen at
+rung 5 on cost, and both writers fail the numeric gate on test.
+
+Full record and reproduction: [`D33_TEST_CONTRAST_2026-11-16.md`](D33_TEST_CONTRAST_2026-11-16.md).
 
 ## 10. E — trained, unscored, and one wording correction
 

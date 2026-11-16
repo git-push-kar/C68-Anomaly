@@ -206,6 +206,22 @@ def numeric_flags(prose: str, store: Dict) -> List[Dict]:
     """
     flags: List[Dict] = []
     detectors = store.get("detectors") or []
+    # Numbers the prompt supplies anywhere — sensors, lag, residuals, onset — are *stored*, so a sentence
+    # that names a detector and also quotes a sensor z-score is not inventing it. Without this, the long
+    # test prompts (one sentence covering detectors and sensors) read as 41% numeric defects for A against
+    # 3.65% on validation, purely because the values were attributed to the named detector alone.
+    evidence_allowed = set()
+    for sensor in store.get("sensors") or []:
+        for field in ("z", "dev"):
+            evidence_allowed |= variants(sensor.get(field) or "")
+    lag = store.get("lag") or {}
+    if isinstance(lag, dict):
+        for field in ("lag", "ratio"):
+            evidence_allowed |= variants(lag.get(field) or "")
+    for entry in store.get("onset") or []:
+        evidence_allowed |= variants(str(entry.get("at") or "").lstrip("+"))
+    for entry in store.get("residuals") or []:
+        evidence_allowed |= variants(entry.get("share") or "")
     for sentence in re.split(r";|(?<=[.!?])\s+", str(prose or "")):
         named = [entry for entry in detectors
                  if detector_key(entry).lower() in sentence.lower()]
@@ -213,7 +229,7 @@ def numeric_flags(prose: str, store: Dict) -> List[Dict]:
         bare = re.sub(r"(?:XMEAS|XMV)_[0-9]{1,2}", " ", sentence)
         if not named:
             continue
-        allowed = set()
+        allowed = set(evidence_allowed)
         for entry in named:
             for field in ("value", "threshold", "ratio"):
                 allowed |= variants(entry.get(field) or "")

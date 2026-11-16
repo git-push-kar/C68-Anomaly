@@ -1482,3 +1482,22 @@ values that are in the store (17.99, 0.52, 4), so `numeric_flags` mis-attributes
 longer test prompts. **No B-vs-A contrast is claimed**; the A column must not be quoted until that
 attribution is fixed. Test probabilities come from `scripts/crossfit_test_rows.py`, whose `--check-val`
 reproduces all 834 stored validation probability vectors.
+
+## 33. D33 contrast scored and the numeric instrument revised, 2026-11-16
+
+`numeric_flags` attributed quoted numbers only to detectors named in the same sentence, so stored sensor z,
+lag and residual values read as invented whenever a sentence named a detector too. Fixed in
+`scripts/pilot_rechecks.py`; the fix necessarily moves validation from 19/520 and 62/520 to **13/520 and
+50/520** (six and twelve false positives), and the request to preserve the old numbers was therefore not
+satisfiable — a check that reproduced them would have reproduced the bug.
+
+With the corrected instrument, D33 on 3,168 held-out test rows is: numeric **A 19.54 % vs B 3.50 %**
+(McNemar 97 vs 605, p ≈ 0), grounding A 7.89 % vs B 10.26 %, contradiction 0 vs 0.16 %, tag-role 0 vs
+14.46 %, anchor exact **100 % vs 36.93 %**. The numeric ordering reverses relative to validation, where A is
+the better writer; the shipped condition is unchanged because it was decided on cost at rung 5, and both
+writers fail the 2 % numeric gate on test.
+
+Paper-facing claims, the quotable numbers and the ten explicit non-claims are in
+`docs/reports/PAPER_CLAIMS_2026-11-16.md`. Still open: test order runs (shuffled-1/2), E scoring and its
+seed-43/44 integrity check, the detector-frontier table, the follow-up T condition, parity (1,390), release
+packaging, and the owner's Version A/B signature.
