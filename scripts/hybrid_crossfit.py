@@ -109,6 +109,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--out", default=str(OUT / "crossfit.json"))
+    #: Where the Protocol A artefacts live. Overriding it lets a re-measurement (e.g. a feature-vocabulary
+    #: fix) run beside the published artefacts instead of overwriting them.
+    parser.add_argument("--artifacts", default=str(hc.OUT))
     args = parser.parse_args()
 
     features, labels, items = hc.dataset(hc.TRAIN)
@@ -116,7 +119,7 @@ def main() -> int:
 
     oof, fold = cal.cross_fit(features, labels, items, fit_predict, k=args.folds)
     truth = [label_of(item) for item in items]
-    model, metadata, _old_calibrator, _old_threshold = hc.load_variant("protocolA", hc.OUT)
+    model, metadata, _old_calibrator, _old_threshold = hc.load_variant("protocolA", Path(args.artifacts))
     class_labels = metadata["train_classes"]
 
     choice = cal.cross_fit_calibration(oof, truth, fold, class_labels, k=args.folds)
@@ -202,7 +205,8 @@ def main() -> int:
         "natural_wrong_labels": wrong_label_counts(
             items, oof_calibrated, fold, threshold["threshold"], {}),
     }
-    (OUT / "crossfit_val_rows.jsonl").write_text(
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    (Path(args.out).parent / "crossfit_val_rows.jsonl").write_text(
         "\n".join(json.dumps(row, default=str) for row in rows), encoding="utf-8")
     Path(args.out).write_text(json.dumps(outcome, indent=2, default=str), encoding="utf-8")
 

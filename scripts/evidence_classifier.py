@@ -49,7 +49,12 @@ DEFAULT_OUT = ROOT / "outputs/analysis/phase3a/evidence_classifier"
 
 #: The standard TEP variable set. Fixed rather than derived from the data, so a
 #: column means the same thing in train and validation.
-TAGS = [f"XMEAS_{n}" for n in range(1, 42)] + [f"XMV_{n}" for n in range(1, 12)]
+#:
+#: The manipulated variables are numbered ``XMV_42`` .. ``XMV_52``, the same global indices the evidence page
+#: prints and ``evidence/process_relationships.py`` maps. They were once written ``XMV_1`` .. ``XMV_11``, which
+#: matched no rendered tag: 22.4 % of sensors listed in stored pages fell on no column at all, so their z,
+#: deviation, trend and presence were silently dropped.
+TAGS = [f"XMEAS_{n}" for n in range(1, 42)] + [f"XMV_{n}" for n in range(42, 53)]
 GLOBALS = ["overall_score", "lstm_error", "lstm_ratio", "cva_q", "cva_ratio",
            "lag", "slow_drift", "n_listed", "fused_both", "fused_dynamic", "fused_level"]
 #: Per tag: z, deviation, trend, onset minutes, residual share, present.

@@ -340,6 +340,53 @@ backfill detector evidence; a page without detector rows is out of distribution.
 be smuggled in with the wiring commit. (c) the live default must use the cross-fitted 0.9792, not the artefact's
 1.0. (d) re-run this report afterwards; the cohort split is the acceptance test, not the mean.
 
+### 7.5 Fixing the vocabulary and re-measuring, 2026-11-16
+
+`evidence_classifier.TAGS` now names `XMV_42..52`, matching the rendered tags. Retrained Protocol A and rebuilt
+the cross-fitted calibration/threshold into a **separate** artefact directory
+(`outputs/analysis/phase3a/hybrid/vocabfix/`, gitignored), so the published artefacts are untouched and the two
+can be compared. Feature audit still clean; 323 features.
+
+| cross-fitted validation (822 observable) | before | after |
+|---|---|---|
+| accuracy | 0.9781 | **0.9878** |
+| macro F1 | 0.9708 | **0.9843** |
+| abstention rate | 55.84 % | 55.23 % |
+| ECE | 0.0200 | 0.0114 |
+| out-of-fold threshold | 0.9792 | 1.0 (achieved false abstention 2.72 %, budget 5 %) |
+| saturation share | 92.81 % | 98.32 % |
+
+Policy A over the 503 menu-present rows: **0.9583 → 0.9722** (482 → 489 correct), open-set verdicts 344 → 331.
+No fault got worse; six improved: F1 0.962 → 1.0 (04), 0.889 → 0.936 (08), 0.936 → 0.980 (10), 0.913 → 0.958
+(12), 0.980 → 1.0 (13), 0.984 → 0.991 (open set).
+
+Feature population: stored pages now fill all five `present` columns (3.88 → 5.00). Live pages go from 17.2 to
+23.0 populated features overall — legacy records 13.5 → 18.9, detector-bearing 25.1 → 31.8 — because the
+manipulated variables stopped being dropped.
+
+**Consequence: every reported number that quotes 0.9781 or 0.9583 is now stale.** The manuscript, the methods
+metrics file and the RP report were **not** edited here; they need a deliberate re-audit, not a find-and-replace,
+because the threshold also changed regime (0.9792 → 1.0) and the saturation share with it. The test split was
+not re-run: retraining on train and re-measuring validation is within the pre-registered split, while opening
+the test component again is the owner's decision.
+
+### 7.6 What the live path should do with the 333 events without `detector_evidence`
+
+They are pre-instrumentation records (schema v1: `severity`, `candidate_subsystem`, no LSTM or CVA score). Even
+after the vocabulary fix they populate 18.9 features against ~33 for a detector-bearing page, so they remain out
+of distribution.
+
+Recommendation, in order:
+
+1. **Gate, do not classify.** The seam should test for a usable detector block (`lstm_ae.score` and
+   `dynamic.score`, or a derived equivalent) and, when it is absent, skip the classifier. Emitting
+   `UNCLASSIFIED_OPEN_SET` would claim a model judgement that never happened; the honest verdict is
+   *"diagnosis unavailable — evidence incomplete"*, with the deterministic summary still shown.
+2. **Backfill only from telemetry.** For stored runs whose raw windows still exist, recompute the detector block
+   in a batch job and classify afterwards. Never synthesise scores to make a page look complete.
+3. **Segment the metrics.** Report accuracy and rule reasons per cohort (`detector_bearing` vs `legacy`), so a
+   mixed average cannot hide the fact that a third of the traffic is unclassifiable.
+
 ## 8. What this plan does not do
 
 It does not change the detector, the adapter, the prompts, the datasets or the measured numbers; it does not
