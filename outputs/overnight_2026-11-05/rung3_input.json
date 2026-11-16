@@ -1,0 +1,12 @@
+{
+  "B": {
+    "supported": 8,
+    "marked": 11,
+    "items": 8
+  },
+  "C": {
+    "supported": 12,
+    "marked": 19,
+    "items": 17
+  }
+}
