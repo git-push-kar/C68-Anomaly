@@ -906,3 +906,79 @@ quoted.
 
 Nothing here changes the numbers in sections 16 to 20, and the fallback still wins D30 on
 preference, 30 to 2 with 8 ties.
+
+## 22. D31 — an out-of-family judge fails validation, 2026-11-06
+
+Dated result section. It adds a gate outcome and changes no number in sections 16 to 21.
+
+### What was validated, and against what
+
+`scripts/judge_validate.py` scores the frozen D30 sheet
+(`docs/judging/confirm/evidence_2026-11-06/audit_ab_100_v5_scored_rater2_strict_grounded.csv`) with a
+model judge. The four cell definitions are the ones `docs/judging/prompts/d30_score_confirmation_prompt.md`
+gives a rater, and the strict grounding rule is stated inside the prompt, so the comparison is to
+rater 2's rule and not to an unnamed one. The judge sees what a rater saw: the four panel fields and
+the two answers under the same side labels, with no key, no provenance file and no `notes` column.
+
+Judge: `llama3.1:8b`, digest `46e0c10c039e0191…`, temperature 0, seed 42, JSON-constrained output. It
+is outside the SFT teacher's family, which is D5's requirement.
+
+Timing, measured here because D31 had no measurement: the first row took **57.5 s** including model
+load, 943 prompt tokens and 120 output tokens; warm, the mean was **2.7 s per row** and the whole
+sheet cost about four minutes of wall time. All 40 replies parsed on the first attempt; no row used
+the retry path.
+
+### The result, and the order control that explains it
+
+Each pass scores all 40 rows twice over (eight cells per row, 320 cells), so every cell below is
+counted against 80 side-cells.
+
+| column | rater 2 ones | judge ones | agree | κ | judge ones (swapped) | agree (swapped) | κ (swapped) |
+|---|---|---|---|---|---|---|---|
+| correct | 62 | 0 | 18/80 | +0.0000 | 0 | 18/80 | +0.0000 |
+| grounded | 2 | 0 | 78/80 | +0.0000 | 0 | 78/80 | +0.0000 |
+| consistent | 71 | 76 | 69/80 | +0.0909 | 77 | 70/80 | +0.1170 |
+| useful | 53 | 69 | 58/80 | +0.2805 | 72 | 59/80 | +0.2905 |
+| **cells** | — | — | **223/320 (69.7 %)** | — | — | **225/320 (70.3 %)** | — |
+| preference | fallback 30 / tie 8 / adapter 2 | — | 18 same, 8 tie, 14 opposite | — | — | 14 same, 8 tie, 18 opposite | — |
+
+The raw agreement is worthless on its own, and the marginals show why: the judge calls **no cell
+correct and no cell grounded** in either order, against a reader who calls 62 correct and 2 grounded
+of 80. Its 78/80 on grounded is two near-constant columns agreeing on zero, which is why that cell
+carries the highest agreement and a κ of exactly 0.
+
+The second order is the control that settles the interpretation. With the two answers swapped in the
+prompt, the distribution of score vectors is unchanged: **31 of 40** rows give the first-shown answer
+`0,0,0,0` and the second `1,1,1,1` in the normal order, and **32 of 40** do the same when the texts
+are swapped. Across both passes there are only four and five distinct vectors respectively. The
+preference follows the label, not the content: `A` on all 40 rows in the normal order, `B` on all 40
+when the sides are swapped — that is, the judge prefers whichever answer it was shown **first** while
+scoring that same answer all-zero. A judge that prefers the answer it has just called worst is
+reporting position, not judgement.
+
+One implementation defect was found and fixed before any number was recorded: the agreement routine
+compared the sheet's string cells instead of integers, so `"0"` read as true and every reader cell
+counted as a 1. The first pass on that code reported 145/320; the numbers above are from the
+corrected code, and the raw replies are stored so a third party can re-score them without querying
+the model again.
+
+### Ruling, and what it costs
+
+**D31 does not pass.** `llama3.1:8b` is not a usable corroboration judge on this sheet: κ ≈ 0 on both
+substantive columns, κ 0.09–0.29 on the two softer ones, and a demonstrated position bias that makes
+its preference column uninformative. The corroboration tier therefore stays empty, which is the state
+section 6 already describes as acceptable — a judge may scale a result and may never overrule — but it
+means no judge-based number may be quoted, and no judge can stand in for rung 2 after D29's failure.
+
+Two things are now known that were not before:
+
+1. **D5's requirement is necessary and not sufficient.** "Outside the SFT teacher's family" is a
+   provenance test, not a capability test. An 8B model outside the family still fails to read a panel.
+2. **Every judge validation needs an order control.** A single-order pass would have reported 69.7 %
+   cell agreement as if it meant something. The swap pass is what turns a flattering number into a
+   diagnosis, and it costs the same few minutes.
+
+Nothing here changes D30's frozen reading, the `fallback_v31` decision, or the D29 disposition. The
+next candidate for this tier is a larger out-of-family model — `llama3.1` at a size this device can
+hold, or a hosted model whose weights are outside the teacher's family — and it enters through the
+same script with both orders run before any of its numbers are quoted.

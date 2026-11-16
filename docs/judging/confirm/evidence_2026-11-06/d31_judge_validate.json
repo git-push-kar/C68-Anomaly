@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-16",
+  "gate": "D31",
+  "question": "does an out-of-family judge reproduce the frozen D30 reading",
+  "model": "llama3.1:8b",
+  "digest": "46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+  "sheet": "audit_ab_100_v5_scored_rater2_strict_grounded.csv",
+  "rule": "strict grounded: a derived number is not panel content",
+  "rows_scored": 40,
+  "rows_invalid": [],
+  "timing": {
+    "rows": 0,
+    "mean_seconds": null,
+    "max_seconds": null
+  },
+  "against_frozen": {
+    "against": "rater2 strict (frozen)",
+    "per_metric": {
+      "correct": {
+        "pairs": 80,
+        "agree": 18,
+        "po": 0.225,
+        "pe": 0.225,
+        "kappa": 0.0,
+        "judge_ones": 0,
+        "reader_ones": 62
+      },
+      "grounded": {
+        "pairs": 80,
+        "agree": 78,
+        "po": 0.975,
+        "pe": 0.975,
+        "kappa": 0.0,
+        "judge_ones": 0,
+        "reader_ones": 2
+      },
+      "consistent": {
+        "pairs": 80,
+        "agree": 69,
+        "po": 0.8625,
+        "pe": 0.8487,
+        "kappa": 0.0909,
+        "judge_ones": 76,
+        "reader_ones": 71
+      },
+      "useful": {
+        "pairs": 80,
+        "agree": 58,
+        "po": 0.725,
+        "pe": 0.6178,
+        "kappa": 0.2805,
+        "judge_ones": 69,
+        "reader_ones": 53
+      }
+    },
+    "cells": {
+      "total": 320,
+      "agree": 223,
+      "share": 0.6969
+    },
+    "preference": {
+      "rows": 40,
+      "same": 18,
+      "one_tie": 8,
+      "opposite": 14,
+      "opposite_rows": [
+        "v5-03",
+        "v5-06",
+        "v5-10",
+        "v5-11",
+        "v5-17",
+        "v5-18",
+        "v5-20",
+        "v5-21",
+        "v5-22",
+        "v5-29",
+        "v5-30",
+        "v5-34",
+        "v5-38",
+        "v5-39"
+      ]
+    }
+  },
+  "against_other": {
+    "against": "rater1",
+    "per_metric": {
+      "correct": {
+        "pairs": 80,
+        "agree": 21,
+        "po": 0.2625,
+        "pe": 0.2625,
+        "kappa": 0.0,
+        "judge_ones": 0,
+        "reader_ones": 59
+      },
+      "grounded": {
+        "pairs": 80,
+        "agree": 40,
+        "po": 0.5,
+        "pe": 0.5,
+        "kappa": 0.0,
+        "judge_ones": 0,
+        "reader_ones": 40
+      },
+      "consistent": {
+        "pairs": 80,
+        "agree": 69,
+        "po": 0.8625,
+        "pe": 0.8712,
+        "kappa": -0.068,
+        "judge_ones": 76,
+        "reader_ones": 73
+      },
+      "useful": {
+        "pairs": 80,
+        "agree": 57,
+        "po": 0.7125,
+        "pe": 0.6088,
+        "kappa": 0.2652,
+        "judge_ones": 69,
+        "reader_ones": 52
+      }
+    },
+    "cells": {
+      "total": 320,
+      "agree": 187,
+      "share": 0.5844
+    },
+    "preference": {
+      "rows": 40,
+      "same": 20,
+      "one_tie": 0,
+      "opposite": 20,
+      "opposite_rows": [
+        "v5-01",
+        "v5-03",
+        "v5-05",
+        "v5-06",
+        "v5-08",
+        "v5-10",
+        "v5-11",
+        "v5-12",
+        "v5-17",
+        "v5-18",
+        "v5-20",
+        "v5-21",
+        "v5-22",
+        "v5-29",
+        "v5-30",
+        "v5-31",
+        "v5-34",
+        "v5-36",
+        "v5-38",
+        "v5-39"
+      ]
+    }
+  }
+}
