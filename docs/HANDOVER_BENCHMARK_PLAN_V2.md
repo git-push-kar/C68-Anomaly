@@ -1103,3 +1103,70 @@ B's five unsettled rows against C's two make the counts incomparable at that cov
    achieved" would be false.
 2. **The status given in chat on 2026-11-16 was wrong about four phases**, as stated above. The
    document's own sections never claimed those phases were unrun.
+
+## 25. The five-cell table reproduces, and P2's classifier row, 2026-11-16
+
+### 25.1 Reproduction from the stored per-item flags
+
+`outputs/overnight_2026-11-05/n4_flags_per_item.csv` carries 459 flags over 520 rows of the `kb`
+order for all five cells. Recomputed as *distinct items with at least one flag of that check*, every
+flag-derived cell matches `n4_cells.json` exactly:
+
+| cell | numeric | tag_role | grounding |
+|---|---|---|---|
+| A | 19 = 19 | 0 = 0 | 0 = 0 |
+| B | 62 = 62 | 57 = 57 | 33 = 33 |
+| C | 19 = 19 | 17 = 17 | 1 = 1 |
+| M | 62 = 62 | 43 = 43 | 32 = 32 |
+| D | 7 = 7 | 0 = 0 | 0 = 0 |
+
+Fifteen of fifteen values reproduce. Contradiction reproduces trivially at 0 — the flags file carries
+no contradiction row for any cell, which is the recorded reading rather than a coincidence.
+
+**What does not reproduce:** the anchor column, `anchor_exact` 520 / 188 / 520 / 191 / 286. The flags
+file records no anchor status, so those five numbers cannot be recomputed from it; they stand on the
+instrument's own scoring path, which this check did not re-run. The claim is therefore "the
+flag-derived columns reproduce exactly, the anchor column is unverified by this path", not
+"n4_cells.json reproduces" in full.
+
+### 25.2 P2 — the merged classifier row
+
+`scripts/classifier_contrasts.py` compares three stored systems on the 497 items all three scored:
+the menu label before rules, the hybrid label after them, and the adapter's own decoded label. Full
+table, method and limits in `docs/judging/p2_classifier_contrasts.md`; JSON beside it.
+
+| system | root-cause accuracy (95 % CI) | abstention precision / recall | false abstention |
+|---|---|---|---|
+| menu rule | 0.9980 (0.9887-0.9996) | 1.0000 / 1.0000 | 0.0000 |
+| hybrid | 0.9940 (0.9824-0.9979) | 0.9766 / 1.0000 | 0.0081 |
+| adapter | 0.8330 (0.7977-0.8632) | 0.8723 / 0.6560 | 0.0323 |
+
+Paired exact McNemar: menu rule vs hybrid 0 and 2 discordant pairs, p = 0.5 — the rules buy nothing
+over the menu label on this subset. Menu rule vs adapter 0 and 82, and hybrid vs adapter 1 and 81,
+both p < 1e-06. All three pass the 5 % false-abstention budget, so that budget alone does not
+separate them; the separation is accuracy and abstention recall, where the adapter names a fault on
+31 of the 125 items whose gold label is "not on the menu".
+
+The merged row is root cause plus two absences: **subsystem = not measured, severity = not
+measured**. Both are knowledge-base functions of the predicted fault id, emitted independently by
+none of the three systems, so a separate accuracy would restate the root-cause number. Reporting them
+as measured would be the composite-score failure section 12 prohibits.
+
+Cross-check: adapter 0.833 over 497 items and hybrid 0.994 match `evidence_classifier/summary.json`
+and `hybrid/evaluation.json:menu_present`, so the label pairing is the one those artefacts used.
+
+### 25.3 What still needs a human, and how
+
+| item | who and how | cost | blocks |
+|---|---|---|---|
+| mechanism sheet: mark `supported` on the 30 rows | owner reads the sentences against `llm/benchmark/kb_causes.py` and fills one column | 15-20 min | rung 3 |
+| extend that sheet so a second cell clears 15 claims from 10 items | decision, then `scripts/mechanism_sheet.py` draws more rows; marking again | 10 min + marking | rung 3 |
+| preference study, 120 items x 3 pairings, kappa >= 0.60 | two independent raters plus an adjudicator, sheets blind to the key | 2 days | rung 2, Version A |
+| or the decision to drop the preference tier | owner signs Version B instead | 10 min | rungs 2, 7 |
+| D's 27.3 % fallback against the 25 % ceiling | owner either accepts it with a dated note or re-cuts D | 10 min | the D row |
+| the one-shot confirmatory pass | owner reads the cell table and authorises; `signed.json` plus a non-provisional receipt gate the run | 10 min | P7 |
+| E's sixth cell | decision to spend ~5 GPU hours rebuilding adapters that are currently absent | decision + 5 h | six-cell table |
+| merged row's subsystem and severity | decide whether to build a system that emits them, or publish the row with two absences | 10 min | the P2 claim wording |
+
+None of these is a measurement this device can take alone; each is either a human read of a text, a
+human decision about a claim, or a second person's judgement.
