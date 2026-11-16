@@ -1,0 +1,49 @@
+{
+  "rows": 3168,
+  "missing_generations": 0,
+  "construction_note": "A rebuilt with test.jsonl probabilities; on validation A used crossfit predictions (declared deviation)",
+  "counts": {
+    "A": {
+      "numeric": 1314,
+      "grounding": 250,
+      "contradiction": 0,
+      "tag_role": 0
+    },
+    "B": {
+      "numeric": 182,
+      "grounding": 325,
+      "contradiction": 5,
+      "tag_role": 458
+    }
+  },
+  "rates": {
+    "A": {
+      "numeric": 0.4148,
+      "grounding": 0.0789,
+      "contradiction": 0.0,
+      "tag_role": 0.0
+    },
+    "B": {
+      "numeric": 0.0574,
+      "grounding": 0.1026,
+      "contradiction": 0.0016,
+      "tag_role": 0.1446
+    }
+  },
+  "anchor_status": {
+    "A": {
+      "exact": 3168
+    },
+    "B": {
+      "exact": 1170,
+      "z_omitted": 1459,
+      "contradicting_value": 203,
+      "sensor_absent": 336
+    }
+  },
+  "numeric_mcnemar": {
+    "b_only_B_defect": 158,
+    "c_only_A_defect": 1290,
+    "p": 0.0
+  }
+}

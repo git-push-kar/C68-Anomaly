@@ -204,6 +204,40 @@ fit set by configuration, not by replayed text.
 of about 3.7 h from the 160-row checkpoint. D33's B-versus-A contrast cannot be reported until that file reaches 3,168 rows and the
 fallback texts are generated for the same rows.
 
+## 9b. D33 executed: B measured on the test split, A not comparable
+
+**The pass ran.** 3,168 test rows, kb order, batch 16, adapter seed 42:
+`outputs/benchmark_v2/eval/prose_test/run_kb16/raw_testkb_kb.jsonl`, 3,168 rows,
+`mean_seconds_per_item 3.57`, `total_seconds 11,314` (**3.14 h**), no missing rows.
+
+| condition B (adapter), 3,168 test rows | count | rate | validation B (520) |
+|---|---|---|---|
+| numeric defect | 182 | **5.74 %** | 11.92 % |
+| grounding violation | 325 | **10.26 %** | 6.35 % |
+| negate-aware contradiction | 5 | **0.16 %** | 0.00 % |
+| tag-role claim | 458 | **14.46 %** | 11.0 % |
+| anchor exact | 1,170 | **36.93 %** | 36.2 % |
+| anchor z omitted | 1,459 | 46.06 % | — |
+| anchor contradicting value | 203 | 6.41 % | — |
+| anchor sensor absent | 336 | 10.61 % | — |
+
+On the test split the adapter's numeric defect rate **halves** (11.92 % → 5.74 %) while its grounding
+violations **rise** (6.35 % → 10.26 %) and contradictions appear for the first time (5 rows, 0.16 %). Anchor
+exactness is flat at 36.9 %, still far under the 90 % gate.
+
+**The A column is not a measurement and is not used.** Rebuilding A on the test rows yields
+1,314/3,168 = 41.48 % numeric defects, against 3.65 % on validation. That is not the same writer failing
+more often; it is an instrument artefact. The same rebuild code reproduces validation exactly — A 19/520 and
+B 62/520, both matching the stored cell table — and the flagged test sentences quote values that *are* in the
+evidence store (17.99, 0.52, 4 all present), so `numeric_flags` is attributing them to the wrong detector on
+the much longer test prompts (3,270 tokens against 1,030 on validation). Until that attribution is fixed,
+**D33 cannot be scored as a B-versus-A gate**, and no contrast claim is made. What is reported is B's
+absolute rate on held-out test items, which needs no A column.
+
+Supporting artefacts: `scripts/crossfit_test_rows.py` (test probabilities; `--check-val` reproduces all 834
+stored validation probability vectors exactly), `scripts/score_test_pass.py`,
+`outputs/analysis/phase3a/d33/test_contrast.json`.
+
 ## 10. E — trained, unscored, and one wording correction
 
 Both E adapters exist and completed: `outputs/tep_rca_v2_prose_e_seed43` and `…_seed44`, each with

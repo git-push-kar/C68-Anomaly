@@ -1469,3 +1469,16 @@ contradictions are the ones worth naming:
 `scripts/audit_achieved_report.py` applies the corrections and asserts every pattern, so a partial edit
 cannot pass silently; the report now carries a banner pointing at the audit and at the final report.
 `scripts/update_final_report_runtime.py` does the same for §9 of the final report.
+
+## 32. D33 executed on the test split, 2026-11-16
+
+The one-shot pass ran at batch 16 on 3,168 test rows: 3.14 h, 3.57 s/item, no missing rows. B's test rates are
+numeric 5.74 % (182), grounding 10.26 % (325), contradiction 0.16 % (5), tag-role 14.46 % (458), anchor exact
+36.93 % (1,170). Against validation B the numeric rate halves and grounding rises; anchor exactness is flat.
+
+A is not comparable on the test split: rebuilt A scores 41.48 % numeric defects against 3.65 % on validation,
+although the identical code reproduces validation exactly (A 19/520, B 62/520). The flagged sentences quote
+values that are in the store (17.99, 0.52, 4), so `numeric_flags` mis-attributes numbers to detectors on the
+longer test prompts. **No B-vs-A contrast is claimed**; the A column must not be quoted until that
+attribution is fixed. Test probabilities come from `scripts/crossfit_test_rows.py`, whose `--check-val`
+reproduces all 834 stored validation probability vectors.
