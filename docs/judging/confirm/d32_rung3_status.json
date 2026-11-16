@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-16",
+  "decision": "D32",
+  "amendment": "docs/judging/confirm/d32_amendment.json",
+  "question": "can rung 3 decide, under the signed option-A rule, with the mechanism sheet as it stands",
+  "answer": "no",
+  "sheet": {
+    "path": "outputs/overnight_2026-11-05/n5_examples_audited.csv",
+    "rows": 30,
+    "columns_checked": ["condition", "item_id", "supported", "note"]
+  },
+  "counts": {
+    "C": {"marked": 19, "items": 17, "supported_filled": 0},
+    "B": {"marked": 11, "items": 8, "supported_filled": 0}
+  },
+  "floors": {"marked": 15, "items": 10},
+  "eligible": ["C"],
+  "below_floor": {
+    "B": "marked 11 < 15 and items 8 < 10"
+  },
+  "verdict": "rung 3 unavailable: one eligible cell, and the amendment needs two",
+  "why_not_adjudicated": "the supported column is blank on 30 of 30 rows, so no supported count exists for any cell; an unmarked claim is not an unsupported claim, and treating it as one would fabricate a rate",
+  "prior_adjudication_not_a_substitute": {
+    "record": "outputs/overnight_2026-11-05/mechanism_counts.json",
+    "what_it_answered": "whether a row may be called a mismatch when the quoted window is incomplete (D28)",
+    "why_it_does_not_feed_rung3": "it counts confirmed errors, not supported claims, and its own caveat says B carries 5 unsettled rows against C's 2, so the two counts are not comparable at that coverage"
+  },
+  "consequence": {
+    "rungs_2_and_3": "recorded unavailable",
+    "current_receipt": "outputs/overnight_2026-11-05/selection_receipt.json chose A at rung 6 and is provisional; it predates the amendment",
+    "d33": "stays blocked until a receipt is non-provisional"
+  },
+  "what_would_make_it_runnable": [
+    "mark supported / not on the 30 sheet rows (human, 15-20 minutes)",
+    "extend the sheet so a second cell reaches 15 marked claims from 10 items - B needs at least 4 more marked rows spanning 2 more items, which scripts/mechanism_sheet.py can draw",
+    "or sign that rung 3 is vacated for this study, which is option C and is not what was signed"
+  ]
+}

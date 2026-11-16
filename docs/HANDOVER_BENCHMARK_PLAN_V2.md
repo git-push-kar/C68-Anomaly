@@ -1039,3 +1039,67 @@ be quoted as a selection result unless rung 3 decided.
 
 The record lives in `docs/judging/confirm/d32_amendment.json`; the approval line is appended to
 `docs/judging/confirm/session_approvals.jsonl`.
+
+## 24. Phase status, corrected against the overnight artefacts, 2026-11-16
+
+The overnight run of 2026-11-05 wrote to `outputs/overnight_2026-11-05/`, not into the
+`outputs/analysis/phase3a/fit/` tree. A status report given in chat on 2026-11-16 read only the
+latter and therefore described P0.5, P3, P5 and P8 as "not started". That was wrong: those four ran
+that night and left artefacts. This section records the true state, so that the conversation and the
+document cannot diverge. Nothing above is edited.
+
+### What each phase actually has
+
+| phase | state | artefact |
+|---|---|---|
+| **P0** instrument | **done**, one acceptance deviation | `n1_calibration.json` 46/46 at 1.00/1.00; `n1_readings.json` three orders; the dated diff is now `docs/judging/instrument_v5_vs_v5b.md` |
+| **P1** detector arms | deferred, not started | `stages.json:N2` records why: the arm frontier needs the `evaluate_detector_v2` window-aggregation and per-arm threshold path, "left for the morning rather than approximated" |
+| **P2** classifier | deferred, not started | `stages.json:N3`: the merged row needs stored per-item val predictions joined to labels |
+| **P3** report surface | **five of six cells** | `n4_cells.json`: A, B, C, M, D at 520 rows each; E pending; seams certified |
+| **P4** preference | **failed** | D29 κ 0.2556, sections 16 and 19 |
+| **P5** content | partly done | order invariance 368/520 (0.7077); mechanism sheet built, unadjudicated; sufficiency probe never built |
+| **P6** dialogue | done | `followup_rescore.json`, F arm 179/179 turns, 0.7318 against 0.7374 |
+| **P7** confirmatory | **not run**, by design | the one shot is not spent without a signed receipt |
+| **P8** release | **done** | `release_manifest.json` over 16 files, `RELEASE_SET.md` |
+
+### The five-cell table, as recorded
+
+| cell | numeric rows (rate) | tag_role | grounding | anchor exact (rows) |
+|---|---|---|---|---|
+| A (fallback) | 19 (0.0365) | 0 | 0 | 520 (520) |
+| B (adapter) | 62 (0.1192) | 57 | 33 | 188 (520) |
+| C (numeric seam) | 19 (0.0365) | 17 | 1 | 520 (520) |
+| M (mechanism seam) | 62 (0.1192) | 43 | 32 | 191 (520) |
+| D (validator) | **7 (0.0135)** | 0 | 0 | 286 (520) |
+
+Contradiction is 0 in every cell. The primary contrast, B against A on numeric-defect rows, paired:
+`b_only` 60, `a_only` 17, exact p ≈ 0. D is the lowest numeric cell and **fails its own ceiling**:
+`D_fallback_rows` 142 of 520, 27.3 %, above the declared 25 %, so D is reported as "A with extra
+steps" rather than as a better writer. Seam certification passed on both directions:
+`C_b_numeric_leaked` 0 and `M_a_numeric_leaked` 0.
+
+E has no row and no weights: `outputs/tep_rca_v2_prose_e_seed4{3,4}/` contain a README and nothing
+else, and `gpu_E_status.json` records seed 43 stopping at step 3 on a 73.1 s step against a 45 s
+guard. The table is therefore five cells, which is what section 15.3 predicted declining E would
+cost.
+
+### Rung 3, under the amendment, on the sheet as it stands
+
+`docs/judging/confirm/d32_rung3_status.json` records the check. The hand-marked sheet has 30 rows —
+19 from C over 17 items, 11 from B over 8 items — and the `supported` column is **blank on all 30**.
+C meets both floors; B meets neither. With one eligible cell the amendment records rungs 2 and 3 as
+unavailable, so rung 3 cannot decide and `selection_receipt.json` (A at rung 6, provisional) stands
+unchanged and predates the amendment.
+
+The earlier owner adjudication in `mechanism_counts.json` does not fill this gap and is not treated as
+though it does: it counted confirmed *errors* to answer a different question, and its own caveat says
+B's five unsettled rows against C's two make the counts incomparable at that coverage.
+
+### Two corrections that belong to the record
+
+1. **P0.4 is not met literally.** It asked the two prose readers to produce identical counts; they
+   disagree on 1,390 of 1,560 comparisons because the old reader was retired rather than reconciled.
+   The reader in force is named in `n1_parity.json` and no run reads the retired one, but "parity
+   achieved" would be false.
+2. **The status given in chat on 2026-11-16 was wrong about four phases**, as stated above. The
+   document's own sections never claimed those phases were unrun.
