@@ -1,0 +1,72 @@
+{
+  "summary": {
+    "A": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 0,
+      "numeric": 19,
+      "grounding": 0,
+      "anchor_rows": 520,
+      "anchor_exact": 520,
+      "numeric_rate": 0.0365
+    },
+    "B": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 57,
+      "numeric": 62,
+      "grounding": 33,
+      "anchor_rows": 520,
+      "anchor_exact": 188,
+      "numeric_rate": 0.1192
+    },
+    "C": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 17,
+      "numeric": 19,
+      "grounding": 1,
+      "anchor_rows": 520,
+      "anchor_exact": 520,
+      "numeric_rate": 0.0365
+    },
+    "M": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 43,
+      "numeric": 62,
+      "grounding": 32,
+      "anchor_rows": 520,
+      "anchor_exact": 191,
+      "numeric_rate": 0.1192
+    },
+    "D": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 0,
+      "numeric": 7,
+      "grounding": 0,
+      "anchor_rows": 520,
+      "anchor_exact": 286,
+      "numeric_rate": 0.0135
+    }
+  },
+  "rows": 520,
+  "primary_contrast": "B vs A, numeric-defect rows, paired",
+  "mcnemar": {
+    "b_only": 60,
+    "a_only": 17,
+    "p_exact": 0.0
+  },
+  "seam_certification": {
+    "C_b_numeric_leaked": 0,
+    "M_a_numeric_leaked": 0,
+    "C_donor_unused": 88,
+    "M_donor_unused": 584,
+    "D_fallback_rows": 142
+  },
+  "E": {
+    "status": "pending",
+    "reason": "GPU training launched; row added by the morning merge if it completes"
+  }
+}

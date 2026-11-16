@@ -136,7 +136,11 @@ def check_numbers(answer: Dict, store: Dict) -> List[Dict]:
         label = str(detector["name"])
         key = "LSTM" if "lstm" in label.lower() else (
             "CVA" if "cva" in label.lower() else ("DPCA" if "dpca" in label.lower() else label))
-        allowed = set()
+        # sensor, lag and residual values are stored for every sentence, not only for the detector named in
+        # it: the same attribution gap that made A read 41% on the long test prompts (numeric_flags, §9b).
+        # Imported here because prose_pilot_prompts imports this module, so a top-level import would cycle.
+        from scripts.pilot_rechecks import evidence_numbers
+        allowed = set(evidence_numbers(store))
         for field in ("value", "threshold", "ratio"):
             allowed |= variants(detector.get(field) or "")
         for sentence in re.split(r";|(?<=[.!?])\s+", text):

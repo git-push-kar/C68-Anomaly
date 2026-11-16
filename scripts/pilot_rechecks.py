@@ -197,6 +197,28 @@ def anchor_status(prose: str, tag: str, z: float) -> Tuple[str, str]:
     return "z_omitted", " ".join(window.split())[:160]
 
 
+def evidence_numbers(store: Dict) -> set:
+    """Values the page prints outside its detector rows: sensors, lag, onset, residual shares.
+
+    Section 28.5 asks whether a number is stored, not whether it sits in the row of the detector that the
+    sentence happens to name. A sentence may legitimately name LSTM and CVA and quote a sensor z-score, so
+    these values have to count as stored for every sentence.
+    """
+    allowed = set()
+    for sensor in store.get("sensors") or []:
+        for field in ("z", "dev"):
+            allowed |= variants(sensor.get(field) or "")
+    lag = store.get("lag") or {}
+    if isinstance(lag, dict):
+        for field in ("lag", "ratio"):
+            allowed |= variants(lag.get(field) or "")
+    for entry in store.get("onset") or []:
+        allowed |= variants(str(entry.get("at") or "").lstrip("+"))
+    for entry in store.get("residuals") or []:
+        allowed |= variants(entry.get("share") or "")
+    return allowed
+
+
 def numeric_flags(prose: str, store: Dict) -> List[Dict]:
     """Numeric failures split into direction, threshold and value kinds (28.5).
 
@@ -210,18 +232,7 @@ def numeric_flags(prose: str, store: Dict) -> List[Dict]:
     # that names a detector and also quotes a sensor z-score is not inventing it. Without this, the long
     # test prompts (one sentence covering detectors and sensors) read as 41% numeric defects for A against
     # 3.65% on validation, purely because the values were attributed to the named detector alone.
-    evidence_allowed = set()
-    for sensor in store.get("sensors") or []:
-        for field in ("z", "dev"):
-            evidence_allowed |= variants(sensor.get(field) or "")
-    lag = store.get("lag") or {}
-    if isinstance(lag, dict):
-        for field in ("lag", "ratio"):
-            evidence_allowed |= variants(lag.get(field) or "")
-    for entry in store.get("onset") or []:
-        evidence_allowed |= variants(str(entry.get("at") or "").lstrip("+"))
-    for entry in store.get("residuals") or []:
-        evidence_allowed |= variants(entry.get("share") or "")
+    evidence_allowed = evidence_numbers(store)
     for sentence in re.split(r";|(?<=[.!?])\s+", str(prose or "")):
         named = [entry for entry in detectors
                  if detector_key(entry).lower() in sentence.lower()]
