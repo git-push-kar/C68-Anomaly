@@ -409,7 +409,7 @@ Report contract when the flag is on:
 | `fault_id` | menu-legal answer: a fault id, `UNCLASSIFIED_OPEN_SET`, `NORMAL_TRANSIENT`, or `None` when refused |
 | `predicted_class` | what the classifier ranked first, kept so an abstention can be explained |
 | `confidence` | calibrated confidence of the winning class; `None` when refused |
-| `verdict` / `reason` | `classified` / `unclassified_open_set` / `no_fault` / `unavailable`, and the reason (`on_menu_above_threshold`, `below_threshold`, `not_on_menu`, `no_fault_predicted`, `evidence_incomplete`, `diagnosis_error`) |
+| `verdict` / `reason` | `classified` / `unclassified_open_set` / `no_fault` / `unavailable`, and the reason (`on_menu_above_threshold`, `below_threshold`, `not_on_menu`, `open_set_predicted`, `no_fault_predicted`, `evidence_incomplete`, `degenerate_scores`, `diagnosis_error`) |
 | `threshold` / `source` / `artifacts` | the threshold in force, `classifier+menu_rule`, and the artefact directory |
 
 When the flag is off, no `diagnosis` key is added: the report is byte-for-byte the previous one.
@@ -443,18 +443,19 @@ It is read-only and writes its row-level detail to `outputs/analysis/phase3a/hyb
 
 | verdict | n | share |
 |---|---|---|
-| `classified` | 90 | 57.7 % (74 named faults, 16 the model's own `UNCLASSIFIED_OPEN_SET`) |
-| `unclassified_open_set` (below threshold) | 46 | 29.5 % |
+| `classified` | 74 | 47.4 % |
+| `unclassified_open_set` | 60 | 38.5 % (43 below threshold, 17 the model's own open-set label) |
 | `no_fault` (`NORMAL_TRANSIENT`) | 20 | 12.8 % |
+| `unavailable` (degenerate scores) | 2 | 1.3 % |
 
 Named faults: `FAULT_15` 26, `FAULT_04` 9, `FAULT_14` 9, `FAULT_08` 5, and 4 each of 02/05/07/10/11/12, `FAULT_01` 1.
-`FAULT_06` and `FAULT_13` were never named. Calibrated confidence is median 1.0, p25 0.80, p10 0.44, with
-**70.5 % at exactly 1.0** (against 99.6 % on the benchmark validation split) — live traffic is less saturated
-than the benchmark but still near-binary. Two events carry all-zero calibrated probabilities (isotonic
-degeneracy) and are refused.
+`FAULT_06` and `FAULT_13` were never named. Calibrated confidence is median 1.0, p25 0.84, p10 0.44, with
+**110 of the 154 scored events (71.4 %) at exactly 1.0** (against 99.6 % on the benchmark validation split) —
+live traffic is less saturated than the benchmark but still near-binary. Two events carry all-zero calibrated
+probabilities (isotonic degeneracy) and are now refused instead of being given the argmax of a zero vector.
 
 **Disagreement with the fallback prose.** Mapping both sides to subsystem groups (the prose names a group, not a
-fault id), the classifier's argmax agrees with the prose heuristic on 45 of 119 events (37.8 %); among the 74
+fault id), the classifier's argmax agrees with the prose heuristic on 43 of 117 events (36.8 %); among the 74
 named faults, 29 (39.2 %). Confusions: condenser→feed 33, condenser→reactor 9, feed→stripper 8, reactor→feed 5,
 plus seven smaller cells. The prose is a top-three-sensor heuristic and the live events are unlabelled, so this
 measures divergence, not error. It is consistent with the `FAULT_15` skew (26 of 74), the class whose surrogate
@@ -464,8 +465,8 @@ check already shows symmetric confusion with `FAULT_05`.
 `threshold.threshold`, 2.7 % achieved false abstention on 1,729 out-of-fold items; the validation artefact says
 1.0 at 0.4 % of 497). 0.9792 belongs to the superseded `XMV_1..11` vocabulary and has nothing to retrain against
 here. Operationally it would change nothing: live confidences have no mass in [0.9792, 1.0), so 0.9792 and 1.0
-give identical verdicts on all 156 events. 0.95 and 0.90 each name four more events (94 vs 90 classified) with an
-unchanged 37.8 % group agreement.
+give identical verdicts on all 156 events. 0.95 and 0.90 each name four more events (78 vs 74 classified) with an
+unchanged 36.8 % group agreement.
 
 **Decision: keep the artefact threshold (1.0); do not import 0.9792.** The threshold is not the lever. With 70.5 %
 of events pinned at the ceiling the decision has collapsed to "does the argmax name a fault", so the useful
@@ -473,6 +474,47 @@ follow-ups are a non-saturated score (recalibrate on held-out live-like data, or
 the two semantic wrinkles the audit exposed: a menu that contains the abstain label lets a model open-set
 prediction be reported as `classified`, and all-zero calibrated rows still get an argmax. Neither is changed
 here, because both alter decision semantics the measured numbers were produced under.
+
+### 7.9 Why `FAULT_15` dominates the live verdicts, 2026-11-16
+
+`scripts/diagnose_fault15_skew.py` tests three explanations against the records.
+
+**Windowing inflates every count.** The 50 `FAULT_15` argmax events fall into **8 episodes** at a 10-minute gap
+(sizes 6, 13, 2, **24**, 1, 1, 1, 2); the 24-window episode runs from sample 2305 to 69845. So "50 predictions"
+is roughly eight incidents.
+
+**The trigger mix, not the fault mix, drives the label.** Every one of the **32 dynamics-only** live pages is
+labelled `FAULT_15`, and all 67 other named faults come from `both/mixed` pages. That is not an extrapolation:
+benchmark `FAULT_15` pages are themselves overwhelmingly dynamics-only (115 of 118 in train, 42 of 50 in val),
+while dynamics-only pages elsewhere in the corpus are `NORMAL_TRANSIENT` (47) and `FAULT_10` (26). The classifier
+has learned "CVA-only page ⇒ sticking fault", which is what its training data says.
+
+**Sensor evidence is not consulted for that page type.** Only 14 of 50 `FAULT_15` predictions carry a
+condenser-cooling sensor in the top five, against 28 of 50 carrying a feed sensor. The prose heuristic, which
+reads sensors only, therefore names feed/reactor — hence the 33 `condenser→feed` cells in §7.8.
+
+**Neither a broken scorer nor a novel regime, then.** The label prior is a symptom: the live detector emits 32
+dynamics-only pages (21 % of scored events) against 10 % in training, and windowing multiplies them. The
+mechanism is a page-type shortcut that is faithful to the training labels. Fixing it needs training pages where
+dynamics-only episodes carry other labels (or the sensor block wired into the decision), not a threshold change.
+This remains unverifiable against ground truth: the live events have no labels.
+
+### 7.10 Closure checklist for the RP
+
+| item | state |
+|---|---|
+| classifier and menu rule wired, flagged, guarded | done (§7.7) |
+| failure containment and degenerate-score refusal | done, 10 seam tests |
+| live audit over all detector-bearing events | done (§7.8) |
+| verdict taxonomy consistent with the diagnosis field | done 2026-11-16; benchmark reasons restated 319/323/61/6 + 125, accuracy unchanged |
+| `FAULT_15` live behaviour explained | done (§7.9) |
+| surrogates and CIs | surrogate re-measured; **cross-fitted bootstrap CIs were not re-bootstrapped** |
+| 13-fault novelty/absorption table | **still pre-fix**; needs fold artefacts retrained |
+| live accuracy | **not measurable**: stored events carry no labels |
+| older adapter predictions | **not reproducible** from stored decode sources; carried over unchanged |
+
+The RP can close on the benchmark and system claims once the four bold rows are either run or explicitly
+declared as out of scope. Nothing in the wiring or the live audit blocks it.
 
 ## 8. What this plan does not do
 

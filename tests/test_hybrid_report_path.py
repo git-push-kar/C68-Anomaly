@@ -154,6 +154,35 @@ def test_a_genuine_scoring_error_is_contained(app: TEPApp, monkeypatch) -> None:
     assert report["summary"]
 
 
+def test_all_zero_calibrated_probabilities_are_refused(app: TEPApp, monkeypatch) -> None:
+    """An all-zero row has no ranking; the argmax would be label order, so it must not be scored."""
+    import llm.hybrid.live_classifier as live_classifier
+
+    monkeypatch.setattr(live_classifier, "apply_calibrator",
+                        lambda calibration, rows: [{key: 0.0 for key in rows[0]} for _ in rows])
+    with pytest.raises(live_classifier.DegenerateProbabilities):
+        app.hybrid.diagnose(evidence_dict())
+
+    report = app._generate_report(stub_event())
+    diagnosis = report["diagnosis"]
+    assert diagnosis["verdict"] == "unavailable"
+    assert diagnosis["reason"] == "degenerate_scores"
+    assert diagnosis["fault_id"] is None
+    assert report["summary"]
+
+
+def test_an_open_set_prediction_is_not_a_classification(app: TEPApp, monkeypatch) -> None:
+    labels = app.hybrid.labels
+    monkeypatch.setattr(app.hybrid, "probabilities",
+                        lambda evidence: {label: (1.0 if label == "UNCLASSIFIED_OPEN_SET" else 0.0)
+                                          for label in labels})
+    diagnosis = app._generate_report(stub_event())["diagnosis"]
+    assert diagnosis["fault_id"] == "UNCLASSIFIED_OPEN_SET"
+    assert diagnosis["verdict"] == "unclassified_open_set"
+    assert diagnosis["reason"] == "open_set_predicted"
+    assert diagnosis["abstained"] is True
+
+
 def test_flag_off_leaves_the_report_unchanged() -> None:
     app = TEPApp.__new__(TEPApp)
     app.config = {}

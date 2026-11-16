@@ -13,6 +13,11 @@ A prediction of ``NORMAL_TRANSIENT`` is a third case: there is no fault to name,
 verdict is ``no_fault`` and the diagnosis is the non-fault class. It is not an abstention,
 and it is not a low-confidence fault either.
 
+A prediction of ``UNCLASSIFIED_OPEN_SET`` is a fourth: the label is on the menu, so the model
+is answering the question, but it is answering "not one of these". The verdict is
+``unclassified_open_set`` with reason ``open_set_predicted``; crediting it as ``classified``
+would report an abstention as an identification.
+
 The threshold itself is derived, not chosen: :func:`largest_threshold` finds the largest value
 that keeps false abstention inside a pre-registered budget (PROTOCOL §16.3).
 """
@@ -41,6 +46,12 @@ def menu_rule(label: Optional[str], confidence: Optional[float],
     if label == NORMAL:
         return {"diagnosis": NORMAL, "verdict": "no_fault", "reason": "no_fault_predicted",
                 "abstained": False, "confidence": confidence}
+    if label == UNCLASSIFIED:
+        # The abstain label is a menu entry, so a model that predicts it is answering the question it was
+        # asked. It is still not a fault name: crediting it as ``classified`` would report an abstention as
+        # an identification and make the verdict field disagree with the diagnosis field.
+        return {"diagnosis": UNCLASSIFIED, "verdict": "unclassified_open_set",
+                "reason": "open_set_predicted", "abstained": True, "confidence": confidence}
     if label not in menu:
         return {"diagnosis": UNCLASSIFIED, "verdict": "unclassified_open_set",
                 "reason": "not_on_menu", "abstained": True, "confidence": confidence}

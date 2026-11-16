@@ -95,8 +95,8 @@
     {
       "name": "rp_final_report",
       "path": "docs/reports/RP_FINAL_REPORT_2026-11-16.md",
-      "sha256": "57bd1781c8a08941bf11bf9cbe10cf15bf04baa5f1a0786d10af431bf4cbbd32",
-      "bytes": 21796,
+      "sha256": "9388a82472dfa83079bc52ad261337cabb7baf4851e6414a6c61e3f96fcaf11c",
+      "bytes": 22445,
       "rebuild": "(assertion document)",
       "claims": "all"
     },

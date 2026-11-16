@@ -74,6 +74,16 @@ def test_normal_is_no_fault_and_never_an_abstention():
     assert decision["abstained"] is False
 
 
+def test_a_model_open_set_prediction_is_reported_as_an_abstention():
+    """The abstain label is on the menu, so predicting it is legal — but it is not an identification."""
+    decision = menu_rule(UNCLASSIFIED, 0.99, MENU, 0.9)
+    assert decision["diagnosis"] == UNCLASSIFIED
+    assert decision["verdict"] == "unclassified_open_set"
+    assert decision["reason"] == "open_set_predicted"
+    assert decision["abstained"] is True
+    assert decision["confidence"] == 0.99
+
+
 def test_missing_prediction_is_the_open_set_verdict():
     decision = menu_rule(None, None, MENU, 0.5)
     assert decision["diagnosis"] == UNCLASSIFIED

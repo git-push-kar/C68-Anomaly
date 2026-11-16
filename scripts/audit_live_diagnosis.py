@@ -107,11 +107,20 @@ def main() -> None:
         report = app._generate_report(event)
         diagnosis = report["diagnosis"]
         evidence = event.evidence.to_dict()
-        probabilities = app.hybrid.probabilities(evidence)
-        predicted = max(probabilities, key=probabilities.get)
-        confidence = float(probabilities[predicted])
-        decision = menu_rule(predicted, confidence, app.hybrid.menu_ids, threshold)
-        assert decision["verdict"] == diagnosis["verdict"], (decision, diagnosis)
+        try:
+            probabilities = app.hybrid.probabilities(evidence)
+        except Exception:
+            # Refused before scoring (degenerate probabilities): no ranking exists to compare.
+            probabilities = None
+        if probabilities is None:
+            predicted, confidence, decisions = None, None, {}
+        else:
+            predicted = max(probabilities, key=probabilities.get)
+            confidence = float(probabilities[predicted])
+            decision = menu_rule(predicted, confidence, app.hybrid.menu_ids, threshold)
+            assert decision["verdict"] == diagnosis["verdict"], (decision, diagnosis)
+            decisions = {str(t): menu_rule(predicted, confidence, app.hybrid.menu_ids, t)
+                         for t in args.thresholds}
         rows.append({
             "event_id": event.event_id,
             "verdict": diagnosis["verdict"],
@@ -119,13 +128,13 @@ def main() -> None:
             "fault_id": diagnosis["fault_id"],
             "predicted_class": predicted,
             "confidence": confidence,
+            "decisions": decisions,
             "prose_root_cause": report["root_cause"],
             "prose_group": prose_group(report["root_cause"], report.get("affected_subsystem") or ""),
             "classifier_group": FAULT_GROUP.get(predicted),
-            "decisions": {str(t): menu_rule(predicted, confidence, app.hybrid.menu_ids, t) for t in args.thresholds},
         })
 
-    confidences = [r["confidence"] for r in rows]
+    confidences = [r["confidence"] for r in rows if r["confidence"] is not None]
     summary = {
         "events": len(rows),
         "threshold_in_force": threshold,
@@ -153,8 +162,10 @@ def main() -> None:
 
     by_threshold = {}
     for t in args.thresholds:
-        decisions = [r["decisions"][str(t)] for r in rows]
-        labelled = [r for r in rows if r["decisions"][str(t)]["diagnosis"]]
+        refused = {"verdict": "unavailable", "reason": "degenerate_scores", "abstained": True,
+                   "diagnosis": None, "confidence": None}
+        decisions = [r["decisions"].get(str(t), refused) for r in rows]
+        labelled = [r for r in rows if r["decisions"].get(str(t), refused)["diagnosis"]]
         pairs = [(FAULT_GROUP.get(r["predicted_class"]), r["prose_group"]) for r in labelled]
         usable = [(a, b) for a, b in pairs if a]
         by_threshold[str(t)] = {

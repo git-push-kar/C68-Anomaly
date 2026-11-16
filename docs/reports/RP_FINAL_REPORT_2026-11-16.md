@@ -138,9 +138,11 @@ Per stratum, cross-fitted:
 | open-set on a menu | 125 | 1.0000 | 1.0000 | 1.0000 | — | 0.0000 |
 | unobservable (3, 9) | 12 | 0.0000 | 0.0000 | 0.0000 | — | **1.0000** |
 
-Rule reasons across the 834 rows: on-menu above threshold 442, not on menu 323, no fault predicted 61,
-**below threshold 8**. The eight are the entire abstention arm: the calibrated maximum still does little work,
-and the menu check does most of it. That is stated, not hidden.
+Rule reasons across the 834 rows, after the 2026-11-16 verdict-semantics fix that reports a model open-set
+prediction as an abstention: on-menu above threshold 319, model open-set prediction 125, not on menu 323, no
+fault predicted 61, **below threshold 6**. The six are the entire confidence-based abstention arm: the calibrated
+maximum still does little work, the menu check does most of it, and the 125 open-set answers used to be counted
+among the named faults. That is stated, not hidden.
 
 ### 3.2 Abstention and the open-set problem
 
@@ -191,6 +193,11 @@ so a template sentence is never mistaken for a classifier decision.
 The detector-evidence guard is in that path: an event with no LSTM or CVA score is refused with
 `verdict = "unavailable", reason = "evidence_incomplete"` instead of being labelled. That is the 333 schema-v1
 records of §3.1 — they get a report, not a diagnosis.
+
+Two verdict details were corrected on 2026-11-16 and are part of the shipped behaviour: a prediction of the
+`UNCLASSIFIED_OPEN_SET` label is reported as `unclassified_open_set` (`open_set_predicted`), never as
+`classified`, and a row whose calibrated probabilities are all zero is refused as `degenerate_scores` rather
+than given the argmax of a zero vector. Neither changes a diagnosis label, so the accuracy figures stand.
 
 Classifier failures are contained: the guard's refusal and every other exception are turned into
 `verdict = "unavailable", reason = "diagnosis_error"`, logged, and the report is still produced — a diagnosis

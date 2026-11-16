@@ -80,7 +80,7 @@ anchor split, preference, selection) are untouched, because those checks read pr
 | cross-fitted ECE / Brier | 0.0206 / 0.0217 | **0.0114 / 0.0113** | same |
 | cross-fitted threshold | 0.9792 | **1.0** (2.72 % of a 5 % budget) | same |
 | saturation (≥ threshold) | 774/834 = 92.8 % | **820/834 = 98.3 %** | same |
-| rule reasons | 429 / 322 / 61 / 22 | **442 / 323 / 61 / 8** | same |
+| rule reasons (on-menu / not-on-menu / no-fault / below-threshold) | 429 / 322 / 61 / 22 | **442 / 323 / 61 / 8**; restated 2026-11-16 as **319 / 323 / 61 / 6 + 125 `open_set_predicted`** because open-set verdicts no longer count as classifications (labels, accuracy unchanged) | same |
 | menu-present cross-fitted accuracy | 0.9698 | **0.9839** | same, `strata.menu_present` |
 | in-sample observable accuracy / macro-F1 | 0.9964 / 0.9963 | **0.9976 / 0.9971** | `vocabfix/evaluation.json` |
 | 497-item table: menu rule | 0.9980 | **1.0000** | `vocabfix/classifier_contrasts.json` |

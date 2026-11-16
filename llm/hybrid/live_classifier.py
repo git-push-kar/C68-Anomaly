@@ -38,6 +38,15 @@ from scripts.evidence_classifier import prompt_features
 DEFAULT_ARTIFACTS = "outputs/analysis/phase3a/hybrid/vocabfix"
 
 
+class DegenerateProbabilities(RuntimeError):
+    """Every calibrated probability is zero, so there is no ranking to report.
+
+    Isotonic calibration maps a whole score interval to 0.0. For an event whose scores land there, the argmax
+    is whichever class happens to come first in the label order — a position, not a prediction. Scoring it
+    would manufacture a diagnosis, so the caller is told instead.
+    """
+
+
 class HybridDiagnosis:
     """The classifier half of the hybrid, ready to be called per event."""
 
@@ -66,7 +75,11 @@ class HybridDiagnosis:
         features = np.asarray([prompt_features(page)], dtype=np.float64)
         raw = self.booster.predict(features)[0]
         row = {label: float(value) for label, value in zip(self.labels, raw)}
-        return apply_calibrator(self.calibration, [row])[0]
+        calibrated = apply_calibrator(self.calibration, [row])[0]
+        if not any(float(value) > 0.0 for value in calibrated.values()):
+            raise DegenerateProbabilities(
+                "all calibrated probabilities are 0.0; the argmax would be a label order, not a prediction")
+        return calibrated
 
     def diagnose(self, evidence: Dict, menu_ids: Optional[Sequence[str]] = None) -> Dict:
         """The verdict for one event.
@@ -93,4 +106,4 @@ class HybridDiagnosis:
         }
 
 
-__all__ = ["DEFAULT_ARTIFACTS", "HybridDiagnosis"]
+__all__ = ["DEFAULT_ARTIFACTS", "DegenerateProbabilities", "HybridDiagnosis"]

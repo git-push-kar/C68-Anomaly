@@ -431,12 +431,16 @@ class TEPApp:
         turn a diagnosis outage into a monitoring outage.
         """
         from llm.benchmark.live_page import IncompleteEvidence
+        from llm.hybrid.live_classifier import DegenerateProbabilities
 
         try:
             return self.hybrid.diagnose(event.evidence.to_dict())
         except IncompleteEvidence as exc:
             logger.warning("Hybrid diagnosis refused for %s: %s", event.event_id, exc)
             return self._unavailable_diagnosis("evidence_incomplete", str(exc))
+        except DegenerateProbabilities as exc:
+            logger.warning("Hybrid diagnosis refused for %s: %s", event.event_id, exc)
+            return self._unavailable_diagnosis("degenerate_scores", str(exc))
         except Exception as exc:  # noqa: BLE001 - the report must survive any classifier failure
             logger.exception("Hybrid diagnosis failed for %s; the report continues without a verdict.",
                              event.event_id)
