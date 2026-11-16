@@ -1,0 +1,42 @@
+{
+  "cases": 46,
+  "per_check": {
+    "contradiction": {
+      "cases": 15,
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "tag_role": {
+      "cases": 14,
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "tn": 7,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "anchor": {
+      "cases": 8,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 4,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "numeric": {
+      "cases": 9,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 5,
+      "precision": 1.0,
+      "recall": 1.0
+    }
+  },
+  "pass": true
+}

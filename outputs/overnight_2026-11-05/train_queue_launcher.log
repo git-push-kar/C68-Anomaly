@@ -1,0 +1,6 @@
+E_seed43: adapter_dir outputs/tep_rca_v2_prose_e_seed43
+E_seed44: adapter_dir outputs/tep_rca_v2_prose_e_seed44
+F_seed42: adapter_dir outputs/tep_rca_v2_followup_seed42
+{"job": "E_seed43", "config": "configs/config_prose_e_seed43.yaml", "returncode": 0, "minutes": 55.0, "finished_at": "2026-11-05T22:51:47"}
+{"job": "E_seed44", "config": "configs/config_prose_e_seed44.yaml", "returncode": 0, "minutes": 59.7, "finished_at": "2026-11-05T23:51:30"}
+{"job": "F_seed42", "config": "configs/config_followup_f_seed42.yaml", "returncode": 0, "minutes": 16.0, "finished_at": "2026-11-06T00:07:33"}

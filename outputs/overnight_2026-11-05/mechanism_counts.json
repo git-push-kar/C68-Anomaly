@@ -1,0 +1,37 @@
+{
+  "record": "D28 mechanism check - owner adjudication of the 30 quoted rows",
+  "adjudicated_by": "pushkar (project owner)",
+  "adjudicated_via": "chat session 2026-11-06, on the window text only: the sheet did not print the sentence",
+  "sheet": "outputs/overnight_2026-11-05/n5_examples_audited.csv",
+  "question_answered": "can a row be called a mismatch when the quoted text is incomplete",
+  "answer": "no - not from the window alone. The four below name another instrument unambiguously; the other seven do not",
+  "buckets": {
+    "confirmed_mismatch": {"rows": [2, 3, 4, 7], "count": 4,
+                           "reading": "the window names a different instrument than the tag"},
+    "insufficient_evidence": {"rows": [6, 11], "count": 2,
+                              "reading": "the window is too short to carry a claim either way"},
+    "questionable": {"rows": [23, 24, 30], "count": 3,
+                     "reading": "'valve position' is generic: it neither confirms nor refutes"},
+    "checker_misclassified": {"rows": [26, 27], "count": 2,
+                              "reading": "'the valve position is a manipulated variable' is TRUE of XMV_51: the checker's flag is the error"}
+  },
+  "per_condition": {
+    "C": {"rows": 19, "confirmed_mismatch": 4, "unsettled": 2,
+          "invalid_tag": 1, "note": "row 9 cites XMV_19, which is not a tag"},
+    "B": {"rows": 11, "confirmed_mismatch": 0, "unsettled": 5,
+          "invalid_tag": 0}
+  },
+  "rung3_input": {
+    "form": "confirmed mechanism errors per condition",
+    "C": 4,
+    "B": 0,
+    "settled_rows": 21,
+    "unsettled_rows": 7,
+    "invalid_tag_rows": 1,
+    "caveat": "B has 5 unsettled rows against C's 2, so the two counts are not comparable at this coverage. Rung 3 can rank C worse than B on confirmed errors only; it cannot show B clean."
+  },
+  "supersedes": {
+    "earlier_count": "11 rows labelled class_mismatch by the window-token rule (v1) and 28 by the frequency rule (v2)",
+    "why": "v1 counted family words ('flow', 'valve') as class evidence; v2 required a rare term, but 'feed' occurs in 9 of 52 classes so no frequency threshold separates the cases. v3 scores class overlap instead and defers to the printed sentence where no class wins."
+  }
+}

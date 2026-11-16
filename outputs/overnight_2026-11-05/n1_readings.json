@@ -1,0 +1,26 @@
+{
+  "orders": {
+    "kb": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 57,
+      "numeric": 62,
+      "grounding": 33
+    },
+    "shuffled-1": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 39,
+      "numeric": 49,
+      "grounding": 36
+    },
+    "shuffled-2": {
+      "rows": 520,
+      "contradiction": 0,
+      "tag_role": 38,
+      "numeric": 46,
+      "grounding": 36
+    }
+  },
+  "strata_prompts": 520
+}

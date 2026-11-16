@@ -1,0 +1,5 @@
+[2026-11-05T17:56:11] starting E seed 43 with config_prose_e_seed43.yaml
+[2026-11-05T18:13:27] seed 43 finished rc=1 in 17.3 min
+[2026-11-05T18:13[2026-11-05T18:13:37] seed 43 finished rc=1 in 8.4 min
+[2026-11-05T18:13:37] stopping: seed 43 failed
+[2026-11-05T18:13:37] done

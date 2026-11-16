@@ -1,0 +1,30 @@
+{
+  "rule": "six rungs: numeric gate, preference, mechanism validity, order invariance, cost, A wins ties",
+  "m": 0.01,
+  "gate_ceiling": 0.0465,
+  "candidates": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "M"
+  ],
+  "passers": [
+    "A",
+    "C",
+    "D"
+  ],
+  "chosen": "A",
+  "decided_by_rung": 6,
+  "provisional": true,
+  "skipped": [
+    "rung 2: no preference data; tier removed per the plan"
+  ],
+  "inputs": {
+    "cells": {
+      "path": "outputs/overnight_2026-11-05/n4_cells.json",
+      "sha256_24": "3ec4effb8eca2f8b3731d9c8"
+    }
+  },
+  "note": "rung 6 is the deterministic default, not a measured win; this receipt stays provisional until rungs 2 and 3 carry data"
+}

@@ -1,0 +1,142 @@
+{
+  "root": "C:\\Users\\Admin\\Desktop\\anomaly",
+  "count": 27,
+  "files": [
+    {
+      "path": "docs/HANDOVER_BENCHMARK_PLAN_V2.md",
+      "bytes": 43071,
+      "sha256": "0ae1c1eaa97c30918e1063bcf691c6f5426d9d2991fe337fa3dd1797b9b7dcf5"
+    },
+    {
+      "path": "docs/judging/confirm/signed.json",
+      "bytes": 3494,
+      "sha256": "273120d7cfd9eb412c053122d82552ca23c02b230fc1c654cdcbf1c8b6e85ef6"
+    },
+    {
+      "path": "outputs/benchmark_v2/eval/prose_pilot/raw_pilot_kb.jsonl",
+      "bytes": 686582,
+      "sha256": "8d8f5b4f9b34bb423f2a361ba128747aaac74ee65ce838dd8fc95840ac0dc8f9"
+    },
+    {
+      "path": "outputs/benchmark_v2/eval/prose_pilot/raw_pilot_shuffled-1.jsonl",
+      "bytes": 687642,
+      "sha256": "0e1ec29837e49a30b762b4e4d9545e95567ebb8234d25feaad7bfb08714b4bf0"
+    },
+    {
+      "path": "outputs/benchmark_v2/eval/prose_pilot/raw_pilot_shuffled-2.jsonl",
+      "bytes": 684883,
+      "sha256": "d22f53de906edb2b11b98cd19bcbde33a5518b1bd857c7d720dc7d11d0e3d227"
+    },
+    {
+      "path": "outputs/benchmark_v2/eval/prose_pilot/prose_eval_followups.jsonl",
+      "bytes": 14944,
+      "sha256": "7e97f31edc746011ab2d0a297f61c1b56dd675e7e8c6dda258d29c62bd37ed20"
+    },
+    {
+      "path": "outputs/benchmark_v2/sft/train_prose_v1.jsonl",
+      "bytes": 6373075,
+      "sha256": "9d0ecdfb98edcc953a6ea1e93333b4c533c4791a67437eb7823ee770e6888e62"
+    },
+    {
+      "path": "outputs/benchmark_v2/sft/followup_train.jsonl",
+      "bytes": 7477134,
+      "sha256": "f78964d309854d01cd412c9ee0f0e6128e2176c842cf988330a550cbfdb0211e"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/n1_calibration.json",
+      "bytes": 687,
+      "sha256": "42facb80309f1d32907108f524793ca296b588116ee1c72b2622f7ce210194e2"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/n1_readings.json",
+      "bytes": 473,
+      "sha256": "0461007dce4d6369552bc269e41b7de2911f8657550449f85a7e66d37c848b46"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/n1_parity.json",
+      "bytes": 255,
+      "sha256": "824ad0bfef82ab68626abc36a7ffa20139940addfe093df223b97d0b33d0e20c"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/n4_cells.json",
+      "bytes": 1586,
+      "sha256": "3ec4effb8eca2f8b3731d9c8f650b90b31eebec8a51923f42ba071d415ecb527"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/n4_flags_per_item.csv",
+      "bytes": 73796,
+      "sha256": "baab10412a36e307bd02535bd92ec560edcfb498532f791ae7e8511f985cdd7c"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/n5_invariance_dialogue.json",
+      "bytes": 606,
+      "sha256": "40da08c93c9c01c8daa8ee001fc3d17da26e8aa8b6ccf990cef2860169ab17d2"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/n5_examples.csv",
+      "bytes": 9952,
+      "sha256": "d153b787551a923c20ffbe59d9fe4aeaeaa987e97d4faf14d1255a342055c000"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/prompts_520.json",
+      "bytes": 5643862,
+      "sha256": "8eb531b14d65328436fa831e8c2419f1d1281b612f9e7a23b6a8f55a077da418"
+    },
+    {
+      "path": "outputs/overnight_2026-11-05/selection_receipt.json",
+      "bytes": 713,
+      "sha256": "48717356e95403bdcf916ee31cf623039df57f3d0d1d03ed97f840d809a4b462"
+    },
+    {
+      "path": "scripts/cases46.py",
+      "bytes": 2860,
+      "sha256": "cee3ed06923a4cec3d4f74220c2f1041482a5593eb94a1ce0f9e880d0aeed320"
+    },
+    {
+      "path": "scripts/pilot_rechecks.py",
+      "bytes": 32372,
+      "sha256": "fea160c4a9c36d272ffcecd8fbf388c2f1612ba9ebce0ab7078e8871b164c388"
+    },
+    {
+      "path": "scripts/overnight_run.py",
+      "bytes": 22139,
+      "sha256": "aa5047eb24d0b41fb6c731e5bd2b464a862078ef8e85e808680432d7c6c62153"
+    },
+    {
+      "path": "scripts/select_condition.py",
+      "bytes": 4533,
+      "sha256": "95e3a183e7214a4e81b32fbfdf33615f68046c44cf3337797ad730797ad94f35"
+    },
+    {
+      "path": "scripts/preference_sheet.py",
+      "bytes": 3025,
+      "sha256": "0a34e3d6583b31f92828bbd209be32d61f080bae022a0c3226e85b17d969b92d"
+    },
+    {
+      "path": "scripts/preference_agreement.py",
+      "bytes": 2628,
+      "sha256": "fa6a152062c857111f1d76b56ddc06b1f17fdf6534138616fcfa429c899b1c0b"
+    },
+    {
+      "path": "scripts/mechanism_sheet.py",
+      "bytes": 5577,
+      "sha256": "062e83ba0b13c1cbbe60ac4ce505116c96c29edefe2f72652720b2ca35065be5"
+    },
+    {
+      "path": "configs/config_prose_pilot_seed42.yaml",
+      "bytes": 12430,
+      "sha256": "dda4e8c40e9414f415f1fde119befe85a79a46ab5a839403768ac517e35d2e8f"
+    },
+    {
+      "path": "configs/config_prose_e_seed43.yaml",
+      "bytes": 12422,
+      "sha256": "803fff5f2b87ca9cf84a00b7e8aeacdb4dde2597659ba2f7623f716824ce16dc"
+    },
+    {
+      "path": "configs/config_followup_f_seed42.yaml",
+      "bytes": 12424,
+      "sha256": "95eca92327437b221ec7fb177069823f807bf0cc3c52f83c92e03ed23ce4b0c9"
+    }
+  ],
+  "missing": []
+}

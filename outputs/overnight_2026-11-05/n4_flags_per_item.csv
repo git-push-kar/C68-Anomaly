@@ -1,0 +1,460 @@
+item_id,order,condition,check,kind,sentence
+EVT-val-f01-r307::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f01-r307::openset,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f01-r309::openset,kb,B,grounding,number_not_in_store,number_not_in_store:222
+EVT-val-f01-r309::openset,kb,B,grounding,number_not_in_store,number_not_in_store:66
+EVT-val-f01-r309::openset,kb,M,grounding,number_not_in_store,number_not_in_store:222
+EVT-val-f01-r309::openset,kb,M,grounding,number_not_in_store,number_not_in_store:66
+EVT-val-f02-r301::openset,kb,B,grounding,number_not_in_store,number_not_in_store:15.12
+EVT-val-f02-r301::openset,kb,B,grounding,number_not_in_store,number_not_in_store:15.57
+EVT-val-f02-r301::openset,kb,M,grounding,number_not_in_store,number_not_in_store:15.12
+EVT-val-f02-r301::openset,kb,M,grounding,number_not_in_store,number_not_in_store:15.57
+EVT-val-f02-r305::openset,kb,B,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r305::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r305::openset,kb,M,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r305::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r310::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r310::openset,kb,B,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r310::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r310::openset,kb,M,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r314::openset,kb,B,grounding,number_not_in_store,number_not_in_store:11.77
+EVT-val-f02-r314::openset,kb,B,grounding,number_not_in_store,number_not_in_store:12.06
+EVT-val-f02-r314::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r314::openset,kb,B,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r314::openset,kb,M,grounding,number_not_in_store,number_not_in_store:11.77
+EVT-val-f02-r314::openset,kb,M,grounding,number_not_in_store,number_not_in_store:12.06
+EVT-val-f02-r314::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r314::openset,kb,M,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r315::openset,kb,B,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r315::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r315::openset,kb,M,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r315::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r317::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r317::openset,kb,B,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r317::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r317::openset,kb,M,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r318::openset,kb,B,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r318::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r318::openset,kb,M,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r318::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r321::openset,kb,B,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r321::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r321::openset,kb,M,grounding,number_not_in_store,number_not_in_store:6
+EVT-val-f02-r321::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r324::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f02-r324::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f03-r302::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.99x and CVA Q-statistic 0.97x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.19, increasing) and Component_F_Stream9 (X"
+EVT-val-f03-r302::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.99x and CVA Q-statistic 0.97x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.19, increasing) and Component_F_Stream9 (X"
+EVT-val-f03-r317::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.92x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Separator_Level (XMEAS_12, z=-0.0"
+EVT-val-f03-r317::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.92x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Separator_Level (XMEAS_12, z=-0.0"
+EVT-val-f04-r303::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f04-r303::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f04-r303::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f04-r303::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f04-r305::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f04-r305::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f04-r308::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f04-r308::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f04-r308::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f04-r308::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f04-r309::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f04-r309::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f04-r311::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f04-r311::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f04-r316::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f04-r316::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f04-r316::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f04-r316::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f04-r317::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f04-r317::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f04-r317::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f04-r317::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f05-r305::openset,kb,B,grounding,number_not_in_store,number_not_in_store:21.59
+EVT-val-f05-r305::openset,kb,B,grounding,number_not_in_store,number_not_in_store:2.23
+EVT-val-f05-r305::openset,kb,B,grounding,number_not_in_store,number_not_in_store:3.45
+EVT-val-f05-r305::openset,kb,M,grounding,number_not_in_store,number_not_in_store:21.59
+EVT-val-f05-r305::openset,kb,M,grounding,number_not_in_store,number_not_in_store:2.23
+EVT-val-f05-r305::openset,kb,M,grounding,number_not_in_store,number_not_in_store:3.45
+EVT-val-f05-r307::openset,kb,B,grounding,number_not_in_store,number_not_in_store:1.57
+EVT-val-f05-r307::openset,kb,M,grounding,number_not_in_store,number_not_in_store:1.57
+EVT-val-f05-r311::openset,kb,B,grounding,number_not_in_store,number_not_in_store:1.42
+EVT-val-f05-r311::openset,kb,M,grounding,number_not_in_store,number_not_in_store:1.42
+EVT-val-f05-r315::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f05-r315::openset,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f05-r320::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f05-r320::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f05-r321::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f05-r321::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f05-r321::openset,kb,B,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_6
+EVT-val-f05-r321::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f05-r321::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f05-r321::openset,kb,M,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_6
+EVT-val-f05-r325::openset,kb,B,grounding,number_not_in_store,number_not_in_store:2.16
+EVT-val-f05-r325::openset,kb,M,grounding,number_not_in_store,number_not_in_store:2.16
+EVT-val-f06-r306::openset,kb,B,grounding,number_not_in_store,number_not_in_store:23.60
+EVT-val-f06-r306::openset,kb,M,grounding,number_not_in_store,number_not_in_store:23.60
+EVT-val-f06-r308::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f06-r308::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f06-r308::openset,kb,C,tag_role,class_mismatch,
+EVT-val-f06-r308::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f07-r315::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f07-r315::openset,kb,C,tag_role,class_mismatch,
+EVT-val-f07-r320::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f07-r320::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f07-r322::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f07-r322::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f07-r322::openset,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f07-r322::openset,kb,C,tag_role,class_mismatch,
+EVT-val-f08-r301::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r301::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r302::openset,kb,B,grounding,number_not_in_store,number_not_in_store:45
+EVT-val-f08-r302::openset,kb,B,grounding,number_not_in_store,number_not_in_store:45
+EVT-val-f08-r302::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r302::openset,kb,M,grounding,number_not_in_store,number_not_in_store:45
+EVT-val-f08-r302::openset,kb,M,grounding,number_not_in_store,number_not_in_store:45
+EVT-val-f08-r302::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r306::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f08-r306::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f08-r308::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r308::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r310::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r310::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f08-r313::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f08-r313::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f08-r315::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.59x and CVA Q-statistic 63.87x, the largest deviations are Stripper_Steam_Valve (XMV_50, z=3.73, increasing) and Stripper_Steam_Flow (X"
+EVT-val-f08-r315::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.59x and CVA Q-statistic 63.87x, the largest deviations are Stripper_Steam_Valve (XMV_50, z=3.73, increasing) and Stripper_Steam_Flow (X"
+EVT-val-f08-r318::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 17.33x and CVA Q-statistic 5.26x, the largest deviations are Purge_Rate (XMEAS_10, z=5.03, increasing) and Purge_Valve (XMV_47, z=4.61, i"
+EVT-val-f08-r318::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 17.33x and CVA Q-statistic 5.26x, the largest deviations are Purge_Rate (XMEAS_10, z=5.03, increasing) and Purge_Valve (XMV_47, z=4.61, i"
+EVT-val-f08-r324::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.98x and CVA Q-statistic 3.71x, the largest deviations are Purge_Rate (XMEAS_10, z=-6.14, decreasing) and Purge_Valve (XMV_47, z=-5.94, "
+EVT-val-f08-r324::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.98x and CVA Q-statistic 3.71x, the largest deviations are Purge_Rate (XMEAS_10, z=-6.14, decreasing) and Purge_Valve (XMV_47, z=-5.94, "
+EVT-val-f08-r324::openset,kb,B,grounding,number_not_in_store,number_not_in_store:0.23
+EVT-val-f08-r324::openset,kb,M,grounding,number_not_in_store,number_not_in_store:0.23
+EVT-val-f08-r325::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4.83x, the largest deviations are A_Feed_Flow (XMV_44, z=2.13, increasing) and A_Feed_Stream1 (XMEAS_1, z=2.12,"
+EVT-val-f08-r325::menu,kb,B,numeric,value_not_stored,The CVA Q-statistic (940.1) and LSTM error (5.7571) confirm the anomaly matches FAULT_08's signature of random composition variation in A and B streams.
+EVT-val-f08-r325::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4.83x, the largest deviations are A_Feed_Flow (XMV_44, z=2.13, increasing) and A_Feed_Stream1 (XMEAS_1, z=2.12,"
+EVT-val-f08-r325::menu,kb,M,numeric,value_not_stored,The CVA Q-statistic (940.1) and LSTM error (5.7571) confirm the anomaly matches FAULT_08's signature of random composition variation in A and B streams.
+EVT-val-f08-r325::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4.83x, the largest deviations are A_Feed_Flow (XMV_44, z=2.13, increasing) and A_Feed_Stream1 (XMEAS_1, z=2.12,"
+EVT-val-f09-r301::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.95x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.36, increasing) and Recycle_Flow_Stream8 ("
+EVT-val-f09-r301::menu,kb,B,tag_role,class_mismatch,
+EVT-val-f09-r301::menu,kb,B,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
+EVT-val-f09-r301::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.95x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.36, increasing) and Recycle_Flow_Stream8 ("
+EVT-val-f09-r301::menu,kb,M,tag_role,class_mismatch,
+EVT-val-f09-r301::menu,kb,M,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
+EVT-val-f09-r301::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.95x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.36, increasing) and Recycle_Flow_Stream8 ("
+EVT-val-f09-r302::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0.97x, the largest deviations are Component_F_Stream9 (XMEAS_34, z=-0.19) and Component_F_Stream11 (XMEAS_39, z"
+EVT-val-f09-r302::menu,kb,B,tag_role,class_mismatch,
+EVT-val-f09-r302::menu,kb,B,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
+EVT-val-f09-r302::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0.97x, the largest deviations are Component_F_Stream9 (XMEAS_34, z=-0.19) and Component_F_Stream11 (XMEAS_39, z"
+EVT-val-f09-r302::menu,kb,M,tag_role,class_mismatch,
+EVT-val-f09-r302::menu,kb,M,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
+EVT-val-f09-r302::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0.97x, the largest deviations are Component_F_Stream9 (XMEAS_34, z=-0.19) and Component_F_Stream11 (XMEAS_39, z"
+EVT-val-f09-r317::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.93x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Component_F_Stream6 (XMEAS_28, z="
+EVT-val-f09-r317::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f09-r317::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.93x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Component_F_Stream6 (XMEAS_28, z="
+EVT-val-f09-r317::menu,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f09-r317::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.93x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Component_F_Stream6 (XMEAS_28, z="
+EVT-val-f09-r319::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 0.97x, the largest deviations are Stripper_Underflow_Stream11 (XMEAS_17, z=0.22) and Condenser_Cooling_Water_Fl"
+EVT-val-f09-r319::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 0.97x, the largest deviations are Stripper_Underflow_Stream11 (XMEAS_17, z=0.22) and Condenser_Cooling_Water_Fl"
+EVT-val-f10-r304::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 1.09x and CVA Q-statistic 10.12x, the largest deviations are Separator_Pot_Liquid_Flow (XMV_48, z=0.20, increasing) and Separator_Level ("
+EVT-val-f10-r304::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 1.09x and CVA Q-statistic 10.12x, the largest deviations are Separator_Pot_Liquid_Flow (XMV_48, z=0.20, increasing) and Separator_Level ("
+EVT-val-f10-r306::openset,kb,B,grounding,number_not_in_store,number_not_in_store:8.48
+EVT-val-f10-r306::openset,kb,B,grounding,number_not_in_store,number_not_in_store:0.97
+EVT-val-f10-r306::openset,kb,M,grounding,number_not_in_store,number_not_in_store:8.48
+EVT-val-f10-r306::openset,kb,M,grounding,number_not_in_store,number_not_in_store:0.97
+EVT-val-f10-r315::openset,kb,B,grounding,number_not_in_store,number_not_in_store:0.62
+EVT-val-f10-r315::openset,kb,M,grounding,number_not_in_store,number_not_in_store:0.62
+EVT-val-f10-r316::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f10-r316::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f10-r316::openset,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f10-r316::openset,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f10-r320::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 4.30x, the largest deviations are Stripper_Temperature (XMEAS_18, z=0.42, increasing) and Component_D_Stream9 ("
+EVT-val-f10-r320::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, with dynamic residual attribution showing XMEAS_19 and XMEAS_18 as dominant contributors (residual shares 0.363 and 0.203)."
+EVT-val-f10-r320::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 4.30x, the largest deviations are Stripper_Temperature (XMEAS_18, z=0.42, increasing) and Component_D_Stream9 ("
+EVT-val-f10-r320::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, with dynamic residual attribution showing XMEAS_19 and XMEAS_18 as dominant contributors (residual shares 0.363 and 0.203)."
+EVT-val-f10-r320::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 4.30x, the largest deviations are Stripper_Temperature (XMEAS_18, z=0.42, increasing) and Component_D_Stream9 ("
+EVT-val-f10-r320::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Stripper_Temperature (XMEAS_18), and Condenser_"
+EVT-val-f10-r320::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Stripper_Temperature (XMEAS_18), and Condenser_"
+EVT-val-f10-r322::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (1161.8 > 194.6) indicates a significant process deviation, but the top deviating sensors (XMEAS_39, XMEAS_18, XMEAS_32, XMEAS_34) show small negative deviations (z-scores ≤ -0.03) with increasi"
+EVT-val-f10-r322::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (1161.8 > 194.6) indicates a significant process deviation, but the top deviating sensors (XMEAS_39, XMEAS_18, XMEAS_32, XMEAS_34) show small negative deviations (z-scores ≤ -0.03) with increasi"
+EVT-val-f10-r323::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (1303.5 > 194.6) indicates a significant process deviation, with top deviating sensors showing increasing trends in Component_F_Stream11 (XMEAS_39), Stripper_Temperature (XMEAS_18), and Reactor_"
+EVT-val-f10-r323::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (1303.5 > 194.6) indicates a significant process deviation, with top deviating sensors showing increasing trends in Component_F_Stream11 (XMEAS_39), Stripper_Temperature (XMEAS_18), and Reactor_"
+EVT-val-f10-r325::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 1.62x, the largest deviations are Recycle_Flow_Stream8 (XMEAS_5, z=-0.26) and Component_D_Stream9 (XMEAS_32, z="
+EVT-val-f10-r325::menu,kb,B,tag_role,class_mismatch,
+EVT-val-f10-r325::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 1.62x, the largest deviations are Recycle_Flow_Stream8 (XMEAS_5, z=-0.26) and Component_D_Stream9 (XMEAS_32, z="
+EVT-val-f10-r325::menu,kb,M,tag_role,class_mismatch,
+EVT-val-f10-r325::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 1.62x, the largest deviations are Recycle_Flow_Stream8 (XMEAS_5, z=-0.26) and Component_D_Stream9 (XMEAS_32, z="
+EVT-val-f11-r303::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r303::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r304::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f11-r304::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f11-r305::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f11-r305::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f11-r306::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r306::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r306::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r306::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r311::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r311::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r311::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r311::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r313::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r313::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r313::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r313::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r315::openset,kb,B,tag_role,class_mismatch,
+EVT-val-f11-r315::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r315::openset,kb,M,tag_role,class_mismatch,
+EVT-val-f11-r315::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r316::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r316::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r320::openset,kb,B,grounding,number_not_in_store,number_not_in_store:0.32
+EVT-val-f11-r320::openset,kb,M,grounding,number_not_in_store,number_not_in_store:0.32
+EVT-val-f11-r321::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r321::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r324::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r324::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f11-r325::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f11-r325::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f12-r306::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.16x and CVA Q-statistic 105.78x, the largest deviations are Separator_Temperature (XMEAS_11, z=-2.96) and Component_G_Stream9 (XMEAS_35"
+EVT-val-f12-r306::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.16x and CVA Q-statistic 105.78x, the largest deviations are Separator_Temperature (XMEAS_11, z=-2.96) and Component_G_Stream9 (XMEAS_35"
+EVT-val-f12-r309::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 11.25x and CVA Q-statistic 68.80x, the largest deviations are Separator_Temperature (XMEAS_11, z=-1.48) and Stripper_Temperature (XMEAS_1"
+EVT-val-f12-r309::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 11.25x and CVA Q-statistic 68.80x, the largest deviations are Separator_Temperature (XMEAS_11, z=-1.48) and Stripper_Temperature (XMEAS_1"
+EVT-val-f12-r317::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 3.51x and CVA Q-statistic 44.55x, the largest deviations are Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21, z=0.28, increasing) and "
+EVT-val-f12-r317::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f12-r317::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 3.51x and CVA Q-statistic 44.55x, the largest deviations are Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21, z=0.28, increasing) and "
+EVT-val-f12-r317::menu,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f12-r317::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 3.51x and CVA Q-statistic 44.55x, the largest deviations are Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21, z=0.28, increasing) and "
+EVT-val-f12-r325::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 76.83x and CVA Q-statistic 730.05x, the largest deviations are Compressor_Recycle_Valve (XMV_46, z=1.71, increasing) and Separator_Pressu"
+EVT-val-f12-r325::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 76.83x and CVA Q-statistic 730.05x, the largest deviations are Compressor_Recycle_Valve (XMV_46, z=1.71, increasing) and Separator_Pressu"
+EVT-val-f13-r301::openset,kb,B,numeric,value_not_stored,The slow-drift ratio of 0.46 and high-lag share in the CVA attribution further indicate a disturbance not matching any candidate fault.
+EVT-val-f13-r301::openset,kb,M,numeric,value_not_stored,The slow-drift ratio of 0.46 and high-lag share in the CVA attribution further indicate a disturbance not matching any candidate fault.
+EVT-val-f13-r309::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f13-r309::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f13-r309::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f13-r309::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f13-r313::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f13-r313::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f13-r313::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f13-r313::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f13-r314::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 22.08x and CVA Q-statistic 236.39x, the largest deviations are Stripper_Pressure (XMEAS_16, z=-5.75) and Reactor_Pressure (XMEAS_7, z=-4."
+EVT-val-f13-r314::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 22.08x and CVA Q-statistic 236.39x, the largest deviations are Stripper_Pressure (XMEAS_16, z=-5.75) and Reactor_Pressure (XMEAS_7, z=-4."
+EVT-val-f13-r314::openset,kb,B,tag_role,tag_unknown,
+EVT-val-f13-r314::openset,kb,B,grounding,tag_not_in_evidence,tag_not_in_evidence:XMV_19
+EVT-val-f13-r314::openset,kb,C,tag_role,tag_unknown,
+EVT-val-f13-r314::openset,kb,C,grounding,tag_not_in_evidence,tag_not_in_evidence:XMV_19
+EVT-val-f14-r307::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f14-r307::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f14-r308::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f14-r308::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f14-r308::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f14-r308::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f14-r315::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f14-r315::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f14-r317::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f14-r317::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f14-r319::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f14-r319::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f15-r301::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (211.0 > 194.6) indicates a significant process deviation, but the top deviating sensors (XMEAS_28, XMEAS_36, XMEAS_15, XMV_49) show minimal deviations (z-scores ≤ 0.02) with increasing trends."
+EVT-val-f15-r301::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (211.0 > 194.6) indicates a significant process deviation, but the top deviating sensors (XMEAS_28, XMEAS_36, XMEAS_15, XMV_49) show minimal deviations (z-scores ≤ 0.02) with increasing trends."
+EVT-val-f15-r303::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (228.0 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in A_C_Feed_Flow (XMV_45), Recycle_Flow_Stream8 (XMEAS_5), Separator_Underflow_Str"
+EVT-val-f15-r303::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (228.0 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in A_C_Feed_Flow (XMV_45), Recycle_Flow_Stream8 (XMEAS_5), Separator_Underflow_Str"
+EVT-val-f15-r304::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_F_Stream11, Component_H_Stream9, Component_F_Stream6) show inc"
+EVT-val-f15-r304::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_F_Stream11, Component_H_Stream9, Component_F_Stream6) show inc"
+EVT-val-f15-r306::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (212.3 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Underflow_Stream11 (XMEAS_17), Stripper_Level (XMEAS_15), and Stripper_Liquid_Prod"
+EVT-val-f15-r306::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (212.3 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Underflow_Stream11 (XMEAS_17), Stripper_Level (XMEAS_15), and Stripper_Liquid_Prod"
+EVT-val-f15-r307::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (221.2 > 194.6) indicates a significant process deviation, but the top deviating sensors (Stripper_Liquid_Product_Flow, Stripper_Level, Component_G_Stream11, Recycle_Flow_Stream8, Component_F_St"
+EVT-val-f15-r307::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (221.2 > 194.6) indicates a significant process deviation, but the top deviating sensors (Stripper_Liquid_Product_Flow, Stripper_Level, Component_G_Stream11, Recycle_Flow_Stream8, Component_F_St"
+EVT-val-f15-r308::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (207.9 > 194.6) indicates a significant process deviation, but the top deviating sensors (XMEAS_8, XMEAS_14, XMEAS_24, XMEAS_22, XMEAS_41) show increasing trends with small deviations (z-scores "
+EVT-val-f15-r308::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (207.9 > 194.6) indicates a significant process deviation, but the top deviating sensors (XMEAS_8, XMEAS_14, XMEAS_24, XMEAS_22, XMEAS_41) show increasing trends with small deviations (z-scores "
+EVT-val-f15-r310::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (222.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Reactor_Cooling_Water_Flow (XMV_51) and Component_D_Stream9 (XMEAS_32), while R"
+EVT-val-f15-r310::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (222.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Reactor_Cooling_Water_Flow (XMV_51) and Component_D_Stream9 (XMEAS_32), while R"
+EVT-val-f15-r312::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (208.5 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_17, XMV_52, XMEAS_5, XMEAS_41, XMEAS_32) show increasing trends with small z-scores (e.g., XMEAS_17 at -0.09% "
+EVT-val-f15-r312::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (208.5 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_17, XMV_52, XMEAS_5, XMEAS_41, XMEAS_32) show increasing trends with small z-scores (e.g., XMEAS_17 at -0.09% "
+EVT-val-f15-r313::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f15-r313::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (240.9 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Separator_Underflow_Stream10 (XMEAS_14), Component_D_Stream9 (XMEAS_32), and St"
+EVT-val-f15-r313::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f15-r313::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (240.9 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Separator_Underflow_Stream10 (XMEAS_14), Component_D_Stream9 (XMEAS_32), and St"
+EVT-val-f15-r314::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_D_Stream9, Reactor_Feed_Rate, Component_H_Stream9) show increa"
+EVT-val-f15-r314::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_D_Stream9, Reactor_Feed_Rate, Component_H_Stream9) show increa"
+EVT-val-f15-r315::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (209.6 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Level (XMEAS_15), Stripper_Liquid_Product_Flow (XMV_49), Component_D_Stream9 (XMEA"
+EVT-val-f15-r315::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (209.6 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Level (XMEAS_15), Stripper_Liquid_Product_Flow (XMV_49), Component_D_Stream9 (XMEA"
+EVT-val-f15-r316::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (215.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Reactor_Feed_Rate (XMEAS_6), and Component_H_S"
+EVT-val-f15-r316::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (215.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Reactor_Feed_Rate (XMEAS_6), and Component_H_S"
+EVT-val-f15-r318::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.87x and CVA Q-statistic 1.00x, the largest deviations are Component_G_Stream11 (XMEAS_40, z=-0.08) and Stripper_Liquid_Product_Flow (XM"
+EVT-val-f15-r318::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.87x and CVA Q-statistic 1.00x, the largest deviations are Component_G_Stream11 (XMEAS_40, z=-0.08) and Stripper_Liquid_Product_Flow (XM"
+EVT-val-f15-r319::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (230.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Cooling_Water_Flow, Compo"
+EVT-val-f15-r319::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (230.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Cooling_Water_Flow, Compo"
+EVT-val-f15-r320::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (210.1 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Condenser_Cooling_Water_Flow (XMV_52), and Stripper_Underfl"
+EVT-val-f15-r320::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (210.1 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Condenser_Cooling_Water_Flow (XMV_52), and Stripper_Underfl"
+EVT-val-f15-r321::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (196.8 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Separator_Pot_Liquid_Flow (XMV_48), Separator_Level (XMEAS_12), Recycle_Flow_Stream8 (XMEAS"
+EVT-val-f15-r321::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (196.8 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Separator_Pot_Liquid_Flow (XMV_48), Separator_Level (XMEAS_12), Recycle_Flow_Stream8 (XMEAS"
+EVT-val-f15-r322::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f15-r322::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f15-r322::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (211.5 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_39, XMEAS_32, XMEAS_28) show increasing trends with small negative deviations (-0.44%, -0.68%, -0.45%), while "
+EVT-val-f15-r322::openset,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f15-r322::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f15-r322::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (211.5 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_39, XMEAS_32, XMEAS_28) show increasing trends with small negative deviations (-0.44%, -0.68%, -0.45%), while "
+EVT-val-f15-r323::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (233.3 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_F_Stream11 (XMEAS_39), Reactor_Feed_Rate (XMEAS_6), and other measure"
+EVT-val-f15-r323::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (233.3 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_F_Stream11 (XMEAS_39), Reactor_Feed_Rate (XMEAS_6), and other measure"
+EVT-val-f15-r324::openset,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f15-r324::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (227.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Component_F_Stream6 (XMEAS_28), Separator_Unde"
+EVT-val-f15-r324::openset,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f15-r324::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (227.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Component_F_Stream6 (XMEAS_28), Separator_Unde"
+EVT-val-f15-r325::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (218.0 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_F_Stream6 (XMEAS_28), Component_D_Stream9 (XMEAS_32), and Recycle_Flow_Stream8 (X"
+EVT-val-f15-r325::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (218.0 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_F_Stream6 (XMEAS_28), Component_D_Stream9 (XMEAS_32), and Recycle_Flow_Stream8 (X"
+EVT-val-f16-r309::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (452.9 > 194.6) indicates a significant process deviation, but the top deviating sensors (Component_D_Stream11, Separator_Level, Separator_Pot_Liquid_Flow, Stripper_Steam_Flow, Component_D_Strea"
+EVT-val-f16-r309::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (452.9 > 194.6) indicates a significant process deviation, but the top deviating sensors (Component_D_Stream11, Separator_Level, Separator_Pot_Liquid_Flow, Stripper_Steam_Flow, Component_D_Strea"
+EVT-val-f16-r319::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f16-r319::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f16-r322::menu,kb,B,grounding,number_not_in_store,number_not_in_store:11
+EVT-val-f16-r322::menu,kb,B,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f16-r322::menu,kb,M,grounding,number_not_in_store,number_not_in_store:11
+EVT-val-f16-r322::menu,kb,M,grounding,number_not_in_store,number_not_in_store:9
+EVT-val-f17-r307::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f17-r307::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f17-r313::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f17-r313::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f17-r321::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f17-r321::menu,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f17-r324::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f17-r324::menu,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f18-r301::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f18-r301::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f18-r304::menu,kb,B,tag_role,class_mismatch,
+EVT-val-f18-r304::menu,kb,B,tag_role,class_mismatch,
+EVT-val-f18-r304::menu,kb,M,tag_role,class_mismatch,
+EVT-val-f18-r304::menu,kb,M,tag_role,class_mismatch,
+EVT-val-f18-r308::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f18-r308::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f18-r308::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f18-r308::menu,kb,M,tag_role,name_does_not_match_tag,
+EVT-val-f18-r318::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f18-r318::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f18-r319::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f18-r319::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f18-r325::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f18-r325::menu,kb,C,tag_role,name_does_not_match_tag,
+EVT-val-f19-r312::menu,kb,B,grounding,tag_not_in_evidence,tag_not_in_evidence:XMV_52
+EVT-val-f19-r312::menu,kb,M,grounding,tag_not_in_evidence,tag_not_in_evidence:XMV_52
+EVT-val-f19-r322::menu,kb,B,grounding,number_not_in_store,number_not_in_store:13
+EVT-val-f19-r322::menu,kb,M,grounding,number_not_in_store,number_not_in_store:13
+EVT-val-f20-r315::menu,kb,B,tag_role,name_does_not_match_tag,
+EVT-val-f20-r315::menu,kb,C,tag_role,name_does_not_match_tag,
+NORM-val-r302::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Feed_Rate, Component_F_Stream6, E_Feed_Flow) show minimal z-sc"
+NORM-val-r302::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Feed_Rate, Component_F_Stream6, E_Feed_Flow) show minimal z-sc"
+NORM-val-r304::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7012) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r304::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7012) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r304::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7012) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r304::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7012) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r307::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6920) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r307::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6920) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r307::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6920) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r307::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6920) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r311::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (184.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r311::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (184.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r311::menu,kb,B,grounding,number_not_in_store,number_not_in_store:0.26
+NORM-val-r311::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (184.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r311::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (184.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r311::menu,kb,M,grounding,number_not_in_store,number_not_in_store:0.26
+NORM-val-r313::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (194.9 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6489 vs threshold 0.6870) remains below alarm."
+NORM-val-r313::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (194.9 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6489 vs threshold 0.6870) remains below alarm."
+NORM-val-r317::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (187.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7105) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r317::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (187.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7105) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r317::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (187.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7105) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r317::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (187.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7105) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r322::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6882) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r322::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6882) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r322::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6882) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r322::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6882) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r323::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.6 < threshold 194.6) and LSTM autoencoder reconstruction error (0.6954 < threshold 0.6870) remain below alarm thresholds, supporting a normal transient rather than a fault."
+NORM-val-r323::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.6 < threshold 194.6) and LSTM autoencoder reconstruction error (0.6954 < threshold 0.6870) remain below alarm thresholds, supporting a normal transient rather than a fault."
+NORM-val-r324::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (180.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6949) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r324::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (180.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6949) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r324::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (180.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6949) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r324::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (180.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6949) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r327::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (195.0 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6415 vs threshold 0.6870) remains below alarm."
+NORM-val-r327::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (195.0 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6415 vs threshold 0.6870) remains below alarm."
+NORM-val-r328::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6948) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r328::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6948) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r328::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6948) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r328::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6948) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r329::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (191.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6971) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process fluctuation."
+NORM-val-r329::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (191.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6971) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process fluctuation."
+NORM-val-r329::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (191.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6971) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process fluctuation."
+NORM-val-r329::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (191.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6971) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process fluctuation."
+NORM-val-r330::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7038) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r330::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7038) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r330::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7038) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r330::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.4) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7038) is only slightly above threshold (0.6870), indicating a minor, non-faulty process variation."
+NORM-val-r332::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_40, XMEAS_14, XMEAS_24, XMEAS_28, XMEAS_32) show increasing trends with small negative deviations (z-scores ≤ "
+NORM-val-r332::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_40, XMEAS_14, XMEAS_24, XMEAS_28, XMEAS_32) show increasing trends with small negative deviations (z-scores ≤ "
+NORM-val-r336::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.7) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6899) is only slightly above threshold (0.6870), indicating a minor deviation not indicative of a fault."
+NORM-val-r336::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.7) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6899) is only slightly above threshold (0.6870), indicating a minor deviation not indicative of a fault."
+NORM-val-r336::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.7) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6899) is only slightly above threshold (0.6870), indicating a minor deviation not indicative of a fault."
+NORM-val-r336::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.7) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6899) is only slightly above threshold (0.6870), indicating a minor deviation not indicative of a fault."
+NORM-val-r339::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (195.6 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Stripper_Level, Stripper_Liquid_Product_Flow) show stable trends with sm"
+NORM-val-r339::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (195.6 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Stripper_Level, Stripper_Liquid_Product_Flow) show stable trends with sm"
+NORM-val-r343::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (195.8 > 194.6) indicates a process deviation, but the top deviating sensors show minimal deviations (e.g., Component_D_Stream9 at 3.57% decrease, Component_F_Stream6 at 0.87%) with stable trend"
+NORM-val-r343::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (195.8 > 194.6) indicates a process deviation, but the top deviating sensors show minimal deviations (e.g., Component_D_Stream9 at 3.57% decrease, Component_F_Stream6 at 0.87%) with stable trend"
+NORM-val-r344::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (197.4 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6442 vs threshold 0.6870) remains below alarm."
+NORM-val-r344::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (197.4 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6442 vs threshold 0.6870) remains below alarm."
+NORM-val-r352::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_24, XMEAS_17, XMV_45, XMV_52) show minimal deviations (z-scores ≤ 0.31) with stable trends."
+NORM-val-r352::menu,kb,B,grounding,number_not_in_store,number_not_in_store:0.31
+NORM-val-r352::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_24, XMEAS_17, XMV_45, XMV_52) show minimal deviations (z-scores ≤ 0.31) with stable trends."
+NORM-val-r352::menu,kb,M,grounding,number_not_in_store,number_not_in_store:0.31
+NORM-val-r355::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (195.1 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6802 vs threshold 0.6870) remains below alarm."
+NORM-val-r355::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (195.1 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6802 vs threshold 0.6870) remains below alarm."
+NORM-val-r356::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6917) is only slightly above threshold (0.6870), indicating a minor, non-alarmed deviation."
+NORM-val-r356::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6917) is only slightly above threshold (0.6870), indicating a minor, non-alarmed deviation."
+NORM-val-r356::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6917) is only slightly above threshold (0.6870), indicating a minor, non-alarmed deviation."
+NORM-val-r356::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.8) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6917) is only slightly above threshold (0.6870), indicating a minor, non-alarmed deviation."
+NORM-val-r367::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7026) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r367::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7026) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r367::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7026) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r367::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (186.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7026) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r370::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (193.7) is just below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7135) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r370::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (193.7) is just below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7135) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r370::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (193.7) is just below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7135) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r370::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (193.7) is just below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7135) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r371::menu,kb,B,numeric,value_not_stored,"The CVA residual shares (e.g., XMEAS_5 0.091) and slow-drift ratio (0.47) further support a gradual, non-faulty process adjustment."
+NORM-val-r371::menu,kb,M,numeric,value_not_stored,"The CVA residual shares (e.g., XMEAS_5 0.091) and slow-drift ratio (0.47) further support a gradual, non-faulty process adjustment."
+NORM-val-r372::menu,kb,B,numeric,threshold_misquoted,"The CVA Q-statistic alarm (197.3 vs threshold 194.6) indicates a minor process deviation, but the dynamic residual attribution shows slow-drift behavior (slow-drift ratio 0.50) with no dominant sensor deviations exceedin"
+NORM-val-r372::menu,kb,M,numeric,threshold_misquoted,"The CVA Q-statistic alarm (197.3 vs threshold 194.6) indicates a minor process deviation, but the dynamic residual attribution shows slow-drift behavior (slow-drift ratio 0.50) with no dominant sensor deviations exceedin"
+NORM-val-r374::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.2) remains below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r374::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.2) remains below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r374::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.2) remains below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r374::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (188.2) remains below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6908) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r377::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (195.9 > 194.6) indicates a process deviation, but the top deviating sensors show minimal deviations (e.g., Component_F_Stream11 at -2.48% z=-0.24) and stable trends."
+NORM-val-r377::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (195.9 > 194.6) indicates a process deviation, but the top deviating sensors show minimal deviations (e.g., Component_F_Stream11 at -2.48% z=-0.24) and stable trends."
+NORM-val-r380::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6913) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r380::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6913) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r380::menu,kb,B,grounding,number_not_in_store,number_not_in_store:0.21
+NORM-val-r380::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6913) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r380::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6913) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r380::menu,kb,M,grounding,number_not_in_store,number_not_in_store:0.21
+NORM-val-r382::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7039) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process variation."
+NORM-val-r382::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7039) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process variation."
+NORM-val-r382::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7039) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process variation."
+NORM-val-r382::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.2) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7039) is only slightly above threshold (0.6870), suggesting a minor, non-faulty process variation."
+NORM-val-r384::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6940) is only slightly above threshold (0.6870), indicating a minor, non-anomalous process fluctuation."
+NORM-val-r384::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6940) is only slightly above threshold (0.6870), indicating a minor, non-anomalous process fluctuation."
+NORM-val-r384::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6940) is only slightly above threshold (0.6870), indicating a minor, non-anomalous process fluctuation."
+NORM-val-r384::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.6940) is only slightly above threshold (0.6870), indicating a minor, non-anomalous process fluctuation."
+NORM-val-r389::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7145) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r389::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7145) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r389::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7145) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r389::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (190.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7145) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r391::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7097) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r391::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7097) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r391::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7097) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r391::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (189.9) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7097) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r395::menu,kb,B,numeric,value_not_stored,"The onset order shows simultaneous changes across multiple streams (XMEAS_1 to XMEAS_6) without a clear initiating sensor, and the CVA residual shares (0.058 for XMV_47) suggest a coordinated process adjustment rather th"
+NORM-val-r395::menu,kb,M,numeric,value_not_stored,"The onset order shows simultaneous changes across multiple streams (XMEAS_1 to XMEAS_6) without a clear initiating sensor, and the CVA residual shares (0.058 for XMV_47) suggest a coordinated process adjustment rather th"
+NORM-val-r396::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.5) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7050) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r396::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.5) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7050) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r396::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.5) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7050) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r396::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.5) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7050) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
+NORM-val-r399::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (195.7 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6635 vs threshold 0.6870) remains below alarm."
+NORM-val-r399::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (195.7 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6635 vs threshold 0.6870) remains below alarm."
+NORM-val-r400::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (194.8 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6657 vs threshold 0.6870) remains below alarm."
+NORM-val-r400::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic alarm (194.8 vs threshold 194.6) indicates a minor process deviation, but the LSTM reconstruction error (0.6657 vs threshold 0.6870) remains below alarm."

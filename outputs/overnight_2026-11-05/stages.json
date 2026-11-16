@@ -1,0 +1,65 @@
+{
+  "N1": {
+    "status": "ok",
+    "rows": 520,
+    "calibration": "46/46 at 1.00",
+    "contradiction_rate": 0.0,
+    "parity_disagreements": 1390,
+    "gate": "contradiction <= 2% -> pass"
+  },
+  "N4": {
+    "status": "ok",
+    "rows": 520,
+    "cells": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "M"
+    ],
+    "seam": {
+      "C_b_numeric_leaked": 0,
+      "M_a_numeric_leaked": 0,
+      "C_donor_unused": 88,
+      "M_donor_unused": 584,
+      "D_fallback_rows": 142
+    },
+    "mcnemar": {
+      "b_only": 60,
+      "a_only": 17,
+      "p_exact": 0.0
+    },
+    "gate": "520 rows per cell -> pass",
+    "ceiling": "FAIL: D fell back on 27.3% of rows, above the 25% ceiling; report D as A with extra steps"
+  },
+  "N5": {
+    "status": "ok",
+    "invariance": {
+      "items": 520,
+      "identical_defect_profile_all_orders": 368,
+      "rate": 0.7077
+    },
+    "dialogue_rows": 97,
+    "T_deferred": true
+  },
+  "N6": {
+    "status": "ok",
+    "files": 16
+  },
+  "N2": {
+    "status": "deferred",
+    "reason": "the arm frontier needs the evaluate_detector_v2 scoring path (window aggregation, per-arm threshold derivation) which is not re-derivable from the cache without changing the protocol's rule; left for the morning rather than approximated"
+  },
+  "N3": {
+    "status": "deferred",
+    "reason": "the merged classifier row needs the stored per-item val predictions and labels joined; not attempted unattended"
+  },
+  "G1": {
+    "status": "not_run",
+    "reason": "D's retries need generation on the adapter; deliberately left after the CPU chain to avoid two GPU jobs at once"
+  },
+  "G2": {
+    "status": "launched",
+    "detail": "E seeds 43 and 44 via scripts/overnight_gpu.py; log in gpu_E.log"
+  }
+}

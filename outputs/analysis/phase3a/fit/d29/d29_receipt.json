@@ -1,0 +1,186 @@
+{
+  "generated": "2026-11-06T01:27:03",
+  "gate": "D29",
+  "what": "text corpus for the two-rater blind preference study, plus the two identical rater sheets",
+  "corpus": {
+    "file": "outputs\\analysis\\phase3a\\fit\\d29\\texts.jsonl",
+    "sha256": "0127f6bf10fbaac27deccf875e842a34aebd0840944efc09a7698e47ad75c334",
+    "items": 520,
+    "rows": 2600,
+    "conditions": [
+      "A",
+      "B",
+      "C",
+      "M",
+      "D"
+    ],
+    "per_condition": {
+      "A": {
+        "rows": 520,
+        "chars_min": 699,
+        "chars_median": 780,
+        "chars_max": 1124,
+        "chars_total": 413749
+      },
+      "B": {
+        "rows": 520,
+        "chars_min": 750,
+        "chars_median": 1088,
+        "chars_max": 1674,
+        "chars_total": 564841
+      },
+      "C": {
+        "rows": 520,
+        "chars_min": 746,
+        "chars_median": 918,
+        "chars_max": 1564,
+        "chars_total": 495680
+      },
+      "M": {
+        "rows": 520,
+        "chars_min": 556,
+        "chars_median": 1065,
+        "chars_max": 1621,
+        "chars_total": 548492
+      },
+      "D": {
+        "rows": 520,
+        "chars_min": 699,
+        "chars_median": 1031,
+        "chars_max": 1674,
+        "chars_total": 523361
+      }
+    },
+    "stored_text_only": true,
+    "gpu": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "M": 0,
+      "D": 0,
+      "note": "assembled from stored generations; no model loaded"
+    },
+    "D_fallback_share": 0.2731
+  },
+  "sheet": {
+    "items": 60,
+    "pairings": [
+      "A-C",
+      "A-D",
+      "C-D"
+    ],
+    "pairs": 180,
+    "seed": 43,
+    "item_ids": [
+      "EVT-val-f01-r305::openset",
+      "EVT-val-f01-r323::openset",
+      "EVT-val-f02-r308::openset",
+      "EVT-val-f02-r318::openset",
+      "EVT-val-f04-r302::openset",
+      "EVT-val-f04-r307::openset",
+      "EVT-val-f04-r318::openset",
+      "EVT-val-f04-r325::openset",
+      "EVT-val-f05-r314::openset",
+      "EVT-val-f05-r320::openset",
+      "EVT-val-f05-r323::openset",
+      "EVT-val-f06-r302::openset",
+      "EVT-val-f06-r319::openset",
+      "EVT-val-f06-r325::openset",
+      "EVT-val-f07-r303::openset",
+      "EVT-val-f07-r308::openset",
+      "EVT-val-f07-r314::openset",
+      "EVT-val-f07-r316::openset",
+      "EVT-val-f07-r319::openset",
+      "EVT-val-f07-r320::openset",
+      "EVT-val-f07-r321::openset",
+      "EVT-val-f08-r308::openset",
+      "EVT-val-f08-r318::openset",
+      "EVT-val-f08-r322::openset",
+      "EVT-val-f08-r325::openset",
+      "EVT-val-f09-r317::menu",
+      "EVT-val-f09-r319::menu",
+      "EVT-val-f10-r309::openset",
+      "EVT-val-f10-r310::openset",
+      "EVT-val-f11-r314::openset",
+      "EVT-val-f11-r321::openset",
+      "EVT-val-f12-r306::menu",
+      "EVT-val-f12-r306::openset",
+      "EVT-val-f12-r317::openset",
+      "EVT-val-f13-r301::openset",
+      "EVT-val-f14-r302::openset",
+      "EVT-val-f14-r304::openset",
+      "EVT-val-f14-r316::openset",
+      "EVT-val-f15-r301::openset",
+      "EVT-val-f15-r303::openset",
+      "EVT-val-f15-r304::openset",
+      "EVT-val-f15-r311::openset",
+      "EVT-val-f16-r306::menu",
+      "EVT-val-f16-r313::menu",
+      "EVT-val-f16-r319::menu",
+      "EVT-val-f17-r302::menu",
+      "EVT-val-f17-r313::menu",
+      "EVT-val-f17-r323::menu",
+      "EVT-val-f18-r307::menu",
+      "EVT-val-f18-r308::menu",
+      "EVT-val-f18-r311::menu",
+      "EVT-val-f18-r320::menu",
+      "EVT-val-f18-r324::menu",
+      "EVT-val-f19-r322::menu",
+      "EVT-val-f20-r303::menu",
+      "EVT-val-f20-r310::menu",
+      "EVT-val-f20-r315::menu",
+      "EVT-val-f20-r325::menu",
+      "NORM-val-r332::menu",
+      "NORM-val-r372::menu"
+    ],
+    "excluded_v5_items": 40,
+    "overlap_with_already_read_v5": 0,
+    "side_balance": {
+      "left": {
+        "A": 60,
+        "D": 60,
+        "C": 60
+      },
+      "right": {
+        "C": 60,
+        "A": 60,
+        "D": 60
+      }
+    },
+    "rater_files": [
+      "outputs\\analysis\\phase3a\\fit\\d29\\sheet_rater1.csv",
+      "outputs\\analysis\\phase3a\\fit\\d29\\sheet_rater2.csv"
+    ],
+    "sha256": {
+      "sheet_rater.csv": "4e9cf382593cad9b25e5557cade4f1014fb6c3eb6c9f820f490e80e99a28775a",
+      "sheet_rater1.csv": "4e9cf382593cad9b25e5557cade4f1014fb6c3eb6c9f820f490e80e99a28775a",
+      "sheet_rater2.csv": "4e9cf382593cad9b25e5557cade4f1014fb6c3eb6c9f820f490e80e99a28775a",
+      "key.csv": "29fe4799818866eb3d0bac11149f650521e0617e42db2cdcdeb27ea6c90d18f4"
+    },
+    "choices_filled": 0
+  },
+  "conditions_carried": {
+    "A": "fallback v3.1 prose",
+    "C": "hybrid: A numbers, B mechanism",
+    "M": "missing cell: B numbers, A mechanism",
+    "B": "adapter, stored",
+    "D": "A when a check flags B, else B"
+  },
+  "why_these_pairs": "the three conditions the selection receipt left passing at rung 6 (A, C, D); PROTOCOL 30.3 stage 2 allows two or three surviving conditions",
+  "rater_rule": "two independent raters on the same sheet; Cohen's kappa at least 0.60; a third read for disagreements (PROTOCOL 30.4 item 18)",
+  "commands": [
+    "python scripts/export_texts.py --out outputs/analysis/phase3a/fit/d29",
+    "python scripts/preference_sheet.py --texts outputs/analysis/phase3a/fit/d29/texts.jsonl --pairs A-C,A-D,C-D --items 60 --seed 43 --exclude outputs/analysis/phase3a/fit/d29/exclude_ids.txt --out outputs/analysis/phase3a/fit/d29",
+    "python scripts/preference_agreement.py --rater1 outputs/analysis/phase3a/fit/d29/sheet_rater1.csv --rater2 outputs/analysis/phase3a/fit/d29/sheet_rater2.csv --out outputs/analysis/phase3a/fit/d29/kappa.json"
+  ],
+  "human_left": [
+    "rater 1 fills sheet_rater1.csv (choice = left|right|tie, 180 rows)",
+    "rater 2 fills sheet_rater2.csv independently",
+    "a third read adjudicates the kappa disagreements"
+  ],
+  "hashes": {
+    "scripts/export_texts.py": "3c49e414be76982040babf3d8c52cf80d94b33c8a0e7acb1cba1012b8a5d8638",
+    "scripts/preference_sheet.py": "3ee202ca3c4a71f2d58cfb7ae15336d91d9f387bb81afa46dfd42bd297750f4c",
+    "scripts/preference_agreement.py": "fa6a152062c857111f1d76b56ddc06b1f17fdf6534138616fcfa429c899b1c0b"
+  }
+}

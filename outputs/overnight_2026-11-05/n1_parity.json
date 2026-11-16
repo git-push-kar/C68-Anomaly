@@ -1,0 +1,8 @@
+{
+  "comparisons": 1560,
+  "agree": 170,
+  "disagree": 1390,
+  "reader_in_force": "scripts.pilot_rechecks.contradiction_flags",
+  "reader_retired": "scripts.prose_pilot_prompts.contradiction",
+  "note": "the gate reads the calibrated reader only"
+}

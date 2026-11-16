@@ -219,3 +219,9 @@ secrets.json
 models/
 # Training virtualenv (created by the Phase 3A setup; never committed)
 venv_train/
+
+# Evidence the benchmark sections cite by path (added 2026-11-16).
+# outputs/* ignored these directories, so the artefacts existed only on the machine
+# that produced them while the handover cited them by path.
+!outputs/overnight_2026-11-05/
+!outputs/overnight_2026-11-05/**

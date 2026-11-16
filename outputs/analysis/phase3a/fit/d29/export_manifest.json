@@ -1,0 +1,77 @@
+{
+  "generated_by": "scripts/export_texts.py",
+  "items": 520,
+  "conditions": [
+    "A",
+    "B",
+    "C",
+    "M",
+    "D"
+  ],
+  "rows": 2600,
+  "texts": "outputs\\analysis\\phase3a\\fit\\d29\\texts.jsonl",
+  "sha256_texts": "0127f6bf10fbaac27deccf875e842a34aebd0840944efc09a7698e47ad75c334",
+  "per_condition": {
+    "A": {
+      "rows": 520,
+      "chars_min": 699,
+      "chars_median": 780,
+      "chars_max": 1124,
+      "chars_total": 413749
+    },
+    "B": {
+      "rows": 520,
+      "chars_min": 750,
+      "chars_median": 1088,
+      "chars_max": 1674,
+      "chars_total": 564841
+    },
+    "C": {
+      "rows": 520,
+      "chars_min": 746,
+      "chars_median": 918,
+      "chars_max": 1564,
+      "chars_total": 495680
+    },
+    "M": {
+      "rows": 520,
+      "chars_min": 556,
+      "chars_median": 1065,
+      "chars_max": 1621,
+      "chars_total": 548492
+    },
+    "D": {
+      "rows": 520,
+      "chars_min": 699,
+      "chars_median": 1031,
+      "chars_max": 1674,
+      "chars_total": 523361
+    }
+  },
+  "stored_text_only": true,
+  "gpu": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "M": 0,
+    "D": 0,
+    "note": "assembled from stored generations; no model loaded"
+  },
+  "D_fallback_rows": 142,
+  "D_fallback_share": 0.2731,
+  "carries_labels": false,
+  "carries_side_assignment": false,
+  "sources": {
+    "prompts": "scripts.prose_pilot_prompts.build_orders (520 items, kb order)",
+    "B": "outputs/benchmark_v2/eval/prose_pilot/raw_pilot_kb.jsonl",
+    "A": "scripts.overnight_run._a_text over outputs/analysis/phase3a/hybrid/crossfit_val_rows.jsonl",
+    "C": "scripts.overnight_run.compose(A numbers, B mechanism)",
+    "M": "scripts.overnight_run.compose(B numbers, A mechanism)",
+    "D": "A when any of the four checks flags B, else B"
+  },
+  "hashes": {
+    "scripts/export_texts.py": "3c49e414be76982040babf3d8c52cf80d94b33c8a0e7acb1cba1012b8a5d8638",
+    "scripts/overnight_run.py": "aa5047eb24d0b41fb6c731e5bd2b464a862078ef8e85e808680432d7c6c62153",
+    "scripts/pilot_rechecks.py": "fea160c4a9c36d272ffcecd8fbf388c2f1612ba9ebce0ab7078e8871b164c388"
+  }
+}
