@@ -1,0 +1,50 @@
+{
+  "decision": "D32",
+  "title": "rung 3 of the six-rung selection rule compares the supported-claim rate, not a raw count",
+  "option": "A",
+  "date": "2026-11-16",
+  "amends": "rung 3 as declared in docs/HANDOVER_BENCHMARK_PLAN_V2.md section 6 and implemented in scripts/select_condition.py",
+  "signed_by": "project owner",
+  "channel": "chat",
+  "signed_in_chat": true,
+  "transcribed_by": "agent",
+  "owner_words": "I'm signing D32 option A.",
+  "rule": "Rung 3 compares cells on the rate of knowledge-base-validated mechanism claims, computed as supported claims divided by marked claims in the hand-marked sheet produced by scripts/mechanism_sheet.py, with the number of marked claims and the number of distinct source items reported beside every rate. A cell enters rung 3 only if at least 15 of its sentences are marked and those sentences come from at least 10 distinct items; a cell below either floor is excluded from the rung and the exclusion is written into the receipt. Two cells are adjudicated only when their exact (Clopper-Pearson) 95 per cent intervals do not overlap; when the intervals overlap, no cell is chosen at rung 3, the overlap is recorded, and selection proceeds to rung 4. Rung 3 never compares a raw count of supported claims, never borrows a claim count from another condition, and never pads a cell to reach a floor. If fewer than two eligible cells exist at run time, rungs 2 and 3 are recorded as unavailable and the rule proceeds to rung 4.",
+  "attestation": "I signed this before any mechanism-validity comparison and before any six-cell condition table existed. The only report-surface reading on record is the 40-row D30 sheet, which carries none of the claim counts this amendment governs.",
+  "attestation_held": {
+    "mechanism_comparison_exists": false,
+    "six_cell_table_exists": false,
+    "visible_report_surface_reading": "docs/judging/confirm/evidence_2026-11-06/v5_join_report_strict.json, 40 rows, B vs A only"
+  },
+  "implementation": {
+    "script": "scripts/select_condition.py",
+    "input_schema": "{cell: {supported: int, marked: int, items: int}}",
+    "refuses": [
+      "a bare scalar in place of an entry",
+      "an entry missing supported, marked or items",
+      "a non-integer, negative, or supported > marked count",
+      "a cell with marked == 0"
+    ],
+    "floors": {"marked": 15, "items": 10},
+    "interval": "exact Clopper-Pearson, 95 per cent, computed per cell",
+    "tie_handling": "the best point estimate keeps every cell whose interval overlaps its own; a single survivor decides rung 3, otherwise the overlap is recorded and rung 4 runs",
+    "recorded_in_receipt": ["per_cell rates and intervals", "excluded cells with reasons", "overlap pairs", "eligible cells"],
+    "unavailable_handling": "fewer than two eligible cells records rungs 2 and 3 as unavailable and proceeds to rung 4"
+  },
+  "consequences": [
+    "a rung-3 decision is a measured win and leaves the receipt non-provisional",
+    "an overlapping comparison cannot ship a cell at rung 3 in either direction",
+    "a rung-6-only outcome stays provisional and cannot carry the confirmatory pass",
+    "no mechanism claim may be quoted as a selection result unless rung 3 decided"
+  ],
+  "does_not_change": [
+    "rungs 1, 2, 4, 5 and 6",
+    "the D29 disposition or the D30 frozen reading",
+    "any number in handover sections 16 to 22"
+  ],
+  "recorded_in": [
+    "docs/HANDOVER_BENCHMARK_PLAN_V2.md section 23",
+    "docs/judging/confirm/session_approvals.jsonl",
+    "scripts/select_condition.py"
+  ]
+}

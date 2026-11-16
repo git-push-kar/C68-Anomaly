@@ -982,3 +982,60 @@ Nothing here changes D30's frozen reading, the `fallback_v31` decision, or the D
 next candidate for this tier is a larger out-of-family model — `llama3.1` at a size this device can
 hold, or a hosted model whose weights are outside the teacher's family — and it enters through the
 same script with both orders run before any of its numbers are quoted.
+
+## 23. D32 signed — rung 3 compares the supported-claim rate, 2026-11-16
+
+Owner signature, chat, 2026-11-16: **option A**. Recorded as attested in chat and transcribed here,
+with the owner's words kept verbatim in `docs/judging/confirm/d32_amendment.json`
+(`"I'm signing D32 option A."`). No name is invented and no date is backdated; the date above is the
+date the signature was given.
+
+This closes the blocker in section 16.3 that read "the rung-3 rule choice … is still unsigned". It
+amends the **implementation** of rung 3, which compared a bare integer, so that it matches section
+6's own wording — "higher count of mechanism claims **per item**". The declared rule is unchanged;
+what changes is that the code now normalises, and refuses to compare counts that the mechanism
+sheet's sampling decided.
+
+### The signed text
+
+> **Rule.** Rung 3 compares cells on the rate of knowledge-base-validated mechanism claims, computed
+> as supported claims divided by marked claims in the hand-marked sheet produced by
+> `scripts/mechanism_sheet.py`, with the number of marked claims and the number of distinct source
+> items reported beside every rate. A cell enters rung 3 only if at least 15 of its sentences are
+> marked and those sentences come from at least 10 distinct items; a cell below either floor is
+> excluded from the rung and the exclusion is written into the receipt. Two cells are adjudicated
+> only when their exact (Clopper–Pearson) 95 per cent intervals do not overlap; when the intervals
+> overlap, no cell is chosen at rung 3, the overlap is recorded, and selection proceeds to rung 4.
+> Rung 3 never compares a raw count of supported claims, never borrows a claim count from another
+> condition, and never pads a cell to reach a floor. If fewer than two eligible cells exist at run
+> time, rungs 2 and 3 are recorded as unavailable and the rule proceeds to rung 4.
+>
+> **Attestation.** I signed this before any mechanism-validity comparison and before any six-cell
+> condition table existed. The only report-surface reading on record is the 40-row D30 sheet, which
+> carries none of the claim counts this amendment governs.
+
+The attestation is checkable rather than asserted: no mechanism comparison exists on this checkout,
+the only report-surface reading on disk is `v5_join_report_strict.json` over 40 rows of B against A,
+and no six-cell table has been computed.
+
+### What the code now does
+
+`scripts/select_condition.py` takes `--mechanism` as `{cell: {supported, marked, items}}`. It refuses
+a bare scalar, an entry missing any of the three fields, a non-integer or negative count, a cell
+claiming more supported than marked, and a cell with nothing marked. Each admissible cell gets its
+rate and its exact Clopper–Pearson 95 per cent interval; the best point estimate keeps every cell
+whose interval overlaps its own, a single survivor decides rung 3, and otherwise the overlap pairs
+go into the receipt and rung 4 runs. The receipt carries the per-cell counts, rates and intervals,
+the excluded cells with their reasons, and the eligible set, so a later reader can recompute the
+rung without re-reading the sheet.
+
+### What it changes, and what it does not
+
+A rung-3 decision is now a measured win and leaves the receipt non-provisional, which is the
+condition D33 needs. An overlapping comparison cannot ship a cell at rung 3 in either direction, and
+a rung-6-only outcome stays provisional. Rungs 1, 2, 4, 5 and 6 are untouched, as are the D29
+disposition, the D30 frozen reading, and every number in sections 16 to 22. No mechanism claim may
+be quoted as a selection result unless rung 3 decided.
+
+The record lives in `docs/judging/confirm/d32_amendment.json`; the approval line is appended to
+`docs/judging/confirm/session_approvals.jsonl`.
