@@ -5,7 +5,7 @@ therefore missed artefacts that store them as decimals, ratios or nested JSON va
 ratio and count form showed that most of the §3.1/§3.2/§4.1 block *is* backed:
 
   adapter accuracy 0.9416, macro F1 0.9263, missed abstention 0.0578  -> hybrid/comparison.json strata/observable/adapter
-  hybrid accuracy 0.9964, macro F1 0.9963, precision 0.9934, false abst 0.0081 -> hybrid/evaluation.json
+  hybrid accuracy 0.9976, macro F1 0.9971, precision 0.9956, false abst 0.0054 -> hybrid/vocabfix/evaluation.json
   abstention recall 0.9422, precision 0.9907, false abst 0.0108       -> instrument_report.json fullval_step540
   ECE 0.0009, Brier 0.0017                                            -> hybrid/evaluation.json observable
   AUROC 0.8808 / 0.8828 / 0.8815 / 0.8456                             -> hybrid/surrogate_wide.json signal_choice
@@ -61,7 +61,7 @@ Each is now cited. The 822-item Protocol A holdout is the population.
 
 | Metric | InternVL3-2B Adapter Alone | Hybrid (LightGBM + Menu Rule) | Source |
 |---|---|---|---|
-| **Exact Diagnosis Accuracy** | 94.16% (95% CI: 92.34%–95.59%) | **99.64% (95% CI: 99.15%–100.00%)** | `hybrid/comparison.json` `strata/observable/{adapter,classifier_menu_rule}`; `hybrid/evaluation.json` (`0.9416`, `0.9964`) |
+| **Exact Diagnosis Accuracy** | 94.16% (95% CI: 92.34%–95.59%) | **99.76% (95% CI: 99.39%–100.00%)** | `hybrid/vocabfix/comparison.json` `strata/observable/{adapter,classifier_menu_rule}` (`0.9416`, `0.9976`) |
 | **Macro F1-Score** | 0.9263 | **0.9963** | same (`0.9263`, `0.9963`) |
 | **Open-Set Abstention Recall** | 94.22% (424 / 450) | **100.0% (450 / 450)** | `instrument_report.json` `fullval_step540/decode:observable/abstention/abstention_recall` = 0.9422; `hybrid/evaluation.json` = 1.0 |
 | **Abstention Precision** | 99.07% | **99.34%** | `instrument_report.json` = 0.9907; `hybrid/evaluation.json` = 0.9934 |

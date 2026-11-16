@@ -25,22 +25,22 @@
     },
     "current": {
       "items": 822,
-      "accuracy": 0.9964,
-      "macro_f1": 0.9963,
+      "accuracy": 0.9976,
+      "macro_f1": 0.9971,
       "top3": 0.6046,
       "abstention": {
-        "abstention_rate": 0.5511,
-        "abstention_precision": 0.9934,
+        "abstention_rate": 0.5499,
+        "abstention_precision": 0.9956,
         "abstention_recall": 1.0,
-        "false_abstention_rate": 0.0081,
+        "false_abstention_rate": 0.0054,
         "missed_abstention_rate": 0.0,
         "abstain_support": 450
       },
-      "ece": 0.0009,
-      "brier": 0.0017,
+      "ece": 0.0008,
+      "brier": 0.0014,
       "accuracy_ci": {
-        "point": 0.9964,
-        "low": 0.9915,
+        "point": 0.9976,
+        "low": 0.9939,
         "high": 1.0,
         "clusters": 497,
         "resamples": 1000
@@ -73,22 +73,22 @@
     },
     "current": {
       "items": 497,
-      "accuracy": 0.994,
-      "macro_f1": 0.9958,
+      "accuracy": 0.996,
+      "macro_f1": 0.9968,
       "top3": 1.0,
       "abstention": {
-        "abstention_rate": 0.2575,
-        "abstention_precision": 0.9766,
+        "abstention_rate": 0.2555,
+        "abstention_precision": 0.9843,
         "abstention_recall": 1.0,
-        "false_abstention_rate": 0.0081,
+        "false_abstention_rate": 0.0054,
         "missed_abstention_rate": 0.0,
         "abstain_support": 125
       },
-      "ece": 0.003,
-      "brier": 0.0023,
+      "ece": 0.0027,
+      "brier": 0.0018,
       "accuracy_ci": {
-        "point": 0.994,
-        "low": 0.9859,
+        "point": 0.996,
+        "low": 0.9899,
         "high": 1.0,
         "clusters": 497,
         "resamples": 1000
@@ -146,19 +146,19 @@
   "crossfit_observable": {
     "label": "crossfit:observable",
     "items": 822,
-    "accuracy": 0.9781,
-    "top3": 0.6144,
-    "macro_f1": 0.9708,
+    "accuracy": 0.9878,
+    "top3": 0.6022,
+    "macro_f1": 0.9843,
     "abstention": {
-      "abstention_rate": 0.5584,
-      "abstention_precision": 0.9739,
-      "abstention_recall": 0.9933,
-      "false_abstention_rate": 0.0323,
-      "missed_abstention_rate": 0.0067,
+      "abstention_rate": 0.5523,
+      "abstention_precision": 0.9868,
+      "abstention_recall": 0.9956,
+      "false_abstention_rate": 0.0161,
+      "missed_abstention_rate": 0.0044,
       "abstain_support": 450
     },
-    "ece": 0.02,
-    "brier": 0.0207,
+    "ece": 0.0114,
+    "brier": 0.0113,
     "per_class": {
       "FAULT_01": {
         "precision": 0.9259,
@@ -173,9 +173,9 @@
         "support": 25
       },
       "FAULT_04": {
-        "precision": 0.9259,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.9615,
+        "f1": 1.0,
         "support": 25
       },
       "FAULT_05": {
@@ -198,14 +198,14 @@
       },
       "FAULT_08": {
         "precision": 1.0,
-        "recall": 0.8,
-        "f1": 0.8889,
+        "recall": 0.88,
+        "f1": 0.9362,
         "support": 25
       },
       "FAULT_10": {
         "precision": 1.0,
-        "recall": 0.88,
-        "f1": 0.9362,
+        "recall": 0.96,
+        "f1": 0.9796,
         "support": 25
       },
       "FAULT_11": {
@@ -216,14 +216,14 @@
       },
       "FAULT_12": {
         "precision": 1.0,
-        "recall": 0.84,
-        "f1": 0.913,
+        "recall": 0.92,
+        "f1": 0.9583,
         "support": 25
       },
       "FAULT_13": {
         "precision": 1.0,
-        "recall": 0.96,
-        "f1": 0.9796,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 25
       },
       "FAULT_14": {
@@ -245,43 +245,43 @@
         "support": 47
       },
       "UNCLASSIFIED_OPEN_SET": {
-        "precision": 0.9739,
-        "recall": 0.9933,
-        "f1": 0.9835,
+        "precision": 0.9868,
+        "recall": 0.9956,
+        "f1": 0.9912,
         "support": 450
       }
     },
     "accuracy_ci": {
-      "point": 0.9781,
-      "low": 0.966,
-      "high": 0.9879,
+      "point": 0.9878,
+      "low": 0.9778,
+      "high": 0.9952,
       "clusters": 497,
       "resamples": 1000
     },
     "macro_f1_ci": {
-      "point": 0.9708,
-      "low": 0.9532,
-      "high": 0.9841,
+      "point": 0.9843,
+      "low": 0.9707,
+      "high": 0.994,
       "clusters": 497,
       "resamples": 1000
     }
   },
   "threshold_crossfit": {
-    "threshold": 0.9792,
-    "achieved_false_abstention": 0.047426,
+    "threshold": 1.0,
+    "achieved_false_abstention": 0.027183,
     "budget": 0.05,
     "items": 1729,
-    "abstained": 82,
+    "abstained": 47,
     "source": "out-of-fold train events, menu-present seen-fault"
   },
   "threshold_in_sample": {
     "threshold": 1.0,
-    "achieved_false_abstention": 0.008048,
+    "achieved_false_abstention": 0.004024,
     "budget": 0.05,
     "items": 497,
-    "abstained": 4
+    "abstained": 2
   },
-  "saturation_share": 0.9281,
+  "saturation_share": 0.9832,
   "surrogate": {
     "FAULT_05": {
       "held_out_fault": 5,
@@ -292,39 +292,41 @@
         "FAULT_12": 25
       },
       "threshold": 1.0,
-      "false_abstention_on_other_faults": 0.0085
+      "false_abstention_on_other_faults": 0.0042
     },
     "FAULT_08": {
       "held_out_fault": 8,
       "validation_items": 25,
-      "abstained": 15,
-      "abstained_rate": 0.6,
+      "abstained": 20,
+      "abstained_rate": 0.8,
       "mislabelled": {
-        "FAULT_01": 8,
-        "FAULT_13": 2
+        "FAULT_01": 5
       },
-      "threshold": 1.0,
-      "false_abstention_on_other_faults": 0.0021
+      "threshold": 0.995728,
+      "false_abstention_on_other_faults": 0.0466
     },
     "FAULT_12": {
       "held_out_fault": 12,
       "validation_items": 25,
-      "abstained": 23,
-      "abstained_rate": 0.92,
+      "abstained": 7,
+      "abstained_rate": 0.28,
       "mislabelled": {
+        "FAULT_05": 16,
         "UNCLASSIFIED_OPEN_SET": 2
       },
       "threshold": 1.0,
-      "false_abstention_on_other_faults": 0.0085
+      "false_abstention_on_other_faults": 0.0021
     },
     "FAULT_13": {
       "held_out_fault": 13,
       "validation_items": 25,
-      "abstained": 25,
-      "abstained_rate": 1.0,
-      "mislabelled": {},
+      "abstained": 21,
+      "abstained_rate": 0.84,
+      "mislabelled": {
+        "FAULT_08": 4
+      },
       "threshold": 1.0,
-      "false_abstention_on_other_faults": 0.0064
+      "false_abstention_on_other_faults": 0.0042
     }
   }
 }

@@ -186,6 +186,19 @@ def fig_surrogate(data):
 
 
 def main() -> int:
+    global FIG, COMPARISON, CROSSFIT
+    #: Artefact overrides, so a re-measured generation (e.g. the feature-vocabulary fix) can be rendered
+    #: without editing the script or moving files.
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--comparison", default=str(COMPARISON))
+    parser.add_argument("--crossfit", default=str(CROSSFIT))
+    parser.add_argument("--fig-dir", default=str(FIG))
+    args = parser.parse_args()
+    FIG = pathlib.Path(args.fig_dir)
+    COMPARISON = pathlib.Path(args.comparison)
+    CROSSFIT = pathlib.Path(args.crossfit)
     FIG.mkdir(parents=True, exist_ok=True)
     data = json.loads(COMPARISON.read_text(encoding="utf-8"))
     crossfit = json.loads(CROSSFIT.read_text(encoding="utf-8"))

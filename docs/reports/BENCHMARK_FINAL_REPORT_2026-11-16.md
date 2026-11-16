@@ -25,7 +25,7 @@ The claims below are the ones the evidence supports. The preference claim is **a
    (12/19 = 0.632 against 14/26 = 0.538, heavy interval overlap), so no content advantage can be claimed
    for model-authored mechanism prose.
 5. The classifier track separates the three production systems sharply, and a plain LightGBM on the same
-   evidence features matches the full hybrid exactly (0.9940, discordant 2 vs 2, p = 1).
+   evidence features matches the full hybrid within noise (0.9980 vs 0.9960, discordant 2 vs 1, p = 1).
 6. Under the declared selection rule the shipped writer is **A**, the deterministic assembler, chosen on
    measured cost after rung 5 produced a tie with D that the declared tie-break resolved.
 
@@ -89,10 +89,10 @@ abstentions among them.
 
 | system | root-cause accuracy (95 % CI) | abstain precision | abstain recall | false abstention | gate (5 %) |
 |---|---|---|---|---|---|
-| menu rule | **0.9980** (0.9887–0.9996) | 1.0000 | 1.0000 | 0.0000 | pass |
-| hybrid | 0.9940 (0.9824–0.9979) | 0.9766 | 1.0000 | 0.0081 | pass |
-| **LightGBM (gbdt)** | 0.9940 (0.9824–0.9979) | 1.0000 | 1.0000 | 0.0000 | pass |
-| MLP | 0.9698 (0.9508–0.9816) | 0.9918 | 0.9680 | 0.0027 | pass |
+| menu rule | **1.0000** (0.9923–1.0000) | 1.0000 | 1.0000 | 0.0000 | pass |
+| hybrid | 0.9960 (0.9854–0.9989) | 0.9843 | 1.0000 | 0.0054 | pass |
+| **LightGBM (gbdt)** | 0.9980 (0.9887–0.9996) | 1.0000 | 1.0000 | 0.0000 | pass |
+| MLP | 0.9799 (0.9634–0.9890) | 0.9690 | 1.0000 | 0.0108 | pass |
 | adapter (2B) | **0.8330** (0.7977–0.8632) | 0.8723 | 0.6560 | 0.0323 | pass |
 
 Paired exact McNemar on correctness:

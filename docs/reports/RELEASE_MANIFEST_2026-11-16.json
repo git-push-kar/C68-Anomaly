@@ -71,8 +71,8 @@
     {
       "name": "approach_figures",
       "path": "docs/reports/figures/approach_data.json",
-      "sha256": "a5304e836d87facc67e690ff607035ed1f056798dcc9245c87da91184b2dcc83",
-      "bytes": 7791,
+      "sha256": "2ad64ac52854a5b0bbb0d8125a332f33c9fea10abadecffb1fcf2110640027ce",
+      "bytes": 7820,
       "rebuild": "python scripts/make_approach_figures.py",
       "claims": "figures 5-8, previous vs current approach"
     },
@@ -95,16 +95,16 @@
     {
       "name": "rp_final_report",
       "path": "docs/reports/RP_FINAL_REPORT_2026-11-16.md",
-      "sha256": "d707099049335435bedf0d9224a491fe92af3244ad140d841f14cca9e5a42d00",
-      "bytes": 19482,
+      "sha256": "e33bc1b82edaede018cf436752718f25b87fd4d0292d159f77e810e824407f96",
+      "bytes": 19897,
       "rebuild": "(assertion document)",
       "claims": "all"
     },
     {
       "name": "claims",
       "path": "docs/reports/PAPER_CLAIMS_2026-11-16.md",
-      "sha256": "de1baee2c115a761dc649cbb78c15e29d0a8b69eae7beb4fbb1119fa7a8427e7",
-      "bytes": 9784,
+      "sha256": "b9bd4c2c0959944d4c8131fb7dd22473343442edebf86d47e725ea37329958b0",
+      "bytes": 9803,
       "rebuild": "(assertion document; edited by hand with a dated section per change)",
       "claims": "all"
     },

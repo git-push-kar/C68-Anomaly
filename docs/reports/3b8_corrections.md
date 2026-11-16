@@ -1,4 +1,6 @@
 # 3B-8 CORRECTIONS — the shuffled-order table, the masking arithmetic, and the §9.2 label errors
+> **Superseded 2026-11-16: the classifier-side numbers below predate the feature-vocabulary fix (`XMV_1..11` to `XMV_42..52`). Current values: cross-fitted 0.9878 accuracy / 0.9843 macro-F1, hybrid 0.9960, LightGBM 0.9980; see `MANUSCRIPT_AUDIT_2026-11-16.md` section 3b.**
+
 
 **Repo:** `C:\Users\Admin\Desktop\anomaly` · **Branch:** `benchmark-upgrade` · **Date:** 2026-11-01
 **Scope:** corrections to [3b7_prose_source_report.md](3b7_prose_source_report.md) §5 and to

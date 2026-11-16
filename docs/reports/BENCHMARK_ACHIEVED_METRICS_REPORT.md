@@ -115,7 +115,7 @@ Each is now cited. The 822-item Protocol A holdout is the population.
 
 | Metric | InternVL3-2B Adapter Alone | Hybrid (LightGBM + Menu Rule) | Source |
 |---|---|---|---|
-| **Exact Diagnosis Accuracy** | 94.16% (95% CI: 92.34%–95.59%) | **99.64% (95% CI: 99.15%–100.00%)** | `hybrid/comparison.json` `strata/observable/{adapter,classifier_menu_rule}`; `hybrid/evaluation.json` (`0.9416`, `0.9964`) |
+| **Exact Diagnosis Accuracy** | 94.16% (95% CI: 92.34%–95.59%) | **99.76% (95% CI: 99.39%–100.00%)** | `hybrid/vocabfix/comparison.json` `strata/observable/{adapter,classifier_menu_rule}` (`0.9416`, `0.9976`) |
 | **Macro F1-Score** | 0.9263 | **0.9963** | same (`0.9263`, `0.9963`) |
 | **Open-Set Abstention Recall** | 94.22% (424 / 450) | **100.0% (450 / 450)** | `instrument_report.json` `fullval_step540/decode:observable/abstention/abstention_recall` = 0.9422; `hybrid/evaluation.json` = 1.0 |
 | **Abstention Precision** | 99.07% | **99.34%** | `instrument_report.json` = 0.9907; `hybrid/evaluation.json` = 0.9934 |

@@ -1,4 +1,6 @@
 # 3B-7 — PROSE-SOURCE DECISION PACK, AND THE SEVEN CORRECTIONS THE 3B-6 ROWS DID NOT SUPPORT
+> **Superseded 2026-11-16: the classifier-side numbers below predate the feature-vocabulary fix (`XMV_1..11` to `XMV_42..52`). Current values: cross-fitted 0.9878 accuracy / 0.9843 macro-F1, hybrid 0.9960, LightGBM 0.9980; see `MANUSCRIPT_AUDIT_2026-11-16.md` section 3b.**
+
 
 **Repo:** `C:\Users\Admin\Desktop\anomaly` · **Branch:** `benchmark-upgrade` · **Date:** 2026-11-01
 **Environment:** app env (CPU) for everything except step 5b, `venv_train` for that one GPU run

@@ -152,13 +152,19 @@ of them overall and 20.8 % on menu-present rows. The price is a higher false-abs
 
 ![Leave-one-fault-out abstention](figures/fig8_surrogate.png)
 
-The surrogate is the honest test of "declines when it has never seen this". It is not uniform: `FAULT_13` is
-declined on 25/25, `FAULT_12` on 23/25, `FAULT_08` on 15/25, and **`FAULT_05` on none** — all 25 are renamed
-`FAULT_12` with high confidence, because fault 5 *is* fault 12's differential with a step instead of a random
-variation. A confidence threshold cannot express "I have never seen this"; it can only express "this looks unlike
-my classes", and a lookalike looks like its lookalike. Three held-out faults are absorbed **whole** by a kept
-one — 01→08, 05→12, 14→11, all 25/25 — a fourth nearly (15→normal, 22/25), and three more partly (02→08
-11/25, 06→08 9/25, 07→08 13/25).
+The surrogate is the honest test of "declines when it has never seen this". Re-run on the retrained model it is
+not uniform: `FAULT_13` is declined on 21/25, `FAULT_08` on 20/25, `FAULT_12` on 7/25, and **`FAULT_05` on
+none** — all 25 are renamed `FAULT_12` with high confidence, because fault 5 *is* fault 12's differential with a
+step instead of a random variation. A confidence threshold cannot express "I have never seen this"; it can only
+express "this looks unlike my classes", and a lookalike looks like its lookalike.
+
+The fix made the confusion **symmetric rather than one-way**: 16 of fault 12's 25 held-out items are now renamed
+`FAULT_05` (the reverse of the fault-5 direction), and the four fault-13 items that are not declined go to
+`FAULT_08`. `fig8` plots this run.
+
+The 13-fault absorption table (`surrogate_wide.json`: 01→08, 05→12, 14→11 whole, 15→normal 22/25, 02→08 11/25,
+06→08 9/25, 07→08 13/25) has **not** been regenerated — it comes from the novelty-channel run, which needs the
+fold artefacts retrained as well — so those seven counts are pre-fix and are quoted as such.
 
 ### 3.3 What the prose half contributes, and what it does not
 

@@ -23,7 +23,7 @@ NUMBER = re.compile(r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
 # (label, value, precision). Percentages are given here already divided by 100.
 TARGETS = [
     ("adapter accuracy 94.16%", 0.9416, 4),
-    ("hybrid accuracy 99.64%", 0.9964, 4),
+    ("hybrid accuracy 99.76%", 0.9976, 4),
     ("macro F1 adapter 0.9263", 0.9263, 4),
     ("macro F1 hybrid 0.9963", 0.9963, 4),
     ("abstention recall adapter 424/450", 424 / 450, 4),

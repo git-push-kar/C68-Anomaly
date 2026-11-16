@@ -158,6 +158,17 @@ def fig_anchor(cells, d33):
 
 
 def main() -> int:
+    global FIG, CLASSIFIER
+    #: Artefact overrides, so a re-measured generation (e.g. the feature-vocabulary fix) can be rendered
+    #: without editing the script or moving files.
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--classifier", default=str(CLASSIFIER))
+    parser.add_argument("--fig-dir", default=str(FIG))
+    args = parser.parse_args()
+    FIG = pathlib.Path(args.fig_dir)
+    CLASSIFIER = pathlib.Path(args.classifier)
     FIG.mkdir(parents=True, exist_ok=True)
     cells = json.loads(CELLS.read_text(encoding="utf-8"))
     d33 = json.loads(D33.read_text(encoding="utf-8"))

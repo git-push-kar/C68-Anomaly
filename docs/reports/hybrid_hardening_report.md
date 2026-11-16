@@ -1,4 +1,6 @@
 # 3B-5 HYBRID HARDENING AND HELD-OUT VALIDATION
+> **Superseded 2026-11-16: the classifier-side numbers below predate the feature-vocabulary fix (`XMV_1..11` to `XMV_42..52`). Current values: cross-fitted 0.9878 accuracy / 0.9843 macro-F1, hybrid 0.9960, LightGBM 0.9980; see `MANUSCRIPT_AUDIT_2026-11-16.md` section 3b.**
+
 
 **Repo:** `C:\Users\Admin\Desktop\anomaly` · **Branch:** `benchmark-upgrade` · **Environment:** app env (CPU) for everything except the bounded retry, `venv_train` for the tokenizer-free GPU item
 **Date:** 2026-11-01 · **Scope:** §17 of PROTOCOL — cross-fitted calibration, a wider leave-one-fault-out surrogate with four uncertainty signals, fold classifiers on their held-out faults, the twelve unobservable rows, the natural wrong-label census, detector transparency and a bounded valve/flow retry. **No adapter training. No test component opened.** The run-1 adapter, its checkpoints and every §16 artifact are unmodified; §16's numbers are reported unchanged and are not replaced.

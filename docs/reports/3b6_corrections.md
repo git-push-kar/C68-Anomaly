@@ -1,4 +1,6 @@
 # 3B-6 CORRECTIONS — seven statements, six of which the rows do not support
+> **Superseded 2026-11-16: the classifier-side numbers below predate the feature-vocabulary fix (`XMV_1..11` to `XMV_42..52`). Current values: cross-fitted 0.9878 accuracy / 0.9843 macro-F1, hybrid 0.9960, LightGBM 0.9980; see `MANUSCRIPT_AUDIT_2026-11-16.md` section 3b.**
+
 
 **Repo:** `C:\Users\Admin\Desktop\anomaly` · **Branch:** `benchmark-upgrade`
 **Date:** 2026-11-01 · **Scope:** corrections to [g1_fit_signal_report.md](g1_fit_signal_report.md) and to §a of [3b5_corrections.md](3b5_corrections.md). Neither old file is edited. Every figure here is counted from rows, not read from an aggregate: `scripts/corrections_3b6.py` rebuilds the out-of-fold predictions exactly as `scripts/hybrid_crossfit.py` builds them and reproduces §17's threshold **exactly** (0.9792, 82 abstained of 1,729), so the rows it lists are the rows §17 scored.

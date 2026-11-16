@@ -22,9 +22,9 @@ in 46.06 % of test texts. The 90 % gate is failed on both splits. Sources: `pilo
 `anchor_gate`, `d33/test_contrast.json` `anchor_status`.
 
 **C3 — The calibrated hybrid classifier is statistically indistinguishable from a plain gradient-boosted
-model on the same features.** 0.9940 against 0.9940 on 497 shared items, 2 vs 2 discordant, p = 1. The
-knowledge-base rules earn their place in *explanation*, not in accuracy. Adapter alone 0.8330, MLP 0.9698,
-menu rule 0.9980. Source: `confirm/p2_classifier_contrasts_2026-11-16.json`.
+model on the same features.** 0.9960 against 0.9980 on 497 shared items, 2 vs 1 discordant, p = 1. The
+knowledge-base rules earn their place in *explanation*, not in accuracy. Adapter alone 0.8330, MLP 0.9799,
+menu rule 1.0000. Source: `hybrid/vocabfix/classifier_contrasts.json`.
 
 **C4 — Pairwise preference cannot carry a claim.** 360 pairs, two readers, κ = 0.5776 (observed 0.7778,
 expected 0.4739), below the declared 0.60 floor by 0.0224. All three contrast orders are reported
@@ -64,7 +64,7 @@ architectural claim rests on that separation, not on model accuracy.
 | test grounding / contradiction / tag-role | A 7.89 / 0 / 0 %, B 10.26 / 0.16 / 14.46 % | same |
 | anchors exact | validation A 520/520, B 188/520; test A 3,168/3,168, B 1,170/3,168 | same |
 | primary validation contrast | B vs A McNemar 30/0, exact p ≈ 1.9 × 10⁻⁹; order invariance 0.7077 | `n4_cells`, overnight receipt |
-| classifier contrast | hybrid 0.9940 = LightGBM 0.9940, 2/2, p = 1 | `p2_classifier_contrasts` |
+| classifier contrast | hybrid 0.9960 ≈ LightGBM 0.9980, 2/1, p = 1 | `hybrid/vocabfix/classifier_contrasts.json` |
 | preference | κ 0.5776 over 360 pairs | `preference_2026-11-16_result.json` |
 | cost basis | seconds per 520-row pass, tie-break signed | `cost_basis_seconds_2026-11-16.json` |
 
@@ -93,8 +93,8 @@ architectural claim rests on that separation, not on model accuracy.
 > advantage is claimed for the model. Its failures are elsewhere: it omits or misstates the top sensor's
 > z-score in 63 % of reports, cites an unsupported tag role in 14 %, and violates grounding in 10 %.
 > Pairwise preference between writers fails its reliability floor (κ 0.58), and the shipped configuration is
-> chosen on cost, not quality. A gradient-boosted classifier matches our calibrated hybrid exactly (0.9940 vs
-> 0.9940, p = 1), so the knowledge-base contribution is explanatory rather than predictive.
+> chosen on cost, not quality. A gradient-boosted classifier matches our calibrated hybrid within noise (0.9980
+> vs 0.9960, p = 1), so the knowledge-base contribution is explanatory rather than predictive.
 
 ## 5. Remaining work, and what each item can change in the claims
 

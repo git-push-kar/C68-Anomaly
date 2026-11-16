@@ -1,4 +1,6 @@
 # Chained run progress (Stage A -> Phase 3A-2 -> Stage B)
+> **Superseded 2026-11-16: the classifier-side numbers below predate the feature-vocabulary fix (`XMV_1..11` to `XMV_42..52`). Current values: cross-fitted 0.9878 accuracy / 0.9843 macro-F1, hybrid 0.9960, LightGBM 0.9980; see `MANUSCRIPT_AUDIT_2026-11-16.md` section 3b.**
+
 
 Repo: C:\Users\Admin\Desktop\anomaly, branch `benchmark-upgrade`.
 

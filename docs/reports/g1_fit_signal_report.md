@@ -1,4 +1,6 @@
 # 3B-6 G1 DECISION RECORD, 3B-5 CORRECTIONS, FIT-SIGNAL FEASIBILITY
+> **Superseded 2026-11-16: the classifier-side numbers below predate the feature-vocabulary fix (`XMV_1..11` to `XMV_42..52`). Current values: cross-fitted 0.9878 accuracy / 0.9843 macro-F1, hybrid 0.9960, LightGBM 0.9980; see `MANUSCRIPT_AUDIT_2026-11-16.md` section 3b.**
+
 
 **Repo:** `C:\Users\Admin\Desktop\anomaly` · **Branch:** `benchmark-upgrade` · **Environment:** app env (CPU) for everything; `venv_train` used only to load the training tokenizer
 **Date:** 2026-11-01 · **Scope:** PROTOCOL §18 — the G1 decision as a record, the corrections owed to §17's report, whether the adapter sees the evidence the classifier uses, whether a code-computed evidence-fit score can carry a grounding verdict, and a shuffled-menu harness. **No adapter training. No test component opened. No teacher calls. No GPU work** (idle GPU confirmed at 889 MiB used, nothing launched on it).

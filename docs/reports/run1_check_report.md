@@ -1,4 +1,6 @@
 # RUN 1 CHECK — instrument repair and the references it needs
+> **Superseded 2026-11-16: the classifier-side numbers below predate the feature-vocabulary fix (`XMV_1..11` to `XMV_42..52`). Current values: cross-fitted 0.9878 accuracy / 0.9843 macro-F1, hybrid 0.9960, LightGBM 0.9980; see `MANUSCRIPT_AUDIT_2026-11-16.md` section 3b.**
+
 
 **Repo:** `C:\Users\Admin\Desktop\anomaly` · **Branch:** `benchmark-upgrade` · **Environment:** app env (CPU), `venv_train` (GPU)
 **Date:** 2026-10-31 / 2026-11-01 · **Scope:** rescore and reselect run 1 under a corrected instrument; add base-model and tabular references; no training, no test component opened, run-1 adapter and checkpoints untouched.
