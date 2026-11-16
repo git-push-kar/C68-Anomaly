@@ -197,26 +197,53 @@ def anchor_status(prose: str, tag: str, z: float) -> Tuple[str, str]:
     return "z_omitted", " ".join(window.split())[:160]
 
 
-def evidence_numbers(store: Dict) -> set:
-    """Values the page prints outside its detector rows: sensors, lag, onset, residual shares.
+def evidence_roles(store: Dict) -> Dict[str, set]:
+    """Values the page prints outside its detector rows, kept apart by the role they play.
 
-    Section 28.5 asks whether a number is stored, not whether it sits in the row of the detector that the
-    sentence happens to name. A sentence may legitimately name LSTM and CVA and quote a sensor z-score, so
-    these values have to count as stored for every sentence.
+    Section 28.5 asks whether a number is quoted in the role the page gives it. A value counts as stored when
+    it matches a value of the *same kind*: a sentence that writes ``z=17.99`` must match a sensor's z-score,
+    not merely any number printed anywhere on the page. The roles are z-scores, session deviations, the
+    dominant lag, residual shares and onset minutes.
     """
-    allowed = set()
+    roles: Dict[str, set] = {"z": set(), "dev": set(), "lag": set(), "share": set(), "onset": set()}
     for sensor in store.get("sensors") or []:
-        for field in ("z", "dev"):
-            allowed |= variants(sensor.get(field) or "")
+        roles["z"] |= variants(sensor.get("z") or "")
+        roles["dev"] |= variants(sensor.get("dev") or "")
     lag = store.get("lag") or {}
     if isinstance(lag, dict):
-        for field in ("lag", "ratio"):
-            allowed |= variants(lag.get(field) or "")
+        roles["lag"] |= variants(lag.get("lag") or "")
+        roles["share"] |= variants(lag.get("ratio") or "")
     for entry in store.get("onset") or []:
-        allowed |= variants(str(entry.get("at") or "").lstrip("+"))
+        roles["onset"] |= variants(str(entry.get("at") or "").lstrip("+"))
     for entry in store.get("residuals") or []:
-        allowed |= variants(entry.get("share") or "")
+        roles["share"] |= variants(entry.get("share") or "")
+    return roles
+
+
+def evidence_numbers(store: Dict) -> set:
+    """All non-detector values on the page, as one set (used where the role does not matter)."""
+    allowed = set()
+    for values in evidence_roles(store).values():
+        allowed |= values
     return allowed
+
+
+_ROLE_BEFORE = (
+    ("z", re.compile(r"z\s*[- ]?score\b[^0-9]{0,16}$|\bz\s*[=:]\s*$|\bz\s+of\s+$", re.I)),
+    ("dev", re.compile(r"deviation\b[^0-9]{0,16}$", re.I)),
+    ("lag", re.compile(r"\b(lag|window|windows)\b[^0-9]{0,16}$", re.I)),
+    ("share", re.compile(r"\b(residual\s+share|share)\b[^0-9]{0,16}$|\bratio\b[^0-9]{0,16}$", re.I)),
+    ("onset", re.compile(r"\bat\s*\+?\s*$", re.I)),
+)
+
+
+def _role_before(text: str, start: int) -> str:
+    """Which quantity the words immediately before a number name, if any."""
+    window = text[max(0, start - 40):start]
+    for role, pattern in _ROLE_BEFORE:
+        if pattern.search(window):
+            return role
+    return ""
 
 
 def numeric_flags(prose: str, store: Dict) -> List[Dict]:
@@ -232,6 +259,7 @@ def numeric_flags(prose: str, store: Dict) -> List[Dict]:
     # that names a detector and also quotes a sensor z-score is not inventing it. Without this, the long
     # test prompts (one sentence covering detectors and sensors) read as 41% numeric defects for A against
     # 3.65% on validation, purely because the values were attributed to the named detector alone.
+    roles = evidence_roles(store)
     evidence_allowed = evidence_numbers(store)
     for sentence in re.split(r";|(?<=[.!?])\s+", str(prose or "")):
         named = [entry for entry in detectors
@@ -240,12 +268,21 @@ def numeric_flags(prose: str, store: Dict) -> List[Dict]:
         bare = re.sub(r"(?:XMEAS|XMV)_[0-9]{1,2}", " ", sentence)
         if not named:
             continue
-        allowed = set(evidence_allowed)
+        allowed = set()
         for entry in named:
-            for field in ("value", "threshold", "ratio"):
+            for field in ("value", "threshold", "ratio", "alarmed"):
                 allowed |= variants(entry.get(field) or "")
-        quoted = [number for number in re.findall(r"-?[0-9]+(?:[.][0-9]+)?", bare)
-                  if number not in allowed]
+        quoted = []
+        for match in re.finditer(r"-?[0-9]+(?:[.][0-9]+)?", bare):
+            number = match.group(0)
+            if number in allowed:
+                continue
+            role = _role_before(bare, match.start())
+            if role and number in roles.get(role, set()):
+                continue
+            if not role and number in evidence_allowed:
+                continue
+            quoted.append(number)
         if quoted:
             threshold_variants = variants(named[0].get("threshold") or "")
             if "threshold" in sentence.lower() and not (set(quoted) & threshold_variants):

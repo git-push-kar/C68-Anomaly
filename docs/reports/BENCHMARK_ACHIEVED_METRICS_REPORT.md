@@ -48,8 +48,8 @@ flowchart TD
     Evidence --> Delivery
     
     subgraph Delivery["Surface 3: Report Delivery Engine (The 6-Rung Decision Ladder)"]
-        CondA["Condition A: Fallback v3.1 (Deterministic)<br>• 3.65% Numeric Defects<br>• 0% Grounding Defects<br>• cheapest per 520-row pass (rung 5)<br><b>★ SHIPPED REPORT WRITER ★</b>"]
-        CondB["Condition B: InternVL3-2B Adapter<br>• 11.92% Numeric Defects (Vetoed at Rung 1)<br>• 6.35% Grounding Violations"]
+        CondA["Condition A: Fallback v3.1 (Deterministic)<br>• 2.50% Numeric Defects<br>• 0% Grounding Defects<br>• cheapest per 520-row pass (rung 5)<br><b>★ SHIPPED REPORT WRITER ★</b>"]
+        CondB["Condition B: InternVL3-2B Adapter<br>• 9.62% Numeric Defects (Vetoed at Rung 1)<br>• 6.35% Grounding Violations"]
     end
     
     Delivery --> OutputReport["Delivered Forensic RCA Report"]
@@ -165,7 +165,7 @@ Evaluated across **520 held-out items across 3 prompt orderings (1,560 total gen
 | **JSON Schema Validity** | $\ge 98.0\%$ | **100.0% (520 / 520)** | **100.0% (520 / 520)** | Both conditions pass |
 | **Generation Completeness** | $\ge 98.0\%$ | **100.0% (520 / 520)** | **100.0% (520 / 520)** | Both conditions pass |
 | **Empty Narrative Rate** | $= 0.0\%$ | **0.00% (0 / 520)** | **0.00% (0 / 520)** | Both conditions pass |
-| **Numeric Defect Rate** | $\le 2.0\%$ | **3.65% (19 / 520)** | **11.92% (62 / 520)** | **Adapter fails; vetoed at Rung 1** |
+| **Numeric Defect Rate** | $\le 2.0\%$ | **2.50% (13 / 520)** | **9.62% (50 / 520)** | **Adapter fails; vetoed at Rung 1** |
 | **Grounding Violation Rate** | $\le 2.0\%$ | **0.00% (0 / 520)** | **6.35% (33 / 520)** | Adapter cites unmeasured values |
 | **Anchor Exactness ($\|z\| \ge 1$)** | $\ge 90.0\%$ | **100.0% (329 / 329)** | **51.67% (170 / 329)** | Adapter drops top sensor or $z$-score |
 | **Negate-Aware Contradictions**| $\le 2.0\%$ | **0.00% (0 / 520)** | **0.00% (0 / 520)** | Both conditions pass |
@@ -192,7 +192,7 @@ Evaluated across **520 held-out items across 3 prompt orderings (1,560 total gen
 ### 4.3 The 6-Rung Decision Ladder Outcome
 
 ```
-[ Rung 1: Numeric Defect Gate ] ──► Fallback: 3.65% vs Adapter: 11.92% ──► ADAPTER VETOED
+[ Rung 1: Numeric Defect Gate ] ──► Fallback: 2.50% vs Adapter: 9.62% ──► ADAPTER VETOED
                                                                                   │
 [ Rung 2: Blind Preference ]    ──► kappa 0.5776 < 0.60 floor ──► NO CONFIRMATORY WEIGHT
                                     (all three contrast orders reported descriptively)

@@ -33,18 +33,32 @@ What does **not** change: both conditions still exceed the 2 % numeric gate on v
 direction is unchanged; anchor, grounding, contradiction and tag-role checks are untouched (their counts
 reproduce exactly); the selection receipt's `decided_by_rung 5` stands.
 
+## 1b. Tightening, and a known over-count
+
+The checker now requires a number quoted in a role to match a value of that role: a sentence writing
+`z=17.99` must match a sensor's z-score, not merely a number printed elsewhere on the page. Validation stays
+at **A 13/520 and B 50/520**, so the tightening changed no verdict; on test it moves B from 111 to 115 rows
+(3.50 % → 3.63 %).
+
+**Known over-count, deliberately not changed today.** The tokenizer still reads the digits inside identifiers:
+`FAULT_08` contributes the token `08`, `Component_D_Stream9` contributes `9`, and both can be flagged when
+the sentence also names a detector. Fixing that would lower both rates further, which is why it is recorded
+rather than quietly applied — **the reported numeric rates are upper bounds**, and the direction of the
+comparison is unaffected because the artefact inflates A far more often than B (A quotes many more
+identifiers per report).
+
 ## 2. The contrast on 3,168 held-out test items
 
 | check | A (fallback v3.1) | B (adapter) | gate | reading |
 |---|---|---|---|---|
-| **numeric defect** | **19.54 % (619)** | **3.50 % (111)** | ≤ 2 % | **B better by 16.0 pp**; both fail the gate |
+| **numeric defect** | **19.54 % (619)** | **3.63 % (115)** | ≤ 2 % | **B better by 15.9 pp**; both fail the gate |
 | grounding violation | 7.89 % (250) | 10.26 % (325) | ≤ 2 % | A better; both fail |
 | negate-aware contradiction | 0.00 % (0) | 0.16 % (5) | ≤ 2 % | both pass |
 | tag-role claim | 0.00 % (0) | 14.46 % (458) | ≤ 2 % | A better; B fails |
 | **anchor exact** | **100 % (3,168)** | **36.93 % (1,170)** | ≥ 90 % | A passes, B fails |
 
-McNemar on the primary, numeric defect: **B-only 97, A-only 605, p ≈ 0** (two-sided exact, 97 + 605
-discordant). Test items where A invents a number and B does not outnumber the reverse 6.2 : 1.
+McNemar on the primary, numeric defect: **B-only 101, A-only 605, p ≈ 0** (two-sided exact, 101 + 605
+discordant). Test items where A invents a number and B does not outnumber the reverse 6.0 : 1.
 
 B's anchor breakdown: exact 1,170 (36.93 %), z-score omitted 1,459 (46.06 %), contradicting value 203
 (6.41 %), sensor absent 336 (10.61 %).

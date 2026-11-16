@@ -220,14 +220,14 @@ the fix changes the validation numeric counts as well — recorded honestly belo
 
 | check | A (fallback v3.1) | B (adapter) | gate |
 |---|---|---|---|
-| **numeric defect** | **19.54 % (619)** | **3.50 % (111)** | ≤ 2 % — both fail |
+| **numeric defect** | **19.54 % (619)** | **3.63 % (115)** | ≤ 2 % — both fail |
 | grounding violation | 7.89 % (250) | 10.26 % (325) | ≤ 2 % — both fail |
 | negate-aware contradiction | 0.00 % (0) | 0.16 % (5) | ≤ 2 % — both pass |
 | tag-role claim | 0.00 % (0) | 14.46 % (458) | ≤ 2 % — B fails |
 | **anchor exact** | **100 % (3,168)** | **36.93 % (1,170)** | ≥ 90 % — B fails |
 
-McNemar on the primary check: **B-only 97, A-only 605, p ≈ 0**. On held-out items A invents a number where B
-does not 6.2 times as often as the reverse — the validation ordering (A 2.50 % vs B 9.62 %) reverses on test.
+McNemar on the primary check: **B-only 101, A-only 605, p ≈ 0**. On held-out items A invents a number where B
+does not 6.0 times as often as the reverse — the validation ordering (A 2.50 % vs B 9.62 %) reverses on test.
 
 **Instrument revision, declared.** `numeric_flags` attributed a number only to the detectors named in its
 sentence, so a sentence naming LSTM and CVA while quoting a stored sensor z-score counted that value as
