@@ -1,0 +1,84 @@
+{
+  "rule": "six rungs: numeric gate, preference, mechanism validity, order invariance, cost, A wins ties",
+  "amendments": [
+    "D32 amendment, 2026-11-16, option A (supported-claim rate)"
+  ],
+  "m": 0.01,
+  "gate_ceiling": 0.0465,
+  "candidates": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "M"
+  ],
+  "passers": [
+    "A",
+    "D"
+  ],
+  "chosen": "A",
+  "decided_by_rung": 6,
+  "measured_rungs_with_input": [
+    5
+  ],
+  "tie_break": "rung 5 carried input and left ['A', 'D'] tied at 0.0; A is chosen by the declared tie-break, not by default",
+  "provisional": false,
+  "skipped": [
+    "rung 2: no preference data; tier removed per the plan",
+    "rung 3: 1 eligible cell(s); the amendment needs two, so rungs 2 and 3 are recorded as unavailable"
+  ],
+  "mechanism": {
+    "rule": "D32 amendment, 2026-11-16, option A (supported-claim rate)",
+    "floors": {
+      "marked": 15,
+      "items": 10
+    },
+    "per_cell": {
+      "C": {
+        "supported": 12,
+        "marked": 19,
+        "items": 17,
+        "rate": 0.6316,
+        "interval": [
+          0.3836,
+          0.8371
+        ]
+      }
+    },
+    "excluded": {},
+    "eligible": [
+      "C"
+    ],
+    "overlaps": [],
+    "decided": false,
+    "chosen": null,
+    "passers": [
+      "A",
+      "C",
+      "D"
+    ],
+    "skipped": [
+      "rung 3: 1 eligible cell(s); the amendment needs two, so rungs 2 and 3 are recorded as unavailable"
+    ]
+  },
+  "cost": {
+    "unit": "seconds_per_520_row_pass",
+    "basis": "measured adapter generation on this checkout: 37.83 s per item at cap 512 over 50 items (outputs/benchmark_v2/eval/generation_512.json); corroborated by 36.51 s per item at cap 512 over 20 items (outputs/benchmark_v2/eval/decode_speed.json). A, C, D and M perform no language-model call; C and M are assembled from an adapter generation, so each carries that generation's cost once.",
+    "signed": null
+  },
+  "inputs": {
+    "cells": {
+      "path": "outputs/overnight_2026-11-05/n4_cells.json",
+      "sha256_24": "3ec4effb8eca2f8b3731d9c8"
+    },
+    "mechanism": {
+      "path": "outputs/overnight_2026-11-05/rung3_input.json",
+      "sha256_24": "397a38b2ed46e912a81aff9e"
+    },
+    "cost": {
+      "path": "docs/judging/confirm/cost_basis_seconds_2026-11-16.json",
+      "sha256_24": "792ec0ac4f9f1c3ad3bb3574"
+    }
+  },
+  "note": "no measured rung chose a single cell; the declared tie-break resolved the tie a measured rung produced"
+}

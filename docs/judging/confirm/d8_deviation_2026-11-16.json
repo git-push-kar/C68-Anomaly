@@ -1,0 +1,65 @@
+{
+  "record": "D8 deviation - the preference reliability floor was not met, so the preference analyses are secondary and descriptive",
+  "status": "awaiting_signature",
+  "decision": "D8",
+  "decision_text": "120 items x 3 pairings, two raters, adjudicator, kappa >= 0.60",
+  "decision_signed": {
+    "by": "project owner, session approval",
+    "at_local": "2026-11-05T01:05:00+05:30",
+    "source": "docs/judging/confirm/signed.json"
+  },
+  "measured": {
+    "date": "2026-11-16",
+    "pairs": 360,
+    "items": 120,
+    "pairings": ["C-A", "C-B", "M-B"],
+    "raters": 2,
+    "observed_agreement": 0.7778,
+    "expected_agreement": 0.4739,
+    "cohen_kappa": 0.5776,
+    "floor": 0.60,
+    "met": false,
+    "miss": 0.0224,
+    "standard_error_note": "SE of kappa at n=360 is about 0.03, so the estimate sits roughly one SE below the floor; the signed criterion was on the point estimate and it was not met",
+    "sources": [
+      "docs/judging/confirm/preference_2026-11-16_result.json",
+      "docs/judging/confirm/preference_2026-11-16_kappa.json",
+      "docs/judging/confirm/drafts/preference_reporting_DRAFT.md"
+    ]
+  },
+  "contrasts_reported": [
+    {"pairing": "A vs C", "rater1": {"A": 98, "C": 20, "tie": 2, "A_share": 0.8305},
+     "rater2": {"A": 70, "C": 48, "tie": 2, "A_share": 0.5932}},
+    {"pairing": "B vs C", "rater1": {"B": 10, "C": 108, "tie": 2, "B_share": 0.0847},
+     "rater2": {"B": 53, "C": 64, "tie": 3, "B_share": 0.453}},
+    {"pairing": "B vs M", "rater1": {"B": 0, "M": 114, "tie": 6, "B_share": 0.0},
+     "rater2": {"B": 2, "M": 112, "tie": 6, "B_share": 0.0175}}
+  ],
+  "all_three_contrasts_kept": true,
+  "deviation": {
+    "claim_status": "secondary and descriptive only; no confirmatory preference claim in the abstract, the contributions list or the discussion",
+    "post_hoc": true,
+    "declared": "2026-11-16, after the data were visible, and recorded as post hoc rather than presented as pre-registered",
+    "reason": "the study was pre-registered and completed; reporting only that it failed would discard the only human judgements in the project, so the outcomes are reported descriptively with the miss stated first"
+  },
+  "selection_rule_effect": {
+    "rung_2": "recorded as failed in every receipt: the reliability floor was not met, so rung 2 carries no decision",
+    "preference_data_used_to_choose_a_cell": false,
+    "note": "if these rates were used to justify a cell, rung 2 would be reopened by the back door and the declared rung order would stop meaning anything"
+  },
+  "forbidden": [
+    "reporting kappa as meeting the 0.60 floor, or writing 'kappa about 0.6'",
+    "lowering the floor, or switching to PABAK / Gwet AC1, after seeing 0.5776 and calling the gate met (both may appear only as labelled robustness figures beside the primary kappa)",
+    "dropping any of the three contrasts, particularly B vs C, which is the one the readers disagreed on",
+    "using the preference rates to select or justify the shipped cell",
+    "omitting ties or the decided-pair denominators"
+  ],
+  "supersedes": "nothing; D8 stays in force as signed and this record documents its outcome",
+  "signature": {
+    "signed": null,
+    "signed_by": null,
+    "date": null,
+    "channel": null,
+    "note": "leave null until the owner signs; until then this file records a proposal, not a decision"
+  }
+}

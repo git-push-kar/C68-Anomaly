@@ -136,7 +136,9 @@ def main() -> int:
     ap.add_argument("--mechanism", default=None,
                     help="json: {condition: {supported, marked, items}} - D32 amendment, option A")
     ap.add_argument("--invariance", default=None, help="json: {condition: rate}")
-    ap.add_argument("--cost", default=None, help="json: {condition: usd_per_1000}")
+    ap.add_argument("--cost", default=None,
+                    help="json: {condition: value} or {unit, basis, values: {condition: value}}; "
+                         "the unit is recorded in the receipt verbatim")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
@@ -187,15 +189,24 @@ def main() -> int:
         else:
             skipped.append("rung 3: no mechanism data; the amendment's floors were not applied")
 
+    measured: list[int] = []
+    tie_break = None
+    cost_meta = None
+    best = None
     for key, source, better, rung_id in (
             ("invariance", args.invariance, max, 4),
             ("cost", args.cost, min, 5)):
         if chosen is not None or not source:
             continue
         data = json.loads(pathlib.Path(source).read_text(encoding="utf-8"))
+        if isinstance(data, dict) and "values" in data:
+            cost_meta = {"unit": data.get("unit"), "basis": data.get("basis"),
+                         "signed": data.get("signed")}
+            data = data["values"]
         scored = [(c, data[c]) for c in passers if c in data]
         if not scored:
             continue
+        measured.append(rung_id)
         best = better(v for _, v in scored)
         top = [c for c, v in scored if v == best]
         if len(top) == 1:
@@ -206,6 +217,10 @@ def main() -> int:
     if chosen is None:
         chosen = "A" if "A" in passers else passers[0]
         rung = 6
+        if measured:
+            tie_break = ("rung %d carried input and left %s tied at %s; %s is chosen by the "
+                         "declared tie-break, not by default"
+                         % (measured[-1], sorted(passers), best, chosen))
 
     receipt = {
         "rule": "six rungs: numeric gate, preference, mechanism validity, order "
@@ -217,16 +232,21 @@ def main() -> int:
         "passers": passers,
         "chosen": chosen,
         "decided_by_rung": rung,
-        "provisional": rung == 6,
+        "measured_rungs_with_input": measured,
+        "tie_break": tie_break,
+        "provisional": rung == 6 and not measured,
         "skipped": skipped,
         "mechanism": mechanism,
+        "cost": cost_meta if args.cost else None,
         "inputs": {k: {"path": v, "sha256_24": sha(v)} for k, v in
                    (("cells", args.cells), ("preference", args.preference),
                     ("mechanism", args.mechanism), ("invariance", args.invariance),
                     ("cost", args.cost)) if v},
         "note": ("rung 6 is the deterministic default, not a measured win; this receipt "
-                 "stays provisional until rungs 2 and 3 carry data" if rung == 6 else
-                 "decided by a measured rung"),
+                 "stays provisional until rungs 2 and 3 carry data" if not measured and rung == 6 else
+                 "decided by a measured rung" if rung != 6 else
+                 "no measured rung chose a single cell; the declared tie-break resolved the tie "
+                 "a measured rung produced"),
     }
     pathlib.Path(args.out).write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(receipt, indent=2))
