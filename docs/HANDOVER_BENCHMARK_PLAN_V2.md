@@ -1223,3 +1223,82 @@ Checked on this checkout, all present:
 
 Two things are absent **by design**, not by oversight: no `supported` value is marked on any row, and
 `outputs/tep_rca_v2_prose_e_seed{43,44}/` contain only a README — the adapters were never built.
+
+## 27. The mechanism extension and the preference study both ran, and both fell short, 2026-11-16
+
+Two human tiers were completed on 2026-11-16 and scored here for the first time. Neither can decide the
+selection, and for two different reasons — one is a measurement shortfall, the other is structural. Both
+are reported as they are; no floor, gate or floor count was moved.
+
+### 27.1 The mechanism sheet completed, and rung 3 cannot use it
+
+The 15 blank rows were marked, taking the extended sheet to 45 marked rows
+(`outputs/overnight_2026-11-05/n5_examples_2026-11-16.csv`: 26 `yes`, 19 `no`). Converted with
+`--from-sheet`:
+
+| cell | supported | marked | items | floors (15 / 10) |
+|---|---|---|---|---|
+| C | 12 | 19 | 17 | eligible |
+| B | 14 | 26 | 19 | eligible |
+
+Both cells now clear the floors, and `docs/judging/confirm/selection_receipt_2026-11-16b.json` **still
+records rung 3 as unavailable**. The reason is not the floors: rung 3 compares the cells that survived
+the numeric gate, and B did not survive it (0.1192 against a 0.0365 ceiling). Its 26 marked rows cannot
+enter rung 3 at all.
+
+That would be fixable by marking a second passer — except that no second passer has any claims to mark.
+Tag-role claims by cell on this checkout: **B 80, C 20, M 60, A 0, D 0** (A's 19 flags are all
+`value_not_stored`; D has 7 flags, all the same kind). A and D are deterministic assemblers; they emit
+stored numbers and no mechanism prose. So among passers {A, C, D}, **C is the only cell the mechanism
+instrument can score**, and the D32 requirement of two eligible cells is unsatisfiable by construction.
+
+`docs/judging/confirm/rung3_structural_status_2026-11-16.json` records this. Rung 3 is therefore
+**descriptive, not decisive**: it can report that C's supported-claim rate is 12/19 = 0.632
+[0.384, 0.837], and nothing about who should ship.
+
+The extension was not wasted: it establishes that B's mechanism claims are supported at 14/26 = 0.538
+against C's 0.632, i.e. the trained writer is **not worse** on this instrument, which is worth having in
+the paper and is the opposite of what the C advantage was expected to be.
+
+### 27.2 The preference study ran and missed κ by 0.022
+
+360 blind pairs (120 each of C–A, C–B, M–B), two independent readers, no ties forced; one byte-identical
+pair in 360. Reliability first, before any preference result:
+`scripts/preference_agreement.py` gives
+
+- observed agreement **0.7778** (280/360), expected 0.4739,
+- **Cohen's κ = 0.5776** against the signed floor of **0.60** → **not met**,
+- marginals almost identical (rater 1: 189 left / 161 right / 10 tie; rater 2: 183 / 166 / 11), so this
+  is not tie drift — the readers used the scale the same way and still disagreed on 80 pairs.
+
+`docs/judging/confirm/preference_2026-11-16_result.json` holds the rates. They are **exploratory only**,
+because the gate failed:
+
+| pairing | rater 1 | rater 2 | reading |
+|---|---|---|---|
+| A vs C | A 98 / C 20 (0.831) | A 70 / C 48 (0.593) | both prefer A; magnitude differs by 24 points |
+| B vs C | C 108 / B 10 (0.085 for B) | C 64 / B 53 (0.453) | readers disagree on whether B is far worse or level |
+| B vs M | M 114 / B 0 | M 112 / B 2 | both prefer M overwhelmingly |
+
+The honest summary: on this data the two humans agree that A beats C and that M beats B, and disagree
+substantially on how badly B loses to C. That disagreement is what the κ of 0.5776 is measuring, and it is
+the reason no confirmatory preference claim can be made from it.
+
+### 27.3 What this leaves
+
+With rung 2 failed at its reliability gate and rung 3 structurally unable to compare two passers, the
+ladder has no measured rung left except **rung 5, cost**, and rung 5 has no input because no cost basis
+has been signed (`docs/judging/confirm/drafts/cost_basis_DRAFT.md`). The receipt therefore remains
+rung 6, chosen A, **provisional**, and D33 stays closed.
+
+Three routes out, none of them free:
+
+1. **Sign the cost basis** (seconds per pass). Rung 5 decides, the receipt becomes non-provisional, and
+   D33 unblocks. The chosen cell would be A, declared as the cheapest, not as the best.
+2. **Amend rung 3** to compare a passer against a non-passer as description rather than selection. This
+   changes what the rung is for and needs a signed amendment superseding D32 in spirit, not just in
+   floors.
+3. **Re-run the preference study** with more pairs or clearer instructions. Note plainly: 0.5776 sits
+   about one standard error below 0.60 on 360 pairs, so a re-run is not a formality — and repeating it
+   until κ clears would be the exact behaviour the pre-registration exists to prevent. If it is repeated,
+   it must be a new study with its own dated record, and both κ values reported.

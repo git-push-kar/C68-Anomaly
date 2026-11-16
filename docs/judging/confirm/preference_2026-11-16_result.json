@@ -1,0 +1,71 @@
+{
+  "record": "preference study 2026-11-16, 120 items x 3 pairings, two readers",
+  "gate": 0.6,
+  "cohen_kappa": 0.5776,
+  "observed_agreement": 0.7778,
+  "meets_0_60": false,
+  "pairs": 360,
+  "marginals": {
+    "rater1": {
+      "left": 189,
+      "right": 161,
+      "tie": 10
+    },
+    "rater2": {
+      "left": 183,
+      "right": 166,
+      "tie": 11
+    }
+  },
+  "per_pairing": {
+    "A vs C": {
+      "sheet_rater1": {
+        "A": 98,
+        "C": 20,
+        "tie": 2,
+        "A_share": 0.8305,
+        "exact_binomial_p": 0.0
+      },
+      "sheet_rater2": {
+        "A": 70,
+        "C": 48,
+        "tie": 2,
+        "A_share": 0.5932,
+        "exact_binomial_p": 0.052748
+      }
+    },
+    "B vs C": {
+      "sheet_rater1": {
+        "B": 10,
+        "C": 108,
+        "tie": 2,
+        "B_share": 0.0847,
+        "exact_binomial_p": 0.0
+      },
+      "sheet_rater2": {
+        "B": 53,
+        "C": 64,
+        "tie": 3,
+        "B_share": 0.453,
+        "exact_binomial_p": 0.35528
+      }
+    },
+    "B vs M": {
+      "sheet_rater1": {
+        "B": 0,
+        "M": 114,
+        "tie": 6,
+        "B_share": 0.0,
+        "exact_binomial_p": 0.0
+      },
+      "sheet_rater2": {
+        "B": 2,
+        "M": 112,
+        "tie": 6,
+        "B_share": 0.0175,
+        "exact_binomial_p": 0.0
+      }
+    }
+  },
+  "caveat": "kappa below the signed floor, so these rates are exploratory only and carry no confirmatory preference claim"
+}

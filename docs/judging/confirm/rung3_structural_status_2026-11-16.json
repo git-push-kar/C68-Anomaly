@@ -1,0 +1,15 @@
+{
+  "record": "why rung 3 cannot have two eligible cells, 2026-11-16",
+  "passers": [
+    "A",
+    "C",
+    "D"
+  ],
+  "tag_role_claims_by_cell": {
+    "B": 80,
+    "C": 20,
+    "M": 60
+  },
+  "reading": "the numeric gate leaves A, C and D; A and D are assemblers and emit no tag-role claims at all (A 19 flags, all value_not_stored; D 7), so C is the only passer the mechanism instrument can score",
+  "consequence": "with the floors applied to passers, the D32 requirement of two eligible cells is unsatisfiable by construction, not by missing work"
+}

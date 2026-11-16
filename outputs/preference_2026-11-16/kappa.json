@@ -1,0 +1,420 @@
+{
+  "pairs": 360,
+  "agree": 280,
+  "observed_agreement": 0.7778,
+  "expected_agreement": 0.4739,
+  "cohen_kappa": 0.5776,
+  "meets_0_60": false,
+  "marginals_rater1": {
+    "left": 189,
+    "right": 161,
+    "tie": 10
+  },
+  "marginals_rater2": {
+    "left": 183,
+    "right": 166,
+    "tie": 11
+  },
+  "disagreements": [
+    {
+      "pair_id": "EVT-val-f01-r305::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f01-r305::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f01-r307::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f01-r312::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f01-r319::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f02-r316::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f02-r316::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f02-r319::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f04-r321::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f05-r302::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f05-r303::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f05-r310::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f05-r310::openset-B-C",
+      "rater1": "left",
+      "rater2": "tie"
+    },
+    {
+      "pair_id": "EVT-val-f05-r311::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f05-r316::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f05-r319::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f06-r301::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f06-r304::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f06-r313::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f06-r313::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f06-r322::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f06-r323::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f07-r302::openset-B-C",
+      "rater1": "left",
+      "rater2": "tie"
+    },
+    {
+      "pair_id": "EVT-val-f07-r308::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f07-r316::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f07-r321::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f08-r302::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f08-r314::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f08-r317::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f08-r321::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f08-r324::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f08-r325::menu-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f08-r325::menu-B-C",
+      "rater1": "tie",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f08-r325::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f09-r317::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f10-r314::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f11-r301::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f11-r301::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f11-r312::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f11-r312::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f11-r314::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f11-r322::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f11-r322::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f11-r322::openset-B-M",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f11-r325::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f12-r309::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f12-r309::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f12-r317::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f12-r325::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f12-r325::menu-B-M",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f13-r315::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f13-r316::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f13-r320::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f13-r320::openset-B-C",
+      "rater1": "left",
+      "rater2": "tie"
+    },
+    {
+      "pair_id": "EVT-val-f14-r307::openset-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f14-r310::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f14-r310::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f14-r311::openset-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f14-r311::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f14-r315::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f14-r320::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f15-r316::openset-B-C",
+      "rater1": "tie",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f15-r321::openset-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f15-r323::openset-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f16-r314::menu-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f16-r318::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f16-r322::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f17-r305::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f17-r305::menu-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f19-r301::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f19-r301::menu-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f19-r302::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "EVT-val-f19-r309::menu-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f19-r322::menu-B-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "EVT-val-f19-r323::menu-B-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "NORM-val-r352::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    },
+    {
+      "pair_id": "NORM-val-r356::menu-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "NORM-val-r377::menu-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "NORM-val-r382::menu-A-C",
+      "rater1": "right",
+      "rater2": "left"
+    },
+    {
+      "pair_id": "NORM-val-r399::menu-A-C",
+      "rater1": "left",
+      "rater2": "right"
+    }
+  ]
+}
