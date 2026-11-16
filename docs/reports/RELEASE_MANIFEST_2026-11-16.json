@@ -1,0 +1,88 @@
+{
+  "generated": "2026-11-16",
+  "root": "anomaly",
+  "entry_count": 10,
+  "missing": [],
+  "entries": [
+    {
+      "name": "cells",
+      "path": "outputs/overnight_2026-11-05/n4_cells.json",
+      "sha256": "5a9392ff5399785fff0ecd74a874696fa32cb14e5447b242ccd719570e318213",
+      "bytes": 1574,
+      "rebuild": "python scripts/overnight_run.py --stage n4",
+      "claims": "C1, C2, C7"
+    },
+    {
+      "name": "cells_preinstrument",
+      "path": "outputs/overnight_2026-11-05/n4_cells_preinstrument_2026-11-16.json",
+      "sha256": "3ec4effb8eca2f8b3731d9c8f650b90b31eebec8a51923f42ba071d415ecb527",
+      "bytes": 1586,
+      "rebuild": "(frozen copy; do not rebuild)",
+      "claims": "C1 (superseded)"
+    },
+    {
+      "name": "selection_receipt",
+      "path": "docs/judging/confirm/selection_receipt_2026-11-16_corrected2.json",
+      "sha256": "16e1dbc12289059ac169bb2a629101e97ed7113d98f66818151158bd12f7b676",
+      "bytes": 2592,
+      "rebuild": "python scripts/select_condition.py --emit-receipt",
+      "claims": "C7"
+    },
+    {
+      "name": "test_contrast",
+      "path": "outputs/analysis/phase3a/d33/test_contrast.json",
+      "sha256": "9de4c06656d57fbf4c276de2ef5d3d5eb84268cdbe75fcf1ba2e4b83dbf05195",
+      "bytes": 1003,
+      "rebuild": "python scripts/score_test_pass.py",
+      "claims": "C1, C3, C4"
+    },
+    {
+      "name": "classifier_contrasts",
+      "path": "outputs/analysis/phase3a/p2/classifier_contrasts.json",
+      "sha256": "ea201aacb0b4057a12380b6f6a3960508d7d9c070f31cdd1b886b30b99b49cfb",
+      "bytes": 5745,
+      "rebuild": "python scripts/evidence_classifier.py --contrasts",
+      "claims": "C6"
+    },
+    {
+      "name": "crossfit_val",
+      "path": "outputs/analysis/phase3a/hybrid/crossfit_val_rows.jsonl",
+      "sha256": "85522c664b0d6f79a9a00e1fe26c7d4418e4d99338681dce5ba73797ceff0e39",
+      "bytes": 594671,
+      "rebuild": "python scripts/crossfit_val_rows.py",
+      "claims": "C2"
+    },
+    {
+      "name": "crossfit_test",
+      "path": "outputs/analysis/phase3a/hybrid/crossfit_test_rows.jsonl",
+      "sha256": "4a321a7151cac5ac4b4ce93b2bc8f2e551d266621e577b617a004141e76fd6ba",
+      "bytes": 1233086,
+      "rebuild": "python scripts/crossfit_test_rows.py",
+      "claims": "C2"
+    },
+    {
+      "name": "figures",
+      "path": "docs/reports/figures/figure_data.json",
+      "sha256": "8f40e088815e1f5484ae2a40a09861145dc10677a1d8c29a9134bb85f47f81ce",
+      "bytes": 1355,
+      "rebuild": "python scripts/make_figures.py",
+      "claims": "figures 1-4"
+    },
+    {
+      "name": "claims",
+      "path": "docs/reports/PAPER_CLAIMS_2026-11-16.md",
+      "sha256": "c5afd46e5b1086c898eb814380f5ababca2b8ea349aa92474e6d189691325656",
+      "bytes": 9784,
+      "rebuild": "(assertion document; edited by hand with a dated section per change)",
+      "claims": "all"
+    },
+    {
+      "name": "methods",
+      "path": "docs/reports/PAPER_METHODS_METRICS_2026-11-16.md",
+      "sha256": "8bc26e6248863c3bec7d1cd9ab92e11b4868ed729312c3d785cbb0a8231b5275",
+      "bytes": 9979,
+      "rebuild": "(assertion document)",
+      "claims": "all"
+    }
+  ]
+}

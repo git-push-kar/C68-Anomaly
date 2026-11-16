@@ -1,0 +1,77 @@
+{
+  "cells": {
+    "A": 0.0,
+    "B": 0.0577,
+    "C": 0.0,
+    "M": 0.0577,
+    "D": 0.0
+  },
+  "cell_counts": {
+    "A": 0,
+    "B": 30,
+    "C": 0,
+    "M": 30,
+    "D": 0
+  },
+  "stratified": {
+    "validation": {
+      "open-set": {
+        "defects": 1,
+        "rows": 454,
+        "rate": 0.0022
+      },
+      "classified": {
+        "defects": 0,
+        "rows": 19,
+        "rate": 0.0
+      },
+      "normal-transient": {
+        "defects": 29,
+        "rows": 47,
+        "rate": 0.617
+      }
+    },
+    "test": {
+      "classified": {
+        "defects": 5,
+        "rows": 1314,
+        "rate": 0.0038
+      },
+      "open-set": {
+        "defects": 6,
+        "rows": 1814,
+        "rate": 0.0033
+      },
+      "normal-transient": {
+        "defects": 29,
+        "rows": 40,
+        "rate": 0.725
+      }
+    }
+  },
+  "d33_rates": {
+    "A": {
+      "numeric": 0.0,
+      "grounding": 0.0789,
+      "contradiction": 0.0,
+      "tag_role": 0.0
+    },
+    "B": {
+      "numeric": 0.0126,
+      "grounding": 0.1026,
+      "contradiction": 0.0016,
+      "tag_role": 0.1446
+    }
+  },
+  "anchor": {
+    "A": {
+      "exact": 3168
+    },
+    "B": {
+      "exact": 1170,
+      "z_omitted": 1459,
+      "contradicting_value": 203,
+      "sensor_absent": 336
+    }
+  }
+}
