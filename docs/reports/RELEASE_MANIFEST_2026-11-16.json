@@ -7,7 +7,7 @@
     {
       "name": "cells",
       "path": "outputs/overnight_2026-11-05/n4_cells.json",
-      "sha256": "5a9392ff5399785fff0ecd74a874696fa32cb14e5447b242ccd719570e318213",
+      "sha256": "4d77eaad68a1e36c318c32462c5f75278d4cb4c1a6213456a76a87836de0d107",
       "bytes": 1574,
       "rebuild": "python scripts/overnight_run.py --stage n4",
       "claims": "C1, C2, C7"
@@ -15,7 +15,7 @@
     {
       "name": "cells_preinstrument",
       "path": "outputs/overnight_2026-11-05/n4_cells_preinstrument_2026-11-16.json",
-      "sha256": "3ec4effb8eca2f8b3731d9c8f650b90b31eebec8a51923f42ba071d415ecb527",
+      "sha256": "06ebbe13554708a36b9be99ae05f54396732562b8a46d3acc2ce2e6eee131074",
       "bytes": 1586,
       "rebuild": "(frozen copy; do not rebuild)",
       "claims": "C1 (superseded)"
@@ -23,7 +23,7 @@
     {
       "name": "selection_receipt",
       "path": "docs/judging/confirm/selection_receipt_2026-11-16_corrected2.json",
-      "sha256": "16e1dbc12289059ac169bb2a629101e97ed7113d98f66818151158bd12f7b676",
+      "sha256": "f8c9056ca1f60a12357a89ea0cf1f6799965f15a2bc2c358fc408a37bf3d07da",
       "bytes": 2592,
       "rebuild": "python scripts/select_condition.py --emit-receipt",
       "claims": "C7"
@@ -31,7 +31,7 @@
     {
       "name": "test_contrast",
       "path": "outputs/analysis/phase3a/d33/test_contrast.json",
-      "sha256": "9de4c06656d57fbf4c276de2ef5d3d5eb84268cdbe75fcf1ba2e4b83dbf05195",
+      "sha256": "116de0638d81e5b794099d1c3e4700c1231fda394d2bbb4102005eef49bb9e3a",
       "bytes": 1003,
       "rebuild": "python scripts/score_test_pass.py",
       "claims": "C1, C3, C4"
@@ -39,7 +39,7 @@
     {
       "name": "classifier_contrasts",
       "path": "outputs/analysis/phase3a/p2/classifier_contrasts.json",
-      "sha256": "ea201aacb0b4057a12380b6f6a3960508d7d9c070f31cdd1b886b30b99b49cfb",
+      "sha256": "f72d77955f3b6547c4434cd746149f5ab4bc9e8435e5bba73be5c43d3587d7e4",
       "bytes": 5745,
       "rebuild": "python scripts/evidence_classifier.py --contrasts",
       "claims": "C6"
@@ -47,7 +47,7 @@
     {
       "name": "crossfit_val",
       "path": "outputs/analysis/phase3a/hybrid/crossfit_val_rows.jsonl",
-      "sha256": "85522c664b0d6f79a9a00e1fe26c7d4418e4d99338681dce5ba73797ceff0e39",
+      "sha256": "8cfb6b51639c17ebc1fca567ee8f65621b7c684494b91ec68805fc7c6207e86d",
       "bytes": 594671,
       "rebuild": "python scripts/crossfit_val_rows.py",
       "claims": "C2"
@@ -55,7 +55,7 @@
     {
       "name": "crossfit_test",
       "path": "outputs/analysis/phase3a/hybrid/crossfit_test_rows.jsonl",
-      "sha256": "4a321a7151cac5ac4b4ce93b2bc8f2e551d266621e577b617a004141e76fd6ba",
+      "sha256": "b3d159a32ec31e3ed5c5db4d0030a5cc08dc5ebcc6b98888beb3f25558cbfd85",
       "bytes": 1233086,
       "rebuild": "python scripts/crossfit_test_rows.py",
       "claims": "C2"
@@ -63,7 +63,7 @@
     {
       "name": "figures",
       "path": "docs/reports/figures/figure_data.json",
-      "sha256": "8f40e088815e1f5484ae2a40a09861145dc10677a1d8c29a9134bb85f47f81ce",
+      "sha256": "590d9df38e75a06be92405a4c99cdcc4630dd5f7603016f81cace2bf6379dddd",
       "bytes": 1355,
       "rebuild": "python scripts/make_figures.py",
       "claims": "figures 1-4"
@@ -71,7 +71,7 @@
     {
       "name": "approach_figures",
       "path": "docs/reports/figures/approach_data.json",
-      "sha256": "8657bf15bb714654e6032c6123253a325ed6d697f5a3a5f8d47ef06099e6ea51",
+      "sha256": "a5304e836d87facc67e690ff607035ed1f056798dcc9245c87da91184b2dcc83",
       "bytes": 7791,
       "rebuild": "python scripts/make_approach_figures.py",
       "claims": "figures 5-8, previous vs current approach"
@@ -79,7 +79,7 @@
     {
       "name": "approach_comparison",
       "path": "outputs/analysis/phase3a/hybrid/comparison.json",
-      "sha256": "6dd00ce4e290e299ce115c7d6620455e52ee7640fc3e102891818e3fff0358f3",
+      "sha256": "3cd4be08beb3c60a5733fd22cba03a47377f4920a644be2cd3e839290d7a9080",
       "bytes": 28331,
       "rebuild": "python scripts/hybrid_comparison.py",
       "claims": "previous vs current diagnosis"
@@ -87,7 +87,7 @@
     {
       "name": "crossfit",
       "path": "outputs/analysis/phase3a/hybrid/crossfit.json",
-      "sha256": "09436e36d10fdb3137893583ff4802493d661f9fae60cb9391482ee32e71ed70",
+      "sha256": "3b730b97452c535d4ca414784967fc27d262fdbec3ed3cccdf11e7e3a4aa5fcb",
       "bytes": 27563,
       "rebuild": "python scripts/hybrid_calibration.py",
       "claims": "cross-fitted calibration and threshold"
@@ -96,14 +96,14 @@
       "name": "rp_final_report",
       "path": "docs/reports/RP_FINAL_REPORT_2026-11-16.md",
       "sha256": "4caddd80309c72ad9c45188d2f639a6e81a2b2393f5565515a9aa4dc0bff372d",
-      "bytes": 18125,
+      "bytes": 18453,
       "rebuild": "(assertion document)",
       "claims": "all"
     },
     {
       "name": "claims",
       "path": "docs/reports/PAPER_CLAIMS_2026-11-16.md",
-      "sha256": "c5afd46e5b1086c898eb814380f5ababca2b8ea349aa92474e6d189691325656",
+      "sha256": "de1baee2c115a761dc649cbb78c15e29d0a8b69eae7beb4fbb1119fa7a8427e7",
       "bytes": 9784,
       "rebuild": "(assertion document; edited by hand with a dated section per change)",
       "claims": "all"
@@ -111,7 +111,7 @@
     {
       "name": "methods",
       "path": "docs/reports/PAPER_METHODS_METRICS_2026-11-16.md",
-      "sha256": "8bc26e6248863c3bec7d1cd9ab92e11b4868ed729312c3d785cbb0a8231b5275",
+      "sha256": "f4683f88deaede98329464aee76b89b6bea21af740fd31e7fd246bfd42f90449",
       "bytes": 9979,
       "rebuild": "(assertion document)",
       "claims": "all"

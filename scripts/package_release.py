@@ -51,7 +51,11 @@ ARTEFACTS = [
 
 
 def digest(path: pathlib.Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    """Hash text with normalised line endings so the check does not flip on a Git checkout."""
+    raw = path.read_bytes()
+    if b"\x00" not in raw:
+        raw = raw.replace(b"\r\n", b"\n")
+    return hashlib.sha256(raw).hexdigest()
 
 
 def build() -> dict:
