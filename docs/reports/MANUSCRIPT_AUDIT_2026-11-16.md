@@ -90,6 +90,10 @@ anchor split, preference, selection) are untouched, because those checks read pr
 | 497-item table: adapter | 0.8330 | 0.8330 (unchanged) | published `preds_adapter_val503.jsonl` |
 | hybrid vs LightGBM discordance | 2 / 2, p = 1.0 | **2 / 1, p = 1.0** | same |
 
+The RP's in-sample head-to-head strata were regenerated too (`vocabfix/comparison.json`): observable hybrid
+0.9976 / 0.9971 from 0.9964 / 0.9963, menu present 0.9960 / 0.9968 from 0.9940 / 0.9958, discordance 2 / 48 from
+1 / 46; the adapter column is byte-identical because those predictions were not retrained.
+
 No conclusion changed: the classifier still does not beat the hybrid, the adapter is still far behind, and every
 writer-side check is unaffected. What changed is the magnitude — the vocabulary defect was costing the hybrid
 1.0 point of cross-fitted accuracy and the Learn-to-rank baseline 0.4.

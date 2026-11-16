@@ -78,8 +78,17 @@ def per_class(rows: Sequence[Dict]) -> Dict:
 
 
 def main() -> int:
-    classifier = {row["item_id"]: row for row in load_jsonl(CLASSIFIER_PREDS)}
-    adapter = {row["item_id"]: row for row in load_jsonl(ADAPTER_PREDS)}
+    #: Input/output overrides, so a re-measurement runs beside the published comparison instead of over it.
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--classifier-preds", default=str(CLASSIFIER_PREDS))
+    parser.add_argument("--adapter-preds", default=str(ADAPTER_PREDS))
+    parser.add_argument("--out", default=str(OUT / "comparison.json"))
+    args = parser.parse_args()
+    out = Path(args.out)
+    classifier = {row["item_id"]: row for row in load_jsonl(Path(args.classifier_preds))}
+    adapter = {row["item_id"]: row for row in load_jsonl(Path(args.adapter_preds))}
     shared = [item_id for item_id in classifier if item_id in adapter]
 
     result: Dict[str, Dict] = {}
@@ -99,17 +108,16 @@ def main() -> int:
         "rows": len(shared),
         "note": ("Hybrid diagnosis == classifier + menu rule; the hybrid column is the same "
                  "numbers, reported once."),
-        "threshold": json.loads((OUT / "protocolA/threshold.json").read_text(
+        "threshold": json.loads((out.parent / "protocolA/threshold.json").read_text(
             encoding="utf-8")),
         "strata": result,
-        "surrogate": json.loads(SURROGATE.read_text(encoding="utf-8"))
-        if SURROGATE.exists() else {},
+        "surrogate": json.loads((out.parent / "surrogate.json").read_text(encoding="utf-8"))
+        if (out.parent / "surrogate.json").exists() else {},
         "menu_present_classifier_only": metrics([classifier[item_id] for item_id in shared
                                                  if classifier[item_id]["variant"] == "menu"
                                                  and not classifier[item_id]["unobservable"]]),
     }
-    (OUT / "comparison.json").write_text(json.dumps(outcome, indent=2, default=str),
-                                         encoding="utf-8")
+    out.write_text(json.dumps(outcome, indent=2, default=str), encoding="utf-8")
 
     print(f"{'stratum':<18}{'n':>5}  {'adapter':>8} {'cls+rule':>9}  {'adapter_f1':>10} "
           f"{'cls_f1':>8}  {'abst_prec':>9} {'abst_rec':>8}")

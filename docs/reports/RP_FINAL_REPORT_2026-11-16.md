@@ -180,10 +180,10 @@ is the deterministic template, which cannot contradict the evidence because it c
 
 | stratum | n | previous (adapter alone) | current (classifier + rule) | McNemar b / c |
 |---|---|---|---|---|
-| observable | 822 | 0.9416 / 0.9263 | **0.9964 / 0.9963** | 1 / 46 |
-| menu present | 497 | 0.9034 / 0.9199 | **0.9940 / 0.9958** | 1 / 46 |
-| fault named in menu | 325 | 0.9508 / 0.9593 | **0.9938 / 0.9969** | 1 / 15 |
-| `NORMAL_TRANSIENT` | 47 | 0.8723 / 0.9318 | **0.9787 / 0.9892** | 0 / 5 |
+| observable | 822 | 0.9416 / 0.9263 | **0.9976 / 0.9971** | 2 / 48 |
+| menu present | 497 | 0.9034 / 0.9199 | **0.9960 / 0.9968** | 2 / 48 |
+| fault named in menu | 325 | 0.9508 / 0.9593 | **0.9938 / 0.9969** | 2 / 16 |
+| `NORMAL_TRANSIENT` | 47 | 0.8723 / 0.9318 | **1.0000 / 1.0000** | 0 / 6 |
 | open-set on a menu | 125 | 0.7920 / 0.8839 | **1.0000 / 1.0000** | 0 / 26 |
 | unobservable (3, 9) | 12 | **0.5000 / 0.3333** | 0.0000 / 0.0000 | **6 / 0** |
 
@@ -195,8 +195,8 @@ The consolidated table was re-measured on 2026-11-16 with the corrected feature 
 1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter 0.8330 unchanged. Hybrid against LightGBM is 2 vs 1
 discordant, p = 1.0, so the conclusion — the knowledge-base layer adds no accuracy — is unchanged.
 
-The open-set stratum is **56 % of the classifier's entire advantage**: 26 items the adapter misnamed and the
-classifier declined. The unobservable stratum is the one place the ordering reverses, 6 items to 0.
+The open-set stratum is **54 % of the classifier's entire advantage**: 26 of the 48 items where the adapter is
+wrong and the classifier is right come from the adapter misnaming an open-set event the classifier declined. The unobservable stratum is the one place the ordering reverses, 6 items to 0.
 
 **Final consolidated comparison** (`p2`, 497 shared items, all systems producing a label):
 
