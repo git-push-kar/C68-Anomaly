@@ -27,7 +27,14 @@ FOLLOWUPS = EXPORT / "prose_eval_followups_179.jsonl"
 
 
 def decode_batch_direct(model, tokenizer, prompts, max_new: int, batch: int):
-    """Left-padded greedy decode through model.language_model; token ids per prompt."""
+    """Left-padded greedy decode through model.language_model; token ids per prompt.
+
+    This is the implementation that produced every stored fit-set text (batch 16, cap 512, 2.47 s/item),
+    so the confirmatory pass must use it at the same batch size: a batch-1 run is a *different* generation
+    mode, not a canonical one. Measured 2026-11-16: batch 1 and batch 4/8 disagree on 5 of 8 texts even
+    with padding removed, so byte-identity across batch sizes is not attainable and is not what the
+    measurements require — comparability with the stored batch is.
+    """
     import torch
 
     language_model = getattr(model, "language_model", None)

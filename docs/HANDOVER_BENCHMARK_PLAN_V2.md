@@ -1425,3 +1425,47 @@ unspent.
 rung-by-rung selection record, the preference deviation, D's ceiling, E's state and the outstanding
 limitations, including that the earlier `BENCHMARK_ACHIEVED_METRICS_REPORT.md` quotes figures no artefact
 on this checkout produces.
+## 31. Batch invariance measured, runtime corrected, and the old report audited, 2026-11-16
+
+**Batch size is a generation parameter, not an implementation detail.** Three comparisons on stored prompts:
+
+| comparison | identical texts |
+|---|---|
+| batch 1 vs batch 4, 4 test items | 0 / 4 |
+| batch 1 vs padding-free length-grouped batch 8, 8 test items | 3 / 8 |
+| stored probes of 12 validation prompts, batch 16 vs batch 8 | 1 / 12 |
+
+I implemented the padding-free decode (prompts grouped by exact token length, batched only inside a group,
+no pad token and no pad mask anywhere) expecting that to be the fix. It is not: 5 of 8 texts still changed.
+The rewrite was measured and reverted; `decode_batch_direct` is again the implementation that produced every
+stored fit-set text, now with a docstring saying why it must stay that way. Evidence:
+`outputs/analysis/phase3a/fit/eq_B1`, `eq_B8`, `eq_V16`, `eq_subset.jsonl`, `eq_val16.jsonl`.
+
+**Batch 1 was never the reference.** `prose_pilot/raw_pilot_run.json` records the fit set at **batch 16,
+cap 512, 2.47 s/item**. The pass is therefore admissible at batch 16, and the correct runtime is
+3,168 × 2.47 s = 7,825 s ≈ **2.2 h**, not the 33.3 h that applied a 37.83 s single-item decode to a batched
+pipeline. E's scoring on the same basis is 2 × 520 × 2.47 s ≈ **0.7 h**, not 10.9 h.
+
+**One caveat, recorded rather than smoothed over.** Re-running eight stored validation prompts at batch 16
+did not reproduce the stored texts, and the fresh output used a different JSON schema (`fault_id` first,
+`physical_reasoning` second) with a different length (951 vs 1106 chars on the first item). That is at least
+partly a prompt-build difference, so it cannot be read as non-determinism of the same call; an exact
+reproduction check needs the original prompt builder. Until then the pass is comparable to the fit set by
+configuration, not by replayed text. This is a limitation of the report, not a pass.
+
+**The older report was audited figure by figure.** `docs/reports/BENCHMARK_FIGURE_AUDIT_2026-11-16.md`
+classifies every quantitative claim in `BENCHMARK_ACHIEVED_METRICS_REPORT.md`: 7 supported by an artefact,
+12 withdrawn because nothing on this checkout produces them, and 5 contradicted by an artefact. The
+contradictions are the ones worth naming:
+
+- **Anchor exactness** A 329/329 and B 170/329: `n4_cells.summary.json` has 520 anchor rows per condition,
+  with 520 and 188 exact — 100 % and 36.2 %, not 51.67 %. The 329 denominator is from an older subset.
+- **D30 preference** "30 wins / 8 ties / 2": the only stored 40-row sheet (`audit_v5_reveal_strict.csv`) is
+  A 18 / B 14 / tie 8, i.e. 56.25 % of non-ties, not 93.75 %.
+- **Adapter latency** "0.65 s/report": measured 2.47 s/item at batch 16 and 29–38 s at batch 1.
+- **Rung 2 as the decider**, and **rung 6 as the default winner**: the signed receipt records
+  `decided_by_rung 5` with the cost tie-break and `measured_rungs_with_input [5]`; rung 6 was never reached.
+
+`scripts/audit_achieved_report.py` applies the corrections and asserts every pattern, so a partial edit
+cannot pass silently; the report now carries a banner pointing at the audit and at the final report.
+`scripts/update_final_report_runtime.py` does the same for §9 of the final report.

@@ -7,7 +7,8 @@ ladder are complete and measured. The preference tier ran and failed its pre-reg
 so it is reported as secondary and descriptive. The one-shot confirmatory pass on the test export is
 **prepared but not run**: the pass needs 3,168 generations, the batched decode path is **not
 output-equivalent** to single-item decode (0 of 4 texts matched), and at the only admissible speed the job
-is 33.3 hours. The one shot is unspent. E's adapters are trained but unscored.
+runs at 2.2 h at the batch size the scored cells were generated with (16), so it is admissible
+rather than blocked. The one shot is unspent. E's adapters are trained but unscored.
 
 ---
 
@@ -171,27 +172,40 @@ text is `docs/judging/preference_secondary_2026-11-16.md`.
 - Guard: `scripts/confirmatory_pass.py` refuses any receipt without a measured rung (verified: exit 2 on
   both provisional receipts, exit 0 on the final one).
 
-**Why it has not run.** Two reasons, both measured today.
+**What the batch-size measurements settle.** Three comparisons, all on stored prompts:
 
-1. **The batched path is not output-equivalent.** Batch 1 and batch 4 were run on the same four test items
-   with the same adapter and cap: **0 of 4 texts were byte-identical** (lengths 1117 vs 1234, 1223 vs 1222,
-   1285 vs 1369, 1260 vs 1208). Batching is therefore not usable for a one-shot measurement — it would
-   change the text being scored. Measured speed at batch 4 is 45.5 s for 4 items against 146.0 s at batch 1
-   (3.2×), which is exactly the saving that cannot be taken.
-2. **At the admissible speed the job is 33.3 h.** 3,168 items × 37.83 s/item (measured, cap 512) =
-   119,845 s.
+| comparison | identical |
+|---|---|
+| batch 1 vs batch 4, same 4 test items | **0 / 4** |
+| batch 1 vs **padding-free** length-grouped batch 8, same 8 test items | **3 / 8** |
+| stored probes of the same 12 validation prompts at batch 16 vs batch 8 | **1 / 12** |
 
-**What this costs and what it needs.** Either a decode path proven byte-identical to batch 1 (a rewrite of
-the manual cache loop to a masked `generate` call, then a fresh equivalence check), or a single 33.3-hour
-GPU run. The one shot remains unspent; spending it on a non-equivalent path would be worse than not
-spending it.
+Padding is therefore not the cause: grouping prompts by exact token length and batching only inside a group
+removes every pad token and still changes 5 of 8 texts. Generation is **not batch-invariant**, and no
+masking or grouping trick recovers the batch-1 text — I implemented the padding-free version, measured it,
+and reverted it.
+
+That result does not block the pass, because **batch 1 was never the reference.** Every scored cell comes
+from texts generated at **batch 16, cap 512, 2.47 s/item** (`prose_pilot/raw_pilot_run.json`). A batch-1 pass
+would be a *different generator*, not a canonical one; the admissible configuration is the one the fit set
+used. At that speed the pass costs 3,168 × 2.47 s = 7,825 s ≈ **2.2 h**, not the 33.3 h quoted earlier (that
+figure applied a single-item decode time of 37.83 s to a batched pipeline).
+
+**Caveat on reproduction of stored texts.** Re-running eight stored validation prompts at batch 16 did not
+reproduce the stored texts, and the fresh output used a different JSON schema (`fault_id` first), so the
+failure is at least partly a prompt-build difference and cannot be read as non-determinism of the same call.
+An exact reproduction check would need the original prompt builder; until then this pass is comparable to the
+fit set by configuration, not by replayed text.
+
+**State.** The one shot remains unspent. Spending it at batch 16 is admissible and takes 2.2 h; launching it
+was not part of what was authorised today.
 
 ## 10. E — trained, unscored, and one wording correction
 
 Both E adapters exist and completed: `outputs/tep_rca_v2_prose_e_seed43` and `…_seed44`, each with
 `global_step 288`, `epochs_completed 3.0`, 1,523 training examples, checkpoints 48–288. They are **not
-scored into the cell table**: scoring needs 2 × 520 generations, i.e. 10.9 h at the admissible single-item
-speed (the same batching limitation as §9 applies).
+scored into the cell table**: scoring needs 2 × 520 generations, i.e. about 0.7 h at the batch-16 speed the
+fit set was generated with (2.47 s/item).
 
 **Integrity check outstanding.** The 2026-11-05 incident moved a seed-43 run into seed-42's checkpoint
 directory. Before these adapters are scored, their `files_sha256` blocks and telemetry must be compared
@@ -209,8 +223,9 @@ seeds", or a fourth seed must be trained.
    overlapping.
 4. **D breaches its declared ceiling** (27.3 % vs 25 %) and is reported as A with extra steps.
 5. **Parity between scoring paths shows 1,390 disagreements** and is unresolved.
-6. **Batching is not output-equivalent**, which is why the confirmatory pass is 33.3 h rather than ~10 h,
-   and why E is unscored.
+6. **Generation is not batch-invariant** (1 of 12 identical between batch 16 and batch 8, 3 of 8 with
+   padding removed). The pass must therefore run at the fit set's batch size, cost 2.2 h, and no speedup is
+   available by batching; E's scoring is 0.7 h on the same basis.
 7. **Subsystem and severity are not measured**; reporting them would duplicate the root-cause number.
 8. **The earlier summary** `docs/reports/BENCHMARK_ACHIEVED_METRICS_REPORT.md` carries figures
    (99.64 % diagnosis accuracy, ECE 0.0009, FAR 2.0 %) that **no artefact on this checkout produces**. It
@@ -230,7 +245,7 @@ python scripts/preference_agreement.py --rater1 outputs/preference_2026-11-16/sh
 python scripts/mechanism_sheet.py --from-sheet outputs/overnight_2026-11-05/n5_examples_audited.csv
 python scripts/build_test_orders.py                      # §9 rows
 # venv_train interpreter required for generation:
-#   prose_pilot_run.py --rows outputs/benchmark_v2/eval/prose_test/rows_test.jsonl --orders kb --batch 1
+#   prose_pilot_run.py --rows outputs/benchmark_v2/eval/prose_test/rows_test.jsonl --orders kb --batch 16
 ```
 
 ## 13. Table index for the paper

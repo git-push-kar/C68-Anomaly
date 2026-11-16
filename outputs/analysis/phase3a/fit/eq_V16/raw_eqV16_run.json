@@ -1,0 +1,14 @@
+{
+  "adapter": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\tep_rca_v2_prose_pilot_seed42\\tep_rca_v2_prose_pilot_seed42",
+  "tag": "eqV16",
+  "cap": 512,
+  "batch": 16,
+  "written": {
+    "kb": {
+      "path": "outputs\\analysis\\phase3a\\fit\\eq_V16\\raw_eqV16_kb.jsonl",
+      "rows": 8
+    }
+  },
+  "mean_seconds_per_item": 3.72,
+  "total_seconds": 34.3
+}

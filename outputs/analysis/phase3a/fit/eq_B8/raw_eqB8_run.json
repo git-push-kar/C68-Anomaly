@@ -1,0 +1,14 @@
+{
+  "adapter": "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\tep_rca_v2_prose_pilot_seed42\\tep_rca_v2_prose_pilot_seed42",
+  "tag": "eqB8",
+  "cap": 512,
+  "batch": 8,
+  "written": {
+    "kb": {
+      "path": "outputs\\analysis\\phase3a\\fit\\eq_B8\\raw_eqB8_kb.jsonl",
+      "rows": 8
+    }
+  },
+  "mean_seconds_per_item": 4.24,
+  "total_seconds": 38.6
+}
