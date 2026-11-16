@@ -179,6 +179,11 @@ class where the writer fails is 9.0 % of the fit set and 1.3 % of the confirmato
 class the counts are nearly identical (29 and 29). An earlier draft of this work read the unstratified gap as
 split dependence; stratifying dissolves it.
 
+The two splits were rendered from slightly different prompt builds (§7, limitation 2), so we claim
+**consistency across two builds**, not stability across identical conditions: in both, the defect concentrates
+on no-alarm narratives and is near-absent elsewhere. The matched counts do not depend on the template
+difference, and the comparison is within class throughout.
+
 The failure mode is specific and reproducible: writing a *no-alarm* narrative, the adapter attaches
 inequality claims to detectors whose stored values point the other way. That is an error a deployment can
 monitor for directly (count inequality claims in normal-transient reports), which is more useful than a global
