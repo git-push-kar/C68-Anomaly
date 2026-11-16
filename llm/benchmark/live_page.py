@@ -15,7 +15,8 @@ itself** (``prompt_v2.render_prompt``). Nothing here reimplements formatting: th
 byte-identical to the page the classifier was measured on, which is what ``tests/test_live_page_contract.py``
 checks by parsing stored pages back into evidence and demanding the same text out.
 
-Not wired into ``TEPApp`` yet, by design.
+``llm/hybrid/live_classifier.py`` calls the guarded page renderer, and ``TEPApp`` uses that class when
+``hybrid.enabled`` is set, so the live report path reads exactly the page this contract test pins down.
 """
 from __future__ import annotations
 

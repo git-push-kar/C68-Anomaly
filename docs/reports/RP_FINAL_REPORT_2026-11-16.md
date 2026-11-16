@@ -180,6 +180,23 @@ is the deterministic template, which cannot contradict the evidence because it c
 
 ---
 
+### 3.4 Wiring, as shipped
+
+The diagnosis layer is wired into `TEPApp._generate_report` behind `hybrid.enabled` (default **false**) and
+reads the retrained artefacts in `outputs/analysis/phase3a/hybrid/vocabfix`. When enabled, the report gains a
+`diagnosis` block — `fault_id`, `predicted_class`, `confidence`, `verdict`, `reason`, `threshold`, `source`,
+`artifacts` — and the prose layer is untouched: `root_cause` and `summary` remain whatever the writer produced,
+so a template sentence is never mistaken for a classifier decision.
+
+The detector-evidence guard is in that path: an event with no LSTM or CVA score is refused with
+`verdict = "unavailable", reason = "evidence_incomplete"` instead of being labelled. That is the 333 schema-v1
+records of §3.1 — they get a report, not a diagnosis.
+
+The adapter is orthogonal. With `enable_llm=False` the report is the deterministic fallback and still carries
+the verdict, which is the configuration the new test exercises (5 tests, `tests/test_hybrid_report_path.py`).
+Enabling the flag changes which code runs, not what was measured: every metric in this report comes from the
+same pipeline executed offline on the stored splits.
+
 ## 4. Head-to-head
 
 ![Diagnosis accuracy by stratum](figures/fig6_diagnosis_by_stratum.png)

@@ -95,8 +95,8 @@
     {
       "name": "rp_final_report",
       "path": "docs/reports/RP_FINAL_REPORT_2026-11-16.md",
-      "sha256": "e33bc1b82edaede018cf436752718f25b87fd4d0292d159f77e810e824407f96",
-      "bytes": 19897,
+      "sha256": "767da3ff0bc27a8ed669c14845af7408aca2e71e6ae97183ddb236f7f696e273",
+      "bytes": 21102,
       "rebuild": "(assertion document)",
       "claims": "all"
     },
@@ -111,8 +111,8 @@
     {
       "name": "methods",
       "path": "docs/reports/PAPER_METHODS_METRICS_2026-11-16.md",
-      "sha256": "747856833088898d6e975cfb60f9289d6e133c9d2e267b018e41a8368ca81f2d",
-      "bytes": 11323,
+      "sha256": "27fc4457574d43c08127eb17c11956679606e27fc5bd435a50ce11e8a3b69eb1",
+      "bytes": 11780,
       "rebuild": "(assertion document)",
       "claims": "all"
     }

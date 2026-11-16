@@ -387,6 +387,40 @@ Recommendation, in order:
 3. **Segment the metrics.** Report accuracy and rule reasons per cohort (`detector_bearing` vs `legacy`), so a
    mixed average cannot hide the fact that a third of the traffic is unclassifiable.
 
+### 7.7 Wired, behind a flag, 2026-11-16
+
+This section supersedes the "not yet wired" statements in §7.3 and §7.5.
+
+| piece | where |
+|---|---|
+| `HybridDiagnosis` | `llm/hybrid/live_classifier.py` — page → 323 features → Protocol A booster → isotonic calibration → `menu_rule` with deployment menu A |
+| flag | `hybrid.enabled` in `configs/config.yaml`, **false by default**, with `hybrid.artifact_dir` (default `outputs/analysis/phase3a/hybrid/vocabfix`) and optional `threshold` override |
+| seam | `TEPApp._generate_report`; `TEPApp._diagnose` holds the guard and its refusal |
+| guard | `render_classifier_page` raises `IncompleteEvidence`; `_diagnose` turns that into a verdict, not an exception |
+
+The adapter is independent of the flag: with `enable_llm=False` the report is the deterministic fallback and
+still carries `report["diagnosis"]`. The verdict is a **separate field**, never written into `root_cause` or the
+summary, so a template sentence can never look like a classifier decision.
+
+Report contract when the flag is on:
+
+| field | meaning |
+|---|---|
+| `fault_id` | menu-legal answer: a fault id, `UNCLASSIFIED_OPEN_SET`, `NORMAL_TRANSIENT`, or `None` when refused |
+| `predicted_class` | what the classifier ranked first, kept so an abstention can be explained |
+| `confidence` | calibrated confidence of the winning class; `None` when refused |
+| `verdict` / `reason` | `classified` / `unclassified_open_set` / `no_fault` / `unavailable`, and the rule's reason (`on_menu_above_threshold`, `below_threshold`, `not_on_menu`, `no_fault_predicted`, `evidence_incomplete`) |
+| `threshold` / `source` / `artifacts` | the threshold in force, `classifier+menu_rule`, and the artefact directory |
+
+When the flag is off, no `diagnosis` key is added: the report is byte-for-byte the previous one.
+
+Tests (`tests/test_hybrid_report_path.py`, 5 passing): a real `TEPApp` with `enable_llm=False` builds with the
+hybrid on; a report keeps its prose and gains a verdict; a pre-instrumentation record is refused with
+`evidence_incomplete` and the report is still produced; the flag-off path adds nothing.
+
+The wiring adds **no new metric**. Every number the documents quote comes from the same pipeline executed
+offline on the stored splits, so enabling the flag changes which code path runs, not what has been measured.
+
 ## 8. What this plan does not do
 
 It does not change the detector, the adapter, the prompts, the datasets or the measured numbers; it does not

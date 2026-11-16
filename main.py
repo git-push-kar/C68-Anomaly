@@ -167,6 +167,22 @@ class TEPApp:
             logger.info("No tep_rca adapter found at %s; using deterministic reports.",
                         adapter_dir)
 
+        # --- hybrid diagnosis (classifier + menu rule), off unless configured
+        self.hybrid = None
+        hybrid_cfg = self.config.get("hybrid") or {}
+        if hybrid_cfg.get("enabled", False):
+            try:
+                from llm.hybrid.live_classifier import DEFAULT_ARTIFACTS, HybridDiagnosis
+
+                self.hybrid = HybridDiagnosis(
+                    hybrid_cfg.get("artifact_dir") or DEFAULT_ARTIFACTS,
+                    threshold=hybrid_cfg.get("threshold"),
+                )
+                logger.info("Hybrid diagnosis enabled from %s (threshold %.4f).",
+                            self.hybrid.artifacts, self.hybrid.threshold)
+            except Exception as exc:
+                logger.error("Hybrid diagnosis requested but unavailable: %s", exc)
+
         # --- streaming state ------------------------------------------------
         self.window_size = int(self.config["streaming"]["window_size"])
         self.stride = int(self.config["streaming"]["stride"])
@@ -385,8 +401,36 @@ class TEPApp:
         if self.rca is not None:
             report, raw = self.rca.generate_report(event.evidence.to_dict())
             logger.debug("LLM report raw: %.200s", raw)
-            return report
-        return _fallback_report(event)
+        else:
+            report = _fallback_report(event)
+        if self.hybrid is not None:
+            report["diagnosis"] = self._diagnose(event)
+        return report
+
+    def _diagnose(self, event: AnomalyEvent) -> Dict:
+        """Run the hybrid on one event and return its verdict, or the reason it refused.
+
+        A refusal is a result, not an exception: a pre-instrumentation event still gets a report, it simply
+        is not given a model label it has no evidence for.
+        """
+        from llm.benchmark.live_page import IncompleteEvidence
+
+        try:
+            return self.hybrid.diagnose(event.evidence.to_dict())
+        except IncompleteEvidence as exc:
+            logger.warning("Hybrid diagnosis refused for %s: %s", event.event_id, exc)
+            return {
+                "fault_id": None,
+                "predicted_class": None,
+                "confidence": None,
+                "verdict": "unavailable",
+                "reason": "evidence_incomplete",
+                "abstained": True,
+                "threshold": self.hybrid.threshold,
+                "source": "classifier+menu_rule",
+                "artifacts": str(self.hybrid.artifacts),
+                "detail": str(exc),
+            }
 
     # ==================================================================
     # follow-up questions

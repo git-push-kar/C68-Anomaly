@@ -146,6 +146,18 @@ events:
 #   - Gradient checkpointing is on; disable only if you have VRAM to spare
 #     and want speed over memory savings.
 # ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+# Hybrid diagnosis: the classifier plus the menu rule decide the label; the
+# adapter, when loaded, only writes prose. Off by default so an existing
+# deployment keeps its current behaviour until the flag is turned on. It does
+# not require an adapter: the report path falls back to the deterministic
+# report and still carries the verdict.
+# ---------------------------------------------------------------------
+hybrid:
+  enabled: false
+  artifact_dir: outputs/analysis/phase3a/hybrid/vocabfix
+  # threshold: null          # null uses the threshold stored with the artefacts
+
 llm:
   # Retrained on the pristine InternVL3-2B base (no adapter merged).
   # The quarantined v0 adapter was trained on ./models/internvl3_2b_lr_fused.

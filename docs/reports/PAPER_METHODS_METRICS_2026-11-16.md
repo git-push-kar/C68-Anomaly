@@ -14,6 +14,12 @@ fault identity, severity and confidence are computed by code and calibrated clas
 model only writes prose and answers follow-up dialogue. This separation is the architectural claim (C8) and is
 enforced by construction, not measured.
 
+The classifier is wired into the live report path behind `hybrid.enabled` (default false) against the retrained
+`vocabfix` artefacts. When it is on, `report["diagnosis"]` carries the menu-legal verdict and confidence, the
+prose fields are untouched, and events with no detector evidence are refused with `evidence_incomplete` rather
+than labelled. The wiring adds no metric: the numbers below are this same pipeline run offline on the stored
+splits.
+
 Two report writers are compared on identical evidence:
 
 | label | writer | mechanism |
