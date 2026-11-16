@@ -1501,3 +1501,22 @@ Paper-facing claims, the quotable numbers and the ten explicit non-claims are in
 `docs/reports/PAPER_CLAIMS_2026-11-16.md`. Still open: test order runs (shuffled-1/2), E scoring and its
 seed-43/44 integrity check, the detector-frontier table, the follow-up T condition, parity (1,390), release
 packaging, and the owner's Version A/B signature.
+
+## 34. Identifier over-count fixed, and every rate re-derived, 2026-11-16
+
+The numeric reader tokenised digits inside names (`FAULT_08` → `08`, `Component_D_Stream9` → `9`,
+`XMEAS_17` → `17`). Any token starting with a letter and containing a digit is now masked. Result:
+
+| | before identifiers masked | after |
+|---|---|---|
+| validation A / B numeric | 13/520 · 50/520 | **0/520 · 30/520** |
+| test A / B numeric | 619/3,168 · 115/3,168 | **0/3,168 · 40/3,168** |
+| D fallback rows | 132 (25.4 %) | **114 (21.9 %)** |
+| D anchor exact | 279 | **262** |
+| McNemar, validation | 49 / 12 | **30 / 0** (p ≈ 1.9e-9) |
+
+Two claims move. **C1 is rewritten**: the adapter no longer "beats" A on numeric fidelity — A has no numeric
+defects at all, and B's claim is that it meets the 2 % gate on held-out data (1.26 %). **C6 is suspended
+pending re-signoff**: the signed D-ceiling decision records a 27.3 % breach that no longer exists at 21.9 %,
+and the conservative framing stays available. The selection is untouched: chosen A, `decided_by_rung 5`,
+passers [A, D].

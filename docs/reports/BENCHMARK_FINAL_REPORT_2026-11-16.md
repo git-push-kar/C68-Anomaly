@@ -50,32 +50,37 @@ No preference claim, no severity claim, no subsystem claim, no composite score.
 
 | cell | numeric defect rows | rate | grounding | tag-role | contradiction | anchor exact / 520 |
 |---|---|---|---|---|---|---|
-| A | **13** | 0.0250 | 0 | 0 | 0 | **520** |
-| B | 50 | 0.0962 | 33 | 57 | 0 | 188 |
-| C | **13** | 0.0250 | 1 | 17 | 0 | **520** |
-| M | 50 | 0.0962 | 32 | 43 | 0 | 191 |
-| D | 6 | 0.0115 | 0 | 0 | 0 | 279 |
+| A | **0** | 0.0000 | 0 | 0 | 0 | **520** |
+| B | 30 | 0.0577 | 33 | 57 | 0 | 188 |
+| C | **0** | 0.0000 | 1 | 17 | 0 | **520** |
+| M | 30 | 0.0577 | 32 | 43 | 0 | 191 |
+| D | 0 | 0.0000 | 0 | 0 | 0 | 262 |
 
-Regenerated 2026-11-16 with the corrected `numeric_flags` (see §9b): the checker had counted stored sensor
-and lag values as invented whenever a sentence also named a detector, which inflated A from 13 to 19 and B
-from 50 to 62. Only the numeric count and D's anchor row moved; grounding, tag-role and contradiction are
-unchanged, which is itself evidence that the fix was narrow. The pre-revision table is preserved as
-`n4_cells_preinstrument_2026-11-16.json`. Source: `outputs/overnight_2026-11-05/n4_cells.json`.
+Regenerated 2026-11-16 after two checker corrections (see §9b). First, numbers were attributed only to the
+detector named in their sentence, which counted stored sensor values as invented (A 19 → 13, B 62 → 50).
+Second, the number reader tokenised the digits inside names — `FAULT_08` gave `08`, `Component_D_Stream9`
+gave `9` — and masking those identifiers took the table to its final row: **A and C drop to zero, B and M to
+30**. The deterministic writers copy numbers from the page, so zero is the truthful count for them. Only
+numeric counts and D's anchor row moved; grounding, tag-role and contradiction are identical across all
+three versions, which is the evidence that both fixes were narrow. Pre-revision table preserved as
+`n4_cells_preinstrument_2026-11-16.json`.
 
 **Seam certification** (`n4_cells.seam_certification`): C leaks 0 of B's numeric values, M leaks 0 of A's;
 C leaves 88 donor sentences unused, M leaves 584. The seams are doing what they claim.
 
-**D's ceiling.** D fell back to A on **132 of 520 rows (25.4 %)** against a declared 25 % ceiling. It is
-therefore reported as **"A with extra steps"**: its numeric count of 6 is published with the fallback rate
-beside it, and no claim is made that D reduces defects on the rows it wrote itself. The corrected instrument
-moves the rate from 27.3 % to 25.4 % and the verdict does not change. Signed acceptance:
-`docs/judging/confirm/d_ceiling_decision_2026-11-16.json`. No re-cut, no threshold moved.
+**D's ceiling.** D fell back to A on **114 of 520 rows (21.9 %)**, which is **inside** its declared 25 %
+ceiling. Under the two earlier checker versions the rate was 27.3 % and then 25.4 %, and the signed
+`d_ceiling_decision_2026-11-16.json` records a breach and prescribes the "A with extra steps" framing. That
+breach no longer exists on the corrected instrument, so the paper's D statement is **pending re-signoff**:
+either keep the conservative framing (defensible, since D's gain over A is zero by construction on rows it
+hands back) or report D as a wrapper that stays inside its budget. It is not switched silently here.
 
 ## 4. Primary contrast
 
-**B vs A, numeric-defect rows, paired.** B has 50, A has 13; discordant pairs 49 (B only) and 12 (A only);
-exact McNemar p < 1e-06. This is the paper's main claim and it is measured on the fit set; the test contrast
-is reported separately in §9b and points the other way, so the split must be named wherever this is quoted.
+**B vs A, numeric-defect rows, paired.** B has 30, A has 0; all 30 discordant pairs fall B's way; exact
+McNemar p ≈ 1.9 × 10⁻⁹. This is the paper's main claim on the fit set. The test contrast (§9b) keeps the same
+direction and additionally shows B inside the 2 % numeric gate on held-out data — but it is a different
+population, and the split is named wherever the number appears.
 
 ## 5. Classifier track (P2 merged row)
 
@@ -211,8 +216,8 @@ fallback texts are generated for the same rows.
 
 ## 9b. D33 executed: B versus A on 3,168 test items (revised 2026-11-16)
 
-*Supersedes the earlier §9b, which reported the A column as incomparable. The cause was found and fixed, and
-the fix changes the validation numeric counts as well — recorded honestly below rather than hidden.*
+*Supersedes the earlier §9b. Two checker corrections changed these numbers; the sequence and its effect are
+recorded in [`D33_TEST_CONTRAST_2026-11-16.md`](D33_TEST_CONTRAST_2026-11-16.md).*
 
 **The pass.** 3,168 test rows, kb order, batch 16, adapter seed 42 —
 `outputs/benchmark_v2/eval/prose_test/run_kb16/raw_testkb_kb.jsonl`, `mean_seconds_per_item 3.57`,
@@ -220,30 +225,26 @@ the fix changes the validation numeric counts as well — recorded honestly belo
 
 | check | A (fallback v3.1) | B (adapter) | gate |
 |---|---|---|---|
-| **numeric defect** | **19.54 % (619)** | **3.63 % (115)** | ≤ 2 % — both fail |
+| **numeric defect** | **0.00 % (0)** | **1.26 % (40)** | ≤ 2 % — **both pass** |
 | grounding violation | 7.89 % (250) | 10.26 % (325) | ≤ 2 % — both fail |
 | negate-aware contradiction | 0.00 % (0) | 0.16 % (5) | ≤ 2 % — both pass |
 | tag-role claim | 0.00 % (0) | 14.46 % (458) | ≤ 2 % — B fails |
 | **anchor exact** | **100 % (3,168)** | **36.93 % (1,170)** | ≥ 90 % — B fails |
 
-McNemar on the primary check: **B-only 101, A-only 605, p ≈ 0**. On held-out items A invents a number where B
-does not 6.0 times as often as the reverse — the validation ordering (A 2.50 % vs B 9.62 %) reverses on test.
+McNemar on the primary check: **B-only 40, A-only 0, exact p ≈ 2 × 10⁻¹²**. There is no discordance in A's
+favour, so no ratio is quoted.
 
-**Instrument revision, declared.** `numeric_flags` attributed a number only to the detectors named in its
-sentence, so a sentence naming LSTM and CVA while quoting a stored sensor z-score counted that value as
-invented. The fix allows values from the non-detector evidence sections to satisfy the stored test while
-detector numbers are still checked against the named detector. Consequence: validation becomes **A 13/520
-(2.50 %) and B 50/520 (9.62 %)**, against 19/520 and 62/520 as stored — six A items and twelve B items were
-false positives, so a check that reproduced the old numbers would have reproduced the bug. Both conditions
-still exceed the 2 % gate, so the rung-1 veto direction is unchanged, and anchor, grounding, contradiction
-and tag-role counts are untouched.
+**What changed and why it matters.** The first scoring reported A at 41 % because the checker attributed
+numbers only to the detector named in a sentence; fixing that gave 19.54 %. Masking identifiers (`FAULT_08`,
+`Component_D_Stream9`, `XMEAS_17`) took A to **zero**: every "defect" it had was a name being read as a
+quantity. The adapter's rate fell from 11.92 % to 5.77 % on validation and from 3.50 % to **1.26 %** on test.
+So the earlier statement that "both writers fail the numeric gate on test" is **withdrawn**: on held-out data
+**B is inside the 2 % gate** (1.26 %) and A has no numeric defects at all.
 
-**Reading.** The adapter is the more numerically faithful writer on held-out events and the less faithful
-one on validation; the paper must name the split. Anchor exactness is the structural failure (36.9 % against
-100 %, with the z-score omitted in 46 % of texts). Nothing here changes the shipped condition: A is chosen at
-rung 5 on cost, and both writers fail the numeric gate on test.
-
-Full record and reproduction: [`D33_TEST_CONTRAST_2026-11-16.md`](D33_TEST_CONTRAST_2026-11-16.md).
+**Reading.** The adapter is not more faithful than the deterministic writer — it is the only one of the two
+that produces numeric defects — but on held-out events its rate is within the declared budget. Its failures
+are elsewhere and large: grounding 10.26 %, tag-role 14.46 %, anchor exactness 36.93 % with the z-score
+omitted in 46 % of texts. The shipped condition is unchanged: A, chosen at rung 5 on cost.
 
 ## 10. E — trained, unscored, and one wording correction
 

@@ -4,13 +4,13 @@
   "construction_note": "A rebuilt with test.jsonl probabilities; on validation A used crossfit predictions (declared deviation)",
   "counts": {
     "A": {
-      "numeric": 619,
+      "numeric": 0,
       "grounding": 250,
       "contradiction": 0,
       "tag_role": 0
     },
     "B": {
-      "numeric": 115,
+      "numeric": 40,
       "grounding": 325,
       "contradiction": 5,
       "tag_role": 458
@@ -18,13 +18,13 @@
   },
   "rates": {
     "A": {
-      "numeric": 0.1954,
+      "numeric": 0.0,
       "grounding": 0.0789,
       "contradiction": 0.0,
       "tag_role": 0.0
     },
     "B": {
-      "numeric": 0.0363,
+      "numeric": 0.0126,
       "grounding": 0.1026,
       "contradiction": 0.0016,
       "tag_role": 0.1446
@@ -42,8 +42,8 @@
     }
   },
   "numeric_mcnemar": {
-    "b_only_B_defect": 101,
-    "c_only_A_defect": 605,
+    "b_only_B_defect": 40,
+    "c_only_A_defect": 0,
     "p": 0.0
   }
 }

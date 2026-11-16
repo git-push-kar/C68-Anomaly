@@ -43,10 +43,6 @@ EVT-val-f02-r321::openset,kb,M,grounding,number_not_in_store,number_not_in_store
 EVT-val-f02-r321::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
 EVT-val-f02-r324::openset,kb,B,grounding,number_not_in_store,number_not_in_store:9
 EVT-val-f02-r324::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
-EVT-val-f03-r302::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.99x and CVA Q-statistic 0.97x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.19, increasing) and Component_F_Stream9 (X"
-EVT-val-f03-r302::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.99x and CVA Q-statistic 0.97x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.19, increasing) and Component_F_Stream9 (X"
-EVT-val-f03-r317::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.92x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Separator_Level (XMEAS_12, z=-0.0"
-EVT-val-f03-r317::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.92x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Separator_Level (XMEAS_12, z=-0.0"
 EVT-val-f04-r303::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f04-r303::openset,kb,B,tag_role,class_mismatch,
 EVT-val-f04-r303::openset,kb,M,tag_role,name_does_not_match_tag,
@@ -121,36 +117,18 @@ EVT-val-f08-r310::openset,kb,B,grounding,number_not_in_store,number_not_in_store
 EVT-val-f08-r310::openset,kb,M,grounding,number_not_in_store,number_not_in_store:9
 EVT-val-f08-r313::openset,kb,B,tag_role,class_mismatch,
 EVT-val-f08-r313::openset,kb,M,tag_role,class_mismatch,
-EVT-val-f08-r324::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.98x and CVA Q-statistic 3.71x, the largest deviations are Purge_Rate (XMEAS_10, z=-6.14, decreasing) and Purge_Valve (XMV_47, z=-5.94, "
-EVT-val-f08-r324::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.98x and CVA Q-statistic 3.71x, the largest deviations are Purge_Rate (XMEAS_10, z=-6.14, decreasing) and Purge_Valve (XMV_47, z=-5.94, "
 EVT-val-f08-r324::openset,kb,B,grounding,number_not_in_store,number_not_in_store:0.23
 EVT-val-f08-r324::openset,kb,M,grounding,number_not_in_store,number_not_in_store:0.23
-EVT-val-f08-r325::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4.83x, the largest deviations are A_Feed_Flow (XMV_44, z=2.13, increasing) and A_Feed_Stream1 (XMEAS_1, z=2.12,"
-EVT-val-f08-r325::menu,kb,B,numeric,value_not_stored,The CVA Q-statistic (940.1) and LSTM error (5.7571) confirm the anomaly matches FAULT_08's signature of random composition variation in A and B streams.
-EVT-val-f08-r325::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4.83x, the largest deviations are A_Feed_Flow (XMV_44, z=2.13, increasing) and A_Feed_Stream1 (XMEAS_1, z=2.12,"
-EVT-val-f08-r325::menu,kb,M,numeric,value_not_stored,The CVA Q-statistic (940.1) and LSTM error (5.7571) confirm the anomaly matches FAULT_08's signature of random composition variation in A and B streams.
-EVT-val-f08-r325::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 8.38x and CVA Q-statistic 4.83x, the largest deviations are A_Feed_Flow (XMV_44, z=2.13, increasing) and A_Feed_Stream1 (XMEAS_1, z=2.12,"
-EVT-val-f09-r301::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.95x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.36, increasing) and Recycle_Flow_Stream8 ("
 EVT-val-f09-r301::menu,kb,B,tag_role,class_mismatch,
 EVT-val-f09-r301::menu,kb,B,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
-EVT-val-f09-r301::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.95x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.36, increasing) and Recycle_Flow_Stream8 ("
 EVT-val-f09-r301::menu,kb,M,tag_role,class_mismatch,
 EVT-val-f09-r301::menu,kb,M,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
-EVT-val-f09-r301::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.95x, the largest deviations are Component_B_Stream6 (XMEAS_24, z=0.36, increasing) and Recycle_Flow_Stream8 ("
-EVT-val-f09-r302::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0.97x, the largest deviations are Component_F_Stream9 (XMEAS_34, z=-0.19) and Component_F_Stream11 (XMEAS_39, z"
 EVT-val-f09-r302::menu,kb,B,tag_role,class_mismatch,
 EVT-val-f09-r302::menu,kb,B,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
-EVT-val-f09-r302::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0.97x, the largest deviations are Component_F_Stream9 (XMEAS_34, z=-0.19) and Component_F_Stream11 (XMEAS_39, z"
 EVT-val-f09-r302::menu,kb,M,tag_role,class_mismatch,
 EVT-val-f09-r302::menu,kb,M,grounding,tag_not_in_evidence,tag_not_in_evidence:XMEAS_16
-EVT-val-f09-r302::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.94x and CVA Q-statistic 0.97x, the largest deviations are Component_F_Stream9 (XMEAS_34, z=-0.19) and Component_F_Stream11 (XMEAS_39, z"
-EVT-val-f09-r317::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.93x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Component_F_Stream6 (XMEAS_28, z="
 EVT-val-f09-r317::menu,kb,B,tag_role,name_does_not_match_tag,
-EVT-val-f09-r317::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.93x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Component_F_Stream6 (XMEAS_28, z="
 EVT-val-f09-r317::menu,kb,M,tag_role,name_does_not_match_tag,
-EVT-val-f09-r317::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 0.93x, the largest deviations are Component_D_Stream9 (XMEAS_32, z=-0.23) and Component_F_Stream6 (XMEAS_28, z="
-EVT-val-f09-r319::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 0.97x, the largest deviations are Stripper_Underflow_Stream11 (XMEAS_17, z=0.22) and Condenser_Cooling_Water_Fl"
-EVT-val-f09-r319::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 0.97x, the largest deviations are Stripper_Underflow_Stream11 (XMEAS_17, z=0.22) and Condenser_Cooling_Water_Fl"
 EVT-val-f10-r306::openset,kb,B,grounding,number_not_in_store,number_not_in_store:8.48
 EVT-val-f10-r306::openset,kb,B,grounding,number_not_in_store,number_not_in_store:0.97
 EVT-val-f10-r306::openset,kb,M,grounding,number_not_in_store,number_not_in_store:8.48
@@ -161,17 +139,8 @@ EVT-val-f10-r316::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f10-r316::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f10-r316::openset,kb,C,tag_role,name_does_not_match_tag,
 EVT-val-f10-r316::openset,kb,C,tag_role,name_does_not_match_tag,
-EVT-val-f10-r320::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 4.30x, the largest deviations are Stripper_Temperature (XMEAS_18, z=0.42, increasing) and Component_D_Stream9 ("
-EVT-val-f10-r320::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.92x and CVA Q-statistic 4.30x, the largest deviations are Stripper_Temperature (XMEAS_18, z=0.42, increasing) and Component_D_Stream9 ("
-EVT-val-f10-r320::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Stripper_Temperature (XMEAS_18), and Condenser_"
-EVT-val-f10-r320::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (837.8 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Stripper_Temperature (XMEAS_18), and Condenser_"
-EVT-val-f10-r323::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (1303.5 > 194.6) indicates a significant process deviation, with top deviating sensors showing increasing trends in Component_F_Stream11 (XMEAS_39), Stripper_Temperature (XMEAS_18), and Reactor_"
-EVT-val-f10-r323::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (1303.5 > 194.6) indicates a significant process deviation, with top deviating sensors showing increasing trends in Component_F_Stream11 (XMEAS_39), Stripper_Temperature (XMEAS_18), and Reactor_"
-EVT-val-f10-r325::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 1.62x, the largest deviations are Recycle_Flow_Stream8 (XMEAS_5, z=-0.26) and Component_D_Stream9 (XMEAS_32, z="
 EVT-val-f10-r325::menu,kb,B,tag_role,class_mismatch,
-EVT-val-f10-r325::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 1.62x, the largest deviations are Recycle_Flow_Stream8 (XMEAS_5, z=-0.26) and Component_D_Stream9 (XMEAS_32, z="
 EVT-val-f10-r325::menu,kb,M,tag_role,class_mismatch,
-EVT-val-f10-r325::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.90x and CVA Q-statistic 1.62x, the largest deviations are Recycle_Flow_Stream8 (XMEAS_5, z=-0.26) and Component_D_Stream9 (XMEAS_32, z="
 EVT-val-f11-r303::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f11-r303::openset,kb,M,tag_role,name_does_not_match_tag,
 EVT-val-f11-r304::openset,kb,B,tag_role,class_mismatch,
@@ -204,13 +173,8 @@ EVT-val-f11-r324::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f11-r324::openset,kb,M,tag_role,name_does_not_match_tag,
 EVT-val-f11-r325::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f11-r325::openset,kb,M,tag_role,name_does_not_match_tag,
-EVT-val-f12-r306::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.16x and CVA Q-statistic 105.78x, the largest deviations are Separator_Temperature (XMEAS_11, z=-2.96) and Component_G_Stream9 (XMEAS_35"
-EVT-val-f12-r306::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 7.16x and CVA Q-statistic 105.78x, the largest deviations are Separator_Temperature (XMEAS_11, z=-2.96) and Component_G_Stream9 (XMEAS_35"
-EVT-val-f12-r317::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 3.51x and CVA Q-statistic 44.55x, the largest deviations are Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21, z=0.28, increasing) and "
 EVT-val-f12-r317::menu,kb,B,tag_role,name_does_not_match_tag,
-EVT-val-f12-r317::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 3.51x and CVA Q-statistic 44.55x, the largest deviations are Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21, z=0.28, increasing) and "
 EVT-val-f12-r317::menu,kb,M,tag_role,name_does_not_match_tag,
-EVT-val-f12-r317::menu,kb,D,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 3.51x and CVA Q-statistic 44.55x, the largest deviations are Reactor_Cooling_Water_Outlet_Temperature (XMEAS_21, z=0.28, increasing) and "
 EVT-val-f13-r309::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f13-r309::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f13-r309::openset,kb,M,tag_role,name_does_not_match_tag,
@@ -235,50 +199,16 @@ EVT-val-f14-r317::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f14-r317::openset,kb,M,tag_role,name_does_not_match_tag,
 EVT-val-f14-r319::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f14-r319::openset,kb,M,tag_role,name_does_not_match_tag,
-EVT-val-f15-r303::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (228.0 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in A_C_Feed_Flow (XMV_45), Recycle_Flow_Stream8 (XMEAS_5), Separator_Underflow_Str"
-EVT-val-f15-r303::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (228.0 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in A_C_Feed_Flow (XMV_45), Recycle_Flow_Stream8 (XMEAS_5), Separator_Underflow_Str"
-EVT-val-f15-r304::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_F_Stream11, Component_H_Stream9, Component_F_Stream6) show inc"
-EVT-val-f15-r304::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_F_Stream11, Component_H_Stream9, Component_F_Stream6) show inc"
-EVT-val-f15-r306::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (212.3 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Underflow_Stream11 (XMEAS_17), Stripper_Level (XMEAS_15), and Stripper_Liquid_Prod"
-EVT-val-f15-r306::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (212.3 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Underflow_Stream11 (XMEAS_17), Stripper_Level (XMEAS_15), and Stripper_Liquid_Prod"
-EVT-val-f15-r307::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (221.2 > 194.6) indicates a significant process deviation, but the top deviating sensors (Stripper_Liquid_Product_Flow, Stripper_Level, Component_G_Stream11, Recycle_Flow_Stream8, Component_F_St"
-EVT-val-f15-r307::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (221.2 > 194.6) indicates a significant process deviation, but the top deviating sensors (Stripper_Liquid_Product_Flow, Stripper_Level, Component_G_Stream11, Recycle_Flow_Stream8, Component_F_St"
-EVT-val-f15-r310::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (222.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Reactor_Cooling_Water_Flow (XMV_51) and Component_D_Stream9 (XMEAS_32), while R"
-EVT-val-f15-r310::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (222.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Reactor_Cooling_Water_Flow (XMV_51) and Component_D_Stream9 (XMEAS_32), while R"
 EVT-val-f15-r312::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (208.5 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_17, XMV_52, XMEAS_5, XMEAS_41, XMEAS_32) show increasing trends with small z-scores (e.g., XMEAS_17 at -0.09% "
 EVT-val-f15-r312::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (208.5 > 194.6) indicates a process deviation, but the top deviating sensors (XMEAS_17, XMV_52, XMEAS_5, XMEAS_41, XMEAS_32) show increasing trends with small z-scores (e.g., XMEAS_17 at -0.09% "
 EVT-val-f15-r313::openset,kb,B,tag_role,name_does_not_match_tag,
-EVT-val-f15-r313::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (240.9 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Separator_Underflow_Stream10 (XMEAS_14), Component_D_Stream9 (XMEAS_32), and St"
 EVT-val-f15-r313::openset,kb,M,tag_role,name_does_not_match_tag,
-EVT-val-f15-r313::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (240.9 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Separator_Underflow_Stream10 (XMEAS_14), Component_D_Stream9 (XMEAS_32), and St"
-EVT-val-f15-r314::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_D_Stream9, Reactor_Feed_Rate, Component_H_Stream9) show increa"
-EVT-val-f15-r314::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (216.1 > 194.6) indicates a process deviation, but the top deviating sensors (Separator_Pot_Liquid_Flow, Separator_Level, Component_D_Stream9, Reactor_Feed_Rate, Component_H_Stream9) show increa"
-EVT-val-f15-r315::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (209.6 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Level (XMEAS_15), Stripper_Liquid_Product_Flow (XMV_49), Component_D_Stream9 (XMEA"
-EVT-val-f15-r315::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (209.6 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Stripper_Level (XMEAS_15), Stripper_Liquid_Product_Flow (XMV_49), Component_D_Stream9 (XMEA"
-EVT-val-f15-r316::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (215.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Reactor_Feed_Rate (XMEAS_6), and Component_H_S"
-EVT-val-f15-r316::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (215.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Reactor_Feed_Rate (XMEAS_6), and Component_H_S"
-EVT-val-f15-r318::menu,kb,A,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.87x and CVA Q-statistic 1.00x, the largest deviations are Component_G_Stream11 (XMEAS_40, z=-0.08) and Stripper_Liquid_Product_Flow (XM"
-EVT-val-f15-r318::menu,kb,C,numeric,value_not_stored,"Evidence for this event: detector ratios are LSTM autoencoder reconstruction error 0.87x and CVA Q-statistic 1.00x, the largest deviations are Component_G_Stream11 (XMEAS_40, z=-0.08) and Stripper_Liquid_Product_Flow (XM"
-EVT-val-f15-r319::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (230.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Cooling_Water_Flow, Compo"
-EVT-val-f15-r319::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (230.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Cooling_Water_Flow, Compo"
-EVT-val-f15-r320::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (210.1 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Condenser_Cooling_Water_Flow (XMV_52), and Stripper_Underfl"
-EVT-val-f15-r320::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (210.1 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_D_Stream9 (XMEAS_32), Condenser_Cooling_Water_Flow (XMV_52), and Stripper_Underfl"
-EVT-val-f15-r321::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (196.8 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Separator_Pot_Liquid_Flow (XMV_48), Separator_Level (XMEAS_12), Recycle_Flow_Stream8 (XMEAS"
-EVT-val-f15-r321::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (196.8 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Separator_Pot_Liquid_Flow (XMV_48), Separator_Level (XMEAS_12), Recycle_Flow_Stream8 (XMEAS"
 EVT-val-f15-r322::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f15-r322::openset,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f15-r322::openset,kb,C,tag_role,name_does_not_match_tag,
 EVT-val-f15-r322::openset,kb,M,tag_role,name_does_not_match_tag,
-EVT-val-f15-r323::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (233.3 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_F_Stream11 (XMEAS_39), Reactor_Feed_Rate (XMEAS_6), and other measure"
-EVT-val-f15-r323::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (233.3 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_F_Stream11 (XMEAS_39), Reactor_Feed_Rate (XMEAS_6), and other measure"
 EVT-val-f15-r324::openset,kb,B,tag_role,name_does_not_match_tag,
-EVT-val-f15-r324::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (227.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Component_F_Stream6 (XMEAS_28), Separator_Unde"
 EVT-val-f15-r324::openset,kb,M,tag_role,name_does_not_match_tag,
-EVT-val-f15-r324::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (227.6 > 194.6) indicates a significant process deviation, but the top deviating sensors show increasing trends in Component_G_Stream11 (XMEAS_40), Component_F_Stream6 (XMEAS_28), Separator_Unde"
-EVT-val-f15-r325::openset,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (218.0 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_F_Stream6 (XMEAS_28), Component_D_Stream9 (XMEAS_32), and Recycle_Flow_Stream8 (X"
-EVT-val-f15-r325::openset,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (218.0 > 194.6) indicates a process deviation, but the top deviating sensors show increasing trends in Component_F_Stream6 (XMEAS_28), Component_D_Stream9 (XMEAS_32), and Recycle_Flow_Stream8 (X"
-EVT-val-f16-r309::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (452.9 > 194.6) indicates a significant process deviation, but the top deviating sensors (Component_D_Stream11, Separator_Level, Separator_Pot_Liquid_Flow, Stripper_Steam_Flow, Component_D_Strea"
-EVT-val-f16-r309::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (452.9 > 194.6) indicates a significant process deviation, but the top deviating sensors (Component_D_Stream11, Separator_Level, Separator_Pot_Liquid_Flow, Stripper_Steam_Flow, Component_D_Strea"
 EVT-val-f16-r319::menu,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f16-r319::menu,kb,C,tag_role,name_does_not_match_tag,
 EVT-val-f16-r322::menu,kb,B,grounding,number_not_in_store,number_not_in_store:11
@@ -315,8 +245,6 @@ EVT-val-f19-r322::menu,kb,B,grounding,number_not_in_store,number_not_in_store:13
 EVT-val-f19-r322::menu,kb,M,grounding,number_not_in_store,number_not_in_store:13
 EVT-val-f20-r315::menu,kb,B,tag_role,name_does_not_match_tag,
 EVT-val-f20-r315::menu,kb,C,tag_role,name_does_not_match_tag,
-NORM-val-r302::menu,kb,B,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Feed_Rate, Component_F_Stream6, E_Feed_Flow) show minimal z-sc"
-NORM-val-r302::menu,kb,M,numeric,value_not_stored,"The CVA Q-statistic alarm (195.7 > 194.6) indicates a process deviation, but the top deviating sensors (Stripper_Level, Stripper_Liquid_Product_Flow, Reactor_Feed_Rate, Component_F_Stream6, E_Feed_Flow) show minimal z-sc"
 NORM-val-r304::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7012) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
 NORM-val-r304::menu,kb,B,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7012) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."
 NORM-val-r304::menu,kb,M,numeric,wrong_inequality_direction,"The CVA Q-statistic (192.0) is below threshold (194.6), and the LSTM autoencoder reconstruction error (0.7012) is only slightly above threshold (0.6870), suggesting a minor, non-alarmed deviation."

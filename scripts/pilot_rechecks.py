@@ -264,8 +264,11 @@ def numeric_flags(prose: str, store: Dict) -> List[Dict]:
     for sentence in re.split(r";|(?<=[.!?])\s+", str(prose or "")):
         named = [entry for entry in detectors
                  if detector_key(entry).lower() in sentence.lower()]
-        # a tag is not a quantity: XMEAS_17 and XMV_52 must not read as the numbers 17 and 52
-        bare = re.sub(r"(?:XMEAS|XMV)_[0-9]{1,2}", " ", sentence)
+        # An identifier is not a quantity. XMEAS_17, XMV_52, FAULT_08, Component_D_Stream9 and r481 all
+        # contain digits that are part of a name, so any token that starts with a letter and contains a digit
+        # is masked before the numbers are read. Numbers with a unit suffix (24.12x, 221.80%) start with a
+        # digit and survive.
+        bare = re.sub(r"(?<![A-Za-z0-9])[A-Za-z][A-Za-z0-9_.]*[0-9][A-Za-z0-9_.]*", " ", sentence)
         if not named:
             continue
         allowed = set()
