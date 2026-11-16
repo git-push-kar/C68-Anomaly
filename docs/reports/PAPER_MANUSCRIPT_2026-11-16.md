@@ -57,7 +57,7 @@ discriminant variants were compared systematically by [@yin2012comparison], buil
 definition of [@downs1993plant] and the data-driven treatment of [@russell2000data]. Our contribution is not a
 new detector; the detector frontier is deliberately out of scope (Table 7, not reported here).
 
-Parameter-efficient adaptation [@hu2021lora] makes a 2B multimodal model [@chen2025internvl3] cheap enough to
+Parameter-efficient adaptation [@hu2021lora] makes a 2B multimodal model [@zhu2025internvl3] cheap enough to
 fine-tune per plant, which is the practical reason a small adapter is interesting at all. Gradient boosting
 remains a strong tabular baseline [@ke2017lightgbm], and we use LightGBM as exactly that: a check on whether
 the calibrated hybrid's accuracy is earned by its structure or by its features.
@@ -139,7 +139,8 @@ effect on the numbers (§8), because an instrument that changes must be able to 
 | M | 30 | 5.77 % | 32 | 43 | 0 | 191/520 |
 | D | 0 | 0.00 % | 0 | 0 | 0 | 262/520 |
 
-McNemar, B against A: 30 vs 0, exact p ≈ 1.9 × 10⁻⁹. The seams certify: C leaks 0 of B's numeric values and M
+McNemar, B against A: 30 vs 0, exact p = 2·0.5³⁰ ≈ 1.9 × 10⁻⁹ (the scorer's stored field reads 0.0, a float
+underflow, so the value is derived from the discordant counts). The seams certify: C leaks 0 of B's numeric values and M
 leaks 0 of A's. D substitutes A on 114 of 520 rows (21.9 %), inside its pre-registered 25 % ceiling.
 
 Note what the cell table does *not* show: B's numeric rate (5.77 %) is the highest in the table, but C — A's
@@ -157,7 +158,8 @@ numbers inside B's prose — is exact. The numbers, not the prose, carry the def
 | instrument role | 0 | 458 (14.46 %) | ≤ 2 % | B fails |
 | anchor exact | **3,168 (100 %)** | **1,170 (36.93 %)** | ≥ 90 % | B fails |
 
-McNemar: 40 vs 0, exact p ≈ 2 × 10⁻¹². B's anchor failures decompose into an omitted z-score (46.1 % of rows),
+McNemar: 40 vs 0, exact p = 2·0.5⁴⁰ ≈ 1.8 × 10⁻¹² (stored as 0.0 by underflow, derived from the counts). B's
+anchor failures decompose into an omitted z-score (46.1 % of rows),
 a value contradicting the stored one (6.4 %), and a named sensor that was never on the page (10.6 %).
 
 This is the paper's central contrast. The adapter **meets the numeric budget on held-out data** — a genuinely

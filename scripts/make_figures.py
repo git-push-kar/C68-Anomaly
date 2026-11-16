@@ -83,7 +83,7 @@ def fig_cells(cells):
     bars = ax.bar(labels, [r * 100 for r in rates], color=[ACCENT if k in "ACD" else MUTED for k in labels],
                   width=0.6)
     ax.axhline(2.0, color=GATE, linestyle="--", linewidth=1)
-    ax.text(4.45, 2.15, "2 % gate", color=GATE, fontsize=7, ha="right")
+    ax.text(2.5, 2.18, "2 % gate", color=GATE, fontsize=7, ha="center")
     for bar, value in zip(bars, rates):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.12, "%.2f" % (value * 100),
                 ha="center", fontsize=7, color=INK)
@@ -102,7 +102,8 @@ def fig_stratified(val, test):
         vals = [data.get(c, {}).get("rate", 0) * 100 for c in classes]
         bars = ax.bar([i + (offset - 0.5) * width for i in x], vals, width=width, label=name, color=color)
         for bar, value in zip(bars, vals):
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1.2, "%.0f" % value,
+            label = "%.1f" % value if value < 10 else "%.0f" % value
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1.2, label,
                     ha="center", fontsize=7, color=INK)
     ax.set_xticks(list(x))
     ax.set_xticklabels(classes)
@@ -149,7 +150,7 @@ def fig_anchor(cells, d33):
     ax.text(1.45, 91.5, "90 % gate", color=GATE, fontsize=7, ha="right")
     ax.set_xticks(list(x))
     ax.set_xticklabels([r[0] for r in rows])
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=2)
     style(ax, "Anchor exactness: the structural failure", "reports with the top sensor's z (%)", ymax=112)
     fig.tight_layout()
     fig.savefig(FIG / "fig4_anchor.png", bbox_inches="tight")
