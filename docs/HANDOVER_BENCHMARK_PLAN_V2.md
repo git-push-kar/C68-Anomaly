@@ -1170,3 +1170,56 @@ and `hybrid/evaluation.json:menu_present`, so the label pairing is the one those
 
 None of these is a measurement this device can take alone; each is either a human read of a text, a
 human decision about a claim, or a second person's judgement.
+
+## 26. Master fast-forwarded, the marking converter, and the human-input check, 2026-11-16
+
+### 26.1 The default branch now carries this work
+
+`master` was a strict ancestor of `benchmark-upgrade` — 108 commits behind it and 0 ahead — so it
+was advanced in place rather than merged:
+
+    git checkout master && git merge --ff-only benchmark-upgrade && git push origin master
+
+No merge commit was created and no history was rewritten. The default branch therefore now shows
+§16–§26 and every D27–D33 artefact. Before this, a reader landing on the repository saw `master` at
+`4124cde` and none of the work.
+
+### 26.2 `--from-sheet`: marked CSV to rung-3 input
+
+    python scripts/mechanism_sheet.py --from-sheet outputs/overnight_2026-11-05/n5_examples_audited.csv
+    python scripts/select_condition.py --cells outputs/overnight_2026-11-05/n4_cells.json \
+        --m 0.01 --rule-committed \
+        --mechanism outputs/overnight_2026-11-05/rung3_input.json --out <receipt>.json
+
+The converter writes `{cell: {supported, marked, items}}` and nothing else, because that is exactly
+what rung 3 consumes. Its counting rules:
+
+- `marked` — rows of that cell whose `supported` holds a value. Blank rows are excluded, because an
+  unread row is not an unsupported claim and must not lower a rate nobody measured.
+- `supported` — the count of `yes`/`true`/`1` (case-insensitive); `no`/`false`/`0` count as marked
+  and not supported.
+- `items` — distinct `item_id` among that cell's marked rows.
+
+It refuses at exit 2 on: no rows, no `supported` column, a row with no condition, a value outside
+yes/no, or no marked row at all. Verified on synthetic sheets: 16 marked C rows over 11 items with 12
+supported and 15 marked B rows over 10 items with 10 supported produced
+`{"C": {12, 16, 11}, "B": {10, 15, 10}}` with five blank rows ignored; `supported="maybe"` refused; an
+all-blank sheet refused. **The real `n5_examples_audited.csv` is refused** — nothing is marked yet,
+which is the correct behaviour rather than a silent zero.
+
+### 26.3 Every human-eval input is present
+
+Checked on this checkout, all present:
+
+| item | files |
+|---|---|
+| mechanism marking | `n5_examples_audited.csv` (30 rows, 13,324 B), `.md` twin, `llm/benchmark/kb_causes.py` |
+| rung-3 consumption | `scripts/mechanism_sheet.py --from-sheet`, `scripts/select_condition.py`, `d32_amendment.json`, `d32_rung3_status.json` |
+| preference study | `outputs/analysis/phase3a/fit/d29/texts.jsonl` (2.7 MB, five conditions), `scripts/preference_sheet.py`, `scripts/preference_agreement.py --rater1 --rater2`, `docs/judging/prompts/d29_third_read_prompt.md`, `docs/judging/confirm/d29_sheets/` (rater sheets, key, README, provenance) |
+| confirmatory pass | `scripts/confirmatory_pass.py`, `docs/judging/confirm/signed.json`, `outputs/benchmark_v2/dataset/test.jsonl` (16.4 MB) |
+| D ceiling | `n4_cells.json:seam_certification.D_fallback_rows` = 142 |
+| merged row | `docs/judging/p2_classifier_contrasts.md` and `.json` |
+| E's cell | `configs/config_prose_e_seed{43,44}.yaml`, `scripts/train_queue.py` |
+
+Two things are absent **by design**, not by oversight: no `supported` value is marked on any row, and
+`outputs/tep_rca_v2_prose_e_seed{43,44}/` contain only a README — the adapters were never built.
