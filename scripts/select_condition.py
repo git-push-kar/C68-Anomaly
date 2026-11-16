@@ -200,8 +200,10 @@ def main() -> int:
             continue
         data = json.loads(pathlib.Path(source).read_text(encoding="utf-8"))
         if isinstance(data, dict) and "values" in data:
+            sig = data.get("signature") or {}
             cost_meta = {"unit": data.get("unit"), "basis": data.get("basis"),
-                         "signed": data.get("signed")}
+                         "signed": data.get("signed", sig.get("signed")),
+                         "signed_by": sig.get("signed_by"), "signed_date": sig.get("date")}
             data = data["values"]
         scored = [(c, data[c]) for c in passers if c in data]
         if not scored:

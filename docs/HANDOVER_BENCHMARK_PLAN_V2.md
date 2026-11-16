@@ -1302,3 +1302,72 @@ Three routes out, none of them free:
    about one standard error below 0.60 on 360 pairs, so a re-run is not a formality — and repeating it
    until κ clears would be the exact behaviour the pre-registration exists to prevent. If it is repeated,
    it must be a new study with its own dated record, and both κ values reported.
+
+## 28. Three signatures, the final receipt, and the contrast the one-shot pass would run, 2026-11-16
+
+### 28.1 What was signed
+
+Three records, each with the owner's words, channel and date, and three lines appended to
+`docs/judging/confirm/session_approvals.jsonl`:
+
+| record | decision | state |
+|---|---|---|
+| `cost_basis_seconds_2026-11-16.json` | rung 5 compares measured seconds per 520-row pass; unit accepted; tie-break accepted | signed 2026-11-16 |
+| `d8_deviation_2026-11-16.json` | preference carried as secondary and descriptive after κ 0.5776 < 0.60; all three contrasts kept; rung 2 stays failed | signed 2026-11-16 |
+| `d_ceiling_decision_2026-11-16.json` | D reported as "A with extra steps"; 142/520 = 27.3 % against the 25 % ceiling recorded, not re-cut | signed 2026-11-16 |
+
+Owner words recorded verbatim: *"for D's ceiling approve that D is hat over A and I approve the signing of
+both the docs and implement the next stages consecutively that can be done"*. "Hat over A" is read as
+"A with extra steps", the option the draft defined; the signed record states it in those words.
+
+### 28.2 The final receipt
+
+`docs/judging/confirm/selection_receipt_2026-11-16_final.json`: **chosen A, decided_by_rung 6,
+measured_rungs_with_input [5], provisional false**, cost block `signed: true`.
+
+The A selection is not a default. Rung 5 separated the model cells (B, C, M at 19,671.6 s of generation
+per pass, from the measured 37.83 s/item) from the assemblers (A, D at zero generation), then left A and D
+tied; the declared tie-break chose A. The receipt says so in `tie_break`, and the two states are now
+distinct fields: a measured tie resolved by the tie-break is not the rung-6 default.
+
+Two engine changes were needed to record that faithfully:
+
+1. `--cost` accepts `{unit, basis, values}`, records the unit verbatim, and carries the signature state.
+   Without it the receipt would have labelled seconds as dollars.
+2. `scripts/confirmatory_pass.py` no longer tests `decided_by_rung == 6`; it tests `provisional` **and**
+   that `measured_rungs_with_input` is non-empty. The old test refused a receipt where rung 5 had run;
+   the new one still refuses any receipt with no measured input, which is verified on the 2026-11-16b
+   receipt.
+
+### 28.3 The one-shot pass would compare A with A
+
+`outputs/overnight_2026-11-05/confirmatory_prepass.json` is written and reads
+`"winner": "A", "baseline": "A", "status": "authorised-to-launch"`. Under D4 as signed ("winner + A"),
+with A chosen, the single paired pass compares A against itself: the difference would be zero by
+construction and the run would spend the one shot to prove nothing.
+
+Nothing was launched. The one shot is unspent. Three ways forward, all needing a decision rather than
+code:
+
+1. **Run the pass as D2's primary contrast, B vs A** — recommended. D2 was signed on 2026-11-05 and names
+   B vs A as the primary contrast, so the one shot would be spent on the paper's main claim rather than
+   on whichever cell the ladder happened to choose. That B failed the numeric gate is the point: the
+   claim under test is that the trained writer does not reduce numeric defects relative to the assembler,
+   and the pass would test it on rows no cell was scored on.
+2. **Run A vs D** — the runner-up under the tie-break. It tests the D ceiling story directly but is not a
+   signed contrast.
+3. **Leave D33 unrun** and report the cells as measured on the fit set only, with no confirmatory claim.
+
+### 28.4 E's state, measured
+
+- Seeds: the shipped adapter is seed 42 (`configs/config_prose_pilot_seed42.yaml`); E provides 43 and 44
+  (`configs/config_prose_e_seed43.yaml`, `…_seed44.yaml`). That is **two further seeds**, so Version B's
+  sentence "retraining three more times does not change that" is unsupported as written and must become
+  "two further seeds" unless a fourth is trained.
+- Cost if healthy: 288 steps at the measured 12.83 s/step = **1.03 h per seed**, about **2.1 h** for both.
+- What actually happened on the attempt: `gpu_E_status.json` records seed 43 returning code 1 after
+  **8.4 minutes** at **73.1 s per step against a 45 s guard**, with `FlashAttention2 is not installed` in
+  the log. That is 5.7× the expected step time, so E is not merely unapproved — it has never completed a
+  single step, and running it again on the same footing would burn the same 8 minutes and stop.
+- Consequence: E needs a diagnosis (GPU contention or the missing attention kernel) and a clean window
+  before its 2.1 h is meaningful. No adapter directory exists for either seed; both contain only a README.

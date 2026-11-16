@@ -32,7 +32,10 @@ def main() -> int:
         print("refusing: no selection receipt", file=sys.stderr)
         return 2
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
-    if receipt.get("provisional") or receipt.get("decided_by_rung") == 6:
+    # The condition that matters is that a measured rung carried input. Testing the rung number
+    # alone refused receipts where rung 5 ran and the declared tie-break resolved its tie, which
+    # is a measured choice, not a default. Both the flag and the evidence are required here.
+    if receipt.get("provisional") or not receipt.get("measured_rungs_with_input"):
         print("refusing: the selection receipt is provisional (rung %s, no measured win); "
               "the one-shot pass would be spent on a default"
               % receipt.get("decided_by_rung"), file=sys.stderr)
@@ -46,6 +49,8 @@ def main() -> int:
         "winner": receipt.get("chosen"),
         "baseline": "A",
         "decided_by_rung": receipt.get("decided_by_rung"),
+        "measured_rungs_with_input": receipt.get("measured_rungs_with_input"),
+        "tie_break": receipt.get("tie_break"),
         "receipt_sha256": sha(receipt_path),
         "test_sha256": sha(test_path),
         "test_bytes": test_path.stat().st_size,

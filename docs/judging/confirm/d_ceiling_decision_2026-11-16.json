@@ -1,0 +1,23 @@
+{
+  "record": "D ceiling decision - accepted, D is A with extra steps",
+  "status": "signed",
+  "option": 1,
+  "measured": {
+    "fallback_rows": 142,
+    "rows": 520,
+    "rate": 0.273,
+    "ceiling": 0.25,
+    "source": "outputs/overnight_2026-11-05/n4_cells.json"
+  },
+  "decision": "D is reported as 'A with extra steps'. Its numeric count of 7 is published with the 27.3 % fallback rate beside it, and no claim is made that D reduces defects on the rows it wrote itself. No cell is re-cut and no threshold is moved.",
+  "reason": "the number 142 was visible before this decision; re-cutting the fallback definition now would be a rule change after a result, which section 12 forbids; twelve rows over the line do not touch the primary B vs A contrast",
+  "signature": {
+    "signed": true,
+    "signed_by": "project owner",
+    "date": "2026-11-16",
+    "channel": "chat",
+    "transcribed_by": "agent",
+    "owner_words": "for D's ceiling approve that D is hat over A and I approve the signing of both the docs and implement the next stages consecutively that can be done"
+  },
+  "draft": "docs/judging/confirm/drafts/d_ceiling_DRAFT.md"
+}

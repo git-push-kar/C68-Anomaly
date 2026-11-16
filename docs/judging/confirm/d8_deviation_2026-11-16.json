@@ -1,6 +1,6 @@
 {
   "record": "D8 deviation - the preference reliability floor was not met, so the preference analyses are secondary and descriptive",
-  "status": "awaiting_signature",
+  "status": "signed",
   "decision": "D8",
   "decision_text": "120 items x 3 pairings, two raters, adjudicator, kappa >= 0.60",
   "decision_signed": {
@@ -12,12 +12,16 @@
     "date": "2026-11-16",
     "pairs": 360,
     "items": 120,
-    "pairings": ["C-A", "C-B", "M-B"],
+    "pairings": [
+      "C-A",
+      "C-B",
+      "M-B"
+    ],
     "raters": 2,
     "observed_agreement": 0.7778,
     "expected_agreement": 0.4739,
     "cohen_kappa": 0.5776,
-    "floor": 0.60,
+    "floor": 0.6,
     "met": false,
     "miss": 0.0224,
     "standard_error_note": "SE of kappa at n=360 is about 0.03, so the estimate sits roughly one SE below the floor; the signed criterion was on the point estimate and it was not met",
@@ -28,12 +32,51 @@
     ]
   },
   "contrasts_reported": [
-    {"pairing": "A vs C", "rater1": {"A": 98, "C": 20, "tie": 2, "A_share": 0.8305},
-     "rater2": {"A": 70, "C": 48, "tie": 2, "A_share": 0.5932}},
-    {"pairing": "B vs C", "rater1": {"B": 10, "C": 108, "tie": 2, "B_share": 0.0847},
-     "rater2": {"B": 53, "C": 64, "tie": 3, "B_share": 0.453}},
-    {"pairing": "B vs M", "rater1": {"B": 0, "M": 114, "tie": 6, "B_share": 0.0},
-     "rater2": {"B": 2, "M": 112, "tie": 6, "B_share": 0.0175}}
+    {
+      "pairing": "A vs C",
+      "rater1": {
+        "A": 98,
+        "C": 20,
+        "tie": 2,
+        "A_share": 0.8305
+      },
+      "rater2": {
+        "A": 70,
+        "C": 48,
+        "tie": 2,
+        "A_share": 0.5932
+      }
+    },
+    {
+      "pairing": "B vs C",
+      "rater1": {
+        "B": 10,
+        "C": 108,
+        "tie": 2,
+        "B_share": 0.0847
+      },
+      "rater2": {
+        "B": 53,
+        "C": 64,
+        "tie": 3,
+        "B_share": 0.453
+      }
+    },
+    {
+      "pairing": "B vs M",
+      "rater1": {
+        "B": 0,
+        "M": 114,
+        "tie": 6,
+        "B_share": 0.0
+      },
+      "rater2": {
+        "B": 2,
+        "M": 112,
+        "tie": 6,
+        "B_share": 0.0175
+      }
+    }
   ],
   "all_three_contrasts_kept": true,
   "deviation": {
@@ -56,10 +99,12 @@
   ],
   "supersedes": "nothing; D8 stays in force as signed and this record documents its outcome",
   "signature": {
-    "signed": null,
-    "signed_by": null,
-    "date": null,
-    "channel": null,
-    "note": "leave null until the owner signs; until then this file records a proposal, not a decision"
+    "signed": true,
+    "signed_by": "project owner",
+    "date": "2026-11-16",
+    "channel": "chat",
+    "transcribed_by": "agent",
+    "owner_words": "for D's ceiling approve that D is hat over A and I approve the signing of both the docs and implement the next stages consecutively that can be done",
+    "note": "all three contrasts carried; rung 2 stays failed; no preference claim"
   }
 }

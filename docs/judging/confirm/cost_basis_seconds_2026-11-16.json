@@ -1,6 +1,6 @@
 {
   "record": "cost basis for rung 5, prepared 2026-11-16 from measured generation time, awaiting signature",
-  "status": "awaiting_signature",
+  "status": "signed",
   "unit": "seconds_per_520_row_pass",
   "basis": "measured adapter generation on this checkout: 37.83 s per item at cap 512 over 50 items (outputs/benchmark_v2/eval/generation_512.json); corroborated by 36.51 s per item at cap 512 over 20 items (outputs/benchmark_v2/eval/decode_speed.json). A, C, D and M perform no language-model call; C and M are assembled from an adapter generation, so each carries that generation's cost once.",
   "derivation": "37.83 s/item x 520 items = 19671.6 s per pass; identical for every cell whose text needs the adapter",
@@ -16,12 +16,15 @@
   "no_dollar_figure": "no price basis is declared, so no $/1000 number is published; the receipt records this file's unit verbatim rather than labelling seconds as dollars",
   "effect_on_the_ladder": "rung 5 becomes the deciding rung; rung 2 stays failed at kappa 0.578 and rung 3 stays descriptive, so the shipped cell is A because it is the cheapest measured writer, not because it won a content comparison",
   "signature": {
-    "signed": null,
-    "signed_by": null,
-    "date": null,
-    "channel": null,
-    "accepts_unit": null,
-    "accepts_tie_break": null,
-    "note": "sign unit, tie-break acceptance and date; until then this file is a proposal and the receipt built from it is marked AWAITING_SIGNATURE"
-  }
+    "signed": true,
+    "signed_by": "project owner",
+    "date": "2026-11-16",
+    "channel": "chat",
+    "transcribed_by": "agent",
+    "owner_words": "for D's ceiling approve that D is hat over A and I approve the signing of both the docs and implement the next stages consecutively that can be done",
+    "accepts_unit": true,
+    "accepts_tie_break": true,
+    "note": "unit is seconds per 520-row pass; no dollar figure is published; A wins the measured tie with D by the declared tie-break"
+  },
+  "signed": true
 }
