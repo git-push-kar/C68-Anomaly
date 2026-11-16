@@ -299,6 +299,47 @@ Open: the minimum of 18 sits below the stored floor of 25 — events with short 
 fewer features than any stored page. Not yet characterised per fault, and not a reason to wire the classifier in
 before it is.
 
+### 7.4 The classifier on the stored live events, 2026-11-16
+
+Run: `python scripts/report_live_classifier.py --limit 489` (artefact:
+`outputs/analysis/phase3a/hybrid/live_events_report.json`). 489 events from `events.db`, Protocol A booster,
+isotonic calibration, deployment menu A. There is **no ground truth** for these events, so nothing below is an
+accuracy: it is what the model answers and how the rule treats it.
+
+| threshold | abstentions | classified | `no_fault` | argmax = rule, non-abstained |
+|---|---|---|---|---|
+| shipped artefact **1.0** | 387 / 489 | 86 | 16 | 102 / 102 |
+| paper cross-fitted **0.9792** | 263 / 489 | 210 | 16 | 226 / 226 |
+
+The agreement column is 100 % by construction — `menu_rule` only ever abstains, it never renames a prediction —
+so the meaningful column is the abstention count. **The shipped artefact carries threshold 1.0, not the paper's
+0.9792**, which alone accounts for 124 of the abstentions. Answers: `FAULT_15` 167, `FAULT_11` 106,
+`FAULT_01` 73, `FAULT_08` 33, `FAULT_02` 26, `UNCLASSIFIED_OPEN_SET` 26, `NORMAL_TRANSIENT` 16, remainder ≤ 9.
+Calibrated confidence: mean 0.743, min 0.350, max 1.000.
+
+**Page population splits by cohort, not by renderer.** Detector-bearing events (156) produce 25.1 features on
+average (15–33), close to the stored mean of 28.4 (19–39). Events with no `detector_evidence` (333) produce
+13.5 (8–22). The 32 events at 18–20 features are 24 legacy records and 8 vocabulary mismatches.
+
+**The gap is not evidence sparsity.** It has three causes, two of which are contract bugs:
+
+1. **Legacy records (333)** carry no `detector_evidence` at all — schema v1 fields (`severity`,
+   `candidate_subsystem`) and no LSTM or CVA score. Nothing to render: the record is missing the evidence, and
+   the classifier was never trained on a page shaped like this. This is sparsity of the *record*.
+2. **Tag vocabulary mismatch.** `evidence_classifier.TAGS` names `XMV_1..11`; the page prints `XMV_42..52`, so
+   those sensors' z, deviation, trend and presence are silently dropped. Measured: **22.4 %** of listed sensors
+   on stored pages (932/4,170) and **28.8 %** on live pages (703/2,445) have no column. This one is not a live
+   problem — it weakens the benchmark features too, which is why stored `present` averages 3.88 of 5.
+3. **Zero encoding.** `trend = stable` becomes 0.0 and an onset at `+0.0 min` becomes 0.0, indistinguishable
+   from absent. Live trends are mostly `stable` (mean nonzero trend 1.1 against 3.65 stored), so a live page
+   looks thinner than a stored one even when nothing is missing.
+
+**Gate changes before wiring.** (a) decide what happens to the 333 legacy records — refuse to diagnose them, or
+backfill detector evidence; a page without detector rows is out of distribution. (b) fix `TAGS` to
+`XMV_42..52` and retrain: this changes the benchmark features and therefore every reported number, so it cannot
+be smuggled in with the wiring commit. (c) the live default must use the cross-fitted 0.9792, not the artefact's
+1.0. (d) re-run this report afterwards; the cohort split is the acceptance test, not the mean.
+
 ## 8. What this plan does not do
 
 It does not change the detector, the adapter, the prompts, the datasets or the measured numbers; it does not
