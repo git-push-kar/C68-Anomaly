@@ -137,6 +137,9 @@ def main() -> int:
     parser.add_argument("--followup-limit", dest="followup_limit", type=int, default=0)
     parser.add_argument("--cap", type=int, default=512)
     parser.add_argument("--batch", type=int, default=8)
+    parser.add_argument("--rows", default="",
+                        help="jsonl of rows from scripts/build_test_orders.py; default is the "
+                             "520-item validation set rebuilt by build_orders()")
     args = parser.parse_args()
 
     from peft import PeftModel
@@ -153,7 +156,7 @@ def main() -> int:
                       "load_seconds": round(time.time() - started, 1)}), flush=True)
     written, per_item = {}, []
     if args.mode in ("reports", "both"):
-        rows = build_orders()
+        rows = load_jsonl(Path(args.rows)) if args.rows else build_orders()
         if args.limit:
             rows = rows[:args.limit]
         for order in [name for name in args.orders.split(",") if name]:

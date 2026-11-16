@@ -1399,3 +1399,29 @@ The guard was re-verified against both receipts that carry no measured input
 (`selection_receipt_2026-11-16.json` and `…-16b.json`): both exit 2 with the provisional refusal, and the
 final receipt exits 0. The tie is now visible where it belongs — in the rung number — instead of being
 hidden inside a flag.
+
+## 30. Baseline rows, the test export, and a decode equivalence failure, 2026-11-16
+
+**Classifier track completed.** `scripts/classifier_contrasts.py` now carries five systems, adding the
+LightGBM and MLP rows that the P2 variants had left open. On the 497 shared items: menu rule 0.9980,
+hybrid 0.9940, **LightGBM 0.9940**, MLP 0.9698, adapter 0.8330. Hybrid against LightGBM is 2 vs 2
+discordant, p = 1: the hybrid's rules add nothing over a plain gradient-boosted model on the same features.
+Duplicate copies live beside the other evidence
+(`docs/judging/confirm/p2_classifier_contrasts_2026-11-16.json`).
+
+**Test export built.** `scripts/build_test_orders.py` mirrors the validation builder over `test.jsonl`:
+3,168 rows, three orders, order-only invariant on all of them, 1,814 gold-abstain cases. The runner accepts
+them through a new `--rows` argument, so the one-shot pass can finally be pointed at the test split.
+
+**Decode equivalence failed.** Four test items were generated twice through the same adapter and cap, at
+batch 1 and batch 4: **0 of 4 texts were byte-identical** (1117 vs 1234, 1223 vs 1222, 1285 vs 1369, 1260
+vs 1208 characters). Batch 4 is 3.2× faster (45.5 s vs 146.0 s for four items), and that is precisely the
+saving that cannot be taken: batching changes the text that would be scored. The one-shot pass therefore
+stays at 3,168 × 37.83 s = **33.3 h** unless the manual cache loop in `decode_batch_direct` is replaced by a
+masked `generate` call that is proven byte-identical first. It has not been run, and the one shot is
+unspent.
+
+**Final report written:** `docs/reports/BENCHMARK_FINAL_REPORT_2026-11-16.md` — every measured table, the
+rung-by-rung selection record, the preference deviation, D's ceiling, E's state and the outstanding
+limitations, including that the earlier `BENCHMARK_ACHIEVED_METRICS_REPORT.md` quotes figures no artefact
+on this checkout produces.

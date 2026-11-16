@@ -33,9 +33,12 @@ from collections import Counter
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 HYBRID = ROOT / "outputs/analysis/phase3a/hybrid/preds_protocolA_val.jsonl"
-ADAPTER = ROOT / "outputs/analysis/phase3a/evidence_classifier/preds_adapter_val503.jsonl"
+EVIDENCE = ROOT / "outputs/analysis/phase3a/evidence_classifier"
+ADAPTER = EVIDENCE / "preds_adapter_val503.jsonl"
+GBDT = EVIDENCE / "preds_gbdt_val503.jsonl"
+MLP = EVIDENCE / "preds_mlp_val503.jsonl"
 ABSTAIN = "UNCLASSIFIED_OPEN_SET"
-SYSTEMS = ("menu_rule", "hybrid", "adapter")
+SYSTEMS = ("menu_rule", "hybrid", "adapter", "gbdt", "mlp")
 
 
 def load(path: pathlib.Path) -> dict[str, dict]:
@@ -98,24 +101,30 @@ def main() -> int:
     args = ap.parse_args()
 
     hybrid, adapter = load(HYBRID), load(ADAPTER)
-    shared = sorted(set(hybrid) & set(adapter))
+    gbdt, mlp = load(GBDT), load(MLP)
+    shared = sorted(set(hybrid) & set(adapter) & set(gbdt) & set(mlp))
     if not shared:
-        raise SystemExit("no items shared between the hybrid and adapter predictions")
+        raise SystemExit("no items shared by all five prediction files")
 
     labels = {system: [] for system in SYSTEMS}
     for item in shared:
         row, ada = hybrid[item], adapter[item]
         gold = str(row.get("gold") or ada.get("gold") or "").strip()
-        if gold != str(ada.get("gold") or gold).strip():
-            raise SystemExit("gold label disagrees between sources on " + item)
+        for other in (ada, gbdt[item], mlp[item]):
+            if str(other.get("gold") or gold).strip() != gold:
+                raise SystemExit("gold label disagrees between sources on " + item)
         labels["menu_rule"].append((str(row.get("classifier_label") or "").strip(), gold))
         labels["hybrid"].append((str(row.get("pred") or "").strip(), gold))
         labels["adapter"].append((str(ada.get("pred") or "").strip(), gold))
+        labels["gbdt"].append((str(gbdt[item].get("pred") or "").strip(), gold))
+        labels["mlp"].append((str(mlp[item].get("pred") or "").strip(), gold))
 
     report = {"gate": "P2", "items": len(shared),
               "systems": {"menu_rule": "classifier_label before rules (hybrid preds)",
                           "hybrid": "pred after the threshold, menu and no-fault rules",
-                          "adapter": "the 2B model's own decoded label"},
+                          "adapter": "the 2B model's own decoded label",
+                          "gbdt": "LightGBM 4.7.0 on the evidence features (scripts/evidence_classifier.py)",
+                          "mlp": "the small MLP on the same evidence features"},
               "abstain_label": ABSTAIN, "per_system": {}, "contrasts": {},
               "merged_row": {"outputs_present": ["root_cause"],
                              "outputs_absent": ["subsystem", "severity"],
@@ -141,7 +150,11 @@ def main() -> int:
         report["per_system"][system]["false_abstention_gate"] = (
             "pass" if gate is not None and gate <= args.false_abstention_budget else "fail")
 
-    for one, two in (("menu_rule", "hybrid"), ("menu_rule", "adapter"), ("hybrid", "adapter")):
+    pairs = []
+    for i, one in enumerate(SYSTEMS):
+        for two in SYSTEMS[i + 1:]:
+            pairs.append((one, two))
+    for one, two in pairs:
         b = sum(1 for i in range(len(shared)) if not correct[one][i] and correct[two][i])
         c = sum(1 for i in range(len(shared)) if correct[one][i] and not correct[two][i])
         report["contrasts"]["%s_vs_%s" % (one, two)] = mcnemar(b, c)
