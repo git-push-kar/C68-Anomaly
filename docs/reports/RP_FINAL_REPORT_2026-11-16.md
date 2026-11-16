@@ -1,5 +1,9 @@
 # RP Final Report — The Diagnosis Layer: Previous and Current Approaches
 
+> **Superseded by `RP_FINAL_REPORT_v2_2026-11-16.md`** (same date). v2 adds the rebuilt figures, the
+> cross-fitted confidence intervals, the retrained 13-fault surrogate and the live-system section. This file is
+> kept because it records the comparison in more narrative detail; where the two disagree on a number, v2 wins.
+
 **Date:** 2026-11-16 · **Branch:** `benchmark-upgrade` (level with `master`)
 **Scope:** the two diagnosis approaches, their architecture, every measured number, the head-to-head comparison,
 why the previous approach was not preferred, and where it still wins. Prose-layer results and the shipped
@@ -105,8 +109,8 @@ Two measurement generations exist and both are reported, because the first one w
 
 | | in-sample calibration (§16, superseded) | cross-fitted (§17, authoritative) |
 |---|---|---|
-| observable accuracy | 0.9976 | **0.9878** (CI not re-bootstrapped) |
-| observable macro-F1 | 0.9971 | **0.9843** |
+| observable accuracy | 0.9976 | **0.9878** (95 % CI 0.9783–0.9962) |
+| observable macro-F1 | 0.9971 | **0.9843** (0.9711–0.9947) |
 | abstention precision | 0.9956 | 0.9868 |
 | abstention recall | 1.0000 | 0.9956 |
 | false abstention | 0.0054 | 0.0161 |
@@ -123,8 +127,11 @@ paper.
 variables `XMV_1..11` while the page prints `XMV_42..52`, so 22.4 % of listed sensors had no column. Every
 classifier-side model above was retrained on the aligned vocabulary
 (`outputs/analysis/phase3a/hybrid/vocabfix/`); the superseded values were 0.9964 / 0.9781 accuracy, 0.9963 /
-0.9708 macro-F1, cross-fitted threshold 0.9792, ECE/Brier 0.0206 / 0.0217. The CIs in the accuracy row were not
-re-bootstrapped for the new run and are therefore marked rather than quoted.
+0.9708 macro-F1, cross-fitted threshold 0.9792, ECE/Brier 0.0206 / 0.0217. The cross-fitted intervals are a cluster bootstrap over the 822 observable validation rows, resampling the
+497 **events** rather than rows (each event supplies a menu-present and a menu-removed page), 2,000 resamples,
+seed 42: accuracy 0.9783–0.9962, macro-F1 0.9711–0.9947 (`vocabfix/crossfit_bootstrap.json`). The point
+estimate reproduces 0.9878 / 0.9843 exactly, which is the check that the resampled population is the one quoted
+above.
 
 Per stratum, cross-fitted:
 
@@ -154,19 +161,19 @@ of them overall and 20.8 % on menu-present rows. The price is a higher false-abs
 
 ![Leave-one-fault-out abstention](figures/fig8_surrogate.png)
 
-The surrogate is the honest test of "declines when it has never seen this". Re-run on the retrained model it is
-not uniform: `FAULT_13` is declined on 21/25, `FAULT_08` on 20/25, `FAULT_12` on 7/25, and **`FAULT_05` on
-none** — all 25 are renamed `FAULT_12` with high confidence, because fault 5 *is* fault 12's differential with a
-step instead of a random variation. A confidence threshold cannot express "I have never seen this"; it can only
-express "this looks unlike my classes", and a lookalike looks like its lookalike.
+The surrogate is the honest test of "declines when it has never seen this". Retrained on the corrected
+vocabulary it is not uniform: `FAULT_13` is declined on 25/25, `FAULT_02`, `FAULT_10` and `FAULT_11` on 25/25,
+`FAULT_06` on 20/25, `FAULT_12` on 17/25, `FAULT_07` and `FAULT_08` on 15/25, `FAULT_15` on 11/25, and
+**`FAULT_01`, `FAULT_04`, `FAULT_05` and `FAULT_14` on none**. The lookalike pairs absorb each other whole:
+fault 5 is renamed `FAULT_12` 25/25, fault 12 is renamed `FAULT_05` 8/25, fault 4 and fault 14 are renamed
+`FAULT_11` 25/25, fault 1 is renamed `FAULT_08` 25/25. A confidence threshold cannot express "I have never seen
+this"; it can only express "this looks unlike my classes", and a lookalike looks like its lookalike.
 
-The fix made the confusion **symmetric rather than one-way**: 16 of fault 12's 25 held-out items are now renamed
-`FAULT_05` (the reverse of the fault-5 direction), and the four fault-13 items that are not declined go to
-`FAULT_08`. `fig8` plots this run.
-
-The 13-fault absorption table (`surrogate_wide.json`: 01→08, 05→12, 14→11 whole, 15→normal 22/25, 02→08 11/25,
-06→08 9/25, 07→08 13/25) has **not** been regenerated — it comes from the novelty-channel run, which needs the
-fold artefacts retrained as well — so those seven counts are pre-fix and are quoted as such.
+The 13-fault absorption table was **regenerated on 2026-11-16** against the retrained generation
+(`vocabfix/surrogate_wide.json`) and is deterministic: re-running one fault reproduces its entry byte for byte.
+`fig8` is drawn from that file, so text and figure cannot diverge. The pre-fix counts (13→21/25, 08→20/25,
+12→7/25, 05→0/25) are superseded; the novelty signal remains the chosen one, with mean AUROC 0.8765 against
+0.8610 for entropy and 0.8603 for margin.
 
 ### 3.3 What the prose half contributes, and what it does not
 
@@ -248,7 +255,7 @@ wrong and the classifier is right come from the adapter misnaming an open-set ev
 | MLP | 0.9799 | 0.9634–0.9890 |
 | adapter alone | 0.8330 | 0.7977–0.8632 |
 
-Hybrid against LightGBM: 2 vs 2 discordant, exact p = 1.0 — the knowledge-base layer buys no accuracy.
+Hybrid against LightGBM: 2 vs 1 discordant, exact p = 1.0 — the knowledge-base layer buys no accuracy.
 
 ---
 

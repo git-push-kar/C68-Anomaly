@@ -194,9 +194,12 @@ corrected from `XMV_1..11` to `XMV_42..52` (§5.4). Everything trained on those 
 numbers. The writer-side checks (numeric, grounding, role, anchor) are untouched by it: they read prose against
 the page, not the classifier's columns.
 
-**Open: the diagnosis figures still plot the pre-fix numbers** (`fig3`, `fig6`, `fig7`, `fig8`,
-`approach_data.json`). Regenerating them requires the leave-one-fault-out surrogate to be retrained as well, so
-it should be one pass, not four edits.
+**Closed 2026-11-16: the diagnosis figures are rebuilt** (`fig3`, `fig6`, `fig8`, `approach_data.json`;
+`fig7` unchanged because nothing in it moved). The leave-one-fault-out surrogate was retrained across all 13
+faults into `vocabfix/` (~100 s per shard, deterministic), and `fig8` is now rendered from that artefact rather
+than from a stale comparison block. Cross-fitted intervals come from a cluster bootstrap over the 497 validation
+events: accuracy 0.9878 (0.9783–0.9962), macro-F1 0.9843 (0.9711–0.9947), reproducing the quoted point estimates
+exactly.
 
 ## 9. Optional work, ranked by what it would buy
 

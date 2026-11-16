@@ -10,6 +10,7 @@ Usage::
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -28,9 +29,16 @@ SHARDS = ("surrogate_shard1.json", "surrogate_shard2.json")
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dir", type=Path, default=OUT,
+                        help="directory holding the two shards (default: the published hybrid dir)")
+    parser.add_argument("--out", type=Path, default=None,
+                        help="where to write surrogate_wide.json (default: DIR/surrogate_wide.json)")
+    args = parser.parse_args()
+    directory = args.dir
     merged: Dict[str, Dict] = {}
     for name in SHARDS:
-        path = OUT / name
+        path = directory / name
         if not path.exists():
             raise SystemExit(f"missing {path}")
         merged.update(json.loads(path.read_text(encoding="utf-8")))
@@ -83,8 +91,8 @@ def main() -> int:
         "false_abstention_on_others": {fault: merged[fault]["false_abstention_on_others"]
                                        for fault in faults},
     }
-    (OUT / "surrogate_wide.json").write_text(json.dumps(outcome, indent=2, default=str),
-                                             encoding="utf-8")
+    destination = args.out or (directory / "surrogate_wide.json")
+    destination.write_text(json.dumps(outcome, indent=2, default=str), encoding="utf-8")
     print(json.dumps({"mean_auroc": outcome["signal_choice"]["mean_auroc"],
                       "mean_auroc_menu_only": outcome["signal_choice"]["mean_auroc_menu_only"],
                       "chosen": chosen}, indent=2))

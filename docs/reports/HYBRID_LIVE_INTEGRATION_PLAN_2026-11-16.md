@@ -508,8 +508,8 @@ This remains unverifiable against ground truth: the live events have no labels.
 | live audit over all detector-bearing events | done (§7.8) |
 | verdict taxonomy consistent with the diagnosis field | done 2026-11-16; benchmark reasons restated 319/323/61/6 + 125, accuracy unchanged |
 | `FAULT_15` live behaviour explained | done (§7.9) |
-| surrogates and CIs | surrogate re-measured; **cross-fitted bootstrap CIs were not re-bootstrapped** |
-| 13-fault novelty/absorption table | **still pre-fix**; needs fold artefacts retrained |
+| surrogates and CIs | **done 2026-11-16**: cross-fitted cluster bootstrap 0.9783–0.9962 (accuracy) / 0.9711–0.9947 (macro-F1), 497 event clusters, seed 42 |
+| 13-fault novelty/absorption table | **done 2026-11-16**: all 13 faults retrained into `vocabfix/surrogate_wide.json` (2 shards, ~100 s each, deterministic); `fig8` is rendered from that file |
 | live accuracy | **not estimable**: 20 of 489 events carry a label and only 6 of those have detector evidence. All six are `FAULT_15` and all six are predicted `FAULT_15` at 1.0 — a sanity check, not an accuracy figure |
 | older adapter predictions | **not reproducible** from stored decode sources; carried over unchanged |
 

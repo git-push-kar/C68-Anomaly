@@ -250,10 +250,11 @@ of its own on the 21.9 % of rows where it substitutes.
 5. **Not measured.** Detector frontier (Table 7), follow-up dialogue condition (T), cross-path parity of the two
    scoring implementations, and any latency claim other than the generator's. Each is listed as future work
    rather than estimated.
-6. **Figures carry the pre-fix numbers.** The four diagnosis figures (`fig3`, `fig6`, `fig7`, `fig8`) and
-   `approach_data.json` were rendered before the vocabulary fix and have not been regenerated: `fig8` depends
-   on the leave-one-fault-out surrogate, which must be retrained too. Text and figures therefore disagree until
-   they are rebuilt together, which should be done in one pass rather than piecemeal.
+6. **Figures rebuilt 2026-11-16.** `fig3`, `fig6`, `fig8` and `approach_data.json` were regenerated from the
+   retrained artefacts; `fig7` is unchanged because recall and missed abstention did not move. `fig8` now reads
+   `vocabfix/surrogate_wide.json` directly (13 faults retrained), so figure and table share one source and no
+   longer disagree with the text. Cross-fitted intervals are quoted: accuracy 0.9878 (0.9783–0.9962), macro-F1
+   0.9843 (0.9711–0.9947), a cluster bootstrap over 497 events.
 
 ## 8. Reproducibility and instrument changelog
 
