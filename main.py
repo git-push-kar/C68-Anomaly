@@ -407,11 +407,28 @@ class TEPApp:
             report["diagnosis"] = self._diagnose(event)
         return report
 
+    def _unavailable_diagnosis(self, reason: str, detail: str) -> Dict:
+        """The verdict shape used whenever no label can be supported."""
+        return {
+            "fault_id": None,
+            "predicted_class": None,
+            "confidence": None,
+            "verdict": "unavailable",
+            "reason": reason,
+            "abstained": True,
+            "threshold": getattr(self.hybrid, "threshold", None),
+            "source": "classifier+menu_rule",
+            "artifacts": str(getattr(self.hybrid, "artifacts", "")),
+            "detail": detail,
+        }
+
     def _diagnose(self, event: AnomalyEvent) -> Dict:
-        """Run the hybrid on one event and return its verdict, or the reason it refused.
+        """Run the hybrid on one event and return its verdict, or why there is none.
 
         A refusal is a result, not an exception: a pre-instrumentation event still gets a report, it simply
-        is not given a model label it has no evidence for.
+        is not given a model label it has no evidence for. The same holds for a classifier that fails — a bad
+        model file, a shape mismatch, an unexpected scoring error — because aborting report generation would
+        turn a diagnosis outage into a monitoring outage.
         """
         from llm.benchmark.live_page import IncompleteEvidence
 
@@ -419,18 +436,11 @@ class TEPApp:
             return self.hybrid.diagnose(event.evidence.to_dict())
         except IncompleteEvidence as exc:
             logger.warning("Hybrid diagnosis refused for %s: %s", event.event_id, exc)
-            return {
-                "fault_id": None,
-                "predicted_class": None,
-                "confidence": None,
-                "verdict": "unavailable",
-                "reason": "evidence_incomplete",
-                "abstained": True,
-                "threshold": self.hybrid.threshold,
-                "source": "classifier+menu_rule",
-                "artifacts": str(self.hybrid.artifacts),
-                "detail": str(exc),
-            }
+            return self._unavailable_diagnosis("evidence_incomplete", str(exc))
+        except Exception as exc:  # noqa: BLE001 - the report must survive any classifier failure
+            logger.exception("Hybrid diagnosis failed for %s; the report continues without a verdict.",
+                             event.event_id)
+            return self._unavailable_diagnosis("diagnosis_error", repr(exc))
 
     # ==================================================================
     # follow-up questions

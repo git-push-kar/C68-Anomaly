@@ -409,10 +409,24 @@ Report contract when the flag is on:
 | `fault_id` | menu-legal answer: a fault id, `UNCLASSIFIED_OPEN_SET`, `NORMAL_TRANSIENT`, or `None` when refused |
 | `predicted_class` | what the classifier ranked first, kept so an abstention can be explained |
 | `confidence` | calibrated confidence of the winning class; `None` when refused |
-| `verdict` / `reason` | `classified` / `unclassified_open_set` / `no_fault` / `unavailable`, and the rule's reason (`on_menu_above_threshold`, `below_threshold`, `not_on_menu`, `no_fault_predicted`, `evidence_incomplete`) |
+| `verdict` / `reason` | `classified` / `unclassified_open_set` / `no_fault` / `unavailable`, and the reason (`on_menu_above_threshold`, `below_threshold`, `not_on_menu`, `no_fault_predicted`, `evidence_incomplete`, `diagnosis_error`) |
 | `threshold` / `source` / `artifacts` | the threshold in force, `classifier+menu_rule`, and the artefact directory |
 
 When the flag is off, no `diagnosis` key is added: the report is byte-for-byte the previous one.
+
+**Failure containment.** `_diagnose` catches the guard's `IncompleteEvidence` and then *any* other exception —
+a missing booster, a feature-shape mismatch, a scoring error — logs it with a traceback, and returns
+`verdict="unavailable", reason="diagnosis_error"` with the exception in `detail`. Report generation continues in
+both cases, and `_unavailable_diagnosis` reads `threshold`/`artifacts` defensively, so even a half-initialised
+hybrid yields a well-formed block. A diagnosis outage must not become a monitoring outage.
+
+**First real run (2026-11-16, `scripts/run_live_event.py`).** `ANOM-0489` (the newest event carrying detector
+evidence) through `TEPApp(enable_llm=False)` with the flag on: `classified`, `FAULT_15`, calibrated confidence
+1.0 at the stored threshold 1.0, rule reason `on_menu_above_threshold`, and the fallback prose intact. The
+fallback's sensor heuristic called it "B composition step change or purge variation" while the classifier said
+`FAULT_15` (condenser cooling water). Nothing was reconciled: the two live in different fields by design, and
+the difference is exactly why the verdict is not written into `root_cause`. `ANOM-0333` (schema-v1) was refused
+with `evidence_incomplete` and still produced a full report.
 
 Tests (`tests/test_hybrid_report_path.py`, 5 passing): a real `TEPApp` with `enable_llm=False` builds with the
 hybrid on; a report keeps its prose and gains a verdict; a pre-instrumentation record is refused with

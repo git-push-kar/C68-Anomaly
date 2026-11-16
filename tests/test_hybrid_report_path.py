@@ -121,6 +121,39 @@ def test_the_shipped_config_ships_the_flag_off() -> None:
     assert shipped["hybrid"]["artifact_dir"].endswith("hybrid/vocabfix")
 
 
+@pytest.mark.parametrize("failure", [
+    RuntimeError("booster exploded"),
+    ValueError("feature shape mismatch"),
+    KeyError("labels"),
+])
+def test_any_classifier_failure_downgrades_to_unavailable(app: TEPApp, monkeypatch, failure) -> None:
+    def broken(evidence, menu_ids=None):
+        raise failure
+
+    monkeypatch.setattr(app.hybrid, "diagnose", broken)
+    report = app._generate_report(stub_event())
+    diagnosis = report["diagnosis"]
+    assert diagnosis["verdict"] == "unavailable"
+    assert diagnosis["reason"] == "diagnosis_error"
+    assert diagnosis["fault_id"] is None and diagnosis["confidence"] is None
+    assert diagnosis["abstained"] is True
+    assert type(failure).__name__ in diagnosis["detail"]
+    # The report is still a report: a classifier outage must not become a monitoring outage.
+    assert report["summary"] and report["root_cause"]
+
+
+def test_a_genuine_scoring_error_is_contained(app: TEPApp, monkeypatch) -> None:
+    """Break the booster itself, not the wrapper, so the failure happens inside ``diagnose``."""
+    def exploding_predict(X):
+        raise ValueError("booster returned no scores")
+
+    monkeypatch.setattr(app.hybrid.booster, "predict", exploding_predict)
+    report = app._generate_report(stub_event())
+    assert report["diagnosis"]["verdict"] == "unavailable"
+    assert report["diagnosis"]["reason"] == "diagnosis_error"
+    assert report["summary"]
+
+
 def test_flag_off_leaves_the_report_unchanged() -> None:
     app = TEPApp.__new__(TEPApp)
     app.config = {}

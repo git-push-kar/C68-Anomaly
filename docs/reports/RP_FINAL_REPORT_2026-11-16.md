@@ -192,8 +192,18 @@ The detector-evidence guard is in that path: an event with no LSTM or CVA score 
 `verdict = "unavailable", reason = "evidence_incomplete"` instead of being labelled. That is the 333 schema-v1
 records of §3.1 — they get a report, not a diagnosis.
 
+Classifier failures are contained: the guard's refusal and every other exception are turned into
+`verdict = "unavailable", reason = "diagnosis_error"`, logged, and the report is still produced — a diagnosis
+outage never becomes a monitoring outage. Ten tests cover this (`tests/test_hybrid_report_path.py`), including a
+booster that raises from inside `diagnose`.
+
+One real stored event was run through the wired path (`scripts/run_live_event.py`): `ANOM-0489` came out
+`classified`, `FAULT_15`, confidence 1.0 at threshold 1.0, with the fallback prose kept intact — and that prose
+named a different cause than the classifier, a live illustration of why the verdict is a separate field rather
+than a rewrite of `root_cause`.
+
 The adapter is orthogonal. With `enable_llm=False` the report is the deterministic fallback and still carries
-the verdict, which is the configuration the new test exercises (5 tests, `tests/test_hybrid_report_path.py`).
+the verdict, which is the configuration the new test exercises.
 Enabling the flag changes which code runs, not what was measured: every metric in this report comes from the
 same pipeline executed offline on the stored splits.
 
