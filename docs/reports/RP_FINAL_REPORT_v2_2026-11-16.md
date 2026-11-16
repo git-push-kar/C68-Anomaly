@@ -221,7 +221,47 @@ detector emits that page type at twice the training rate (32/154 = 21 % vs 194/1
 events collapse to 8 episodes (one of 24 windows). Where labels exist, it holds up: of the 6 labelled
 detector-bearing events, all six are `FAULT_15` and all six are predicted `FAULT_15`.
 
+### 8.2 Recovering live labels: attempted, not possible from the stored record
+
+Live accuracy would be measurable if each event could be tied to its simulation run. It cannot:
+
+- the event record stores `start_sample` as an index **within** a run (`ANOM-0001` spans 580–910, 66 windows of
+  five samples) plus aggregate summaries (`per_sensor_mean_error`, `post_mean`, `delta`) — no run id, no raw
+  sensor values;
+- the only labelled events show why the index is not an identifier: `ANOM-0001`, `-0002`, `-0003` and `-0004`
+  all start at sample 580 and carry faults 1, 4, 14 and a synthetic 21;
+- `TEP_Faulty_Testing.csv` holds 10,000 runs (20 faults × 500 runs, 960 samples each), so resolving an event to a
+  run needs either the raw window or a stored `simulationRun` — neither exists in `events.db`.
+
+Aligning by sensor summaries would mean re-running the detector over 9.6 M rows to match fingerprints, which is
+inference rather than recovery. The correct fix is provenance at detection time: record `source_file`,
+`simulationRun` and `faultNumber` with the event, as the benchmark builder already does. Until then the 6/6
+sanity check is the ceiling of what this data supports, and no live accuracy is claimed.
+
 ---
+
+### 8.3 Regenerating the adapter baseline: harness built, full pass running
+
+The stored `preds_adapter_val503.jsonl` covers 497 items and carries a `probs` vector over the 15 classes with a
+`probability`. A JSON-emitting adapter does not produce that; it is a derived artefact whose producer is not in
+the repository. Regenerating it now has a harness (`scripts/decode_adapter_val.py`): the same chat template and
+report system prompt as `RCAInference.generate_report`, greedy decoding, a 768-token budget, one JSONL row per
+item, resumable.
+
+Two findings from building it are worth more than the numbers they would have produced:
+
+- **A harness bug looked exactly like a model failure.** The first pass fed the bare question instead of the
+  templated system-prompt turn; 10 of 12 replies were unparseable and the rest were a constant `FAULT_06`. That
+  is not evidence about the adapter — with the template applied, 3/3 probe replies parse and differ
+  (`FAULT_06`, `FAULT_14`, `FAULT_14`). Any "the stored predictions cannot be reproduced" claim would have been
+  wrong for the wrong reason.
+- **It is deterministic.** Two independent passes over the same items produced byte-identical completions.
+
+Cost: 33–40 s per item at 768 tokens, so 503 items is a **5.5–6 hour GPU pass**. It is running in the background
+against `outputs/benchmark_v2/eval/preds_adapter_val497.jsonl` and is resumable; it was not finished inside the
+session that wrote this report, so no adapter accuracy is claimed here. When it completes,
+`scripts/score_adapter_decode.py` reports both the accuracy on the 497 shared items and item-by-item agreement
+with the stored file — the latter is the actual reproducibility answer.
 
 ## 9. What the separation buys, and what it costs
 
@@ -236,11 +276,14 @@ detector-bearing events, all six are `FAULT_15` and all six are predicted `FAULT
 
 ## 10. Limitations
 
-1. **No live accuracy.** 20 of 489 stored events carry a label; 6 of those have detector evidence. 6/6 is a
-   sanity check, not an estimate.
+1. **No live accuracy.** 20 of 489 stored events carry a label, 6 of those have detector evidence, and the
+   record cannot be resolved to a simulation run (§8.2), so no post-hoc labelling is possible. 6/6 is a sanity
+   check, not an estimate; the fix is event provenance, not analysis.
 2. **Unobservable faults.** Faults 3 and 9 are predicted `NORMAL_TRANSIENT` at confidence 1.0.
-3. **Adapter baseline provenance.** The 0.8330 row comes from a shipped prediction file, hashed in the manifest,
-   not from a command reproducible in-repo; the two stored decode sources disagree (449/497 vs 394/497).
+3. **Adapter baseline provenance.** The 0.8330 row comes from a shipped prediction file, hashed in the manifest;
+   its stored `probs` vectors are not something a JSON adapter emits, and the two older decode sources disagree
+   (449/497 vs 394/497). A re-decode harness now exists and is deterministic, but its 5.5–6 h full pass was not
+   finished, so reproduction remains open (§8.3).
 4. **Saturation.** 98.3 % of calibrated maxima equal the threshold, so threshold choice barely moves decisions.
 5. **Surrogate scope.** Leave-one-fault-out covers the 13 observable faults only.
 

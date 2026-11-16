@@ -510,8 +510,8 @@ This remains unverifiable against ground truth: the live events have no labels.
 | `FAULT_15` live behaviour explained | done (§7.9) |
 | surrogates and CIs | **done 2026-11-16**: cross-fitted cluster bootstrap 0.9783–0.9962 (accuracy) / 0.9711–0.9947 (macro-F1), 497 event clusters, seed 42 |
 | 13-fault novelty/absorption table | **done 2026-11-16**: all 13 faults retrained into `vocabfix/surrogate_wide.json` (2 shards, ~100 s each, deterministic); `fig8` is rendered from that file |
-| live accuracy | **not estimable**: 20 of 489 events carry a label and only 6 of those have detector evidence. All six are `FAULT_15` and all six are predicted `FAULT_15` at 1.0 — a sanity check, not an accuracy figure |
-| older adapter predictions | **not reproducible** from stored decode sources; carried over unchanged |
+| live accuracy | **not estimable, and now shown why** (§7.11): the event store keeps only a within-run `start_sample` and aggregate error summaries — no run id, no raw window. Four labelled events share `start_sample=580` under faults 1, 4, 14 and 21, while the CSV has 10,000 runs. 6/6 labelled detector-bearing events are predicted correctly; that is a sanity check, the ceiling of this data |
+| older adapter predictions | **harness built, full pass running**: `scripts/decode_adapter_val.py` uses the same chat template and system prompt as `generate_report`, is deterministic (two passes byte-identical), and costs 33–40 s/item — 5.5–6 h for 503 items. Not finished; the stored file's `probs` vectors are not adapter output, so provenance stays open until the pass completes and `scripts/score_adapter_decode.py` compares labels |
 
 The RP can close on the benchmark and system claims once the four bold rows are either run or explicitly
 declared as out of scope. Nothing in the wiring or the live audit blocks it.
@@ -522,6 +522,22 @@ declared as out of scope. Nothing in the wiring or the live audit blocks it.
 compute. The cross-fitted CIs need no new data: per-fold out-of-fold rows already exist and a clustered bootstrap
 (`accuracy_ci`) already exists. The adapter preds are the expensive item: 36.5 s/item at the 512-token cap means
 ~5 h for the 497-item set and ~4 h for the 400-item one, conditional on a GPU and the pristine adapter weights.
+
+### 7.11 Live labels cannot be recovered post hoc, 2026-11-16
+
+Attempted via run alignment; the record does not carry what alignment needs.
+
+- `events.db` stores `start_sample` as an index **within** a run (`ANOM-0001` spans 580–910, 66 windows) plus
+  aggregate summaries (`per_sensor_mean_error`, `post_mean`, `delta`) — no `simulationRun`, no raw window.
+- The labelled events prove the index is not an identifier: `ANOM-0001..0004` all start at sample 580 and carry
+  faults 1, 4, 14 and a synthetic 21.
+- `TEP_Faulty_Testing.csv` has 10,000 runs (20 faults × 500 runs × 960 samples), so resolving an event needs the
+  raw window or a stored run id. Matching on error summaries would mean re-running the detector over 9.6 M rows
+  to fingerprint windows — inference, not recovery.
+
+The fix is provenance at detection time (record `source_file`, `simulationRun`, `faultNumber` with the event, as
+the benchmark builder already does). Until then, live accuracy stays unestimated and the 6/6 labelled sanity
+check is the ceiling. Recorded in RP v2 §8.2.
 
 ## 8. What this plan does not do
 
