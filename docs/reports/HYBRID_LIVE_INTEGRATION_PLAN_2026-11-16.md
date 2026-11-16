@@ -510,11 +510,18 @@ This remains unverifiable against ground truth: the live events have no labels.
 | `FAULT_15` live behaviour explained | done (§7.9) |
 | surrogates and CIs | surrogate re-measured; **cross-fitted bootstrap CIs were not re-bootstrapped** |
 | 13-fault novelty/absorption table | **still pre-fix**; needs fold artefacts retrained |
-| live accuracy | **not measurable**: stored events carry no labels |
+| live accuracy | **not estimable**: 20 of 489 events carry a label and only 6 of those have detector evidence. All six are `FAULT_15` and all six are predicted `FAULT_15` at 1.0 — a sanity check, not an accuracy figure |
 | older adapter predictions | **not reproducible** from stored decode sources; carried over unchanged |
 
 The RP can close on the benchmark and system claims once the four bold rows are either run or explicitly
 declared as out of scope. Nothing in the wiring or the live audit blocks it.
+
+**Cost of the four, measured 2026-11-16.** The widened surrogate is cheap: one fault retrains and scores in
+**20 s** (`--faults 1`), so all 13 are ~4.5 min serial. It still reads the published feature vocabulary, not
+`vocabfix` (its shard threshold came out 0.9971 against the retrained 1.0), so the work is the override, not the
+compute. The cross-fitted CIs need no new data: per-fold out-of-fold rows already exist and a clustered bootstrap
+(`accuracy_ci`) already exists. The adapter preds are the expensive item: 36.5 s/item at the 512-token cap means
+~5 h for the 497-item set and ~4 h for the 400-item one, conditional on a GPU and the pristine adapter weights.
 
 ## 8. What this plan does not do
 
