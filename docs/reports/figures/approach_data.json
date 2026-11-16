@@ -1,0 +1,330 @@
+{
+  "observable": {
+    "previous": {
+      "items": 822,
+      "accuracy": 0.9416,
+      "macro_f1": 0.9263,
+      "top3": NaN,
+      "abstention": {
+        "abstention_rate": 0.5207,
+        "abstention_precision": 0.9907,
+        "abstention_recall": 0.9422,
+        "false_abstention_rate": 0.0108,
+        "missed_abstention_rate": 0.0578,
+        "abstain_support": 450
+      },
+      "ece": NaN,
+      "brier": NaN,
+      "accuracy_ci": {
+        "point": 0.9416,
+        "low": 0.9234,
+        "high": 0.9559,
+        "clusters": 497,
+        "resamples": 1000
+      }
+    },
+    "current": {
+      "items": 822,
+      "accuracy": 0.9964,
+      "macro_f1": 0.9963,
+      "top3": 0.6046,
+      "abstention": {
+        "abstention_rate": 0.5511,
+        "abstention_precision": 0.9934,
+        "abstention_recall": 1.0,
+        "false_abstention_rate": 0.0081,
+        "missed_abstention_rate": 0.0,
+        "abstain_support": 450
+      },
+      "ece": 0.0009,
+      "brier": 0.0017,
+      "accuracy_ci": {
+        "point": 0.9964,
+        "low": 0.9915,
+        "high": 1.0,
+        "clusters": 497,
+        "resamples": 1000
+      }
+    }
+  },
+  "menu_present": {
+    "previous": {
+      "items": 497,
+      "accuracy": 0.9034,
+      "macro_f1": 0.9199,
+      "top3": NaN,
+      "abstention": {
+        "abstention_rate": 0.2072,
+        "abstention_precision": 0.9612,
+        "abstention_recall": 0.792,
+        "false_abstention_rate": 0.0108,
+        "missed_abstention_rate": 0.208,
+        "abstain_support": 125
+      },
+      "ece": NaN,
+      "brier": NaN,
+      "accuracy_ci": {
+        "point": 0.9034,
+        "low": 0.8753,
+        "high": 0.9276,
+        "clusters": 497,
+        "resamples": 1000
+      }
+    },
+    "current": {
+      "items": 497,
+      "accuracy": 0.994,
+      "macro_f1": 0.9958,
+      "top3": 1.0,
+      "abstention": {
+        "abstention_rate": 0.2575,
+        "abstention_precision": 0.9766,
+        "abstention_recall": 1.0,
+        "false_abstention_rate": 0.0081,
+        "missed_abstention_rate": 0.0,
+        "abstain_support": 125
+      },
+      "ece": 0.003,
+      "brier": 0.0023,
+      "accuracy_ci": {
+        "point": 0.994,
+        "low": 0.9859,
+        "high": 1.0,
+        "clusters": 497,
+        "resamples": 1000
+      }
+    }
+  },
+  "unobservable": {
+    "previous": {
+      "items": 12,
+      "accuracy": 0.5,
+      "macro_f1": 0.3333,
+      "top3": NaN,
+      "abstention": {
+        "abstention_rate": 0.5,
+        "abstention_precision": 1.0,
+        "abstention_recall": 1.0,
+        "false_abstention_rate": 0.0,
+        "missed_abstention_rate": 0.0,
+        "abstain_support": 6
+      },
+      "ece": NaN,
+      "brier": NaN,
+      "accuracy_ci": {
+        "point": 0.5,
+        "low": 0.5,
+        "high": 0.5,
+        "clusters": 6,
+        "resamples": 1000
+      }
+    },
+    "current": {
+      "items": 12,
+      "accuracy": 0.0,
+      "macro_f1": 0.0,
+      "top3": 0.0,
+      "abstention": {
+        "abstention_rate": 0.0,
+        "abstention_precision": 0.0,
+        "abstention_recall": 0.0,
+        "false_abstention_rate": 0.0,
+        "missed_abstention_rate": 1.0,
+        "abstain_support": 6
+      },
+      "ece": 1.0,
+      "brier": 1.0,
+      "accuracy_ci": {
+        "point": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "clusters": 6,
+        "resamples": 1000
+      }
+    }
+  },
+  "crossfit_observable": {
+    "label": "crossfit:observable",
+    "items": 822,
+    "accuracy": 0.9781,
+    "top3": 0.6144,
+    "macro_f1": 0.9708,
+    "abstention": {
+      "abstention_rate": 0.5584,
+      "abstention_precision": 0.9739,
+      "abstention_recall": 0.9933,
+      "false_abstention_rate": 0.0323,
+      "missed_abstention_rate": 0.0067,
+      "abstain_support": 450
+    },
+    "ece": 0.02,
+    "brier": 0.0207,
+    "per_class": {
+      "FAULT_01": {
+        "precision": 0.9259,
+        "recall": 1.0,
+        "f1": 0.9615,
+        "support": 25
+      },
+      "FAULT_02": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "FAULT_04": {
+        "precision": 0.9259,
+        "recall": 1.0,
+        "f1": 0.9615,
+        "support": 25
+      },
+      "FAULT_05": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "FAULT_06": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "FAULT_07": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "FAULT_08": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8889,
+        "support": 25
+      },
+      "FAULT_10": {
+        "precision": 1.0,
+        "recall": 0.88,
+        "f1": 0.9362,
+        "support": 25
+      },
+      "FAULT_11": {
+        "precision": 1.0,
+        "recall": 0.96,
+        "f1": 0.9796,
+        "support": 25
+      },
+      "FAULT_12": {
+        "precision": 1.0,
+        "recall": 0.84,
+        "f1": 0.913,
+        "support": 25
+      },
+      "FAULT_13": {
+        "precision": 1.0,
+        "recall": 0.96,
+        "f1": 0.9796,
+        "support": 25
+      },
+      "FAULT_14": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "FAULT_15": {
+        "precision": 1.0,
+        "recall": 0.96,
+        "f1": 0.9796,
+        "support": 25
+      },
+      "NORMAL_TRANSIENT": {
+        "precision": 0.9592,
+        "recall": 1.0,
+        "f1": 0.9792,
+        "support": 47
+      },
+      "UNCLASSIFIED_OPEN_SET": {
+        "precision": 0.9739,
+        "recall": 0.9933,
+        "f1": 0.9835,
+        "support": 450
+      }
+    },
+    "accuracy_ci": {
+      "point": 0.9781,
+      "low": 0.966,
+      "high": 0.9879,
+      "clusters": 497,
+      "resamples": 1000
+    },
+    "macro_f1_ci": {
+      "point": 0.9708,
+      "low": 0.9532,
+      "high": 0.9841,
+      "clusters": 497,
+      "resamples": 1000
+    }
+  },
+  "threshold_crossfit": {
+    "threshold": 0.9792,
+    "achieved_false_abstention": 0.047426,
+    "budget": 0.05,
+    "items": 1729,
+    "abstained": 82,
+    "source": "out-of-fold train events, menu-present seen-fault"
+  },
+  "threshold_in_sample": {
+    "threshold": 1.0,
+    "achieved_false_abstention": 0.008048,
+    "budget": 0.05,
+    "items": 497,
+    "abstained": 4
+  },
+  "saturation_share": 0.9281,
+  "surrogate": {
+    "FAULT_05": {
+      "held_out_fault": 5,
+      "validation_items": 25,
+      "abstained": 0,
+      "abstained_rate": 0.0,
+      "mislabelled": {
+        "FAULT_12": 25
+      },
+      "threshold": 1.0,
+      "false_abstention_on_other_faults": 0.0085
+    },
+    "FAULT_08": {
+      "held_out_fault": 8,
+      "validation_items": 25,
+      "abstained": 15,
+      "abstained_rate": 0.6,
+      "mislabelled": {
+        "FAULT_01": 8,
+        "FAULT_13": 2
+      },
+      "threshold": 1.0,
+      "false_abstention_on_other_faults": 0.0021
+    },
+    "FAULT_12": {
+      "held_out_fault": 12,
+      "validation_items": 25,
+      "abstained": 23,
+      "abstained_rate": 0.92,
+      "mislabelled": {
+        "UNCLASSIFIED_OPEN_SET": 2
+      },
+      "threshold": 1.0,
+      "false_abstention_on_other_faults": 0.0085
+    },
+    "FAULT_13": {
+      "held_out_fault": 13,
+      "validation_items": 25,
+      "abstained": 25,
+      "abstained_rate": 1.0,
+      "mislabelled": {},
+      "threshold": 1.0,
+      "false_abstention_on_other_faults": 0.0064
+    }
+  }
+}

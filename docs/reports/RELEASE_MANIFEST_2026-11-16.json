@@ -1,7 +1,7 @@
 {
   "generated": "2026-11-16",
   "root": "anomaly",
-  "entry_count": 10,
+  "entry_count": 14,
   "missing": [],
   "entries": [
     {
@@ -67,6 +67,38 @@
       "bytes": 1355,
       "rebuild": "python scripts/make_figures.py",
       "claims": "figures 1-4"
+    },
+    {
+      "name": "approach_figures",
+      "path": "docs/reports/figures/approach_data.json",
+      "sha256": "8657bf15bb714654e6032c6123253a325ed6d697f5a3a5f8d47ef06099e6ea51",
+      "bytes": 7791,
+      "rebuild": "python scripts/make_approach_figures.py",
+      "claims": "figures 5-8, previous vs current approach"
+    },
+    {
+      "name": "approach_comparison",
+      "path": "outputs/analysis/phase3a/hybrid/comparison.json",
+      "sha256": "6dd00ce4e290e299ce115c7d6620455e52ee7640fc3e102891818e3fff0358f3",
+      "bytes": 28331,
+      "rebuild": "python scripts/hybrid_comparison.py",
+      "claims": "previous vs current diagnosis"
+    },
+    {
+      "name": "crossfit",
+      "path": "outputs/analysis/phase3a/hybrid/crossfit.json",
+      "sha256": "09436e36d10fdb3137893583ff4802493d661f9fae60cb9391482ee32e71ed70",
+      "bytes": 27563,
+      "rebuild": "python scripts/hybrid_calibration.py",
+      "claims": "cross-fitted calibration and threshold"
+    },
+    {
+      "name": "rp_final_report",
+      "path": "docs/reports/RP_FINAL_REPORT_2026-11-16.md",
+      "sha256": "4caddd80309c72ad9c45188d2f639a6e81a2b2393f5565515a9aa4dc0bff372d",
+      "bytes": 18125,
+      "rebuild": "(assertion document)",
+      "claims": "all"
     },
     {
       "name": "claims",
