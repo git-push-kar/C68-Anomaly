@@ -435,6 +435,45 @@ hybrid on; a report keeps its prose and gains a verdict; a pre-instrumentation r
 The wiring adds **no new metric**. Every number the documents quote comes from the same pipeline executed
 offline on the stored splits, so enabling the flag changes which code path runs, not what has been measured.
 
+### 7.8 Live audit over every detector-bearing event, 2026-11-16
+
+`scripts/audit_live_diagnosis.py` runs the wired path over all 156 stored events that carry detector evidence.
+It is read-only and writes its row-level detail to `outputs/analysis/phase3a/hybrid/live_diagnosis_audit.json`
+(gitignored).
+
+| verdict | n | share |
+|---|---|---|
+| `classified` | 90 | 57.7 % (74 named faults, 16 the model's own `UNCLASSIFIED_OPEN_SET`) |
+| `unclassified_open_set` (below threshold) | 46 | 29.5 % |
+| `no_fault` (`NORMAL_TRANSIENT`) | 20 | 12.8 % |
+
+Named faults: `FAULT_15` 26, `FAULT_04` 9, `FAULT_14` 9, `FAULT_08` 5, and 4 each of 02/05/07/10/11/12, `FAULT_01` 1.
+`FAULT_06` and `FAULT_13` were never named. Calibrated confidence is median 1.0, p25 0.80, p10 0.44, with
+**70.5 % at exactly 1.0** (against 99.6 % on the benchmark validation split) — live traffic is less saturated
+than the benchmark but still near-binary. Two events carry all-zero calibrated probabilities (isotonic
+degeneracy) and are refused.
+
+**Disagreement with the fallback prose.** Mapping both sides to subsystem groups (the prose names a group, not a
+fault id), the classifier's argmax agrees with the prose heuristic on 45 of 119 events (37.8 %); among the 74
+named faults, 29 (39.2 %). Confusions: condenser→feed 33, condenser→reactor 9, feed→stripper 8, reactor→feed 5,
+plus seven smaller cells. The prose is a top-three-sensor heuristic and the live events are unlabelled, so this
+measures divergence, not error. It is consistent with the `FAULT_15` skew (26 of 74), the class whose surrogate
+check already shows symmetric confusion with `FAULT_05`.
+
+**Threshold.** The cross-fitted threshold of *this* generation is 1.0 (`crossfit.json`
+`threshold.threshold`, 2.7 % achieved false abstention on 1,729 out-of-fold items; the validation artefact says
+1.0 at 0.4 % of 497). 0.9792 belongs to the superseded `XMV_1..11` vocabulary and has nothing to retrain against
+here. Operationally it would change nothing: live confidences have no mass in [0.9792, 1.0), so 0.9792 and 1.0
+give identical verdicts on all 156 events. 0.95 and 0.90 each name four more events (94 vs 90 classified) with an
+unchanged 37.8 % group agreement.
+
+**Decision: keep the artefact threshold (1.0); do not import 0.9792.** The threshold is not the lever. With 70.5 %
+of events pinned at the ceiling the decision has collapsed to "does the argmax name a fault", so the useful
+follow-ups are a non-saturated score (recalibrate on held-out live-like data, or use a margin/entropy rule) and
+the two semantic wrinkles the audit exposed: a menu that contains the abstain label lets a model open-set
+prediction be reported as `classified`, and all-zero calibrated rows still get an argmax. Neither is changed
+here, because both alter decision semantics the measured numbers were produced under.
+
 ## 8. What this plan does not do
 
 It does not change the detector, the adapter, the prompts, the datasets or the measured numbers; it does not
