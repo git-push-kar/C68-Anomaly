@@ -1371,3 +1371,31 @@ code:
   single step, and running it again on the same footing would burn the same 8 minutes and stop.
 - Consequence: E needs a diagnosis (GPU contention or the missing attention kernel) and a clean window
   before its 2.1 h is meaningful. No adapter directory exists for either seed; both contain only a README.
+
+## 29. Correction: the final receipt is decided by rung 5, not rung 6, 2026-11-16
+
+Section 28.2 recorded the final receipt as `decided_by_rung 6` with `provisional false`. The flag was
+right and the field was wrong: rung 6 is the deterministic default, so writing a measured tie there
+labelled a measured outcome as a default and made the confirmatory guard's `rung == 6` test refuse a
+receipt it should accept — which is why the guard had to be rewritten in the first place.
+
+Corrected in `scripts/select_condition.py`: when a measured rung carries input and leaves a tie, the
+deciding rung is that rung, and the tie-break is recorded beside it.
+
+`docs/judging/confirm/selection_receipt_2026-11-16_final.json`, rebuilt:
+
+- `chosen`: A
+- `decided_by_rung`: **5**
+- `measured_rungs_with_input`: [5]
+- `provisional`: false
+- `tie_break` and `note`: "rung 5 carried input and left ['A', 'D'] tied at 0.0; A is chosen by the
+  declared tie-break, not by default"
+
+`outputs/overnight_2026-11-05/confirmatory_prepass.json` rebuilt from it: `decided_by_rung 5`,
+`winner A`, `baseline A`, `status authorised-to-launch` — the A-against-A problem of 28.3 is unchanged
+and still needs the B-vs-A decision to be written into the pass itself.
+
+The guard was re-verified against both receipts that carry no measured input
+(`selection_receipt_2026-11-16.json` and `…-16b.json`): both exit 2 with the provisional refusal, and the
+final receipt exits 0. The tie is now visible where it belongs — in the rung number — instead of being
+hidden inside a flag.

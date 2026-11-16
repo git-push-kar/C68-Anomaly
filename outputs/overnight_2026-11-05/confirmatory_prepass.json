@@ -2,14 +2,14 @@
   "status": "authorised-to-launch",
   "winner": "A",
   "baseline": "A",
-  "decided_by_rung": 6,
+  "decided_by_rung": 5,
   "measured_rungs_with_input": [
     5
   ],
   "tie_break": "rung 5 carried input and left ['A', 'D'] tied at 0.0; A is chosen by the declared tie-break, not by default",
-  "receipt_sha256": "3f969df8947dc567b44caacea4268731a8b7b0db17e459c27a49ffc773c83330",
+  "receipt_sha256": "0bd8ed9c0f39839ffaaebf88b93b0131806802cd44536daf24a57e95b2b9ee00",
   "test_sha256": "6500235f1c34707eab987342cf843c98c3db94d0c8a1503114f26178606da74c",
   "test_bytes": 16366027,
-  "written_at": "2026-11-16T16:08:39",
+  "written_at": "2026-11-16T16:17:13",
   "rule": "one pass; a second run is a new dated section, never a re-run"
 }

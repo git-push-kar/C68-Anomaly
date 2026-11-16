@@ -17,7 +17,7 @@
     "D"
   ],
   "chosen": "A",
-  "decided_by_rung": 6,
+  "decided_by_rung": 5,
   "measured_rungs_with_input": [
     5
   ],
@@ -82,5 +82,5 @@
       "sha256_24": "25ffb7fe27d1cd6154f38dcc"
     }
   },
-  "note": "no measured rung chose a single cell; the declared tie-break resolved the tie a measured rung produced"
+  "note": "rung 5 carried input and left ['A', 'D'] tied at 0.0; A is chosen by the declared tie-break, not by default"
 }

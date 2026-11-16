@@ -218,11 +218,15 @@ def main() -> int:
 
     if chosen is None:
         chosen = "A" if "A" in passers else passers[0]
-        rung = 6
         if measured:
+            # The rung that produced the tie is the deciding rung; the tie-break is recorded beside
+            # it. Leaving rung at 6 would label a measured outcome as the deterministic default.
+            rung = measured[-1]
             tie_break = ("rung %d carried input and left %s tied at %s; %s is chosen by the "
                          "declared tie-break, not by default"
-                         % (measured[-1], sorted(passers), best, chosen))
+                         % (rung, sorted(passers), best, chosen))
+        else:
+            rung = 6
 
     receipt = {
         "rule": "six rungs: numeric gate, preference, mechanism validity, order "
@@ -236,7 +240,7 @@ def main() -> int:
         "decided_by_rung": rung,
         "measured_rungs_with_input": measured,
         "tie_break": tie_break,
-        "provisional": rung == 6 and not measured,
+        "provisional": rung == 6,
         "skipped": skipped,
         "mechanism": mechanism,
         "cost": cost_meta if args.cost else None,
@@ -245,10 +249,8 @@ def main() -> int:
                     ("mechanism", args.mechanism), ("invariance", args.invariance),
                     ("cost", args.cost)) if v},
         "note": ("rung 6 is the deterministic default, not a measured win; this receipt "
-                 "stays provisional until rungs 2 and 3 carry data" if not measured and rung == 6 else
-                 "decided by a measured rung" if rung != 6 else
-                 "no measured rung chose a single cell; the declared tie-break resolved the tie "
-                 "a measured rung produced"),
+                 "stays provisional until a measured rung carries data" if rung == 6 else
+                 tie_break or "decided by a measured rung"),
     }
     pathlib.Path(args.out).write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(receipt, indent=2))
