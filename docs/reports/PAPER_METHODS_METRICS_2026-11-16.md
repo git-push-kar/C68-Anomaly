@@ -124,8 +124,15 @@ This is the paper's sharpest descriptive result: **the adapter is numerically re
 
 ### 5.4 Diagnosis channel
 
-497 shared items: hybrid **0.9940**, LightGBM **0.9940** (2 vs 2 discordant, p = 1), MLP 0.9698, menu rule
-0.9980, adapter alone 0.8330. The knowledge-base layer earns its place in *explanation*, not accuracy.
+497 shared items: menu rule **1.0000**, LightGBM **0.9980**, hybrid **0.9960** (2 vs 1 discordant, p = 1), MLP
+0.9799, adapter alone 0.8330. The knowledge-base layer earns its place in *explanation*, not accuracy.
+
+*Re-measured 2026-11-16.* These replace the earlier hybrid 0.9940 / LightGBM 0.9940 / MLP 0.9698 / menu rule
+0.9980. The cause was a vocabulary defect, not a modelling choice: `TAGS` named the manipulated variables
+`XMV_1..11` while the page prints `XMV_42..52`, so 22.4 % of listed sensors had no feature column. Retraining
+every classifier-side model on the aligned vocabulary also moves the cross-fitted observable accuracy from
+0.9781 to 0.9878 (macro-F1 0.9708 → 0.9843) and the out-of-fold threshold from 0.9792 to 1.0. The adapter's row
+is unchanged because it never read those features.
 
 ### 5.5 Preference
 
@@ -174,6 +181,16 @@ preference ordering; a mechanism-quality claim; any latency figure for component
 
 Earlier rate claims that moved (3.65 % → 2.50 % → 0.00 % for A) are superseded; the pre-revision cell table
 is kept as `n4_cells_preinstrument_2026-11-16.json`.
+
+A second changelog belongs here because it moved classifier-side numbers only: the feature vocabulary was
+corrected from `XMV_1..11` to `XMV_42..52` (§5.4). Everything trained on those features was retrained into
+`outputs/analysis/phase3a/hybrid/vocabfix/`, beside the published artefacts, and the text quotes the post-fix
+numbers. The writer-side checks (numeric, grounding, role, anchor) are untouched by it: they read prose against
+the page, not the classifier's columns.
+
+**Open: the diagnosis figures still plot the pre-fix numbers** (`fig3`, `fig6`, `fig7`, `fig8`,
+`approach_data.json`). Regenerating them requires the leave-one-fault-out surrogate to be retrained as well, so
+it should be one pass, not four edits.
 
 ## 9. Optional work, ranked by what it would buy
 

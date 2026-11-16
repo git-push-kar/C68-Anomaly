@@ -37,7 +37,10 @@ for path in (ROOT, ROOT / "scripts"):
 
 import lightgbm as lgb  # noqa: E402
 
-from llm.benchmark.live_page import render_live_page  # noqa: E402
+from llm.benchmark.live_page import (  # noqa: E402
+    detector_evidence_ready,
+    render_live_page,
+)
 from llm.benchmark.menu import build_menu  # noqa: E402
 from llm.hybrid.calibration import apply_calibrator  # noqa: E402
 from llm.hybrid.menu_rule import menu_rule  # noqa: E402
@@ -113,36 +116,45 @@ def main() -> int:
     events = load_events(args.limit)
     pages = [render_live_page(event) for event in events]
     features = np.asarray([prompt_features(page) for page in pages], dtype=np.float64)
-    raw = booster.predict(features)
-    raw_rows = [{label: float(value) for label, value in zip(labels, row)} for row in raw]
-    calibrated = apply_calibrator(calibration, raw_rows)
+    # The guard: events with no detector score never reach the classifier.
+    ready = [detector_evidence_ready(event) for event in events]
+    ready_index = [index for index, flag in enumerate(ready) if flag]
+    if ready_index:
+        raw = booster.predict(features[ready_index])
+        raw_rows = [{label: float(value) for label, value in zip(labels, row)} for row in raw]
+        calibrated = dict(zip(ready_index, apply_calibrator(calibration, raw_rows)))
+    else:
+        calibrated = {}
 
     results = []
-    for index, (event, page, prob) in enumerate(zip(events, pages, calibrated)):
-        top = max(prob, key=prob.get)
+    for index, (event, page) in enumerate(zip(events, pages)):
+        prob = calibrated.get(index)
+        top = max(prob, key=prob.get) if prob else None
         blocks = block_counts(features[index], names)
         results.append({
             "event": str(event.get("event_id") or index),
-            "top": top, "confidence": float(prob[top]),
+            "classified": prob is not None,
+            "top": top, "confidence": float(prob[top]) if prob else None,
             "has_detector": bool(event.get("detector_evidence")),
             "populated": int(np.count_nonzero(features[index])),
             "page": section_counts(page),
             **blocks,
         })
 
+    scored = [row for row in results if row["classified"]]
     decisions = {}
     for threshold in (artefact_threshold, PAPER_THRESHOLD):
-        rows = [menu_rule(row["top"], row["confidence"], menu_ids, threshold) for row in results]
-        non_abstained = [row for row, decision in zip(results, rows) if not decision["abstained"]]
+        rows = [menu_rule(row["top"], row["confidence"], menu_ids, threshold) for row in scored]
+        non_abstained = [row for row, decision in zip(scored, rows) if not decision["abstained"]]
         decisions[f"{threshold:.4f}"] = {
             "threshold": threshold,
             "abstentions": sum(1 for decision in rows if decision["abstained"]),
             "reasons": dict(Counter(decision["reason"] for decision in rows)),
             "diagnoses": dict(Counter(decision["diagnosis"] for decision in rows).most_common()),
-            "argmax_matches_rule": sum(1 for row, decision in zip(results, rows)
+            "argmax_matches_rule": sum(1 for row, decision in zip(scored, rows)
                                        if decision["diagnosis"] == row["top"]),
             "argmax_matches_rule_non_abstained": sum(
-                1 for row, decision in zip(results, rows)
+                1 for row, decision in zip(scored, rows)
                 if not decision["abstained"] and decision["diagnosis"] == row["top"]),
             "non_abstained": len(non_abstained),
         }
@@ -186,10 +198,12 @@ def main() -> int:
             "live": f"{live_loss}/{live_total} listed sensors have no column "
                     f"({live_loss / max(live_total, 1):.1%})",
         },
-        "answers": dict(Counter(row["top"] for row in results).most_common()),
-        "confidence": {"mean": round(float(np.mean([r["confidence"] for r in results])), 4),
-                       "min": round(min(r["confidence"] for r in results), 4),
-                       "max": round(max(r["confidence"] for r in results), 4)},
+        "classified": len(scored),
+        "refused_incomplete_evidence": len(results) - len(scored),
+        "answers": dict(Counter(row["top"] for row in scored).most_common()),
+        "confidence": {"mean": round(float(np.mean([r["confidence"] for r in scored])), 4),
+                       "min": round(min(r["confidence"] for r in scored), 4),
+                       "max": round(max(r["confidence"] for r in scored), 4)} if scored else {},
         "decisions": decisions,
         "flagged": {"count": len(flagged),
                     "causes": dict(Counter(row["cause"] for row in flagged)),
@@ -206,8 +220,9 @@ def main() -> int:
     print(header)
     print("-" * len(header))
     for row in flagged:
-        print("%-14s %-24s %-6.3f %-4d %-7d %-6d %-8s %s" % (
-            row["event"][-14:], row["top"], row["confidence"], row["populated"],
+        print("%-14s %-24s %-6s %-4d %-7d %-6d %-8s %s" % (
+            row["event"][-14:], row["top"] or "(refused)",
+            f'{row["confidence"]:.3f}' if row["confidence"] is not None else "-", row["populated"],
             row["page"]["sensors"], row["page"]["in_vocabulary"],
             f'{row["trend_nonzero"]}/{row["onset_nonzero"]}', row["cause"]))
 

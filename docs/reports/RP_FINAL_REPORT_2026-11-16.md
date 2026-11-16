@@ -105,35 +105,42 @@ Two measurement generations exist and both are reported, because the first one w
 
 | | in-sample calibration (§16, superseded) | cross-fitted (§17, authoritative) |
 |---|---|---|
-| observable accuracy | 0.9964 | **0.9781** [0.9660, 0.9879] |
-| observable macro-F1 | 0.9963 | **0.9708** [0.9532, 0.9841] |
-| abstention precision | 0.9934 | 0.9739 |
-| abstention recall | 1.0000 | 0.9933 |
-| false abstention | 0.0081 | 0.0323 |
-| missed abstention | 0.0000 | 0.0067 |
-| ECE / Brier | 0.0009 / 0.0017 | **0.0206 / 0.0217** |
-| threshold | 1.0000 (inert) | **0.9792** |
-| saturated maxima (≥ threshold) | 828/834 = 99.3 % | **774/834 = 92.8 %** |
+| observable accuracy | 0.9976 | **0.9878** (CI not re-bootstrapped) |
+| observable macro-F1 | 0.9971 | **0.9843** |
+| abstention precision | 0.9956 | 0.9868 |
+| abstention recall | 1.0000 | 0.9956 |
+| false abstention | 0.0054 | 0.0161 |
+| missed abstention | 0.0000 | 0.0044 |
+| ECE / Brier | 0.0008 / 0.0014 | **0.0114 / 0.0113** |
+| threshold | 1.0000 (inert) | **1.0000** (2.72 % of the 5 % budget) |
+| saturated maxima (≥ threshold) | 828/834 = 99.3 % | **820/834 = 98.3 %** |
 
-The cross-fitted run spends 4.74 % of its 5 % false-abstention budget on 1,729 out-of-fold train items (82
+The cross-fitted run spends 2.72 % of its 5 % false-abstention budget on 1,729 out-of-fold train items (47
 abstained), leaves the 834 validation rows as pure evaluation, and is the only calibration figure quoted in the
 paper.
+
+**Re-measured 2026-11-16, after the feature-vocabulary fix.** The classifier's columns named the manipulated
+variables `XMV_1..11` while the page prints `XMV_42..52`, so 22.4 % of listed sensors had no column. Every
+classifier-side model above was retrained on the aligned vocabulary
+(`outputs/analysis/phase3a/hybrid/vocabfix/`); the superseded values were 0.9964 / 0.9781 accuracy, 0.9963 /
+0.9708 macro-F1, cross-fitted threshold 0.9792, ECE/Brier 0.0206 / 0.0217. The CIs in the accuracy row were not
+re-bootstrapped for the new run and are therefore marked rather than quoted.
 
 Per stratum, cross-fitted:
 
 | stratum | n | accuracy | macro-F1 | abstain rate | false abst. | missed abst. |
 |---|---|---|---|---|---|---|
-| observable | 822 | 0.9781 | 0.9708 | 0.5584 | 0.0323 | 0.0067 |
-| menu present | 497 | 0.9698 | 0.9721 | 0.2757 | 0.0323 | 0.0000 |
-| menu removed | 325 | 0.9908 | 0.9954 | 0.9908 | — | 0.0092 |
-| fault named in menu | 325 | 0.9538 | 0.9721 | 0.0369 | 0.0369 | — |
+| observable | 822 | 0.9878 | 0.9843 | 0.5523 | 0.0161 | 0.0044 |
+| menu present | 497 | 0.9839 | 0.9853 | 0.2636 | 0.0161 | 0.0000 |
+| menu removed | 325 | 0.9938 | 0.9969 | 0.9938 | — | 0.0062 |
+| fault named in menu | 325 | 0.9754 | 0.9857 | 0.0185 | 0.0185 | — |
 | `NORMAL_TRANSIENT` | 47 | 1.0000 | 1.0000 | 0.0000 | 0.0000 | — |
 | open-set on a menu | 125 | 1.0000 | 1.0000 | 1.0000 | — | 0.0000 |
 | unobservable (3, 9) | 12 | 0.0000 | 0.0000 | 0.0000 | — | **1.0000** |
 
-Rule reasons across the 834 rows: on-menu above threshold 429, not on menu 322, no fault predicted 61,
-**below threshold 22**. The 22 are the entire abstention arm: the calibrated maximum still does little work, and
-the menu check does most of it. That is stated, not hidden.
+Rule reasons across the 834 rows: on-menu above threshold 442, not on menu 323, no fault predicted 61,
+**below threshold 8**. The eight are the entire abstention arm: the calibrated maximum still does little work,
+and the menu check does most of it. That is stated, not hidden.
 
 ### 3.2 Abstention and the open-set problem
 
@@ -181,8 +188,12 @@ is the deterministic template, which cannot contradict the evidence because it c
 | unobservable (3, 9) | 12 | **0.5000 / 0.3333** | 0.0000 / 0.0000 | **6 / 0** |
 
 (accuracy / macro-F1; `b` = adapter right and classifier wrong, `c` = the reverse. This table is the
-pre-registered, in-sample comparison; §3.1's cross-fitted column is 1.8 points lower and is the number the paper
+pre-registered, in-sample comparison; §3.1's cross-fitted column is 1.0 point lower and is the number the paper
 quotes for the current approach. Both orderings are unchanged.)
+
+The consolidated table was re-measured on 2026-11-16 with the corrected feature vocabulary (§3.1): menu rule
+1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter 0.8330 unchanged. Hybrid against LightGBM is 2 vs 1
+discordant, p = 1.0, so the conclusion — the knowledge-base layer adds no accuracy — is unchanged.
 
 The open-set stratum is **56 % of the classifier's entire advantage**: 26 items the adapter misnamed and the
 classifier declined. The unobservable stratum is the one place the ordering reverses, 6 items to 0.
@@ -191,10 +202,10 @@ classifier declined. The unobservable stratum is the one place the ordering reve
 
 | system | accuracy | 95 % CI |
 |---|---|---|
-| menu rule | 0.9980 | 0.9887–0.9996 |
-| hybrid (shipped diagnosis) | 0.9940 | 0.9824–0.9979 |
-| LightGBM alone | 0.9940 | 0.9824–0.9979 |
-| MLP | 0.9698 | 0.9508–0.9816 |
+| menu rule | 1.0000 | 0.9923–1.0000 |
+| hybrid (shipped diagnosis) | 0.9960 | 0.9854–0.9989 |
+| LightGBM alone | 0.9980 | 0.9887–0.9996 |
+| MLP | 0.9799 | 0.9634–0.9890 |
 | adapter alone | 0.8330 | 0.7977–0.8632 |
 
 Hybrid against LightGBM: 2 vs 2 discordant, exact p = 1.0 — the knowledge-base layer buys no accuracy.

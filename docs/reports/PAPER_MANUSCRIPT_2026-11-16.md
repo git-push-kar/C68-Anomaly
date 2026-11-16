@@ -19,7 +19,7 @@ grounding in 10.3 %. Its numeric failures are not diffuse — they concentrate o
 normal-transient reports on the fit set, 72.5 % on test) and occur at roughly 0.3 % everywhere else. Pairwise
 preference between the two writers fails its reliability floor (Cohen's κ = 0.578 against a 0.60 bar), so no
 preference claim is made. A gradient-boosted classifier on the same evidence features matches the calibrated
-hybrid diagnosis pipeline exactly (0.9940 against 0.9940; 2 vs 2 discordant, p = 1.0), locating the value of the
+hybrid diagnosis pipeline within noise (0.9980 against 0.9960; 2 vs 1 discordant, p = 1.0), locating the value of the
 knowledge-base layer in explanation rather than accuracy. We argue that *structural* fidelity — anchors and
 roles — is the axis on which small generative writers fail, and that reporting numeric budgets alone would have
 hidden it.
@@ -199,15 +199,24 @@ On the 497 items where all systems produce a label:
 
 | system | accuracy | 95 % CI |
 |---|---|---|
-| menu rule | 0.9980 | 0.9887–0.9996 |
-| hybrid (shipped) | 0.9940 | 0.9824–0.9979 |
-| LightGBM | 0.9940 | 0.9824–0.9979 |
-| MLP | 0.9698 | 0.9508–0.9816 |
+| menu rule | 1.0000 | 0.9923–1.0000 |
+| hybrid (shipped) | 0.9960 | 0.9854–0.9989 |
+| LightGBM | 0.9980 | 0.9887–0.9996 |
+| MLP | 0.9799 | 0.9634–0.9890 |
 | adapter alone | 0.8330 | 0.7977–0.8632 |
 
-Hybrid against LightGBM: 2 vs 2 discordant, exact p = 1.0. The knowledge-base layer buys **no accuracy**, and
+Hybrid against LightGBM: 2 vs 1 discordant (b = 2, c = 1), exact p = 1.0. The knowledge-base layer buys **no
+accuracy**, and
 the adapter as a classifier is clearly behind. The layer's justification must therefore be explanatory
 coverage and dialogue grounding, which we do not claim to have measured as a preference.
+
+**Re-measured 2026-11-16, after the feature-vocabulary fix.** The classifier's columns named the manipulated
+variables `XMV_1..11` while the evidence page prints `XMV_42..52`, so 22.4 % of the sensors listed on stored
+pages had no column and contributed nothing. With the vocabulary aligned and every classifier-side model
+retrained, the table above replaces the earlier menu rule 0.9980, hybrid 0.9940, LightGBM 0.9940 and MLP
+0.9698. The adapter row is unchanged: its predictions never depended on those features. On the cross-fitted
+evaluation the same fix moves observable accuracy from 0.9781 to 0.9878 and macro-F1 from 0.9708 to 0.9843, so
+the paper's diagnosis numbers are the post-fix ones; the superseded values are kept in the audit record.
 
 ### 6.5 Preference
 
@@ -241,6 +250,10 @@ of its own on the 21.9 % of rows where it substitutes.
 5. **Not measured.** Detector frontier (Table 7), follow-up dialogue condition (T), cross-path parity of the two
    scoring implementations, and any latency claim other than the generator's. Each is listed as future work
    rather than estimated.
+6. **Figures carry the pre-fix numbers.** The four diagnosis figures (`fig3`, `fig6`, `fig7`, `fig8`) and
+   `approach_data.json` were rendered before the vocabulary fix and have not been regenerated: `fig8` depends
+   on the leave-one-fault-out surrogate, which must be retrained too. Text and figures therefore disagree until
+   they are rebuilt together, which should be done in one pass rather than piecemeal.
 
 ## 8. Reproducibility and instrument changelog
 

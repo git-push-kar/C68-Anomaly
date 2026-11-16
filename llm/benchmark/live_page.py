@@ -120,6 +120,62 @@ def normalise_evidence(evidence: Dict, onset_limit: Optional[int] = ONSET_LIMIT)
 SCHEMA_MARKER = "Return one JSON object"
 
 
+class IncompleteEvidence(RuntimeError):
+    """Raised when an event carries no usable detector score, so no classifier page can be built.
+
+    Pre-instrumentation records (evidence schema v1) have no ``detector_evidence`` at all: no LSTM error, no CVA
+    Q-statistic. The page can still be rendered for a human, but the classifier has never seen a page like it,
+    and answering from one would be an extrapolation dressed up as a diagnosis.
+    """
+
+
+def detector_scores(evidence: Dict) -> Dict[str, Optional[float]]:
+    """The detector scalars the evidence actually carries, without inventing any."""
+    det = evidence.get("detector_evidence") or {}
+    if not isinstance(det, dict):
+        return {"lstm": None, "dynamic": None, "cva": None}
+    lstm = det.get("lstm_ae") or {}
+    dynamic = det.get("dynamic") or {}
+    cva = (dynamic.get("cva") or {}) if isinstance(dynamic, dict) else {}
+
+    def _score(block: object) -> Optional[float]:
+        if not isinstance(block, dict):
+            return None
+        value = block.get("score")
+        return float(value) if isinstance(value, (int, float)) else None
+
+    return {"lstm": _score(lstm), "dynamic": _score(dynamic), "cva": _score(cva)}
+
+
+def detector_evidence_ready(evidence: Dict) -> bool:
+    """Whether this event can be classified at all.
+
+    One detector score is enough to prove the event was instrumented; needing both would reject legitimate
+    LSTM-only or CVA-only events. A record with none is a schema-v1 event, and the guard is about those.
+    """
+    return any(value is not None for value in detector_scores(evidence).values())
+
+
+def require_detector_evidence(evidence: Dict) -> None:
+    """Raise :class:`IncompleteEvidence` rather than let a pre-v2 record reach the classifier."""
+    if detector_evidence_ready(evidence):
+        return
+    event = evidence.get("event_id") or "<unknown event>"
+    raise IncompleteEvidence(
+        f"{event}: no detector_evidence (no LSTM or CVA score); refusing to classify a page the classifier "
+        "was not trained on")
+
+
+def render_classifier_page(evidence: Dict, menu: Optional[Sequence[Dict[str, str]]] = None,
+                           event_id: Optional[str] = None) -> str:
+    """The page the classifier may read: identical to :func:`render_live_page`, but guarded.
+
+    Display code should keep calling :func:`render_live_page`; only the path into the classifier calls this.
+    """
+    require_detector_evidence(evidence)
+    return render_live_page(evidence, menu=menu, event_id=event_id)
+
+
 def render_live_page(evidence: Dict, menu: Optional[Sequence[Dict[str, str]]] = None,
                      event_id: Optional[str] = None, include_schema: bool = True) -> str:
     """Render one live event as the benchmark evidence page.
@@ -142,5 +198,6 @@ def render_live_page(evidence: Dict, menu: Optional[Sequence[Dict[str, str]]] = 
     return page.rstrip() + "\n\n" + instruction
 
 
-__all__ = ["CANONICAL_ORDER", "ONSET_LIMIT", "LAG_TOP", "derive_lag_attribution",
-           "normalise_evidence", "render_live_page"]
+__all__ = ["CANONICAL_ORDER", "ONSET_LIMIT", "LAG_TOP", "IncompleteEvidence", "derive_lag_attribution",
+           "detector_scores", "detector_evidence_ready", "normalise_evidence", "render_classifier_page",
+           "render_live_page", "require_detector_evidence"]

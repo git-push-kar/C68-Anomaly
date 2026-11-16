@@ -98,10 +98,21 @@ def main() -> int:
     ap.add_argument("--out-json", default=str(ROOT / "outputs/analysis/phase3a/p2/classifier_contrasts.json"))
     ap.add_argument("--out-md", default=str(ROOT / "outputs/analysis/phase3a/p2/classifier_contrasts.md"))
     ap.add_argument("--false-abstention-budget", type=float, default=0.05)
+    #: Input overrides, so a re-measurement (e.g. the feature-vocabulary fix) can run beside the published
+    #: prediction files instead of overwriting them.
+    ap.add_argument("--hybrid-preds", default=str(HYBRID))
+    ap.add_argument("--evidence-dir", default=str(EVIDENCE))
+    #: The adapter's column must be the published predictions: its file cannot be rebuilt from the raw decode
+    #: outputs (neither stored source reproduces it exactly), so a re-measurement carries it over unchanged.
+    ap.add_argument("--adapter-preds", default=None)
     args = ap.parse_args()
 
-    hybrid, adapter = load(HYBRID), load(ADAPTER)
-    gbdt, mlp = load(GBDT), load(MLP)
+    evidence_dir = pathlib.Path(args.evidence_dir)
+    hybrid = load(pathlib.Path(args.hybrid_preds))
+    adapter = load(pathlib.Path(args.adapter_preds) if args.adapter_preds
+                   else evidence_dir / "preds_adapter_val503.jsonl")
+    gbdt = load(evidence_dir / "preds_gbdt_val503.jsonl")
+    mlp = load(evidence_dir / "preds_mlp_val503.jsonl")
     shared = sorted(set(hybrid) & set(adapter) & set(gbdt) & set(mlp))
     if not shared:
         raise SystemExit("no items shared by all five prediction files")

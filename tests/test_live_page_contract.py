@@ -26,9 +26,13 @@ for path in (ROOT, ROOT / "scripts"):
 from llm.benchmark.live_page import (  # noqa: E402
     CANONICAL_ORDER,
     ONSET_LIMIT,
+    IncompleteEvidence,
     derive_lag_attribution,
+    detector_evidence_ready,
     normalise_evidence,
+    render_classifier_page,
     render_live_page,
+    require_detector_evidence,
 )
 from llm.benchmark.prompt_v2 import render_prompt  # noqa: E402
 from scripts.evidence_classifier import prompt_features  # noqa: E402
@@ -248,6 +252,56 @@ def test_rendered_live_page_carries_the_teacher_instruction_before_the_schema() 
     instruction = ("Legal answers: " + ", ".join(
         ["FAULT_%02d" % i for i in range(1, 16)] + ["UNCLASSIFIED_OPEN_SET"]) + ".")
     assert instruction + "\n\nReturn one JSON object" in page
+
+
+def legacy_evidence() -> dict:
+    """A pre-instrumentation record: schema v1, no detector block at all."""
+    return {
+        "event_id": "ANOM-0333",
+        "anomaly_score": 118.627,
+        "severity": "high",
+        "candidate_subsystem": "Stripper",
+        "top_anomalous_sensors": [
+            {"display_name": "Separator_Level", "name": "XMEAS_12", "z_score": 0.08,
+             "deviation_percent": 0.15, "trend": "stable"}],
+        "temporal_sequence": [],
+    }
+
+
+def test_legacy_record_is_not_classifier_ready() -> None:
+    evidence = legacy_evidence()
+    assert detector_evidence_ready(evidence) is False
+    with pytest.raises(IncompleteEvidence) as raised:
+        require_detector_evidence(evidence)
+    assert "ANOM-0333" in str(raised.value)
+    assert "detector_evidence" in str(raised.value)
+
+
+def test_legacy_record_still_renders_for_display() -> None:
+    page = render_live_page(legacy_evidence())
+    assert "Separator_Level [XMEAS_12, measurement]: z=0.08" in page
+    assert page.count("residual share") == 0
+
+
+def test_legacy_record_is_refused_by_the_classifier_page() -> None:
+    with pytest.raises(IncompleteEvidence):
+        render_classifier_page(legacy_evidence())
+
+
+def test_empty_detector_block_is_refused() -> None:
+    evidence = live_shaped_evidence()
+    evidence["detector_evidence"] = {}
+    assert detector_evidence_ready(evidence) is False
+    with pytest.raises(IncompleteEvidence):
+        render_classifier_page(evidence)
+
+
+def test_one_detector_score_is_enough() -> None:
+    """An LSTM-only event was instrumented; refusing it would discard real evidence."""
+    evidence = live_shaped_evidence()
+    del evidence["detector_evidence"]["dynamic"]
+    assert detector_evidence_ready(evidence) is True
+    assert "LSTM autoencoder reconstruction error" in render_classifier_page(evidence)
 
 
 def test_normalise_is_idempotent() -> None:

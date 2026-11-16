@@ -65,6 +65,48 @@ anchor A 3,168 exact, B 1,170 with the three failure components).
 
 The manuscript's in-text key for the multimodal model was updated to `zhu2025internvl3`.
 
+## 3b. Re-audit after the feature-vocabulary fix (2026-11-16, later the same day)
+
+The classifier's column names said `XMV_1..11` while the evidence page prints `XMV_42..52`, so 22.4 % of listed
+sensors (932/4,170 on stored pages) had no column and contributed nothing. `TAGS` is fixed and every
+classifier-side model was retrained into `outputs/analysis/phase3a/hybrid/vocabfix/`, beside the published
+artefacts. This section replaces the classifier-side rows of §1; the writer-side numbers (cells, test contrast,
+anchor split, preference, selection) are untouched, because those checks read prose against the page.
+
+| claim in the manuscript / methods / RP | before | after | source |
+|---|---|---|---|
+| cross-fitted observable accuracy | 0.9781 | **0.9878** | `vocabfix/crossfit.json` |
+| cross-fitted observable macro-F1 | 0.9708 | **0.9843** | same |
+| cross-fitted ECE / Brier | 0.0206 / 0.0217 | **0.0114 / 0.0113** | same |
+| cross-fitted threshold | 0.9792 | **1.0** (2.72 % of a 5 % budget) | same |
+| saturation (≥ threshold) | 774/834 = 92.8 % | **820/834 = 98.3 %** | same |
+| rule reasons | 429 / 322 / 61 / 22 | **442 / 323 / 61 / 8** | same |
+| menu-present cross-fitted accuracy | 0.9698 | **0.9839** | same, `strata.menu_present` |
+| in-sample observable accuracy / macro-F1 | 0.9964 / 0.9963 | **0.9976 / 0.9971** | `vocabfix/evaluation.json` |
+| 497-item table: menu rule | 0.9980 | **1.0000** | `vocabfix/classifier_contrasts.json` |
+| 497-item table: hybrid | 0.9940 | **0.9960** | same |
+| 497-item table: LightGBM | 0.9940 | **0.9980** | same |
+| 497-item table: MLP | 0.9698 | **0.9799** | same |
+| 497-item table: adapter | 0.8330 | 0.8330 (unchanged) | published `preds_adapter_val503.jsonl` |
+| hybrid vs LightGBM discordance | 2 / 2, p = 1.0 | **2 / 1, p = 1.0** | same |
+
+No conclusion changed: the classifier still does not beat the hybrid, the adapter is still far behind, and every
+writer-side check is unaffected. What changed is the magnitude — the vocabulary defect was costing the hybrid
+1.0 point of cross-fitted accuracy and the Learn-to-rank baseline 0.4.
+
+**Provenance gap found.** The adapter column cannot be regenerated. Filtering either stored decode file to the
+497 validation items does not reproduce the published predictions: `preds_decode_step500_full.jsonl` matches
+449/497 and `preds_val_full_400.jsonl` matches 394/497, so the published file was post-processed in a step that
+is not recorded. The re-measurement therefore carries the published adapter row over unchanged and
+`classifier_contrasts.py` grew an `--adapter-preds` override to say so explicitly. Anyone re-deriving that column
+from raw decode output will get a different number and must not "fix" it without finding that step.
+
+**Not recomputed, and labelled as such in the documents.** The bootstrap confidence intervals for the new
+cross-fitted accuracy and macro-F1 (the old ones are for the old run and are marked, not reused); the
+leave-one-fault-out surrogate, and therefore `fig8`; and the four diagnosis figures plus `approach_data.json`,
+which still plot the pre-fix numbers. Regenerating the figures needs the surrogate retrained in the same pass,
+so it is left as one deliberate job rather than four edits.
+
 ## 4. What this audit does not cover
 
 The manuscript's *prose* claims were checked for consistency with the tables, not re-reviewed for style. No
