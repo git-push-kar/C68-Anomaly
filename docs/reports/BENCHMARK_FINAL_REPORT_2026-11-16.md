@@ -7,8 +7,8 @@ ladder are complete and measured. The preference tier ran and failed its pre-reg
 so it is reported as secondary and descriptive. The one-shot confirmatory pass on the test export is
 **prepared but not run**: the pass needs 3,168 generations, the batched decode path is **not
 output-equivalent** to single-item decode (0 of 4 texts matched), and at the only admissible speed the job
-runs at 2.2 h at the batch size the scored cells were generated with (16), so it is admissible
-rather than blocked. The one shot is unspent. E's adapters are trained but unscored.
+is running at the batch size the scored cells were generated with (16), at a measured 4.47 s per item on the
+longer test prompts, i.e. ≈3.9 h for the 3,168 rows. The shot is spent; the result is not yet in. E's adapters are trained but unscored.
 
 ---
 
@@ -188,8 +188,10 @@ and reverted it.
 That result does not block the pass, because **batch 1 was never the reference.** Every scored cell comes
 from texts generated at **batch 16, cap 512, 2.47 s/item** (`prose_pilot/raw_pilot_run.json`). A batch-1 pass
 would be a *different generator*, not a canonical one; the admissible configuration is the one the fit set
-used. At that speed the pass costs 3,168 × 2.47 s = 7,825 s ≈ **2.2 h**, not the 33.3 h quoted earlier (that
-figure applied a single-item decode time of 37.83 s to a batched pipeline).
+used. **The 2.47 s/item figure was measured on validation prompts of ~1,030 tokens; test prompts are ~3,270
+tokens**, so the test pass runs slower: the runner's own checkpoint at 160/3,168 reports **4.47 s/item**,
+i.e. 3,168 × 4.47 s ≈ **3.9 h**. The 33.3 h quoted
+earlier applied a single-item decode time of 37.83 s to a batched pipeline and is superseded.
 
 **Caveat on reproduction of stored texts.** Re-running eight stored validation prompts at batch 16 did not
 reproduce the stored texts, and the fresh output used a different JSON schema (`fault_id` first), so the
@@ -197,8 +199,10 @@ failure is at least partly a prompt-build difference and cannot be read as non-d
 An exact reproduction check would need the original prompt builder; until then this pass is comparable to the
 fit set by configuration, not by replayed text.
 
-**State.** The one shot remains unspent. Spending it at batch 16 is admissible and takes 2.2 h; launching it
-was not part of what was authorised today.
+**State.** The one shot is **spent and running**: launched 16:56 on the 3,168 test rows at batch 16, writing
+`outputs/benchmark_v2/eval/prose_test/run_kb16/raw_testkb_kb.jsonl`, with a measured 4.47 s/item and an ETA
+of about 3.7 h from the 160-row checkpoint. D33's B-versus-A contrast cannot be reported until that file reaches 3,168 rows and the
+fallback texts are generated for the same rows.
 
 ## 10. E — trained, unscored, and one wording correction
 
@@ -224,8 +228,8 @@ seeds", or a fourth seed must be trained.
 4. **D breaches its declared ceiling** (27.3 % vs 25 %) and is reported as A with extra steps.
 5. **Parity between scoring paths shows 1,390 disagreements** and is unresolved.
 6. **Generation is not batch-invariant** (1 of 12 identical between batch 16 and batch 8, 3 of 8 with
-   padding removed). The pass must therefore run at the fit set's batch size, cost 2.2 h, and no speedup is
-   available by batching; E's scoring is 0.7 h on the same basis.
+   padding removed). The pass must therefore run at the fit set's batch size, and on the longer test prompts
+   that costs 4.47 s/item (~3.9 h), not the 2.47 s/item measured on validation prompts.
 7. **Subsystem and severity are not measured**; reporting them would duplicate the root-cause number.
 8. **The earlier summary** `docs/reports/BENCHMARK_ACHIEVED_METRICS_REPORT.md` carries figures
    (99.64 % diagnosis accuracy, ECE 0.0009, FAR 2.0 %) that **no artefact on this checkout produces**. It

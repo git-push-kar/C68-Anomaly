@@ -1,0 +1,785 @@
+[
+  {
+    "figure": "adapter accuracy 94.16%",
+    "value": 0.9416,
+    "precision": 4,
+    "hits": 67,
+    "hits_outside_raw": 65,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1773,
+        "0.9415576457977295"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\menu_order_decode_step500.json",
+        16,
+        "0.9416"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\reconcile_3b8.json",
+        6,
+        "0.9416"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\logs\\menu_order_decode.log",
+        16,
+        "0.9416"
+      ]
+    ]
+  },
+  {
+    "figure": "hybrid accuracy 99.64%",
+    "value": 0.9964,
+    "precision": 4,
+    "hits": 140,
+    "hits_outside_raw": 102,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        623,
+        "0.9964489936828613"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        735,
+        "0.9964489936828613"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        778,
+        "0.9964489936828613"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        826,
+        "0.9964489936828613"
+      ]
+    ]
+  },
+  {
+    "figure": "macro F1 adapter 0.9263",
+    "value": 0.9263,
+    "precision": 4,
+    "hits": 102,
+    "hits_outside_raw": 96,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        965,
+        "0.9262920618057251"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1780,
+        "0.9263370037078857"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1780,
+        "0.9262526631355286"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\menu_order_decode_step500.json",
+        18,
+        "0.9263"
+      ]
+    ]
+  },
+  {
+    "figure": "macro F1 hybrid 0.9963",
+    "value": 0.9963,
+    "precision": 4,
+    "hits": 153,
+    "hits_outside_raw": 142,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        881,
+        "0.9962977170944214"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        905,
+        "0.9962977170944214"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        945,
+        "0.9962977170944214"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1496,
+        "0.9963065981864929"
+      ]
+    ]
+  },
+  {
+    "figure": "abstention recall adapter 424/450",
+    "value": 0.9422222222222222,
+    "precision": 4,
+    "hits": 101,
+    "hits_outside_raw": 91,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1387,
+        "0.9421760439872742"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1806,
+        "0.9422297477722168"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\instrument_report.json",
+        1404,
+        "0.9422"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\instrument_report.json",
+        1496,
+        "0.9422"
+      ]
+    ]
+  },
+  {
+    "figure": "abstention precision adapter 99.07%",
+    "value": 0.9907,
+    "precision": 4,
+    "hits": 109,
+    "hits_outside_raw": 99,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\instrument_report.json",
+        1403,
+        "0.9907"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\instrument_report.json",
+        1495,
+        "0.9907"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\menu_order_decode_step500.json",
+        21,
+        "0.9907"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\menu_order_decode_step500.json",
+        113,
+        "0.9907"
+      ]
+    ]
+  },
+  {
+    "figure": "abstention precision hybrid 99.34%",
+    "value": 0.9934,
+    "precision": 4,
+    "hits": 106,
+    "hits_outside_raw": 100,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        661,
+        "0.9933508634567261"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1523,
+        "0.9934290647506714"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\comparison.json",
+        43,
+        "0.9934"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\comparison.json",
+        245,
+        "0.9934"
+      ]
+    ]
+  },
+  {
+    "figure": "false abstention adapter 1.08%",
+    "value": 0.0108,
+    "precision": 4,
+    "hits": 792,
+    "hits_outside_raw": 627,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        477,
+        "0.010828018188476562"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        481,
+        "0.010843276977539062"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        489,
+        "0.010828018188476562"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        491,
+        "0.010843276977539062"
+      ]
+    ]
+  },
+  {
+    "figure": "false abstention hybrid 0.81%",
+    "value": 0.0081,
+    "precision": 4,
+    "hits": 862,
+    "hits_outside_raw": 737,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\s25.md",
+        35,
+        "0.0081"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\comparison.json",
+        45,
+        "0.0081"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\comparison.json",
+        285,
+        "0.0081"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\comparison.json",
+        1147,
+        "0.0081"
+      ]
+    ]
+  },
+  {
+    "figure": "missed abstention adapter 5.78%",
+    "value": 0.0578,
+    "precision": 4,
+    "hits": 405,
+    "hits_outside_raw": 299,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1513,
+        "0.05780792236328125"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1570,
+        "0.05776405334472656"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1619,
+        "0.05780792236328125"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1671,
+        "0.05780792236328125"
+      ]
+    ]
+  },
+  {
+    "figure": "ECE 0.0009",
+    "value": 0.0009,
+    "precision": 4,
+    "hits": 4212,
+    "hits_outside_raw": 3054,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        610,
+        "0.000862259475979954"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        612,
+        "0.000862259475979954"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        952,
+        "0.0009251589071936905"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        955,
+        "0.0009251589071936905"
+      ]
+    ]
+  },
+  {
+    "figure": "Brier 0.0017",
+    "value": 0.0017,
+    "precision": 4,
+    "hits": 3515,
+    "hits_outside_raw": 2900,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        477,
+        "0.0017199907451868057"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        481,
+        "0.0017185229808092117"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        489,
+        "0.0017199907451868057"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        491,
+        "0.0017185229808092117"
+      ]
+    ]
+  },
+  {
+    "figure": "chi-square 41.19",
+    "value": 41.19,
+    "precision": 2,
+    "hits": 265,
+    "hits_outside_raw": 265,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        609,
+        "41.189552307128906"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        952,
+        "41.18759536743164"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        952,
+        "41.18760299682617"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        955,
+        "41.18760299682617"
+      ]
+    ]
+  },
+  {
+    "figure": "AUROC margin 0.8808",
+    "value": 0.8808,
+    "precision": 4,
+    "hits": 63,
+    "hits_outside_raw": 63,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\surrogate_wide.json",
+        22,
+        "0.8808"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_1\\classifier.txt",
+        15507,
+        "0.88083045277744532"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_2\\classifier.txt",
+        7806,
+        "0.880805"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\events\\normal.jsonl",
+        6,
+        "0.8808022737503052"
+      ]
+    ]
+  },
+  {
+    "figure": "AUROC entropy 0.8828",
+    "value": 0.8828,
+    "precision": 4,
+    "hits": 72,
+    "hits_outside_raw": 72,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1555,
+        "0.8828442692756653"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\surrogate_wide.json",
+        21,
+        "0.8828"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\surrogate_wide.json",
+        27,
+        "0.8828"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_2\\classifier.txt",
+        28050,
+        "0.88284"
+      ]
+    ]
+  },
+  {
+    "figure": "AUROC max_prob 0.8815",
+    "value": 0.8815,
+    "precision": 4,
+    "hits": 100,
+    "hits_outside_raw": 98,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1391,
+        "0.8815001249313354"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1549,
+        "0.8814692497253418"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1595,
+        "0.8814692497253418"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        1650,
+        "0.8814692497253418"
+      ]
+    ]
+  },
+  {
+    "figure": "AUROC novelty 0.8456",
+    "value": 0.8456,
+    "precision": 4,
+    "hits": 110,
+    "hits_outside_raw": 110,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        623,
+        "0.8455607891082764"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        735,
+        "0.8455607891082764"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        778,
+        "0.8455607891082764"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        826,
+        "0.8455607891082764"
+      ]
+    ]
+  },
+  {
+    "figure": "mean output length 287.3 tokens",
+    "value": 287.3,
+    "precision": 1,
+    "hits": 13,
+    "hits_outside_raw": 13,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\pilot_eval_summary.json",
+        24,
+        "287.3"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\events\\faulty\\test\\f18_r481.json",
+        57,
+        "287.3128356933594"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\events\\faulty\\train\\f08_r028.json",
+        283,
+        "287.3022766113281"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\events\\faulty\\train\\f18_r009.json",
+        198,
+        "287.2839660644531"
+      ]
+    ]
+  },
+  {
+    "figure": "routing 545/550",
+    "value": 0.990909090909091,
+    "precision": 4,
+    "hits": 115,
+    "hits_outside_raw": 110,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        623,
+        "0.990908682346344"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        735,
+        "0.990908682346344"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        778,
+        "0.990908682346344"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        826,
+        "0.990908682346344"
+      ]
+    ]
+  },
+  {
+    "figure": "routing 146/150",
+    "value": 0.9733333333333334,
+    "precision": 4,
+    "hits": 108,
+    "hits_outside_raw": 98,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_1\\classifier.txt",
+        6951,
+        "0.97332"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_1\\classifier.txt",
+        13230,
+        "0.973277"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\events\\normal.jsonl",
+        113,
+        "0.9733104109764099"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\benchmark_v2\\events\\faulty\\test\\f04_r474.json",
+        206,
+        "0.9733361005783081"
+      ]
+    ]
+  },
+  {
+    "figure": "over-refusal before 77.78%",
+    "value": 0.7778,
+    "precision": 4,
+    "hits": 124,
+    "hits_outside_raw": 120,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        751,
+        "0.7777668833732605"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        797,
+        "0.7777668833732605"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        844,
+        "0.7777668833732605"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        924,
+        "0.7778415679931641"
+      ]
+    ]
+  },
+  {
+    "figure": "over-refusal after 55.56%",
+    "value": 0.5556,
+    "precision": 4,
+    "hits": 83,
+    "hits_outside_raw": 81,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\instrument_report.json",
+        59,
+        "0.5556"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\instrument_report.json",
+        126,
+        "0.5556"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\instrument_report.json",
+        145,
+        "0.5556"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\farm_2026-11-06\\f_rescore.json",
+        189,
+        "0.5556"
+      ]
+    ]
+  },
+  {
+    "figure": "adapter latency 0.65 s/report",
+    "value": 0.65,
+    "precision": 2,
+    "hits": 13569,
+    "hits_outside_raw": 12972,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        477,
+        "0.6465049386024475"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        477,
+        "0.648108720779419"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        489,
+        "0.6465049386024475"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        489,
+        "0.648108720779419"
+      ]
+    ]
+  },
+  {
+    "figure": "replay 4.8 s",
+    "value": 4.8,
+    "precision": 1,
+    "hits": 10106,
+    "hits_outside_raw": 10106,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        476,
+        "4.789471626281738"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        477,
+        "4.846317768096924"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        481,
+        "4.846133232116699"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        485,
+        "4.78575325012207"
+      ]
+    ]
+  },
+  {
+    "figure": "replay 1.5 s",
+    "value": 1.5,
+    "precision": 1,
+    "hits": 34666,
+    "hits_outside_raw": 34474,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        476,
+        "1.4681837558746338"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        483,
+        "1.4641897678375244"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        485,
+        "1.4684444665908813"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\events.db",
+        485,
+        "1.5426316261291504"
+      ]
+    ]
+  },
+  {
+    "figure": "anchor exactness B 51.67%",
+    "value": 0.5167,
+    "precision": 4,
+    "hits": 46,
+    "hits_outside_raw": 46,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\pilot_rechecks.json",
+        533,
+        "0.5167"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\pilot_rechecks.json",
+        601,
+        "0.5167"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_1\\classifier.txt",
+        27214,
+        "0.516748"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_1\\classifier.txt",
+        57690,
+        "0.516657"
+      ]
+    ]
+  },
+  {
+    "figure": "anchor 170/329",
+    "value": 0.5167173252279635,
+    "precision": 4,
+    "hits": 46,
+    "hits_outside_raw": 46,
+    "sample": [
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\pilot_rechecks.json",
+        533,
+        "0.5167"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\fit\\pilot_rechecks.json",
+        601,
+        "0.5167"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_1\\classifier.txt",
+        27214,
+        "0.516748"
+      ],
+      [
+        "C:\\Users\\Admin\\Desktop\\anomaly\\outputs\\analysis\\phase3a\\hybrid\\fold_1\\classifier.txt",
+        57690,
+        "0.516657"
+      ]
+    ]
+  }
+]
