@@ -274,6 +274,31 @@ test, not a swap-and-hope:
 Until those pass, the classifier must not be wired in: a classifier fed the current live page sees almost no
 evidence and would be worse than the deterministic fallback while looking confident.
 
+### 7.3 Correction, 2026-11-16 — the onset gap was not one; the mapping layer is built and tested
+
+§7.2 item 2 ("onset lists are one entry too long") is **withdrawn**. It was inferred from five pages. Measured
+over all 834 stored validation pages, onset entries per page are `{1: 83, 2: 90, 3: 77, 4: 62, 5: 54, 6: 468}`
+— six is the mode. A five-entry cap reproduced 8 of 20 stored pages and destroyed the other 12. The list is now
+passed through unchanged.
+
+Built, not yet wired into `TEPApp`:
+
+- `llm/benchmark/live_page.py` — `derive_lag_attribution` (top five shares of the 52 CVA contributions, plus
+  `dominant_lag` and `slow_drift_ratio`), `normalise_evidence` (fills `lag_attribution` when absent, hoists a
+  nested `dynamic.cva` score so the CVA line renders, leaves onsets alone) and `render_live_page` (benchmark
+  renderer, with the teacher instruction inserted ahead of the schema line as stored pages have it).
+- `tests/test_live_page_contract.py` — 34 tests, all passing. Twenty stored pages are parsed back into evidence
+  and re-rendered: the text is byte-identical apart from the event-id hash and the two ratio strings, and the
+  feature vectors are identical apart from the two ratio features, which agree to better than 1 % (they divide
+  unrounded operands, so the printed values cannot reproduce them exactly).
+
+Live effect, 25 events from `events.db`: populated features **24.8** mean (18–30), against **25.5** (25–27) for
+stored pages; sensors, onsets, five residual shares, CVA line, fused trigger and instruction present in 25/25.
+
+Open: the minimum of 18 sits below the stored floor of 25 — events with short sensor or onset lists produce
+fewer features than any stored page. Not yet characterised per fault, and not a reason to wire the classifier in
+before it is.
+
 ## 8. What this plan does not do
 
 It does not change the detector, the adapter, the prompts, the datasets or the measured numbers; it does not
