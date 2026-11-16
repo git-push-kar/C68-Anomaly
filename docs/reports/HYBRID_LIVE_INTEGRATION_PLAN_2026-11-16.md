@@ -201,7 +201,80 @@ traffic, that is a finding worth having before it is customer-visible.
 
 ---
 
-## 7. What this plan does not do
+## 7. Addendum, 2026-11-16 — the menu policy is decided, and the parity gate **fails**
+
+Run: `python scripts/check_menu_and_parity.py` (artefacts: `crossfit_val_rows.jsonl`, `events.db`).
+
+### 7.1 Menu policy: **full 15-fault list plus an explicit `UNCLASSIFIED_OPEN_SET` option**
+
+Simulated on the stored per-item probabilities of the 834 validation rows at the cross-fitted threshold 0.9792,
+restricted to the 503 rows a deployment can actually present (`variant = menu`, i.e. the exhaustive menu; the 331
+`removed` rows are constructed open-set cases whose gold assumes the true fault was withheld, and are not
+deployable):
+
+| policy | accuracy | abstentions | mechanism |
+|---|---|---|---|
+| **A: 15 faults + abstain option** | **0.9583 (482/503)** | **22** | `below_threshold` 22, `on_menu` 427, `no_fault` 54 |
+| B: 15 faults, no abstain option | 0.9583 (482/503) | 137 | `below_threshold` 12, `not_on_menu` 125, `no_fault` 54 |
+
+Reproduction check with each row's own menu: 0.9640 over 834 = **0.9781 over the 822 observable**, matching the
+recorded cross-fitted accuracy exactly.
+
+**Decision: A.** The two policies are decision-equivalent (482/503 either way), so accuracy does not choose
+between them; the difference is accounting. Under A, "nothing listed" is an answer the classifier gives with its
+own confidence (125 rows), kept separate from "evidence too thin" (22 rows). Under B both collapse into one
+137-item abstention bucket reached by menu inference, and the monitoring signal that distinguishes an open-set
+event from a low-confidence known fault is lost. A is also the regime every reported number was measured in.
+
+**Shortlist rejected.** Every benchmark menu is exhaustive (15 faults + the abstain option); no measurement
+exists for a shorter one. The only shortlist-shaped construction in the data is the `removed` variant, where
+withholding the true fault converts **331 of 331** predictions into forced abstentions — i.e. a shortlist that
+omits the true fault destroys a correct answer rather than protecting it. Keeping a fault out of the menu is
+safe only if you already know the answer.
+
+Unaffected by this decision: the 12 unobservable rows (faults 3, 9), which are predicted `NORMAL_TRANSIENT` at
+confidence 1.00 under every menu policy.
+
+### 7.2 Renderer parity: gate **fails**, on two layers
+
+Same evidence dicts from `events.db` (25 events), both renderers, features compared element-wise:
+
+| renderer | identical feature vectors | populated features |
+|---|---|---|
+| live `format_evidence_question` | **0 / 25** | ~1 of 323 |
+| benchmark `prompt_v2.render_prompt` | n/a (reference) | 18.9 of 323 |
+| stored benchmark page | n/a | 25–27 of 323 |
+
+The live renderer is unusable for the classifier:
+
+- section labels differ (`Top sensor deviations:` vs `TOP DEVIATING SENSORS`, `Event ID:` vs `Event:`);
+- it emits **no `deviation …%` field**, so the sensor regex matches nothing — that is why only one feature is
+  populated;
+- it has no `Fused trigger` line, so the three fusion flags are always zero.
+
+Swapping in the benchmark renderer fixes those but is **not sufficient**. Section-by-section on live evidence:
+sensors 5/5, onset 6/5, residual **0/5**, LSTM and CVA scalars present. Two concrete gaps remain:
+
+1. **`detector_evidence.lag_attribution` does not exist in live evidence.** The benchmark renderer reads it for the
+   CVA residual block; live evidence carries `detector_evidence.dynamic.cva.sensor_contributions` instead. Mapping
+   the contributions to `top_variables` (+ `dominant_lag`, `slow_drift_ratio`) lifts populated features from 18.9
+   to 24.8 of 25–27, i.e. it closes the residual gap.
+2. **Onset lists are one entry too long** (6 vs 5 in every stored page): cap `temporal_sequence` to the same five
+   entries the benchmark used.
+
+**Revised gate for the integration.** The parity test becomes a contract test on the mapping layer plus a replay
+test, not a swap-and-hope:
+
+1. build a live page with `prompt_v2.render_prompt(evidence, build_menu())`;
+2. assert the rendered page reproduces the stored benchmark page for a replayed event;
+3. assert the populated-feature count and per-section counts match the stored distribution (sensors 5, onset 5,
+   residual 5, scalars present);
+4. only then compare `prompt_features` hashes.
+
+Until those pass, the classifier must not be wired in: a classifier fed the current live page sees almost no
+evidence and would be worse than the deterministic fallback while looking confident.
+
+## 8. What this plan does not do
 
 It does not change the detector, the adapter, the prompts, the datasets or the measured numbers; it does not
 enable the flag; it does not choose the menu policy for you. The one decision that needs you before coding is
