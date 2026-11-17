@@ -62,7 +62,7 @@ fine-tune per plant, which is the practical reason a small adapter is interestin
 remains a strong tabular baseline [@ke2017lightgbm], and we use LightGBM as exactly that: a check on whether
 the calibrated hybrid's accuracy is earned by its structure or by its features.
 
-Agreement statistics follow [@cohen1960coefficient] and paired binary comparisons follow [@mcnemar1947], with
+Agreement statistics follow [@cohen1960coefficient] and paired binary comparisons follow [@mcnemar1947note], with
 interval estimates from [@clopper1934use]. The finding that model judges are noisy enough to require reliability
 floors is well established [@zheng2023judging]; we apply that lesson to human pairwise preference over reports.
 
