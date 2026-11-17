@@ -132,7 +132,9 @@ This is the paper's sharpest descriptive result: **the adapter is numerically re
 
 497 shared items: menu rule **1.0000**, LightGBM **0.9980**, hybrid **0.9960** (2 vs 1 discordant, p = 1), MLP
 0.9799, adapter alone **0.8330** (0.7977–0.8632, checkpoint-300 label scoring — the checkpoint
-`selected_checkpoint.json` selects, and the pipeline default). The knowledge-base layer earns its place in
+`selected_checkpoint.json` selects, and the pipeline default). That adapter row is the **protocolA** adapter from
+`outputs/tep_rca_v2_protocolA_seed42`, not the deployment adapter configured at `outputs/tep_rca_internvl3_2b`, which
+is a different set of weights and is not scored in this comparison. The knowledge-base layer earns its place in
 *explanation*, not accuracy.
 
 *Re-measured 2026-11-16.* These replace the earlier hybrid 0.9940 / LightGBM 0.9940 / MLP 0.9698 / menu rule

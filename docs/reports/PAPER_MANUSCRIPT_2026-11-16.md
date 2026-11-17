@@ -205,6 +205,10 @@ On the 497 items where all systems produce a label:
 | MLP | 0.9799 | 0.9634–0.9890 |
 | adapter alone | 0.8330 | 0.7977–0.8632 |
 
+The "adapter alone" row is the **protocolA** adapter at checkpoint 300 (`outputs/tep_rca_v2_protocolA_seed42`), the
+checkpoint the macro-F1 selection chose; it is not the adapter named in `configs/config.yaml`
+(`outputs/tep_rca_internvl3_2b`), which is the deployment artefact and is not scored in this table.
+
 Hybrid against LightGBM: 2 vs 1 discordant (b = 2, c = 1), exact p = 1.0. The knowledge-base layer buys **no
 accuracy**, and
 the adapter as a classifier is clearly behind. The layer's justification must therefore be explanatory

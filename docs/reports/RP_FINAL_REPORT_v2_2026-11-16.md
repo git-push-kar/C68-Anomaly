@@ -224,9 +224,9 @@ detector emits that page type at twice the training rate (32/154 = 21 % vs 194/1
 events collapse to 8 episodes (one of 24 windows). Where labels exist, it holds up: of the 6 labelled
 detector-bearing events, all six are `FAULT_15` and all six are predicted `FAULT_15`.
 
-### 8.2 Recovering live labels: attempted, not possible from the stored record
+### 8.2 Recovering live labels: impossible for the stored events, fixed at the source
 
-Live accuracy would be measurable if each event could be tied to its simulation run. It cannot:
+Live accuracy would be measurable if each event could be tied to its simulation run. The stored events cannot be:
 
 - the event record stores `start_sample` as an index **within** a run (`ANOM-0001` spans 580–910, 66 windows of
   five samples) plus aggregate summaries (`per_sensor_mean_error`, `post_mean`, `delta`) — no run id, no raw
@@ -237,9 +237,12 @@ Live accuracy would be measurable if each event could be tied to its simulation 
   run needs either the raw window or a stored `simulationRun` — neither exists in `events.db`.
 
 Aligning by sensor summaries would mean re-running the detector over 9.6 M rows to match fingerprints, which is
-inference rather than recovery. The correct fix is provenance at detection time: record `source_file`,
-`simulationRun` and `faultNumber` with the event, as the benchmark builder already does. Until then the 6/6
-sanity check is the ceiling of what this data supports, and no live accuracy is claimed.
+inference rather than recovery. The fix is provenance at detection time, and it is now implemented: every new event
+record carries `source_file`, `simulation_run` and `fault_number` (columns on `events` plus the same keys in
+`event_json`), filled from the replay path (`run_stream_from_file`) or from any record that supplies them, and
+`scripts/audit_live_diagnosis.py` scores live accuracy over exactly those events and lists the misses. The 489
+events stored before the change carry none of the three fields, so §8.1's 6/6 stays a sanity check: the ceiling is
+a property of that file, not of the pipeline.
 
 ---
 
@@ -322,9 +325,11 @@ rows) must **not** be scored against this table: different instrument, different
 
 ## 10. Limitations
 
-1. **No live accuracy.** 20 of 489 stored events carry a label, 6 of those have detector evidence, and the
-   record cannot be resolved to a simulation run (§8.2), so no post-hoc labelling is possible. 6/6 is a sanity
-   check, not an estimate; the fix is event provenance, not analysis.
+1. **Live accuracy — measured from the next run, not from the archive.** Events now record `source_file`,
+   `simulation_run` and `fault_number`, so a replay or a simulator-fed deployment is scorable (`audit_live_diagnosis`
+   reports the hit rate and the misses). The 489 events stored before the change have no run identity and stay
+   unscored (§8.2); 6/6 on the six labelled ones is a sanity check, not an estimate. A real sensor feed with no run
+   identity still records nulls, which is honest rather than imputed.
 2. **Unobservable faults.** Faults 3 and 9 are predicted `NORMAL_TRANSIENT` at confidence 1.0.
 3. **Adapter baseline provenance — resolved.** The instrument is label scoring, and the checkpoint is the one
    `selected_checkpoint.json` selects (step 300, macro-F1 0.8720), giving 0.8330 (0.7977–0.8632), 414/497. The

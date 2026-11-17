@@ -84,6 +84,13 @@ class AnomalyEvent:
     sensor_time_series: Optional[Dict] = field(default=None)  # light summaries only
     report: Optional[Dict] = None
     fault_label: Optional[int] = None
+    # Run provenance: which simulation run produced the samples behind this
+    # event. All optional, because a live stream from real sensors has none of
+    # them; when they are present, a stored event can be joined to its truth and
+    # live accuracy becomes measurable.
+    source_file: Optional[str] = None
+    simulation_run: Optional[int] = None
+    fault_number: Optional[int] = None
 
     def to_dict(self) -> Dict:
         return {
@@ -100,6 +107,9 @@ class AnomalyEvent:
             "sensor_time_series": self.sensor_time_series,
             "report": self.report,
             "fault_label": self.fault_label,
+            "source_file": self.source_file,
+            "simulation_run": self.simulation_run,
+            "fault_number": self.fault_number,
         }
 
 
@@ -129,6 +139,9 @@ def build_event(
     detection_time: Optional[datetime] = None,
     fault_label: Optional[int] = None,
     detector_evidence: Optional[Dict] = None,
+    source_file: Optional[str] = None,
+    simulation_run: Optional[int] = None,
+    fault_number: Optional[int] = None,
 ) -> AnomalyEvent:
     """Assemble one anomaly event from a run of anomalous windows.
 
@@ -141,6 +154,8 @@ def build_event(
         threshold: anomaly threshold (for severity scaling).
         start_sample: sample index of the first anomalous window.
         config: the ``evidence`` configuration section.
+        source_file, simulation_run, fault_number: optional run provenance,
+            carried onto the record so a stored event can be scored against truth.
     """
     ev = config["evidence"]
     top_k = int(ev.get("top_k_sensors", 5))
@@ -345,6 +360,9 @@ def build_event(
         evidence=evidence,
         sensor_time_series=sensor_time_series,
         fault_label=fault_label,
+        source_file=source_file,
+        simulation_run=int(simulation_run) if simulation_run is not None else None,
+        fault_number=int(fault_number) if fault_number is not None else None,
     )
 
 

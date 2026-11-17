@@ -111,8 +111,8 @@
     {
       "name": "methods",
       "path": "docs/reports/PAPER_METHODS_METRICS_2026-11-16.md",
-      "sha256": "b2586e6b8ac7d369217f9b947215c4468383aed2fbafc10a8d4f182372c902a2",
-      "bytes": 12234,
+      "sha256": "d43250314a077bce9d54df7f2f1c20676a04596996667fd836e3816e562bf67d",
+      "bytes": 12473,
       "rebuild": "(assertion document)",
       "claims": "all"
     }

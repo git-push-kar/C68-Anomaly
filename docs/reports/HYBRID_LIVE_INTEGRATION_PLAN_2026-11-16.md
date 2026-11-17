@@ -510,7 +510,7 @@ This remains unverifiable against ground truth: the live events have no labels.
 | `FAULT_15` live behaviour explained | done (§7.9) |
 | surrogates and CIs | **done 2026-11-16**: cross-fitted cluster bootstrap 0.9783–0.9962 (accuracy) / 0.9711–0.9947 (macro-F1), 497 event clusters, seed 42 |
 | 13-fault novelty/absorption table | **done 2026-11-16**: all 13 faults retrained into `vocabfix/surrogate_wide.json` (2 shards, ~100 s each, deterministic); `fig8` is rendered from that file |
-| live accuracy | **not estimable, and now shown why** (§7.11): the event store keeps only a within-run `start_sample` and aggregate error summaries — no run id, no raw window. Four labelled events share `start_sample=580` under faults 1, 4, 14 and 21, while the CSV has 10,000 runs. 6/6 labelled detector-bearing events are predicted correctly; that is a sanity check, the ceiling of this data |
+| live accuracy | **wired**: events now record `source_file`, `simulation_run`, `fault_number` (DB columns + `event_json`), filled by `run_stream_from_file` and by records that supply them; `audit_live_diagnosis.py` reports the hit rate and lists misses. The 489 pre-change events carry only a within-run `start_sample` (four share 580 under faults 1/4/14/21) and stay unscored — 6/6 is their ceiling, not the pipeline's (§7.11) |
 | older adapter predictions | **traced and aligned**: the files are checkpoint label scoring, not free decodes. The table quotes **0.8330 (0.7977–0.8632), 414/497** from checkpoint-300, the macro-F1 selection, and `evidence_classifier.py` now defaults to that checkpoint's file. The interim 0.7646 was checkpoint-400, rejected on both selection criteria (accuracy 0.8533 and macro-F1 0.7325 against 0.8833 / 0.8720), and is recorded only in the provenance note. The `probs` vector comes from `label_scorer`; the free-decode harness is a different instrument, so its 12 % agreement is expected (RP v2 §8.3) |
 
 The RP can close on the benchmark and system claims once the four bold rows are either run or explicitly
@@ -535,9 +535,11 @@ Attempted via run alignment; the record does not carry what alignment needs.
   raw window or a stored run id. Matching on error summaries would mean re-running the detector over 9.6 M rows
   to fingerprint windows — inference, not recovery.
 
-The fix is provenance at detection time (record `source_file`, `simulationRun`, `faultNumber` with the event, as
-the benchmark builder already does). Until then, live accuracy stays unestimated and the 6/6 labelled sanity
-check is the ceiling. Recorded in RP v2 §8.2.
+The fix — provenance at detection time — is **implemented**: `AnomalyEvent` carries `source_file`,
+`simulation_run` and `fault_number`, `EventStore` persists them as columns (with an `ALTER TABLE` migration for
+existing databases) and inside `event_json`, `run_stream_from_file` stamps the normal and injected runs, and
+`audit_live_diagnosis.py` scores live accuracy over events with a known `fault_number`. The 489 stored events keep
+their 6/6 ceiling. Recorded in RP v2 §8.2 and limitation 1.
 
 ## 8. What this plan does not do
 

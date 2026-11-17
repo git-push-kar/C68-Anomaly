@@ -4,7 +4,8 @@ Answers three questions from the stored records, without touching them:
 
 * what the verdicts and calibrated confidences look like on live traffic;
 * how often the classifier's fault group disagrees with the deterministic fallback's prose;
-* what a different menu threshold would do, so the stored 1.0 can be compared against the cross-fitted value.
+* what a different menu threshold would do, so the stored 1.0 can be compared against the cross-fitted value;
+* live accuracy on every event whose run provenance names a fault (``fault_number``), with the misses listed.
 
     python scripts/audit_live_diagnosis.py
     python scripts/audit_live_diagnosis.py --thresholds 1.0 0.9792 0.95 0.9
@@ -123,6 +124,9 @@ def main() -> None:
                          for t in args.thresholds}
         rows.append({
             "event_id": event.event_id,
+            "source_file": record.get("source_file"),
+            "simulation_run": record.get("simulation_run"),
+            "truth_fault_number": record.get("fault_number"),
             "verdict": diagnosis["verdict"],
             "reason": diagnosis["reason"],
             "fault_id": diagnosis["fault_id"],
@@ -158,6 +162,24 @@ def main() -> None:
                 (r["classifier_group"], r["prose_group"]) for r in compared
                 if r["classifier_group"] != r["prose_group"]).most_common()
         },
+    }
+
+    # Live accuracy, only over events whose run provenance names a fault. Old events (and
+    # unfaulted runs) carry no ``fault_number`` and are counted separately, not scored.
+    scored = [r for r in rows if r["truth_fault_number"] is not None]
+    hits = [r for r in scored
+            if r["fault_id"] == f"FAULT_{int(r['truth_fault_number']):02d}"]
+    summary["live_accuracy"] = {
+        "events_scored": len(scored),
+        "events_without_truth": len(rows) - len(scored),
+        "correct": len(hits),
+        "accuracy": (len(hits) / len(scored)) if scored else None,
+        "misses": [
+            {"event_id": r["event_id"], "truth": f"FAULT_{int(r['truth_fault_number']):02d}",
+             "predicted": r["fault_id"], "source_file": r["source_file"],
+             "simulation_run": r["simulation_run"]}
+            for r in scored if r not in hits
+        ],
     }
 
     by_threshold = {}

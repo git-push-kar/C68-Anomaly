@@ -198,6 +198,17 @@ class TEPApp:
         self._recent_flags: deque = deque(maxlen=max(self._confirm, self._separate) + 5)
         self._open: Optional[Dict] = None
 
+        # Run provenance of the samples currently being consumed. Empty for a
+        # live sensor feed that does not know its own run; set by
+        # run_stream_from_file() and by records that carry the keys. Whatever is
+        # known here is stamped onto each event, which is what lets a stored
+        # event be joined to the simulator truth afterwards.
+        self._provenance: Dict[str, Optional[object]] = {
+            "source_file": None,
+            "simulation_run": None,
+            "fault_number": None,
+        }
+
     # ==================================================================
     # continuous stream entry point
     # ==================================================================
@@ -217,6 +228,9 @@ class TEPApp:
         if isinstance(sensor_record, dict):
             values = np.asarray(sensor_record["values"], dtype=np.float32)
             fault_label = sensor_record.get("fault_label")
+            for key in ("source_file", "simulation_run", "fault_number"):
+                if sensor_record.get(key) is not None:
+                    self._provenance[key] = sensor_record[key]
         else:
             values = np.asarray(sensor_record, dtype=np.float32)
             fault_label = None
@@ -288,6 +302,7 @@ class TEPApp:
                     "start_sample": max(0, self._window_id * self.stride),
                     "start_time": datetime.now(),
                     "fault_label": fault_label,
+                    "provenance": dict(self._provenance),
                     "normal_since": 0,
                 }
             return None
@@ -317,6 +332,10 @@ class TEPApp:
     def _close_event(self):
         state = self._open
         self._open = None
+        # The latest known provenance wins over the snapshot taken when the event
+        # opened: an event that straddles injection should record the fault run.
+        provenance = dict(state.get("provenance") or {})
+        provenance.update({k: v for k, v in self._provenance.items() if v is not None})
 
         # Consolidate detector evidence across the event windows
         # Stabilized: average CVA contributions + lag-energy over the event
@@ -386,6 +405,9 @@ class TEPApp:
             detection_time=datetime.now(),
             fault_label=state.get("fault_label"),
             detector_evidence=to_native(summary_ev) if summary_ev else None,
+            source_file=provenance.get("source_file"),
+            simulation_run=provenance.get("simulation_run"),
+            fault_number=provenance.get("fault_number"),
         )
         event.report = self._generate_report(event)
         self.event_store.store_event(event)
@@ -550,13 +572,19 @@ class TEPApp:
         normal_run = normal_simulation_run if normal_simulation_run is not None else int(self.config["streaming"].get("normal_simulation_run", 1))
         fnum = fault_number if fault_number is not None else self.config["streaming"].get("fault_number")
         frun = fault_simulation_run if fault_simulation_run is not None else int(self.config["streaming"].get("fault_simulation_run", 1))
+        normal_path = source_file or self.config["streaming"]["normal_source"]
         stream = SensorStream.from_csv(
-            source_file or self.config["streaming"]["normal_source"],
+            normal_path,
             config=self.config,
             replay_rate=replay_rate,
             fault_number=0,
             simulation_run=normal_run,
         )
+        self._provenance = {
+            "source_file": str(normal_path),
+            "simulation_run": int(normal_run),
+            "fault_number": None,
+        }
         fault_frame = None
         fault_label = None
         if inject_fault_file:
@@ -594,6 +622,9 @@ class TEPApp:
                     "values": fault_frame.iloc[fault_row].to_numpy(dtype=np.float32),
                     "is_fault": True,
                     "fault_label": fault_label,
+                    "source_file": str(inject_fault_file),
+                    "simulation_run": int(frun),
+                    "fault_number": fault_label,
                 }
             all_records.append(rec)
         for rec in all_records:

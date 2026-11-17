@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS events (
     mean_score      REAL,
     severity        TEXT,
     fault_label     INTEGER,
+    source_file     TEXT,
+    simulation_run  INTEGER,
+    fault_number    INTEGER,
     event_json      TEXT,
     report_json     TEXT,
     evidence_json   TEXT,
@@ -72,11 +75,22 @@ class EventStore:
         self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.executescript(_SCHEMA)
+        self._migrate_provenance_columns()
         self._conn.commit()
         logger.info("Event store ready at %s", self.db_path)
 
     def close(self) -> None:
         self._conn.close()
+
+    def _migrate_provenance_columns(self) -> None:
+        """Add the run-provenance columns to databases created before them."""
+        existing = {row["name"] for row in
+                    self._conn.execute("PRAGMA table_info(events)").fetchall()}
+        for name, kind in (("source_file", "TEXT"), ("simulation_run", "INTEGER"),
+                           ("fault_number", "INTEGER")):
+            if name not in existing:
+                self._conn.execute(f"ALTER TABLE events ADD COLUMN {name} {kind}")
+                logger.info("Event store: added column %s", name)
 
     # ------------------------------------------------------------------
     def next_event_id(self) -> str:
@@ -101,9 +115,9 @@ class EventStore:
             """
             INSERT OR REPLACE INTO events(
                 event_id, start_time, detection_time, end_time, max_score,
-                mean_score, severity, fault_label, event_json, report_json,
-                evidence_json, created_at
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                mean_score, severity, fault_label, source_file, simulation_run,
+                fault_number, event_json, report_json, evidence_json, created_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 event_id,
@@ -114,6 +128,9 @@ class EventStore:
                 data.get("mean_anomaly_score"),
                 evidence.get("severity"),
                 data.get("fault_label"),
+                data.get("source_file"),
+                data.get("simulation_run"),
+                data.get("fault_number"),
                 json.dumps(data, ensure_ascii=False),
                 json.dumps(data.get("report"), ensure_ascii=False) if data.get("report") else None,
                 json.dumps(evidence, ensure_ascii=False),

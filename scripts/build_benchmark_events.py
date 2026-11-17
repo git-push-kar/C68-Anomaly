@@ -205,7 +205,9 @@ class FrozenDetector:
     # -- one run -> one event record -------------------------------------
     def build(self, event_id: str, raw: np.ndarray, fault_label: Optional[int],
               window_block: Optional[Tuple[int, int]] = None,
-              horizon: Optional[int] = None) -> Dict:
+              horizon: Optional[int] = None,
+              source_file: Optional[str] = None,
+              simulation_run: Optional[int] = None) -> Dict:
         series = self.score_run(raw)
         starts = series["starts"]
         alarm = (series["fused"] > 1.0).astype(int)
@@ -269,6 +271,9 @@ class FrozenDetector:
             config=self.config,
             fault_label=fault_label,
             detector_evidence=evidence_ev,
+            source_file=source_file,
+            simulation_run=simulation_run,
+            fault_number=fault_label,
         )
 
         first_alarm_idx = next(
@@ -397,7 +402,8 @@ def main() -> None:
             continue
         processed[fault] += 1
         event_id = f"EVT-{component}-f{fault:02d}-r{run:03d}"
-        rec = det.build(event_id, raw, fault, horizon=horizon)
+        rec = det.build(event_id, raw, fault, horizon=horizon,
+                        source_file=faulty_csv.name, simulation_run=run)
         if rec["found"]:
             rec.update({"source_file": faulty_csv.name, "fault": fault,
                         "simulationRun": run, "split": component, "seed": 42})
