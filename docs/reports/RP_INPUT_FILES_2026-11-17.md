@@ -68,8 +68,8 @@ below exists in this repository at commit `064ae7e` or later; nothing here is a 
 |---|---|
 | `scripts/build_paper_latex.py` | Markdown → `.tex` → PDF (`--paper journal`) |
 | `scripts/verify_paper_numbers.py` | re-derives every manuscript table, inspects the PDF (104 checks) |
-| `scripts/audit_claim_sheets.py` | recomputes claims and resolves cited paths (74 checks) |
-| `scripts/bundle_evidence.py` | refreshes the evidence bundle; `--check` verifies hashes |
+| `scripts/audit_claim_sheets.py` | recomputes claims and resolves cited paths, for the manuscript and the journal paper (91 checks) |
+| `scripts/bundle_evidence.py` | refreshes the evidence bundle; `--check` verifies hashes (11 entries) |
 | `tools/pandoc`, `tools/tectonic` | toolchain, gitignored; download on a fresh clone |
 
 ## 6. What is deliberately not an input
