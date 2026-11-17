@@ -2,8 +2,9 @@
 
 **Generation: pre-vocabulary-fix classifier; adapter = checkpoint-300** (0.8330 = 414/497, the macro-F1
 selected adapter). The retrained table is `outputs/analysis/phase3a/hybrid/vocabfix/classifier_contrasts.json`:
-menu rule 1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, **adapter 0.7646 (0.7253–0.7998) = checkpoint-400**,
-hybrid vs adapter 2 vs 117. Both adapter rows were scored on the same prompts; they differ by checkpoint.
+menu rule 1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, **adapter 0.8330 (0.7977–0.8632) = checkpoint-300**,
+hybrid vs adapter 1 vs 82. Both tables now use the same adapter checkpoint; only the classifier rows move with
+the vocabulary fix.
 
 Three stored systems, compared on the **497 items all three scored**:
 

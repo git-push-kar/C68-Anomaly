@@ -1158,15 +1158,16 @@ Cross-check: adapter 0.833 over 497 items and hybrid 0.994 match `evidence_class
 and `hybrid/evaluation.json:menu_present`, so the label pairing is the one those artefacts used.
 
 **25.2b Retrained generation, 2026-11-16.** The same 497-item table on the corrected vocabulary. The adapter row
-here is **checkpoint-400**'s label scoring, the file `scripts/evidence_classifier.py` defaults to; the 0.8330 row
-above is **checkpoint-300**, the checkpoint `selected_checkpoint.json` selects by macro-F1. Both were scored on the
-same `val.jsonl` prompts — the difference is the checkpoint, not the page text (`RP_FINAL_REPORT_v2` §8.3).
+is **checkpoint-300** label scoring — the checkpoint `selected_checkpoint.json` selects by macro-F1 (0.8720 on the
+subsample) and now the `scripts/evidence_classifier.py` default. Same adapter value as the table above; the
+classifier rows move with the vocabulary fix (`RP_FINAL_REPORT_v2` §8.3).
 menu rule 1.0000 (0.9923–1.0000), hybrid 0.9960 (0.9854–0.9989), LightGBM 0.9980 (0.9887–0.9996), MLP 0.9799
-(0.9634–0.9890), **adapter 0.7646 (0.7253–0.7998)** — 380/497, abstention precision 0.9878, recall 0.6480, false
-abstention 0.0027. Hybrid against adapter is 2 versus 117 discordant, p < 1e-06; the adapter names a fault on 44
-of the 125 open-set items, where the hybrid declines all 125. Cross-check: 0.7646 matches
+(0.9634–0.9890), **adapter 0.8330 (0.7977–0.8632)** — 414/497, abstention precision 0.8723, recall 0.6560, false
+abstention 0.0323. Hybrid against adapter is 1 versus 82 discordant, p < 1e-06; the adapter names a fault on 43
+of the 125 open-set items, where the hybrid declines all 125. Cross-check: 0.8330 matches
 `vocabfix/evidence_classifier/summary.json` and 0.9960 matches `vocabfix/evaluation.json:menu_present`.
-Source: `vocabfix/classifier_contrasts.json`.
+Source: `vocabfix/classifier_contrasts.json`. The rejected checkpoint-400 value (0.7646) is recorded in
+`ADAPTER_BASELINE_PROVENANCE_2026-11-16.md` and is not quoted.
 
 ### 25.3 What still needs a human, and how
 
@@ -1418,7 +1419,7 @@ hidden inside a flag.
 **Classifier track completed.** `scripts/classifier_contrasts.py` now carries five systems, adding the
 LightGBM and MLP rows that the P2 variants had left open. On the 497 shared items: menu rule 0.9980,
 hybrid 0.9940, **LightGBM 0.9940**, MLP 0.9698, adapter 0.8330 (classifier pre-vocabulary-fix; adapter
-checkpoint-300; retrained: hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter 0.7646 = checkpoint-400, §25.2b).
+checkpoint-300; retrained: hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter 0.8330 = checkpoint-300, §25.2b).
 Hybrid against LightGBM is 2 vs 2
 discordant, p = 1: the hybrid's rules add nothing over a plain gradient-boosted model on the same features.
 Duplicate copies live beside the other evidence

@@ -15,7 +15,7 @@ below is read from a named artefact; the reproduction commands are in §11.
 | cross-fitted observable accuracy | **0.9878** (95 % CI 0.9783–0.9962) | `vocabfix/crossfit.json`, `crossfit_bootstrap.json` |
 | cross-fitted observable macro-F1 | **0.9843** (0.9711–0.9947) | same |
 | calibration error (ECE / Brier) | **0.0114 / 0.0113** | `vocabfix/crossfit.json` |
-| vs the language-model adapter alone, 497 shared items | **0.9960 vs 0.7646** | `vocabfix/classifier_contrasts.json` |
+| vs the language-model adapter alone, 497 shared items | **0.9960 vs 0.8330** | `vocabfix/classifier_contrasts.json` |
 | abstains instead of guessing on an unseen-fault family | 11–25 of 25 for 9 of 13 faults | `vocabfix/surrogate_wide.json` |
 | knowledge-base layer adds accuracy over LightGBM alone | **no**: 0.9960 vs 0.9980, 2 vs 1 discordant, p = 1.0 | same |
 | live path | wired behind `hybrid.enabled` (default off), guarded, failure-contained | `main.py`, `llm/hybrid/live_classifier.py` |
@@ -76,7 +76,7 @@ outage.
 
 | system | what it is | observable accuracy |
 |---|---|---|
-| adapter alone | InternVL3-2B + LoRA, one JSON answer per page | 0.7646 (0.7253–0.7998) |
+| adapter alone | InternVL3-2B + LoRA, closed-set label scoring, checkpoint-300 (selected) | 0.8330 (0.7977–0.8632) |
 | MLP | same 323 features, no menu | 0.9799 (0.9634–0.9890) |
 | LightGBM | same features, no menu | 0.9980 (0.9887–0.9996) |
 | **hybrid (shipped)** | LightGBM + isotonic + menu rule | **0.9960 (0.9854–0.9989)** |
@@ -84,11 +84,11 @@ outage.
 
 497 shared items, all systems producing a label. The knowledge-base layer buys **no accuracy** over LightGBM
 (2 vs 1 discordant, exact p = 1.0) — its value is the abstention semantics and the audit trail, not points. The
-adapter is **23 points behind** (0.9960 against 0.7646). Of the 117 items where the hybrid is right and the
-adapter wrong, 44 are open-set (37.6 %) and all 47 `NORMAL_TRANSIENT` items are among them; the remaining 26
-are misnamed faults. This row is `vocabfix/evidence_classifier/preds_adapter_val503.jsonl`, i.e. **checkpoint-400**'s label
-scoring. The 0.8330 (0.7977–0.8632) that earlier drafts carried is **checkpoint-300**, the checkpoint
-`selected_checkpoint.json` picks by macro-F1. The two differ by checkpoint, not by page text (§8.3).
+adapter is **16.3 points behind** (0.9960 against 0.8330). Of the 82 items where the hybrid is right and the
+adapter wrong, 43 are open-set (52.4 %), 4 are `NORMAL_TRANSIENT` and 35 are misnamed faults. This row is the
+**checkpoint-300** label scoring that `selected_checkpoint.json` selects by macro-F1, and it is now the pipeline
+default (`evidence_classifier.py --adapter-preds`, §8.3). The 0.7646 (0.7253–0.7998) that interim drafts carried
+was checkpoint-400, a checkpoint the selection rejected; the two differ by checkpoint, not by page text.
 
 ---
 
@@ -263,15 +263,16 @@ That makes the two baselines traceable to different checkpoints, not to differen
 
 | number | upstream file | checkpoint | rows |
 |---|---|---|---|
-| **0.8330** (0.7977–0.8632) | `eval/preds_val_full_300.jsonl` → published `preds_adapter_val503.jsonl` | **300** (macro-F1 selection, 0.8833 on the 300-item subsample) | 414/497 |
-| **0.7646** (0.7253–0.7998) | `eval/preds_val_full_400.jsonl` → `vocabfix/evidence_classifier/preds_adapter_val503.jsonl` | **400** | 380/497 |
+| **0.8330** (0.7977–0.8632) — quoted | `eval/preds_val_full_300.jsonl` → published and `vocabfix/.../preds_adapter_val503.jsonl` | **300** (macro-F1 selection, 0.8833 on the 300-item subsample) | 414/497 |
+| 0.7646 (0.7253–0.7998) — rejected, not quoted | `eval/preds_val_full_400.jsonl`, which `evidence_classifier.py` used to default to | 400 | 380/497 |
 | 48 errors | `instrument_check/preds_decode_step500_full.jsonl` (free decode, not label scoring) | 500 | 48/497 |
 
 Both full-val files were scored on the same `val.jsonl` prompts, and the vocabulary fix changed only the
 classifier's feature parser — so the 34-item difference is the checkpoint. `evidence_classifier.py` defaults to
-`preds_val_full_400.jsonl` while `selected_checkpoint.json` selects step 300, which is how the retrained table
-inherited 0.7646. That mismatch is a decision for the owner: quoting the selected adapter means 0.8330, quoting
-the file the pipeline currently points at means 0.7646; the tables here quote 0.7646 and label it checkpoint-400.
+`preds_val_full_400.jsonl` while `selected_checkpoint.json` selects step 300, which is how an interim table came
+to quote 0.7646. That is now resolved in favour of the selection record: the default points at
+`preds_val_full_300.jsonl`, the retrained adapter column is 0.8330/414, and every table quotes it. The 400 row is
+kept here only so the earlier number is traceable.
 
 What the free-decode harness (`scripts/decode_adapter_val.py`) measured — a **different instrument**, not a
 reproduction of these files, in the order it was learned:
@@ -285,15 +286,16 @@ reproduction of these files, in the order it was learned:
   that adapter active, 392 `lora_A` modules injected — not a silent base-model fallback.
 - **The free decode does not reproduce the stored labels, because it is not the same question.** 297 items
   were decoded before the background process was terminated (silently, no traceback, resumable): 12.7 %
-  accuracy on the 291 that overlap the stored file, **12.0 % item-by-item agreement**, with 205 of 297 answers
-  `FAULT_14`. An 8-item probe under the dataset rendering scored 0/8 (6 × `FAULT_14`, 2 × `FAULT_06`). The
-  stored label-scored file scores 76.5 % on the same items; its `probs` vector is what `label_scorer` writes, not
-  something a JSON adapter was asked to emit. Treat the two as separate instruments.
+  accuracy on the 291 that overlap the stored file, **11.3 % item-by-item agreement**, with 205 of 297 answers
+  `FAULT_14`. An 8-item probe under the dataset rendering scored 0/8 (6 × `FAULT_14`, 2 × `FAULT_06`). On those
+  same 291 items the stored label-scored file is 92.8 % correct; its `probs` vector is what `label_scorer` writes,
+  not something a JSON adapter was asked to emit. Treat the two as separate instruments.
 
 So the 12 % agreement is expected rather than alarming: label scoring asks "which of these 15 strings does the
 model prefer after the fault-id field", while free decoding asks the model to write a report and its label is
-whatever appears in the JSON. On these prompts the forty-hundred checkpoint's free decode collapses to
-`FAULT_14` in two-thirds of items, which is a fact about the decode instrument and not about the baseline.
+whatever appears in the JSON. That harness loaded the **shipped pristine adapter** (`llm.adapter_dir` =
+`outputs/tep_rca_internvl3_2b`), a third model again, and its free decode collapses to `FAULT_14` in two-thirds of
+items — a fact about the decode instrument and the model it loaded, not about either scored checkpoint.
 
 Reproduction, as commands:
 
@@ -324,12 +326,10 @@ rows) must **not** be scored against this table: different instrument, different
    record cannot be resolved to a simulation run (§8.2), so no post-hoc labelling is possible. 6/6 is a sanity
    check, not an estimate; the fix is event provenance, not analysis.
 2. **Unobservable faults.** Faults 3 and 9 are predicted `NORMAL_TRANSIENT` at confidence 1.0.
-3. **Adapter baseline provenance — instrument traced, checkpoint unresolved.** The quoted 0.7646 is
-   checkpoint-400 label scoring (380/497); the selection record picks checkpoint-300, which gives 0.8330
-   (414/497) on the same prompts. `evidence_classifier.py` defaults to the 400 file, which is why the retrained
-   table inherited it. Which checkpoint the paper should call "the adapter" is an open decision (§8.3); the
-   conclusion does not move: as checkpoint-300 the adapter is 16.5 points behind LightGBM (0.9980), as
-   checkpoint-400 it is 23.3 points behind.
+3. **Adapter baseline provenance — resolved.** The instrument is label scoring, and the checkpoint is the one
+   `selected_checkpoint.json` selects (step 300, macro-F1 0.8720), giving 0.8330 (0.7977–0.8632), 414/497. The
+   pipeline default now points at that checkpoint's file; the step-400 value (0.7646) is recorded as rejected.
+   The adapter is 16.5 points behind LightGBM (0.9980) on root cause (§8.3).
 4. **Saturation.** 98.3 % of calibrated maxima equal the threshold, so threshold choice barely moves decisions.
 5. **Surrogate scope.** Leave-one-fault-out covers the 13 observable faults only.
 

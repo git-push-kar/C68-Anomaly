@@ -3,8 +3,8 @@
 # Decision: the merged classifier row's scope, 2026-11-16
 
 > **Generation note.** The classifier numbers below are pre-vocabulary-fix; the adapter is **checkpoint-300**
-> (0.8330 = 414/497). The retrained table is `vocabfix/classifier_contrasts.json`: adapter **0.7646
-> (0.7253–0.7998) = checkpoint-400**, hybrid 0.9960, menu rule 1.0000.
+> (0.8330 = 414/497). The retrained table is `vocabfix/classifier_contrasts.json`: adapter **0.8330
+> (0.7977–0.8632) = the same checkpoint**, hybrid 0.9960, menu rule 1.0000.
 
 ## The situation
 

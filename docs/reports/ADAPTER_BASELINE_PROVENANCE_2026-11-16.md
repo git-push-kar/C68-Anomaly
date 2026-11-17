@@ -9,6 +9,11 @@ effect. This note traces both to their producer and records what the pipeline ac
 The vocabulary fix did not touch adapter inputs. A third number, the **48 errors** used in the truncation
 analysis, is a **free decode** at checkpoint **500** and is a different instrument again.
 
+**Resolution (2026-11-16).** The selection record wins: checkpoint 300 is the one the pre-registered macro-F1 rule
+chose, so **0.8330 (0.7977–0.8632), 414/497 is the adapter row in every table**. `evidence_classifier.py` now
+defaults to `preds_val_full_300.jsonl`, the retrained evidence summary and contrasts were regenerated from it,
+and 0.7646 survives only as a documented rejected value.
+
 ---
 
 ## 1. The pipeline, in four steps
@@ -28,8 +33,8 @@ was in the repository all along, one directory upstream.
 
 | number | upstream artefact | checkpoint | rows | selection |
 |---|---|---|---|---|
-| **0.8330** (0.7977–0.8632) | `outputs/benchmark_v2/eval/preds_val_full_300.jsonl` → published `evidence_classifier/preds_adapter_val503.jsonl` | **300** | 414/497 | **selected**: macro-F1 0.8720 on the 300-item subsample (accuracy 0.8833) |
-| **0.7646** (0.7253–0.7998) | `outputs/benchmark_v2/eval/preds_val_full_400.jsonl` → `vocabfix/evidence_classifier/preds_adapter_val503.jsonl` | **400** | 380/497 | not selected; accuracy 0.8533 on the subsample |
+| **0.8330** (0.7977–0.8632) — **quoted** | `outputs/benchmark_v2/eval/preds_val_full_300.jsonl` → published and `vocabfix/evidence_classifier/preds_adapter_val503.jsonl` | **300** | 414/497 | **selected**: macro-F1 0.8720 on the 300-item subsample (accuracy 0.8833) |
+| 0.7646 (0.7253–0.7998) — **rejected** | `outputs/benchmark_v2/eval/preds_val_full_400.jsonl` (what `evidence_classifier.py` used to default to) | **400** | 380/497 | not selected: macro-F1 0.7325, below step 300's 0.8720 |
 | 48 errors | `outputs/analysis/phase3a/instrument_check/preds_decode_step500_full.jsonl` (**free decode**, `prompt_budget.py`) | 500 | 48/497 | used only for the truncation/feature-visibility argument in `g1_fit_signal_report.md` |
 
 Verified by recomputation: filtering each full-val file to the same 497 menu, non-unobservable item ids gives
@@ -38,34 +43,40 @@ Verified by recomputation: filtering each full-val file to the same 497 menu, no
 
 ## 3. Why the retrained table carried 400
 
-`scripts/evidence_classifier.py` has `--adapter-preds` defaulting to
+`scripts/evidence_classifier.py` used to default `--adapter-preds` to
 `outputs/benchmark_v2/eval/preds_val_full_400.jsonl`, while `selected_checkpoint.json` records step **300** as the
-macro-F1 winner (step 500 and 540 score higher on accuracy at 0.9033 but lose on macro-F1). The `vocabfix`
-summary was regenerated with that default, so its adapter row is checkpoint-400. Nothing about the vocabulary fix
-changes adapter predictions: the fix was in the classifier's feature parser (`XMV_1..11` → `XMV_42..52`), while
-the adapter reads the rendered prompt text, which is unchanged in `val.jsonl`.
+macro-F1 winner (step 500 and 540 score higher on accuracy at 0.9033 but lose on macro-F1: 0.8540 and 0.8545).
+The `vocabfix` summary was regenerated with that default, so it briefly carried checkpoint-400. Nothing about the
+vocabulary fix changes adapter predictions: the fix was in the classifier's feature parser (`XMV_1..11` →
+`XMV_42..52`), and the adapter reads the rendered prompt text, unchanged in `val.jsonl`. The default is now the
+selected checkpoint's file, so a fresh run reproduces 0.8330.
 
-## 4. Open decision — which number is "the adapter"
+## 4. Resolution — the selection record governs
 
-- **Quote the selected checkpoint (300):** 0.8330 (0.7977–0.8632), 414/497, abstention precision 0.8723 / recall
-  0.6560. This is the checkpoint `selected_checkpoint.json` picked, and the one the older `p2` table used.
-- **Quote the file the pipeline points at (400):** 0.7646 (0.7253–0.7998), 380/497, abstention precision 0.9878 /
-  recall 0.6480. This is what the retrained table currently quotes, labelled checkpoint-400.
+Checkpoint **300** is quoted: 0.8330 (0.7977–0.8632), 414/497, abstention precision 0.8723 / recall 0.6560, false
+abstention 0.0323. Reasons, in order of weight:
 
-The current documents use the second and label it; switching to the first is one flag:
+1. `selected_checkpoint.json` is the pre-registered procedure's output (macro-F1 on the stratified subsample, with
+   accuracy and later step as tie-breaks). Quoting the checkpoint it rejected would make the table disagree with
+   the selection record it cites.
+2. Checkpoint 400 is **worse on both** criteria the selection used: accuracy 0.8533 vs 0.8833 and macro-F1 0.7325
+   vs 0.8720 on the same 300 items. There is no metric on which 400 is preferred, so there is nothing to argue.
+3. The pipeline default is now the selected file, so the artefact and the documents agree without a manual flag.
+
+The choice barely touches the paper's claim: 16.3 points behind the hybrid (0.9960 vs 0.8330) versus 23.2 for the
+rejected checkpoint. Hybrid against adapter is 1 vs 82 discordant, p < 1e-06; of those 82, 43 are open-set
+(52.4 %), 4 `NORMAL_TRANSIENT`, 35 misnamed faults.
+
+To reproduce the rejected value (for audit, not for quoting):
 
 ```
 python scripts/classifier_contrasts.py \
   --hybrid-preds outputs/analysis/phase3a/hybrid/vocabfix/preds_protocolA_val.jsonl \
   --evidence-dir outputs/analysis/phase3a/hybrid/vocabfix/evidence_classifier \
-  --adapter-preds outputs/benchmark_v2/eval/preds_val_full_300.jsonl \
-  --out-json outputs/analysis/phase3a/hybrid/vocabfix/classifier_contrasts.json \
-  --out-md   outputs/analysis/phase3a/hybrid/vocabfix/classifier_contrasts.md
+  --adapter-preds outputs/benchmark_v2/eval/preds_val_full_400.jsonl \
+  --out-json outputs/analysis/phase3a/hybrid/vocabfix/rejected/contrasts_ckpt400.json \
+  --out-md   outputs/analysis/phase3a/hybrid/vocabfix/rejected/contrasts_ckpt400.md
 ```
-
-Either way the paper's conclusion is unchanged: the adapter is **16.5 points** behind the nearest rival
-(LightGBM 0.9980) as checkpoint-300, or **23.3 points** as checkpoint-400, and the hybrid-vs-adapter contrast is
-dominated by open-set items and `NORMAL_TRANSIENT`.
 
 ## 5. Reproduction
 
@@ -96,3 +107,5 @@ without the files.
   open item is which checkpoint the paper should quote.
 - **"48 items the adapter gets wrong"** in `g1_fit_signal_report.md` refers to the step-500 **free decode**, not to
   either label-scoring baseline; the text now says so.
+- **"0.7646 is the retrained baseline."** No: it is checkpoint-400, rejected by both selection criteria. The
+  retrained table now quotes checkpoint-300 (0.8330), matching `selected_checkpoint.json`.

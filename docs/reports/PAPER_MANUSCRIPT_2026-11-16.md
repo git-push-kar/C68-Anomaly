@@ -203,7 +203,7 @@ On the 497 items where all systems produce a label:
 | hybrid (shipped) | 0.9960 | 0.9854–0.9989 |
 | LightGBM | 0.9980 | 0.9887–0.9996 |
 | MLP | 0.9799 | 0.9634–0.9890 |
-| adapter alone | 0.7646 | 0.7253–0.7998 |
+| adapter alone | 0.8330 | 0.7977–0.8632 |
 
 Hybrid against LightGBM: 2 vs 1 discordant (b = 2, c = 1), exact p = 1.0. The knowledge-base layer buys **no
 accuracy**, and

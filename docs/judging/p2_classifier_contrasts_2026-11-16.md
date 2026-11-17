@@ -1,8 +1,8 @@
 # P2 - merged classifier row
 
 **Generation: pre-vocabulary-fix classifier; adapter = checkpoint-300** (0.8330 = 414/497, macro-F1 selected).
-Retrained table: `vocabfix/classifier_contrasts.json` — adapter **0.7646 (0.7253–0.7998) = checkpoint-400**,
-hybrid 0.9960, menu rule 1.0000, LightGBM 0.9980, MLP 0.9799; hybrid vs adapter 2 vs 117.
+Retrained table: `vocabfix/classifier_contrasts.json` — adapter **0.8330 (0.7977–0.8632) = the same checkpoint**,
+hybrid 0.9960, menu rule 1.0000, LightGBM 0.9980, MLP 0.9799; hybrid vs adapter 1 vs 82.
 
 Items scored by all three systems: **497**.
 

@@ -259,8 +259,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", default=str(DEFAULT_OUT))
     parser.add_argument("--seed", type=int, default=42)
+    #: The selected checkpoint, per `selected_checkpoint.json` (macro-F1 winner: step 300). Pointing this at
+    #: `preds_val_full_400.jsonl` silently quotes a checkpoint the selection procedure rejected, which is how the
+    #: retrained table came to report 0.7646 while the selection record said 0.8330.
     parser.add_argument("--adapter-preds", default=str(
-        ROOT / "outputs/benchmark_v2/eval/preds_val_full_400.jsonl"))
+        ROOT / "outputs/benchmark_v2/eval/preds_val_full_300.jsonl"))
     args = parser.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
