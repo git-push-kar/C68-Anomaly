@@ -43,6 +43,9 @@ def main() -> int:
     parser.add_argument("--max-new-tokens", type=int, default=768,
                         help="matches generate_report's budget; 512 truncated a third of the replies mid-JSON")
     parser.add_argument("--variant", default="menu", help="menu | openset | all (default: menu, the 503-item baseline)")
+    parser.add_argument("--system-prompt", choices=("dataset", "app"), default="dataset",
+                        help="dataset: SYSTEM_PROMPT alone, as llm/dataset.py builds training prompts; "
+                             "app: REPORT_SYSTEM_PROMPT + SYSTEM_PROMPT, as RCAInference.generate_report does")
     parser.add_argument("--config", default=None)
     args = parser.parse_args()
 
@@ -67,11 +70,13 @@ def main() -> int:
     with args.out.open("a", encoding="utf-8") as handle:
         for index, row in enumerate(pending, start=1):
             started = time.perf_counter()
-            # The adapter is trained and served through the chat template with the report system prompt;
-            # feeding the bare question produces a degenerate, truncated answer. Same construction as
-            # ``RCAInference.generate_report``.
-            prompt = build_chat_prompt(REPORT_SYSTEM_PROMPT + " " + SYSTEM_PROMPT,
-                                       [("user", row["prompt"])])
+            # These are benchmark prompts built by ``llm/dataset.py``, whose training rendering is
+            # ``build_chat_prompt(SYSTEM_PROMPT, [(user, question)])``. Adding REPORT_SYSTEM_PROMPT (the app's
+            # path, not the dataset's) shifts the adapter off its training distribution and collapses it onto
+            # one class; ``--system-prompt app`` selects that path explicitly for comparison.
+            system = SYSTEM_PROMPT if args.system_prompt == "dataset" else \
+                REPORT_SYSTEM_PROMPT + " " + SYSTEM_PROMPT
+            prompt = build_chat_prompt(system, [("user", row["prompt"])])
             raw = inference._generate(prompt, max_new_tokens=args.max_new_tokens,
                                       do_sample=False, temperature=0.0)
             elapsed = time.perf_counter() - started

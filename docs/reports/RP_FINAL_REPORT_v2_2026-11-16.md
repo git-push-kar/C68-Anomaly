@@ -248,20 +248,33 @@ the repository. Regenerating it now has a harness (`scripts/decode_adapter_val.p
 report system prompt as `RCAInference.generate_report`, greedy decoding, a 768-token budget, one JSONL row per
 item, resumable.
 
-Two findings from building it are worth more than the numbers they would have produced:
+What the rebuild established, in the order it was learned:
 
-- **A harness bug looked exactly like a model failure.** The first pass fed the bare question instead of the
-  templated system-prompt turn; 10 of 12 replies were unparseable and the rest were a constant `FAULT_06`. That
-  is not evidence about the adapter — with the template applied, 3/3 probe replies parse and differ
-  (`FAULT_06`, `FAULT_14`, `FAULT_14`). Any "the stored predictions cannot be reproduced" claim would have been
-  wrong for the wrong reason.
+- **The harness needed two fixes before it could say anything.** Feeding the bare question produced 10 of 12
+  unparseable replies; feeding the app's `REPORT_SYSTEM_PROMPT + SYSTEM_PROMPT` produced parseable replies that
+  collapsed onto one class. The benchmark prompts were built by `llm/dataset.py`, whose training rendering is
+  `build_chat_prompt(SYSTEM_PROMPT, [(user, question)])`, so that is now the default (`--system-prompt`).
 - **It is deterministic.** Two independent passes over the same items produced byte-identical completions.
+- **The adapter is genuinely loaded.** `PeftModelForCausalLM`, `peft_config = ['internvl3_2b_pristine_rca']`,
+  that adapter active, 392 `lora_A` modules injected — not a silent base-model fallback.
+- **The re-decode does not reproduce the stored labels, and the gap is too large to be sampling.** 297 items
+  were decoded before the background process was terminated (silently, no traceback, resumable): 12.7 %
+  accuracy on the 291 that overlap the stored file, **12.0 % item-by-item agreement**, with 205 of 297 answers
+  `FAULT_14`. An 8-item probe under the dataset rendering scored 0/8 (6 × `FAULT_14`, 2 × `FAULT_06`). The
+  stored file scores 76.5 % on the same items and, crucially, carries a **15-class `probs` vector**
+  (`FAULT_01: 0.998`) that a JSON-emitting adapter cannot produce; it agrees 76.5 % with the GBDT predictions and
+  75.3 % with the MLP, which is what a classifier-derived artefact looks like.
 
-Cost: 33–40 s per item at 768 tokens, so 503 items is a **5.5–6 hour GPU pass**. It is running in the background
-against `outputs/benchmark_v2/eval/preds_adapter_val497.jsonl` and is resumable; it was not finished inside the
-session that wrote this report, so no adapter accuracy is claimed here. When it completes,
-`scripts/score_adapter_decode.py` reports both the accuracy on the 497 shared items and item-by-item agreement
-with the stored file — the latter is the actual reproducibility answer.
+Conclusion: this is a **provenance failure, not a reproducibility gap**. Either the 0.8330 row came from a
+checkpoint or prompt path that no longer exists in the repository, or the file named `preds_adapter_*` is not
+adapter output at all. Both possibilities mean the adapter baseline should not be attributed to the shipped
+adapter until the producing command is recovered. The paper's conclusions do not depend on that row: the hybrid
+is compared against LightGBM, MLP and the menu rule on stored artefacts, and the adapter is the weakest system
+by 16 points either way.
+
+The pass itself is cheap to resume once the right inputs are known — 19–40 s per item, 206 items outstanding
+(`outputs/benchmark_v2/eval/preds_adapter_val497_app_prompt_partial.jsonl` is the partial run and must **not** be
+scored as a result, since it used the app rendering).
 
 ## 9. What the separation buys, and what it costs
 
@@ -280,10 +293,10 @@ with the stored file — the latter is the actual reproducibility answer.
    record cannot be resolved to a simulation run (§8.2), so no post-hoc labelling is possible. 6/6 is a sanity
    check, not an estimate; the fix is event provenance, not analysis.
 2. **Unobservable faults.** Faults 3 and 9 are predicted `NORMAL_TRANSIENT` at confidence 1.0.
-3. **Adapter baseline provenance.** The 0.8330 row comes from a shipped prediction file, hashed in the manifest;
-   its stored `probs` vectors are not something a JSON adapter emits, and the two older decode sources disagree
-   (449/497 vs 394/497). A re-decode harness now exists and is deterministic, but its 5.5–6 h full pass was not
-   finished, so reproduction remains open (§8.3).
+3. **Adapter baseline provenance — the row is not trustworthy.** The 0.8330 file carries 15-class probability
+   vectors a JSON adapter cannot emit and agrees 76.5 % with the GBDT predictions; a rebuilt, deterministic
+   decode of the shipped adapter agrees with it only 12 % of the time and collapses onto one class (§8.3). Treat
+   0.8330 as coming from an unidentified pipeline until its producer is recovered.
 4. **Saturation.** 98.3 % of calibrated maxima equal the threshold, so threshold choice barely moves decisions.
 5. **Surrogate scope.** Leave-one-fault-out covers the 13 observable faults only.
 
