@@ -1,0 +1,28 @@
+{
+  "record": "Paper version decision - submit as Version B (preference reported descriptively, no preference-ordering or mechanism-quality claim)",
+  "status": "signed",
+  "option": "B",
+  "measured": {
+    "cohen_kappa": 0.5776,
+    "observed_agreement": 0.7778,
+    "pairs": 360,
+    "floor": 0.6,
+    "source": "docs/judging/confirm/preference_2026-11-16_kappa.json"
+  },
+  "decision": "The paper is submitted in Version B framing. Section 6.5 reports the preference study descriptively (kappa = 0.5776, below the declared 0.60 floor) and supports no preference ordering; no mechanism-quality claim is made; selector rungs 2-4 remain unavailable as stated in section 6.6. No number, table, figure or gate changes. The manuscript status line and the Version A/B row in PAPER_CLAIMS_2026-11-16.md are updated to record this decision.",
+  "reason": "the study was run at the declared sample size and missed its reliability floor; publishing an ordering at that reliability is the error the judge-noise literature warns about, and adjudicating 80 disagreements after seeing the kappa would be a rule change after a result",
+  "signature": {
+    "signed": true,
+    "signed_by": "project owner",
+    "date": "2026-11-17",
+    "channel": "chat",
+    "transcribed_by": "agent",
+    "owner_words": "signo ff and update"
+  },
+  "artefacts": {
+    "manuscript_markdown": "docs/reports/PAPER_MANUSCRIPT_2026-11-16.md",
+    "manuscript_latex": "docs/reports/PAPER_MANUSCRIPT_2026-11-16.tex",
+    "manuscript_pdf": "docs/reports/PAPER_MANUSCRIPT_2026-11-16.pdf",
+    "claims": "docs/reports/PAPER_CLAIMS_2026-11-16.md"
+  }
+}

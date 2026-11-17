@@ -110,7 +110,7 @@ phrased. "Impact" names the claim that would move if the task came back badly.
 | **Follow-up condition T** | whether store-backed answers beat router-only answers on follow-ups | **no claim**: dialogue is not claimed in the paper. T would only fill the report's §5 | ≈2 h |
 | **Parity (1,390 disagreements)** | whether every number was produced by one instrument | **C1–C6 provenance**: unresolved, each figure must keep the scoring path named beside it. Resolving it either confirms the numbers or replaces them with one path's | instrument work, unknown |
 | **Release packaging (D10)** | whether a reader can rebuild the artefacts | **no numeric claim**: affects reproducibility, not values | ≈1 h |
-| **Version A/B signature** | which framing the paper uses (with or without the preference and mechanism sections) | **C4, C5**: Version A reports them descriptively, Version B omits them. Neither changes C1–C3 | owner decision |
+| ~~Version A/B signature~~ — **resolved 2026-11-17** | the paper is submitted as **Version B**: preference reported descriptively (κ = 0.5776, below the 0.60 floor), no ordering claim, no mechanism-quality claim, rungs 2–4 unavailable as printed. Record: `docs/judging/confirm/paper_version_decision_2026-11-17.json` | **C4, C5**: Version A would have reported them descriptively as well; neither framing moves C1–C3, and no number changed at signature | owner decision, taken |
 
 **Identifier over-count, now fixed.** An earlier version of this document said every numeric rate was an
 upper bound because names such as `FAULT_08` yielded digit tokens. That is fixed: identifiers are masked
