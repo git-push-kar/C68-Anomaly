@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-17
 **Scope:** the complete, minimal input set for assembling the journal research paper (`TEP_FP_JOURNAL`). Every path
-below exists in this repository at commit `064ae7e` or later; nothing here is a placeholder.
+below exists in this repository at commit `3091a06`; nothing here is a placeholder.
 
 ---
 
@@ -23,10 +23,10 @@ below exists in this repository at commit `064ae7e` or later; nothing here is a 
 
 | file | figure | source data |
 |---|---|---|
-| `docs/reports/figures/fig1_cells.png` | numeric-defect rate by condition | `n4_cells.json` |
-| `docs/reports/figures/fig2_stratified.png` | defects by gold class, both splits | `figure_data.json` |
-| `docs/reports/figures/fig3_classifier.png` | diagnosis accuracy with 95 % CIs | `classifier_contrasts.json` |
-| `docs/reports/figures/fig4_anchor.png` | anchor exactness against the 90 % gate | `n4_cells.json`, `test_contrast.json` |
+| `docs/reports/figures/fig1_cells.png` | numeric-defect rate by condition | `docs/reports/evidence/files/n4_cells.json` |
+| `docs/reports/figures/fig2_stratified.png` | defects by gold class, both splits | `docs/reports/figures/figure_data.json` |
+| `docs/reports/figures/fig3_classifier.png` | diagnosis accuracy with 95 % CIs | `docs/reports/evidence/files/classifier_contrasts.json` |
+| `docs/reports/figures/fig4_anchor.png` | anchor exactness against the 90 % gate | `docs/reports/evidence/files/n4_cells.json`, `docs/reports/evidence/files/test_contrast.json` |
 | `docs/reports/figures/figure_data.json` | strata/cell numbers behind figures 1–2 | — |
 | `docs/reports/figures/approach_data.json` | approach comparison inputs | — |
 
