@@ -1,0 +1,15 @@
+% Extra packages for the manuscript build. Loaded after the pandoc default template's own packages.
+\usepackage{longtable,booktabs,array}
+\usepackage{etoolbox}
+\usepackage{caption}
+\usepackage{float}
+
+% Tables in this paper are wide (up to seven columns); longtable gets a smaller font so they fit the text block.
+\AtBeginEnvironment{longtable}{\small}
+
+% Figures are rendered at column width and keep their aspect ratio; the PNGs are 2x for print.
+\setkeys{Gin}{width=\linewidth,keepaspectratio}
+\captionsetup{font=small,labelfont=bf}
+
+% Inline \texttt{} paths cannot wrap; let the paragraph stretch instead of running into the margin.
+\setlength{\emergencystretch}{3em}

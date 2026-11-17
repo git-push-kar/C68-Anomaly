@@ -225,3 +225,4 @@ venv_train/
 # that produced them while the handover cited them by path.
 !outputs/overnight_2026-11-05/
 !outputs/overnight_2026-11-05/**
+tools/
