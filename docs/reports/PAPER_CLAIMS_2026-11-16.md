@@ -58,6 +58,10 @@ architectural claim rests on that separation, not on model accuracy.
 
 ## 2. Numbers the paper may quote (single source of truth)
 
+Every source below is committed, byte-identical and hashed in `docs/reports/evidence/` — see
+`docs/reports/evidence/index.json` for the claim → file map — because the originals under `outputs/` are
+not tracked. `python scripts/bundle_evidence.py --check` re-verifies the hashes.
+
 | quantity | value | source |
 |---|---|---|
 | cell-table numeric defects (identifier-masked) | A 0/520, B 30/520, C 0/520, M 30/520, D 0/520 | `n4_cells.json` summary |

@@ -265,7 +265,9 @@ of its own on the 21.9 % of rows where it substitutes.
 ## 8. Reproducibility and instrument changelog
 
 Every artefact is listed with its SHA-256 and rebuild command in the release manifest. Figures are rendered
-from stored JSON by one script, so a changed number changes the figure.
+from stored JSON by one script, so a changed number changes the figure. The number sources themselves are
+committed under `docs/reports/evidence/` with SHA-256 hashes and a claim → file index, because the working
+artefacts live in an untracked `outputs/` tree; `scripts/bundle_evidence.py --check` re-verifies them.
 
 | version | rule added | A (fit) | B (fit) | A (test) | B (test) |
 |---|---|---|---|---|---|

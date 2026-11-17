@@ -88,6 +88,10 @@ The same function is used for every condition and every split. Two reproductions
 The checker's three revisions and their effect (< 19 → 13 → 0 for A) are documented in §8. All numbers in
 this document come from the final version.
 
+The sources behind every table are committed and hashed in `docs/reports/evidence/` (index:
+`docs/reports/evidence/index.json`); `scripts/bundle_evidence.py --check` verifies them against the working
+artefacts.
+
 ## 5. Results
 
 ### 5.1 Cell table, 520 validation rows per cell

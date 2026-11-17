@@ -1,0 +1,21 @@
+{
+  "order_invariance": {
+    "items": 520,
+    "identical_defect_profile_all_orders": 368,
+    "rate": 0.7077
+  },
+  "dialogue": {
+    "rows": 97,
+    "answered": 0,
+    "with_digits": 0,
+    "refusals": 0,
+    "U": {
+      "status": "unavailable",
+      "reason": "the 97-row set carries questions and case_types only; no stored U answers on this checkout"
+    },
+    "T": {
+      "status": "deferred",
+      "reason": "no stored template (T) answers for the 97 turns on this checkout; the template arm must be regenerated from the lookup table before T/U can be compared"
+    }
+  }
+}

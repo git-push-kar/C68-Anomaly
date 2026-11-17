@@ -1,0 +1,132 @@
+{
+  "generated": "2026-11-17",
+  "root": "docs/reports/evidence",
+  "entries": [
+    {
+      "file": "files/n4_cells.json",
+      "origin": "outputs/overnight_2026-11-05/n4_cells.json",
+      "sha256": "5a9392ff5399785fff0ecd74a874696fa32cb14e5447b242ccd719570e318213",
+      "bytes": 1574,
+      "claims": [
+        "C1",
+        "C2",
+        "C6"
+      ],
+      "note": "Fit-set cell table: numeric/grounding/tag-role/anchor per cell, seam certification, D fallback rows, McNemar",
+      "role": "source"
+    },
+    {
+      "file": "files/test_contrast.json",
+      "origin": "outputs/analysis/phase3a/d33/test_contrast.json",
+      "sha256": "9de4c06656d57fbf4c276de2ef5d3d5eb84268cdbe75fcf1ba2e4b83dbf05195",
+      "bytes": 1003,
+      "claims": [
+        "C1",
+        "C2"
+      ],
+      "note": "3,168-row confirmatory counts, rates and anchor decomposition",
+      "role": "source"
+    },
+    {
+      "file": "files/classifier_contrasts.json",
+      "origin": "outputs/analysis/phase3a/hybrid/vocabfix/classifier_contrasts.json",
+      "sha256": "2c91b6f626abec16c9aced995808e641dc1608dd6709e2ab078485bfea5678e7",
+      "bytes": 5732,
+      "claims": [
+        "C3"
+      ],
+      "note": "Five-system diagnosis accuracy with 95 % CIs and every pairwise discordant count",
+      "role": "source"
+    },
+    {
+      "file": "files/order_invariance.json",
+      "origin": "outputs/overnight_2026-11-05/n5_invariance_dialogue.json",
+      "sha256": "40da08c93c9c01c8daa8ee001fc3d17da26e8aa8b6ccf990cef2860169ab17d2",
+      "bytes": 606,
+      "claims": [
+        "C1"
+      ],
+      "note": "368/520 identical defect profiles across prompt orders (0.7077)",
+      "role": "source"
+    },
+    {
+      "file": "files/preference_result.json",
+      "origin": "docs/judging/confirm/preference_2026-11-16_result.json",
+      "sha256": "0f1f463e373b0690e8db5ae45bd5cced42f1c1d3ca9adb26bcf1e2c8e3ed7219",
+      "bytes": 1525,
+      "claims": [
+        "C4"
+      ],
+      "note": "360 pairs, three orderings, both rater sheets, exact binomial p per pairing",
+      "role": "source"
+    },
+    {
+      "file": "files/preference_kappa.json",
+      "origin": "docs/judging/confirm/preference_2026-11-16_kappa.json",
+      "sha256": "bdb8792bf49abcc1d42724d963727649c98aeaa070d85c5be907d70988c849cd",
+      "bytes": 9540,
+      "claims": [
+        "C4"
+      ],
+      "note": "Cohen's kappa 0.5776, observed 0.7778, expected 0.4739, 80 disagreements listed",
+      "role": "source"
+    },
+    {
+      "file": "files/selection_receipt.json",
+      "origin": "docs/judging/confirm/selection_receipt_2026-11-16_final.json",
+      "sha256": "0bd8ed9c0f39839ffaaebf88b93b0131806802cd44536daf24a57e95b2b9ee00",
+      "bytes": 2594,
+      "claims": [
+        "C5"
+      ],
+      "note": "Rung-by-rung selector receipt: chosen A, decided_by_rung 5",
+      "role": "source"
+    },
+    {
+      "file": "files/d_ceiling_decision.json",
+      "origin": "docs/judging/confirm/d_ceiling_decision_2026-11-16.json",
+      "sha256": "d57cdcfd7c92bb1b476d9e88cc038e4bf63e029194a7ae42fc6d0f495dcbbee4",
+      "bytes": 1169,
+      "claims": [
+        "C6"
+      ],
+      "note": "Signed D decision: 'A with extra steps', 27.3 % pre-correction rate retained",
+      "role": "source"
+    },
+    {
+      "file": "files/cases46_audit.csv",
+      "origin": "docs/judging/confirm/cases46_audit.csv",
+      "sha256": "fbb0044d8ac0f9399eb86c5fa10c4871c1194d7f50c5273877761e85ae4bf9fe",
+      "bytes": 10239,
+      "claims": [
+        "instrument"
+      ],
+      "note": "46 hand-written contradictions; the checker agrees on all 46",
+      "role": "source"
+    },
+    {
+      "file": "files/adapter_summary.json",
+      "origin": "outputs/analysis/phase3a/hybrid/vocabfix/evidence_classifier/summary.json",
+      "sha256": "ba6e142d335324d0d8aacfe40aa8a5421b3f161b72279e1d747e34867d7aa56f",
+      "bytes": 17677,
+      "claims": [
+        "C3",
+        "adapter baseline"
+      ],
+      "note": "Adapter at checkpoint 300 on the 497 shared items: 414/497, abstention precision/recall",
+      "role": "supporting"
+    },
+    {
+      "file": "files/preds_val_full_300.jsonl",
+      "origin": "outputs/benchmark_v2/eval/preds_val_full_300.jsonl",
+      "sha256": "785c657f38a3c61926b0e8fa4e8938b09644024fa149955647f565bda025c035",
+      "bytes": 521825,
+      "claims": [
+        "adapter baseline"
+      ],
+      "note": "The checkpoint-300 predictions the summary is computed from (selected by macro-F1)",
+      "role": "supporting"
+    }
+  ],
+  "missing": []
+}

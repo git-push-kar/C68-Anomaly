@@ -564,7 +564,11 @@ changelog}\label{reproducibility-and-instrument-changelog}
 
 Every artefact is listed with its SHA-256 and rebuild command in the
 release manifest. Figures are rendered from stored JSON by one script,
-so a changed number changes the figure.
+so a changed number changes the figure. The number sources themselves
+are committed under \texttt{docs/\allowbreak{}reports/\allowbreak{}evidence/\allowbreak{}} with SHA-256 hashes
+and a claim $\rightarrow$ file index, because the working artefacts live in an
+untracked \texttt{outputs/\allowbreak{}} tree;
+\texttt{scripts/\allowbreak{}bundle\_\allowbreak{}evidence.py\ -\/\allowbreak{}-check} re-verifies them.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}

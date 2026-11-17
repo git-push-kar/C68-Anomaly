@@ -1,0 +1,226 @@
+{
+  "gate": "P2",
+  "items": 497,
+  "systems": {
+    "menu_rule": "classifier_label before rules (hybrid preds)",
+    "hybrid": "pred after the threshold, menu and no-fault rules",
+    "adapter": "the 2B model's own decoded label",
+    "gbdt": "LightGBM 4.7.0 on the evidence features (scripts/evidence_classifier.py)",
+    "mlp": "the small MLP on the same evidence features"
+  },
+  "abstain_label": "UNCLASSIFIED_OPEN_SET",
+  "per_system": {
+    "menu_rule": {
+      "accuracy": 1.0,
+      "accuracy_ci95": [
+        0.9923,
+        1.0
+      ],
+      "correct": 497,
+      "items": 497,
+      "abstention": {
+        "predicted_abstains": 125,
+        "gold_abstains": 125,
+        "abstention_precision": 1.0,
+        "abstention_recall": 1.0,
+        "false_abstention_rate": 0.0,
+        "missed_abstention_rate": 0.0,
+        "false_abstention_rows": 0,
+        "missed_abstention_rows": 0
+      },
+      "predicted_labels": {
+        "UNCLASSIFIED_OPEN_SET": 125,
+        "NORMAL_TRANSIENT": 47,
+        "FAULT_01": 25,
+        "FAULT_02": 25,
+        "FAULT_04": 25,
+        "FAULT_05": 25,
+        "FAULT_06": 25,
+        "FAULT_07": 25
+      },
+      "false_abstention_gate": "pass"
+    },
+    "hybrid": {
+      "accuracy": 0.996,
+      "accuracy_ci95": [
+        0.9854,
+        0.9989
+      ],
+      "correct": 495,
+      "items": 497,
+      "abstention": {
+        "predicted_abstains": 127,
+        "gold_abstains": 125,
+        "abstention_precision": 0.9843,
+        "abstention_recall": 1.0,
+        "false_abstention_rate": 0.0054,
+        "missed_abstention_rate": 0.0,
+        "false_abstention_rows": 2,
+        "missed_abstention_rows": 0
+      },
+      "predicted_labels": {
+        "UNCLASSIFIED_OPEN_SET": 127,
+        "NORMAL_TRANSIENT": 47,
+        "FAULT_01": 25,
+        "FAULT_02": 25,
+        "FAULT_04": 25,
+        "FAULT_05": 25,
+        "FAULT_06": 25,
+        "FAULT_07": 25
+      },
+      "false_abstention_gate": "pass"
+    },
+    "adapter": {
+      "accuracy": 0.833,
+      "accuracy_ci95": [
+        0.7977,
+        0.8632
+      ],
+      "correct": 414,
+      "items": 497,
+      "abstention": {
+        "predicted_abstains": 94,
+        "gold_abstains": 125,
+        "abstention_precision": 0.8723,
+        "abstention_recall": 0.656,
+        "false_abstention_rate": 0.0323,
+        "missed_abstention_rate": 0.344,
+        "false_abstention_rows": 12,
+        "missed_abstention_rows": 43
+      },
+      "predicted_labels": {
+        "UNCLASSIFIED_OPEN_SET": 94,
+        "NORMAL_TRANSIENT": 62,
+        "FAULT_10": 54,
+        "FAULT_13": 28,
+        "FAULT_05": 27,
+        "FAULT_01": 26,
+        "FAULT_02": 26,
+        "FAULT_04": 25
+      },
+      "false_abstention_gate": "pass"
+    },
+    "gbdt": {
+      "accuracy": 0.998,
+      "accuracy_ci95": [
+        0.9887,
+        0.9996
+      ],
+      "correct": 496,
+      "items": 497,
+      "abstention": {
+        "predicted_abstains": 125,
+        "gold_abstains": 125,
+        "abstention_precision": 1.0,
+        "abstention_recall": 1.0,
+        "false_abstention_rate": 0.0,
+        "missed_abstention_rate": 0.0,
+        "false_abstention_rows": 0,
+        "missed_abstention_rows": 0
+      },
+      "predicted_labels": {
+        "UNCLASSIFIED_OPEN_SET": 125,
+        "NORMAL_TRANSIENT": 48,
+        "FAULT_01": 25,
+        "FAULT_02": 25,
+        "FAULT_04": 25,
+        "FAULT_05": 25,
+        "FAULT_06": 25,
+        "FAULT_07": 25
+      },
+      "false_abstention_gate": "pass"
+    },
+    "mlp": {
+      "accuracy": 0.9799,
+      "accuracy_ci95": [
+        0.9634,
+        0.989
+      ],
+      "correct": 487,
+      "items": 497,
+      "abstention": {
+        "predicted_abstains": 129,
+        "gold_abstains": 125,
+        "abstention_precision": 0.969,
+        "abstention_recall": 1.0,
+        "false_abstention_rate": 0.0108,
+        "missed_abstention_rate": 0.0,
+        "false_abstention_rows": 4,
+        "missed_abstention_rows": 0
+      },
+      "predicted_labels": {
+        "UNCLASSIFIED_OPEN_SET": 129,
+        "NORMAL_TRANSIENT": 46,
+        "FAULT_15": 27,
+        "FAULT_05": 26,
+        "FAULT_01": 25,
+        "FAULT_02": 25,
+        "FAULT_04": 25,
+        "FAULT_06": 25
+      },
+      "false_abstention_gate": "pass"
+    }
+  },
+  "contrasts": {
+    "menu_rule_vs_hybrid": {
+      "b": 0,
+      "c": 2,
+      "p_exact": 0.5
+    },
+    "menu_rule_vs_adapter": {
+      "b": 0,
+      "c": 83,
+      "p_exact": 0.0
+    },
+    "menu_rule_vs_gbdt": {
+      "b": 0,
+      "c": 1,
+      "p_exact": 1.0
+    },
+    "menu_rule_vs_mlp": {
+      "b": 0,
+      "c": 10,
+      "p_exact": 0.001953
+    },
+    "hybrid_vs_adapter": {
+      "b": 1,
+      "c": 82,
+      "p_exact": 0.0
+    },
+    "hybrid_vs_gbdt": {
+      "b": 2,
+      "c": 1,
+      "p_exact": 1.0
+    },
+    "hybrid_vs_mlp": {
+      "b": 2,
+      "c": 10,
+      "p_exact": 0.038574
+    },
+    "adapter_vs_gbdt": {
+      "b": 82,
+      "c": 0,
+      "p_exact": 0.0
+    },
+    "adapter_vs_mlp": {
+      "b": 82,
+      "c": 9,
+      "p_exact": 0.0
+    },
+    "gbdt_vs_mlp": {
+      "b": 1,
+      "c": 10,
+      "p_exact": 0.011719
+    }
+  },
+  "merged_row": {
+    "outputs_present": [
+      "root_cause"
+    ],
+    "outputs_absent": [
+      "subsystem",
+      "severity"
+    ],
+    "note": "subsystem and severity are knowledge-base functions of the predicted fault id, not independent outputs of these three systems, so their accuracy is arithmetically the root-cause accuracy and is not reported as a separate measurement"
+  }
+}
