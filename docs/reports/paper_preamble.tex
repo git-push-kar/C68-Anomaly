@@ -8,8 +8,11 @@
 \AtBeginEnvironment{longtable}{\small}
 
 % Figures are rendered at column width and keep their aspect ratio; the PNGs are 2x for print.
-\setkeys{Gin}{width=\linewidth,keepaspectratio}
+\setkeys{Gin}{width=0.85\linewidth,height=0.32\textheight,keepaspectratio}
 \captionsetup{font=small,labelfont=bf}
 
 % Inline \texttt{} paths cannot wrap; let the paragraph stretch instead of running into the margin.
 \setlength{\emergencystretch}{3em}
+
+% Pages end where the content ends: a float plus a long table fragment should not be stretched to the full measure.
+\raggedbottom

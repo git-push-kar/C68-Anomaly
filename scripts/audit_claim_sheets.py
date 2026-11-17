@@ -19,11 +19,13 @@ DOCS = {
     "manuscript": ROOT / "docs/reports/PAPER_MANUSCRIPT_2026-11-16.md",
     "claims": ROOT / "docs/reports/PAPER_CLAIMS_2026-11-16.md",
     "metrics": ROOT / "docs/reports/PAPER_METHODS_METRICS_2026-11-16.md",
+    "journal": ROOT / "docs/reports/TEP_FP_JOURNAL.md",
 }
 
 BASES = [
     ROOT, ROOT / "docs/reports", ROOT / "docs/reports/figures", ROOT / "docs/judging", ROOT / "docs/judging/confirm",
-    ROOT / "docs/judging/pilot_v5", ROOT / "outputs", ROOT / "outputs/overnight_2026-11-05",
+    ROOT / "docs/judging/pilot_v5", ROOT / "docs/reports/evidence/files", ROOT / "scripts",
+    ROOT / "outputs", ROOT / "outputs/overnight_2026-11-05",
     ROOT / "outputs/analysis/phase3a", ROOT / "outputs/analysis/phase3a/fit",
     ROOT / "outputs/analysis/phase3a/d33", ROOT / "outputs/analysis/phase3a/hybrid",
     ROOT / "outputs/analysis/phase3a/hybrid/vocabfix", ROOT / "outputs/benchmark_v2/eval",
@@ -174,6 +176,12 @@ def main() -> int:
         for needle in ("0.5776", "0.8330" if name != "metrics" else "0.8330"):
             check(f"{name} carries {needle}", needle in text, True)
         check(f"{name} has no 46.06 %", "46.06" not in text, True)
+
+    print("\n-- journal paper carries the verified values --")
+    journal = DOCS["journal"].read_text(encoding="utf-8")
+    for needle in ("1,170", "36.93", "14.46", "10.26", "1.26", "368/520", "0.7077", "21.9",
+                   "114 of 520", "0.8330", "0.5776", "5a9392ff5399785f", "decided_by_rung 5"):
+        check(f"journal contains {needle!r}", needle in journal, True)
 
     print("\n-- cited paths resolve --")
     for name, path in DOCS.items():

@@ -21,10 +21,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = ROOT / "docs" / "reports"
-MD = REPORTS / "PAPER_MANUSCRIPT_2026-11-16.md"
-TEX = MD.with_suffix(".tex")
-PDF = MD.with_suffix(".pdf")
 PREAMBLE = REPORTS / "paper_preamble.tex"
+
+#: paper name -> (markdown file, display date)
+PAPERS = {
+    "manuscript": ("PAPER_MANUSCRIPT_2026-11-16.md", "16 November 2026"),
+    "journal": ("TEP_FP_JOURNAL.md", "17 November 2026"),
+}
+
+# Set from --paper in main(); declared here so the helpers can see them.
+MD: Path = Path()
+TEX: Path = Path()
+PDF: Path = Path()
 BIB = "references.bib"
 
 PANDOC = ROOT / "tools" / "pandoc" / "pandoc-3.6.4" / "pandoc.exe"
@@ -97,7 +105,14 @@ def run(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--no-pdf", action="store_true", help="write the .tex but skip compilation")
+    parser.add_argument("--paper", choices=sorted(PAPERS), default="manuscript",
+                        help="which paper to build (default: manuscript)")
     args = parser.parse_args()
+    filename, display_date = PAPERS[args.paper]
+    global MD, TEX, PDF
+    MD = REPORTS / filename
+    TEX = MD.with_suffix(".tex")
+    PDF = MD.with_suffix(".pdf")
 
     if not PANDOC.exists():
         print(f"pandoc not found at {PANDOC}", file=sys.stderr)
@@ -114,7 +129,7 @@ def main() -> int:
             f"--bibliography={BIB}",
             f"--include-in-header={PREAMBLE.name}",
             "--metadata", f"title={title}",
-            "--metadata", "date=16 November 2026",
+            "--metadata", f"date={display_date}",
             "--variable", "fontsize=10pt",
             "--variable", "geometry:margin=1in",
             "--variable", "colorlinks=true",
