@@ -15,7 +15,7 @@ below is read from a named artefact; the reproduction commands are in §11.
 | cross-fitted observable accuracy | **0.9878** (95 % CI 0.9783–0.9962) | `vocabfix/crossfit.json`, `crossfit_bootstrap.json` |
 | cross-fitted observable macro-F1 | **0.9843** (0.9711–0.9947) | same |
 | calibration error (ECE / Brier) | **0.0114 / 0.0113** | `vocabfix/crossfit.json` |
-| vs the language-model adapter alone, 497 shared items | **0.9960 vs 0.8330** | `vocabfix/comparison.json` |
+| vs the language-model adapter alone, 497 shared items | **0.9960 vs 0.7646** | `vocabfix/classifier_contrasts.json` |
 | abstains instead of guessing on an unseen-fault family | 11–25 of 25 for 9 of 13 faults | `vocabfix/surrogate_wide.json` |
 | knowledge-base layer adds accuracy over LightGBM alone | **no**: 0.9960 vs 0.9980, 2 vs 1 discordant, p = 1.0 | same |
 | live path | wired behind `hybrid.enabled` (default off), guarded, failure-contained | `main.py`, `llm/hybrid/live_classifier.py` |
@@ -76,7 +76,7 @@ outage.
 
 | system | what it is | observable accuracy |
 |---|---|---|
-| adapter alone | InternVL3-2B + LoRA, one JSON answer per page | 0.8330 (0.7977–0.8632) |
+| adapter alone | InternVL3-2B + LoRA, one JSON answer per page | 0.7646 (0.7253–0.7998) |
 | MLP | same 323 features, no menu | 0.9799 (0.9634–0.9890) |
 | LightGBM | same features, no menu | 0.9980 (0.9887–0.9996) |
 | **hybrid (shipped)** | LightGBM + isotonic + menu rule | **0.9960 (0.9854–0.9989)** |
@@ -84,8 +84,11 @@ outage.
 
 497 shared items, all systems producing a label. The knowledge-base layer buys **no accuracy** over LightGBM
 (2 vs 1 discordant, exact p = 1.0) — its value is the abstention semantics and the audit trail, not points. The
-adapter is 16 points behind, and 54 % of the classifier's entire advantage comes from open-set items the
-adapter misnames.
+adapter is **23 points behind** (0.9960 against 0.7646). Of the 117 items where the hybrid is right and the
+adapter wrong, 44 are open-set (37.6 %) and all 47 `NORMAL_TRANSIENT` items are among them; the remaining 26
+are misnamed faults. This row is the retrained generation's own adapter predictions (`vocabfix`); the
+0.8330 (0.7977–0.8632) figure that earlier drafts carried was measured on the pre-vocabulary-fix pages and is
+superseded.
 
 ---
 
@@ -265,12 +268,13 @@ What the rebuild established, in the order it was learned:
   (`FAULT_01: 0.998`) that a JSON-emitting adapter cannot produce; it agrees 76.5 % with the GBDT predictions and
   75.3 % with the MLP, which is what a classifier-derived artefact looks like.
 
-Conclusion: this is a **provenance failure, not a reproducibility gap**. Either the 0.8330 row came from a
-checkpoint or prompt path that no longer exists in the repository, or the file named `preds_adapter_*` is not
-adapter output at all. Both possibilities mean the adapter baseline should not be attributed to the shipped
+Conclusion: this is a **provenance failure, not a reproducibility gap**. Both stored files — the published one at
+0.8330 and the retrained one at 0.7646 — carry probability vectors a free-decoding adapter does not emit, so
+either they came from a checkpoint or scoring path that no longer exists in the repository, or the files named
+`preds_adapter_*` are not free-decode output at all. Both possibilities mean the adapter baseline should not be attributed to the shipped
 adapter until the producing command is recovered. The paper's conclusions do not depend on that row: the hybrid
 is compared against LightGBM, MLP and the menu rule on stored artefacts, and the adapter is the weakest system
-by 16 points either way.
+by more than 20 points either way.
 
 The pass itself is cheap to resume once the right inputs are known — 19–40 s per item, 206 items outstanding
 (`outputs/benchmark_v2/eval/preds_adapter_val497_app_prompt_partial.jsonl` is the partial run and must **not** be
@@ -293,10 +297,11 @@ scored as a result, since it used the app rendering).
    record cannot be resolved to a simulation run (§8.2), so no post-hoc labelling is possible. 6/6 is a sanity
    check, not an estimate; the fix is event provenance, not analysis.
 2. **Unobservable faults.** Faults 3 and 9 are predicted `NORMAL_TRANSIENT` at confidence 1.0.
-3. **Adapter baseline provenance — the row is not trustworthy.** The 0.8330 file carries 15-class probability
-   vectors a JSON adapter cannot emit and agrees 76.5 % with the GBDT predictions; a rebuilt, deterministic
-   decode of the shipped adapter agrees with it only 12 % of the time and collapses onto one class (§8.3). Treat
-   0.8330 as coming from an unidentified pipeline until its producer is recovered.
+3. **Adapter baseline provenance — the row's producer is unidentified.** The quoted 0.7646 comes from the
+   retrained file, which — like its 0.8330 predecessor — carries 15-class probability vectors a free-decoding
+   adapter cannot emit, and agrees 76.5 % with the GBDT predictions; a rebuilt deterministic decode of the
+   shipped adapter agrees with it only 12 % of the time (§8.3). The number is used because it is the retrained
+   generation's own adapter column, not because its pipeline has been reproduced.
 4. **Saturation.** 98.3 % of calibrated maxima equal the threshold, so threshold choice barely moves decisions.
 5. **Surrogate scope.** Leave-one-fault-out covers the 13 observable faults only.
 

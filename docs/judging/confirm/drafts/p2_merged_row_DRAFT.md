@@ -2,6 +2,9 @@
 
 # Decision: the merged classifier row's scope, 2026-11-16
 
+> **Generation note.** The numbers below are pre-vocabulary-fix (adapter 0.8330 = 414/497). The retrained table
+> is `vocabfix/classifier_contrasts.json`: adapter **0.7646 (0.7253–0.7998)**, hybrid 0.9960, menu rule 1.0000.
+
 ## The situation
 
 The plan asks for root cause, subsystem and severity as one merged row. On this checkout the three
@@ -15,7 +18,7 @@ Measured on the 497 items all three scored (`docs/judging/p2_classifier_contrast
 |---|---|---|---|
 | menu rule | 0.9980 | 1.0000 / 1.0000 | 0.0000 |
 | hybrid | 0.9940 | 0.9766 / 1.0000 | 0.0081 |
-| adapter | 0.8330 | 0.8723 / 0.6560 | 0.0323 |
+| adapter (pre-vocabulary-fix) | 0.8330 | 0.8723 / 0.6560 | 0.0323 |
 
 Paired exact McNemar: menu rule vs hybrid 0/2 (p = 0.5); menu rule vs adapter 0/82; hybrid vs adapter
 1/81 (both p < 1e-06).

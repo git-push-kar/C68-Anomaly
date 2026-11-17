@@ -93,7 +93,7 @@ abstentions among them.
 | hybrid | 0.9960 (0.9854–0.9989) | 0.9843 | 1.0000 | 0.0054 | pass |
 | **LightGBM (gbdt)** | 0.9980 (0.9887–0.9996) | 1.0000 | 1.0000 | 0.0000 | pass |
 | MLP | 0.9799 (0.9634–0.9890) | 0.9690 | 1.0000 | 0.0108 | pass |
-| adapter (2B) | **0.8330** (0.7977–0.8632) | 0.8723 | 0.6560 | 0.0323 | pass |
+| adapter (2B) | **0.7646** (0.7253–0.7998) | 0.9878 | 0.6480 | 0.0027 | pass |
 
 Paired exact McNemar on correctness:
 
@@ -109,7 +109,7 @@ Paired exact McNemar on correctness:
 | gbdt vs mlp | 1 / 13 | p = 0.001831 |
 
 **Reading.** The hybrid's threshold, menu and no-fault rules add **nothing** over a plain LightGBM on the
-same features — identical accuracy and a 2-vs-2 discordance. The 2B adapter is 16 points behind all three
+same features — identical accuracy and a 2-vs-2 discordance. The 2B adapter is 23 points behind all three
 non-neural systems on root cause and its abstention recall is 0.656 against 0.97–1.00.
 
 **Subsystem and severity are not reported.** Both are knowledge-base functions of the predicted fault id

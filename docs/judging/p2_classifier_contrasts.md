@@ -1,5 +1,9 @@
 # P2 — the merged classifier row, 2026-11-16
 
+**Generation: pre-vocabulary-fix** (adapter 0.8330 = 414/497). The retrained table is
+`outputs/analysis/phase3a/hybrid/vocabfix/classifier_contrasts.json`: menu rule 1.0000, hybrid 0.9960,
+LightGBM 0.9980, MLP 0.9799, **adapter 0.7646 (0.7253–0.7998)**, hybrid vs adapter 2 vs 117.
+
 Three stored systems, compared on the **497 items all three scored**:
 
 | system | where it comes from |
@@ -19,7 +23,7 @@ it; an abstention is correct when the gold label is the same. Reproduce with:
 |---|---|---|---|---|---|---|
 | menu rule | 0.9980 (0.9887–0.9996) | 125 / 125 | 1.0000 | 1.0000 | 0.0000 | pass |
 | hybrid | 0.9940 (0.9824–0.9979) | 128 / 125 | 0.9766 | 1.0000 | 0.0081 | pass |
-| adapter | 0.8330 (0.7977–0.8632) | 94 / 125 | 0.8723 | 0.6560 | 0.0323 | pass |
+| adapter (pre-vocabulary-fix) | 0.8330 (0.7977–0.8632) | 94 / 125 | 0.8723 | 0.6560 | 0.0323 | pass |
 
 Paired exact McNemar on correctness, same 497 items:
 

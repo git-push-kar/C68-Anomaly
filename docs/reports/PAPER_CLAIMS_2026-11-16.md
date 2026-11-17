@@ -23,7 +23,7 @@ in 46.06 % of test texts. The 90 % gate is failed on both splits. Sources: `pilo
 
 **C3 — The calibrated hybrid classifier is statistically indistinguishable from a plain gradient-boosted
 model on the same features.** 0.9960 against 0.9980 on 497 shared items, 2 vs 1 discordant, p = 1. The
-knowledge-base rules earn their place in *explanation*, not in accuracy. Adapter alone 0.8330, MLP 0.9799,
+knowledge-base rules earn their place in *explanation*, not in accuracy. Adapter alone 0.7646, MLP 0.9799,
 menu rule 1.0000. Source: `hybrid/vocabfix/classifier_contrasts.json`.
 
 **C4 — Pairwise preference cannot carry a claim.** 360 pairs, two readers, κ = 0.5776 (observed 0.7778,

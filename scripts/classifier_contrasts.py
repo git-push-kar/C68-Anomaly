@@ -102,8 +102,10 @@ def main() -> int:
     #: prediction files instead of overwriting them.
     ap.add_argument("--hybrid-preds", default=str(HYBRID))
     ap.add_argument("--evidence-dir", default=str(EVIDENCE))
-    #: The adapter's column must be the published predictions: its file cannot be rebuilt from the raw decode
-    #: outputs (neither stored source reproduces it exactly), so a re-measurement carries it over unchanged.
+    #: The adapter column is an input, not something this script produces. Pass the predictions belonging to the
+    #: generation being scored: the published file for the pre-fix table, `vocabfix/.../preds_adapter_val503.jsonl`
+    #: for the retrained one. Carrying the published file into the retrained table is what made it report
+    #: 0.8330/414 instead of the retrained 0.7646/380.
     ap.add_argument("--adapter-preds", default=None)
     args = ap.parse_args()
 

@@ -239,11 +239,13 @@ pre-registered, in-sample comparison; §3.1's cross-fitted column is 1.0 point l
 quotes for the current approach. Both orderings are unchanged.)
 
 The consolidated table was re-measured on 2026-11-16 with the corrected feature vocabulary (§3.1): menu rule
-1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter 0.8330 unchanged. Hybrid against LightGBM is 2 vs 1
+1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter **0.7646** (retrained; the 0.8330 row was the
+pre-vocabulary-fix page rendering and is superseded). Hybrid against LightGBM is 2 vs 1
 discordant, p = 1.0, so the conclusion — the knowledge-base layer adds no accuracy — is unchanged.
 
-The open-set stratum is **54 % of the classifier's entire advantage**: 26 of the 48 items where the adapter is
-wrong and the classifier is right come from the adapter misnaming an open-set event the classifier declined. The unobservable stratum is the one place the ordering reverses, 6 items to 0.
+The open-set stratum is **37.6 % of the classifier's entire advantage**: 44 of the 117 items where the adapter
+is wrong and the classifier is right come from the adapter naming a fault on an open-set event the classifier
+declined; all 47 `NORMAL_TRANSIENT` items are in that set too, and the remaining 26 are misnamed faults. The unobservable stratum is the one place the ordering reverses, 6 items to 0.
 
 **Final consolidated comparison** (`p2`, 497 shared items, all systems producing a label):
 
@@ -253,7 +255,7 @@ wrong and the classifier is right come from the adapter misnaming an open-set ev
 | hybrid (shipped diagnosis) | 0.9960 | 0.9854–0.9989 |
 | LightGBM alone | 0.9980 | 0.9887–0.9996 |
 | MLP | 0.9799 | 0.9634–0.9890 |
-| adapter alone | 0.8330 | 0.7977–0.8632 |
+| adapter alone | 0.7646 | 0.7253–0.7998 |
 
 Hybrid against LightGBM: 2 vs 1 discordant, exact p = 1.0 — the knowledge-base layer buys no accuracy.
 
@@ -349,7 +351,7 @@ The adapter's numeric failures are concentrated on no-alarm narratives, not spre
 
 1. **Two different "497" populations.** §2–§4's 497 rows are *menu-present validation rows*. The `p2`
    consolidated table's 497 are *items where every system produces a label*. They are not interchangeable: the
-   adapter appears at 0.9034 in one and 0.8330 in the other. The like-for-like comparison is §4's table (same
+   adapter appears at 0.9034 in one and 0.7646 in the other. The like-for-like comparison is §4's table (same
    rows, same instrument); `p2` is the final cross-system view.
 2. **In-sample against cross-fitted.** The 0.9964 diagnosis accuracy is fitted on the rows it scores and is
    superseded; 0.9781 is the evaluation number. The paper quotes the latter.

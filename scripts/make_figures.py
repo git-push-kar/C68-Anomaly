@@ -127,7 +127,8 @@ def fig_classifier(data):
     for y, value in enumerate([a * 100 for a in acc][::-1]):
         ax.text(value - 1.0, y, "%.1f" % value, va="center", ha="right", fontsize=7, color="white")
     style(ax, "Diagnosis accuracy on 497 shared items (95 % CI)", "")
-    ax.set_xlim(75, 101)
+    # The retrained adapter's lower CI is 72.5 %, so a 75 % floor would clip its error bar.
+    ax.set_xlim(70, 101)
     fig.tight_layout()
     fig.savefig(FIG / "fig3_classifier.png", bbox_inches="tight")
     plt.close(fig)
