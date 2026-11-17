@@ -1,4 +1,9 @@
-# Wiring the classifier + menu rule into the live `TEPApp` report path — plan only
+# Wiring the classifier + menu rule into the live `TEPApp` report path — plan, record, and porting guide
+
+> **2026-11-17:** §9 is new. Sections 1–8 record how the classifier was wired into *this* application and what
+> the measurements showed; §9 is the method and approach for taking the same model somewhere else — as a
+> diagnosis adapter (CPU only) and, optionally, as a prose writer — with the contracts that must hold and the
+> gates that prove a port is faithful.
 
 **Date:** 2026-11-16 · **Status:** proposal, nothing implemented. No file in the live path has been modified.
 **Goal:** make the shipped report path decide the fault with the classifier (as measured), instead of letting the
@@ -547,3 +552,199 @@ It does not change the detector, the adapter, the prompts, the datasets or the m
 enable the flag; it does not choose the menu policy for you. The one decision that needs you before coding is
 §2.2 — shortlist menu (keeps measured abstention behaviour) or full list (always names a fault, loses open-set
 protection).
+
+---
+
+## 9. Porting the model elsewhere — as an adapter, with the complete pipeline
+
+This section is the method, not a narrative: what to copy, what to preserve byte-for-byte, what to retrain, and
+how to prove the port behaves like the measured system. It describes two integration levels that share one
+contract; pick the first for a Python service, the second when prose is also wanted.
+
+| level | components | hardware | what it adds |
+|---|---|---|---|
+| **L1 diagnosis adapter** | page renderer → 323 features → Protocol A booster → isotonic calibration → menu rule | CPU, ~0.1 s/event | the auditable label: fault id, verdict, reason, confidence |
+| **L2 writer** | L1 plus InternVL3-2B + LoRA | one GPU, greedy decode | prose report and follow-up answers, with the label left untouched |
+
+L2 never changes L1's verdict. That separation is the architecture the paper measures (C8), and a port that
+merges them is not a port of this system.
+
+### 9.1 The four contracts
+
+Everything else can be refactored; these four cannot, because the measurements were taken through them.
+
+1. **Evidence dict → page text.** `llm/benchmark/live_page.py:render_classifier_page` derives the fields the page
+   needs (`detector_evidence.lag_attribution` from the 52-long CVA contribution vector, onset list passed through)
+   and calls `llm/benchmark/prompt_v2.py:render_prompt`. The page a port renders must be **byte-identical** to the
+   page the classifier was trained and measured on; `tests/test_live_page_contract.py` is the proof, because it
+   parses stored pages back into evidence and demands identical text out.
+2. **Page text → 323 features.** `scripts/evidence_classifier.py:prompt_features` reads the `- name [TAG, kind]:
+   z=…, deviation …%, trend …` lines and the onset lines with fixed regular expressions. Features are parsed from
+   the *page*, never from the event object — that is what keeps classifier and writer on the same input.
+3. **Features → probabilities.** `protocolA/classifier.txt` (LightGBM, 15 classes in
+   `protocolA/calibration.json:labels` order) then per-label isotonic curves via
+   `llm/hybrid/calibration.py:apply_calibrator`, renormalised. If every calibrated value is 0.0 the ranking is a
+   label order, not a prediction: `HybridDiagnosis` raises `DegenerateProbabilities` rather than answer.
+4. **Probabilities → answer.** `llm/hybrid/menu_rule.py:menu_rule(label, confidence, menu_ids, threshold)`, with
+   four distinct outcomes: `no_fault` for `NORMAL_TRANSIENT`, `unclassified_open_set` for the abstain label,
+   `unclassified_open_set` with reason `not_on_menu` when the prediction is outside the item's menu, and
+   `unclassified_open_set` with reason `below_threshold` when the calibrated confidence is under the stored
+   threshold (1.0 here, chosen as the largest value keeping false abstention at 0.4023 % inside a 5 % budget over
+   497 items).
+
+### 9.2 What to copy
+
+    artifacts/
+      protocolA/classifier.txt        # LightGBM booster, 15 classes
+      protocolA/calibration.json      # method, labels (order), per-label isotonic curves
+      protocolA/threshold.json        # threshold, achieved false abstention, budget, items
+    code/
+      llm/benchmark/menu.py           # build_menu(): 15 faults + UNCLASSIFIED_OPEN_SET
+      llm/benchmark/prompt_v2.py      # render_prompt(), teacher_instruction()
+      llm/benchmark/live_page.py      # render_classifier_page(), provenance derivation
+      llm/hybrid/calibration.py       # apply_calibrator()
+      llm/hybrid/menu_rule.py         # menu_rule(), largest_threshold()
+      llm/hybrid/live_classifier.py   # HybridDiagnosis: the public entry point
+      scripts/evidence_classifier.py  # prompt_features() only (the rest is benchmark tooling)
+
+Runtime dependencies for L1 are `numpy`, `lightgbm` and the standard library; `pyyaml` only if you keep the YAML
+config. No torch, no transformers, no model weights.
+
+### 9.3 L1 in ten lines
+
+```python
+from llm.hybrid.live_classifier import HybridDiagnosis, DegenerateProbabilities
+
+hybrid = HybridDiagnosis(artifact_dir="artifacts", threshold=None)  # None keeps threshold.json
+
+def diagnose_event(event) -> dict:
+    evidence = event.evidence.to_dict()          # or your own dict with the same keys
+    try:
+        verdict = hybrid.diagnose(evidence)      # menu_ids optional: pass the item's own menu
+    except DegenerateProbabilities:
+        return {"fault_id": "UNCLASSIFIED_OPEN_SET", "verdict": "unclassified_open_set",
+                "reason": "degenerate_scores", "abstained": True, "confidence": None}
+    return verdict
+```
+
+`diagnose()` returns `fault_id`, `predicted_class`, `confidence`, `verdict`, `reason`, `abstained`, `threshold`,
+`source: "classifier+menu_rule"` and `artifacts` (the directory used). `predicted_class` is the model's own
+ranking even when the rule abstains, so an abstention can be explained without pretending the model had no
+opinion.
+
+### 9.4 The evidence dict L1 expects
+
+The classifier page needs what the detector produced, not the raw signal:
+
+| key | shape | used for |
+|---|---|---|
+| `event_id`, `severity`, `anomaly_score` | scalars | page header |
+| `top_anomalous_sensors` | list of `{name, tag, z_score, deviation_percent, trend}` | per-sensor lines, 4 features each |
+| `temporal_sequence` | list of `{name, tag, offset_minutes}` | onset lines and their features |
+| `pre_anomaly_context` | `{post_mean: {tag: value}, delta: {tag: value}}` | context features |
+| `candidate_subsystem`, `candidate_subsystem_score` | str, float | page context block |
+| `detector_evidence` | `{fused_score, lstm_ae: {...}, cva: {sensor_contributions[52], dominant_lag, slow_drift_ratio, lag_energy}}` | detector block, lag attribution, gating |
+| `evidence_type`, `uncertainty` | str | page footer |
+
+An event without `detector_evidence` is **refused** (`evidence_incomplete`) rather than labelled: the page the
+classifier reads does not exist for it. That refusal is part of the contract, not an error path.
+
+### 9.5 Wiring into a host application
+
+The host owns three things: where evidence comes from, when to call, and what to do with the answer. The
+reference wiring in `main.py` is:
+
+```yaml
+hybrid:
+  enabled: true
+  artifact_dir: artifacts          # or outputs/analysis/phase3a/hybrid/vocabfix
+```
+
+```python
+# on report generation, after the event exists and before prose
+if self.hybrid is not None:
+    try:
+        report["diagnosis"] = self.hybrid.diagnose(event.evidence.to_dict())
+    except Exception as exc:                      # never let diagnosis abort a report
+        report["diagnosis"] = {"fault_id": None, "verdict": "unavailable",
+                               "reason": "diagnosis_error", "error": str(exc)}
+```
+
+Two rules make that safe in production:
+
+- **The verdict is its own field.** Prose keeps its own `root_cause`; `report["diagnosis"]` is what a consumer
+  reads. Writing the label into the prose would make a template sentence look like a classifier decision.
+- **A classifier failure cannot abort the report.** The `except` above is why the live path keeps emitting prose
+  when the classifier, the artefact or the calibration misbehaves.
+
+For a non-Python host, L1 is small enough to re-implement against the four contracts: shell out to a Python
+worker that returns the JSON above, or port `menu_rule` (20 lines) and keep the booster behind a service call.
+
+### 9.6 L2: adding the writer
+
+The writer is optional and orthogonal. Its inputs are the same evidence, through a **different** renderer —
+`llm/inference.py:format_evidence_question` — and its output is parsed JSON prose, never a label.
+
+```yaml
+llm:
+  base_model: /path/to/InternVL3-2B        # or InternVL2-2B; match the LoRA's base
+  adapter_dir: /path/to/adapter            # outputs/tep_rca_internvl3_2b in this repo
+  adapter_name: internvl3_2b_pristine_rca
+  trust_remote_code: true
+  dummy_image_size: 448                    # text-only forward still needs the placeholder image
+  generation: {max_new_tokens: 512, do_sample: false}
+```
+
+```python
+from llm.inference import RCAInference
+rca = RCAInference.from_adapter(config=cfg)          # peft LoRA on the base, greedy loop in _generate
+report, raw = rca.generate_report(event.evidence.to_dict())
+```
+
+Operational notes that cost time if rediscovered: the base InternVL remote code predates the installed
+`transformers` KV-cache API, so `_generate` runs explicit forward passes and appends argmax tokens (greedy, no
+sampling); the text-only forward needs one dummy image tensor of `dummy_image_size`; batch size changes output
+(1 of 12 texts identical between batch 16 and 8), so fix it per experiment and record it.
+
+If a host wants a *label* from the writer instead of prose, do not free-decode and parse: score the 15 candidates
+at the answer prefix (`llm/benchmark/label_scorer.py`) and read the softmax. Free decoding on this model collapses
+onto one fault (12.7 % accuracy on 291 decoded items, 11.3 % agreement with label scoring) — the two are different
+instruments, and the paper's 0.8330 belongs to label scoring on the protocolA adapter, not to the deployment
+weights.
+
+### 9.7 Porting to a different plant or menu
+
+The pipeline is plant-agnostic; the artefacts are not. To move it:
+
+1. **Renderer and parser together.** Change the page layout and `prompt_features` in the same commit, then re-run
+   the page-contract test. A layout change without a parser change silently zeroes whole feature blocks.
+2. **Retrain the booster** on pages rendered by the *new* renderer, keeping the 15-class label order in
+   `calibration.json:labels`. Accuracy of the old booster on a new page format is meaningless.
+3. **Recalibrate, then re-derive the threshold** with `largest_threshold(confidences, budget)` so the value stays a
+   data point and the achieved false-abstention rate travels with it.
+4. **Rebuild the menu** (`build_menu()` or your own list) and keep `UNCLASSIFIED_OPEN_SET` as an explicit entry.
+   A menu without the abstain option disables open-set protection; a full-list menu makes `not_on_menu`
+   unreachable.
+5. **Keep provenance.** Events should carry `source_file`, `simulation_run`, `fault_number` when known, so
+   measured accuracy can be joined later; `scripts/audit_live_diagnosis.py` reads exactly those fields.
+
+### 9.8 Gates a port must pass before it is trusted
+
+| gate | how | expected |
+|---|---|---|
+| page contract | `pytest tests/test_live_page_contract.py` | stored pages re-render byte-identically |
+| artefact reproducibility | score the 497 shared items with `HybridDiagnosis` | 414/497 = 0.8330, same abstention counts |
+| refusal semantics | feed an event with no `detector_evidence` | `evidence_incomplete`, no label |
+| degenerate calibration | feed an event whose scores land in a zero isotonic interval | `DegenerateProbabilities`, mapped to `degenerate_scores` |
+| live accuracy | `python scripts/audit_live_diagnosis.py` on a replay with provenance | hits listed; misses printed, not imputed |
+| report independence | disable the classifier at runtime | prose still generated, diagnosis absent |
+
+### 9.9 What not to port
+
+- **The free-decode harness** as a classifier: it is a different instrument and collapses to one fault.
+- **The threshold as a tuned knob**: it is derived from a pre-registered false-abstention budget; moving it
+  changes the claim, so it must be re-derived and re-recorded, not hand-set.
+- **The adapter as the diagnosis**: at 0.8330 it trails the hybrid by 16.3 points; the label comes from the
+  booster plus the rule.
+- **README-level confidence**: any port that cannot reproduce 414/497 is a different system, whatever its prose
+  looks like.
