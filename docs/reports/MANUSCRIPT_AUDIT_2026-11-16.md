@@ -23,7 +23,7 @@ were found and fixed.**
 | stratified fit: 29/47, 1/454, 0/19 | recomputed (`figure_data.json`) | 0.617, 0.0022, 0.0 | pass |
 | stratified test: 29/40, 6/1814, 5/1314 | same | 0.725, 0.0033, 0.0038 | pass |
 | composition fit 454/47/19, test 1814/40/1314 | `rows_test.jsonl`, `build_orders()` | match; percentages 87.3/9.0/3.7 and 57.3/1.3/41.5 | pass |
-| pre-fix classifier 0.9980 / 0.9940 / 0.9940 / 0.9698 / 0.8330 with CIs | `p2/classifier_contrasts.json` | exact match, 497 items | pass |
+| pre-fix classifier 0.9980 / 0.9940 / 0.9940 / 0.9698 / 0.8330 (checkpoint-300) with CIs | `p2/classifier_contrasts.json` | exact match, 497 items | pass |
 | pre-fix hybrid vs LightGBM 2 vs 2, p = 1.0 | `contrasts.hybrid_vs_gbdt` | b=2, c=2, p=1.0 | pass |
 | retrained classifier 1.0000 / 0.9960 / 0.9980 / 0.9799 / **0.7646** with CIs | `vocabfix/classifier_contrasts.json` | exact match, 497 items (adapter 380/497) | pass |
 | retrained hybrid vs adapter 2 vs 117, p < 1e-06 | `contrasts.hybrid_vs_adapter` | b=2, c=117 | pass |
@@ -89,7 +89,7 @@ anchor split, preference, selection) are untouched, because those checks read pr
 | 497-item table: hybrid | 0.9940 | **0.9960** | same |
 | 497-item table: LightGBM | 0.9940 | **0.9980** | same |
 | 497-item table: MLP | 0.9698 | **0.9799** | same |
-| 497-item table: adapter | 0.8330 | **0.7646** | retrained `vocabfix/.../preds_adapter_val503.jsonl` (380/497); the row previously carried the published file unchanged |
+| 497-item table: adapter | 0.8330 (checkpoint-300, selected) | **0.7646 (checkpoint-400)** | `vocabfix/.../preds_adapter_val503.jsonl` (380/497), the file `evidence_classifier.py` defaults to; the row previously carried the published checkpoint-300 file unchanged |
 | hybrid vs LightGBM discordance | 2 / 2, p = 1.0 | **2 / 1, p = 1.0** | same |
 
 The RP's in-sample head-to-head strata were regenerated too (`vocabfix/comparison.json`): observable hybrid

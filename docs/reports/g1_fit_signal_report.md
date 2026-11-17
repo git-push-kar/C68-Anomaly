@@ -15,8 +15,8 @@ No job was projected over 30 minutes, so no estimate was needed before starting:
 |---|---|---|
 | 1 | §18 dated and committed **before** any new number | **PASS** — commit `2de7499`, PROTOCOL only, one file, written before a single figure below existed |
 | 2 | Corrections file (a-d) | **PASS** — [3b5_corrections.md](3b5_corrections.md): unobservable agreement re-split per variant (0/6 vs 6/6), "44 of 50" withdrawn with its definition, natural-error populations separated and the `FAULT_11` claim corrected, feature sources confirmed |
-| 3 | Truncation counts, by class and for the 48 errors | **PASS** — §2: **0 of 3,714 rows exceed 4,096 tokens** (3,762 measurements); max 1,439; minimum headroom 2,215 tokens; the 48 step-500 errors max 1,166 |
-| 4 | Feature-visibility conclusion (i / ii / iii) | **PASS** — §3: **(iii) present and unused**; nothing truncated, and the classifier's gold-class mass on the 48 errors is 50.4 % detector statistics + 28.9 % CVA residual, both printed |
+| 3 | Truncation counts, by class and for the 48 step-500 free-decode errors | **PASS** — §2: **0 of 3,714 rows exceed 4,096 tokens** (3,762 measurements); max 1,439; minimum headroom 2,215 tokens; the 48 step-500 errors max 1,166 |
+| 4 | Feature-visibility conclusion (i / ii / iii) | **PASS** — §3: **(iii) present and unused**; nothing truncated, and the classifier's gold-class mass on the 48 step-500 errors is 50.4 % detector statistics + 28.9 % CVA residual, both printed |
 | 5 | Novelty channel on surrogate, folds and validation, with false abstention | **PASS** — §4: τ 18.7678 at 4.94 % OOF false-novel; validation accuracy −1.95 pt with **0 improved / 16 worsened**; fold_1 −3.67 pt for **0** extra declines; fold_2 +2 of 23 |
 | 6 | Fit-score AUROC table and feasibility verdict | **PASS (negative result)** — §5: mean paired AUROC **0.6508 < 0.80**, one pair inverted at 0.00; **not feasible**, per the threshold fixed before measuring |
 | 7 | Shuffled-menu harness and invariance test | **PASS** — §6: `llm/benchmark/menu_order.py`, `--menu-seed` in `llm/benchmark/decode_bench.py`, 7 tests including "the classifier's feature vector is bit-identical under every permutation" |
@@ -53,8 +53,12 @@ Token lengths for **every** training row and **every** validation row, through `
 Per class the widest are `FAULT_12` 1,439, `FAULT_18` 1,437, `FAULT_05` 1,435, `FAULT_01` 1,434, `FAULT_07` 1,429 (`FAULT_15` 1,420); the widest prompt in the whole corpus uses **35 %** of the cap. So:
 
 * **no row is truncated, no block is ever cut, and no row loses its supervised tokens**;
-* the 48 items the adapter gets wrong are not longer than the ones it gets right (p50 1,135 vs 1,112, max 1,166 vs 1,167) — a truncation explanation for them is excluded, not merely unlikely;
+* the 48 items the **step-500 free decode** gets wrong are not longer than the ones it gets right (p50 1,135 vs 1,112, max 1,166 vs 1,167) — a truncation explanation for them is excluded, not merely unlikely;
 * a *previously recorded* number is worth noting here because it looks like a contradiction and is not: `outputs/analysis/phase3a/token_lengths.md` reports `train_with_system` max 1,536 over 1,939 rows. That file measures `dataset/train.jsonl` (the benchmark split) with the **report** system prompt; this table measures `sft/train_mixed.jsonl` as the trainer built it. Both are far under the cap.
+
+These 48 are the step-500 **free-decode** errors (`instrument_check/preds_decode_step500_full.jsonl`), not the
+label-scoring baselines quoted in the diagnosis table (checkpoint-300 gives 0.8330 = 414/497; checkpoint-400
+0.7646 = 380/497). Nothing in this report rests on either label-scoring number.
 
 **This is the only finding in this report that removes a hypothesis.** Everything below is about what the evidence can support, not about whether it arrived.
 
@@ -64,7 +68,7 @@ Per class the widest are `FAULT_12` 1,439, `FAULT_18` 1,437, `FAULT_05` 1,435, `
 
 Per-group absolute SHAP mass for the **gold class** (LightGBM per-class `pred_contrib`, same estimator and seed as the recorded classifier), on the adapter's 48 menu-present errors and on a seeded 100 of its correct items:
 
-| group | printed in the prompt as | share of gold-class mass, 48 errors | share, 100 correct |
+| group | printed in the prompt as | share of gold-class mass, 48 step-500 errors | share, 100 correct |
 |---|---|---|---|
 | detector statistics (score, LSTM error + ratio, CVA Q + ratio, lag, slow-drift, trigger) | **in full** — 3 detector lines | **0.504** | 0.331 |
 | CVA residual shares | **summarised** — top 5 variables, one line each | **0.289** | 0.347 |
@@ -195,7 +199,7 @@ New artefacts (new files only):
 
 | file | contents |
 |---|---|
-| `outputs/analysis/phase3a/fit/prompt_budget.json` | token budget per block, per class, and for the 48 errors |
+| `outputs/analysis/phase3a/fit/prompt_budget.json` | token budget per block, per class, and for the 48 step-500 free-decode errors |
 | `outputs/analysis/phase3a/fit/feature_visibility.json` | per-group gold-class SHAP mass, prompt shape, visibility per group |
 | `outputs/analysis/phase3a/fit/fit_score.json` | per-pair AUROC, uncomputable share, validation AUROC and its error pool |
 | `outputs/analysis/phase3a/fit/novelty_channel.json` | τ, validation before/after, surrogate per fault, folds per item, verdict |

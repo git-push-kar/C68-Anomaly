@@ -110,7 +110,7 @@ Paired exact McNemar on correctness:
 
 **Reading.** The hybrid's threshold, menu and no-fault rules add **nothing** over a plain LightGBM on the
 same features — identical accuracy and a 2-vs-2 discordance. The 2B adapter is 23 points behind all three
-non-neural systems on root cause and its abstention recall is 0.656 against 0.97–1.00.
+non-neural systems on root cause and its abstention recall is 0.648 against 0.97–1.00.
 
 **Subsystem and severity are not reported.** Both are knowledge-base functions of the predicted fault id
 and are emitted independently by none of these systems, so a separate accuracy would restate the

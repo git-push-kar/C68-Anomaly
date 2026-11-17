@@ -1,8 +1,8 @@
 # P2 - merged classifier row
 
-**Generation: pre-vocabulary-fix** (adapter 0.8330 = 414/497). Retrained table:
-`vocabfix/classifier_contrasts.json` — adapter **0.7646 (0.7253–0.7998)**, hybrid 0.9960, menu rule 1.0000,
-LightGBM 0.9980, MLP 0.9799; hybrid vs adapter 2 vs 117.
+**Generation: pre-vocabulary-fix classifier; adapter = checkpoint-300** (0.8330 = 414/497, macro-F1 selected).
+Retrained table: `vocabfix/classifier_contrasts.json` — adapter **0.7646 (0.7253–0.7998) = checkpoint-400**,
+hybrid 0.9960, menu rule 1.0000, LightGBM 0.9980, MLP 0.9799; hybrid vs adapter 2 vs 117.
 
 Items scored by all three systems: **497**.
 
@@ -10,7 +10,7 @@ Items scored by all three systems: **497**.
 |---|---|---|---|---|---|---|
 | menu_rule | 0.9980 (0.9887-0.9996) | 125 / 125 | 1.0 | 1.0 | 0.0 | pass |
 | hybrid | 0.9940 (0.9824-0.9979) | 128 / 125 | 0.9766 | 1.0 | 0.0081 | pass |
-| adapter (pre-vocabulary-fix) | 0.8330 (0.7977-0.8632) | 94 / 125 | 0.8723 | 0.656 | 0.0323 | pass |
+| adapter (checkpoint-300) | 0.8330 (0.7977-0.8632) | 94 / 125 | 0.8723 | 0.656 | 0.0323 | pass |
 | gbdt | 0.9940 (0.9824-0.9979) | 125 / 125 | 1.0 | 1.0 | 0.0 | pass |
 | mlp | 0.9698 (0.9508-0.9816) | 122 / 125 | 0.9918 | 0.968 | 0.0027 | pass |
 

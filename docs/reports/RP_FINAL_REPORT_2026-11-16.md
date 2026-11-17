@@ -239,8 +239,9 @@ pre-registered, in-sample comparison; §3.1's cross-fitted column is 1.0 point l
 quotes for the current approach. Both orderings are unchanged.)
 
 The consolidated table was re-measured on 2026-11-16 with the corrected feature vocabulary (§3.1): menu rule
-1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter **0.7646** (retrained; the 0.8330 row was the
-pre-vocabulary-fix page rendering and is superseded). Hybrid against LightGBM is 2 vs 1
+1.0000, hybrid 0.9960, LightGBM 0.9980, MLP 0.9799, adapter **0.7646** (checkpoint-400 label scoring; the
+0.8330 row was checkpoint-300, the macro-F1-selected adapter, on the same prompts — see RP v2 §8.3). Hybrid
+against LightGBM is 2 vs 1
 discordant, p = 1.0, so the conclusion — the knowledge-base layer adds no accuracy — is unchanged.
 
 The open-set stratum is **37.6 % of the classifier's entire advantage**: 44 of the 117 items where the adapter

@@ -86,9 +86,9 @@ outage.
 (2 vs 1 discordant, exact p = 1.0) — its value is the abstention semantics and the audit trail, not points. The
 adapter is **23 points behind** (0.9960 against 0.7646). Of the 117 items where the hybrid is right and the
 adapter wrong, 44 are open-set (37.6 %) and all 47 `NORMAL_TRANSIENT` items are among them; the remaining 26
-are misnamed faults. This row is the retrained generation's own adapter predictions (`vocabfix`); the
-0.8330 (0.7977–0.8632) figure that earlier drafts carried was measured on the pre-vocabulary-fix pages and is
-superseded.
+are misnamed faults. This row is `vocabfix/evidence_classifier/preds_adapter_val503.jsonl`, i.e. **checkpoint-400**'s label
+scoring. The 0.8330 (0.7977–0.8632) that earlier drafts carried is **checkpoint-300**, the checkpoint
+`selected_checkpoint.json` picks by macro-F1. The two differ by checkpoint, not by page text (§8.3).
 
 ---
 
@@ -243,15 +243,38 @@ sanity check is the ceiling of what this data supports, and no live accuracy is 
 
 ---
 
-### 8.3 Regenerating the adapter baseline: harness built, full pass running
+### 8.3 Where the adapter baseline comes from — traced
 
-The stored `preds_adapter_val503.jsonl` covers 497 items and carries a `probs` vector over the 15 classes with a
-`probability`. A JSON-emitting adapter does not produce that; it is a derived artefact whose producer is not in
-the repository. Regenerating it now has a harness (`scripts/decode_adapter_val.py`): the same chat template and
-report system prompt as `RCAInference.generate_report`, greedy decoding, a 768-token budget, one JSONL row per
-item, resumable.
+The stored `preds_adapter_val503.jsonl` carries a `probs` vector over 15 classes, which a free-decoding adapter
+does not emit. It is a **label-scoring** artefact, and the pipeline is in the repository:
 
-What the rebuild established, in the order it was learned:
+1. `llm/benchmark/label_scorer.py` scores closed-set labels in one prefill per item: it reads P(candidate) at the
+   answer prefix `{"fault_id": "`, terminates with `",` (one token, id 497), and normalises over the menu ids plus
+   `UNCLASSIFIED_OPEN_SET`. `pred` is the argmax, `probs` the normalised vector, `probability` its maximum.
+2. `scripts/eval_protocolA.py` loads `outputs/tep_rca_v2_protocolA_seed42/checkpoint-{100..540}`, scores a
+   300-item stratified subsample per checkpoint (`preds_val300_step*.jsonl`), selects by macro-F1 with accuracy
+   and then the later step as tie-breaks, and re-scores the full 834-row validation split with the winner
+   (`preds_val_full_<step>.jsonl`, plus `selected_checkpoint.json`).
+3. `scripts/evidence_classifier.py` filters that file to the menu variant and drops the unobservable items,
+   writing the 497-row `preds_adapter_val503.jsonl` that every table consumes; `scripts/classifier_contrasts.py`
+   then reads it via `--adapter-preds`.
+
+That makes the two baselines traceable to different checkpoints, not to different page renderings:
+
+| number | upstream file | checkpoint | rows |
+|---|---|---|---|
+| **0.8330** (0.7977–0.8632) | `eval/preds_val_full_300.jsonl` → published `preds_adapter_val503.jsonl` | **300** (macro-F1 selection, 0.8833 on the 300-item subsample) | 414/497 |
+| **0.7646** (0.7253–0.7998) | `eval/preds_val_full_400.jsonl` → `vocabfix/evidence_classifier/preds_adapter_val503.jsonl` | **400** | 380/497 |
+| 48 errors | `instrument_check/preds_decode_step500_full.jsonl` (free decode, not label scoring) | 500 | 48/497 |
+
+Both full-val files were scored on the same `val.jsonl` prompts, and the vocabulary fix changed only the
+classifier's feature parser — so the 34-item difference is the checkpoint. `evidence_classifier.py` defaults to
+`preds_val_full_400.jsonl` while `selected_checkpoint.json` selects step 300, which is how the retrained table
+inherited 0.7646. That mismatch is a decision for the owner: quoting the selected adapter means 0.8330, quoting
+the file the pipeline currently points at means 0.7646; the tables here quote 0.7646 and label it checkpoint-400.
+
+What the free-decode harness (`scripts/decode_adapter_val.py`) measured — a **different instrument**, not a
+reproduction of these files, in the order it was learned:
 
 - **The harness needed two fixes before it could say anything.** Feeding the bare question produced 10 of 12
   unparseable replies; feeding the app's `REPORT_SYSTEM_PROMPT + SYSTEM_PROMPT` produced parseable replies that
@@ -260,25 +283,29 @@ What the rebuild established, in the order it was learned:
 - **It is deterministic.** Two independent passes over the same items produced byte-identical completions.
 - **The adapter is genuinely loaded.** `PeftModelForCausalLM`, `peft_config = ['internvl3_2b_pristine_rca']`,
   that adapter active, 392 `lora_A` modules injected — not a silent base-model fallback.
-- **The re-decode does not reproduce the stored labels, and the gap is too large to be sampling.** 297 items
+- **The free decode does not reproduce the stored labels, because it is not the same question.** 297 items
   were decoded before the background process was terminated (silently, no traceback, resumable): 12.7 %
   accuracy on the 291 that overlap the stored file, **12.0 % item-by-item agreement**, with 205 of 297 answers
   `FAULT_14`. An 8-item probe under the dataset rendering scored 0/8 (6 × `FAULT_14`, 2 × `FAULT_06`). The
-  stored file scores 76.5 % on the same items and, crucially, carries a **15-class `probs` vector**
-  (`FAULT_01: 0.998`) that a JSON-emitting adapter cannot produce; it agrees 76.5 % with the GBDT predictions and
-  75.3 % with the MLP, which is what a classifier-derived artefact looks like.
+  stored label-scored file scores 76.5 % on the same items; its `probs` vector is what `label_scorer` writes, not
+  something a JSON adapter was asked to emit. Treat the two as separate instruments.
 
-Conclusion: this is a **provenance failure, not a reproducibility gap**. Both stored files — the published one at
-0.8330 and the retrained one at 0.7646 — carry probability vectors a free-decoding adapter does not emit, so
-either they came from a checkpoint or scoring path that no longer exists in the repository, or the files named
-`preds_adapter_*` are not free-decode output at all. Both possibilities mean the adapter baseline should not be attributed to the shipped
-adapter until the producing command is recovered. The paper's conclusions do not depend on that row: the hybrid
-is compared against LightGBM, MLP and the menu rule on stored artefacts, and the adapter is the weakest system
-by more than 20 points either way.
+So the 12 % agreement is expected rather than alarming: label scoring asks "which of these 15 strings does the
+model prefer after the fault-id field", while free decoding asks the model to write a report and its label is
+whatever appears in the JSON. On these prompts the forty-hundred checkpoint's free decode collapses to
+`FAULT_14` in two-thirds of items, which is a fact about the decode instrument and not about the baseline.
 
-The pass itself is cheap to resume once the right inputs are known — 19–40 s per item, 206 items outstanding
-(`outputs/benchmark_v2/eval/preds_adapter_val497_app_prompt_partial.jsonl` is the partial run and must **not** be
-scored as a result, since it used the app rendering).
+Reproduction, as commands:
+
+```
+venv_train/Scripts/python scripts/eval_protocolA.py            # checkpoints -> preds_val_full_<step>.jsonl
+venv_train/Scripts/python scripts/evidence_classifier.py \
+    --adapter-preds outputs/benchmark_v2/eval/preds_val_full_300.jsonl   # or _400, to pin the checkpoint
+python scripts/classifier_contrasts.py --hybrid-preds ... --evidence-dir ... --adapter-preds ...
+```
+
+The free-decode partial run (`outputs/benchmark_v2/eval/preds_adapter_val497_app_prompt_partial.jsonl`, 297
+rows) must **not** be scored against this table: different instrument, different question.
 
 ## 9. What the separation buys, and what it costs
 
@@ -297,11 +324,12 @@ scored as a result, since it used the app rendering).
    record cannot be resolved to a simulation run (§8.2), so no post-hoc labelling is possible. 6/6 is a sanity
    check, not an estimate; the fix is event provenance, not analysis.
 2. **Unobservable faults.** Faults 3 and 9 are predicted `NORMAL_TRANSIENT` at confidence 1.0.
-3. **Adapter baseline provenance — the row's producer is unidentified.** The quoted 0.7646 comes from the
-   retrained file, which — like its 0.8330 predecessor — carries 15-class probability vectors a free-decoding
-   adapter cannot emit, and agrees 76.5 % with the GBDT predictions; a rebuilt deterministic decode of the
-   shipped adapter agrees with it only 12 % of the time (§8.3). The number is used because it is the retrained
-   generation's own adapter column, not because its pipeline has been reproduced.
+3. **Adapter baseline provenance — instrument traced, checkpoint unresolved.** The quoted 0.7646 is
+   checkpoint-400 label scoring (380/497); the selection record picks checkpoint-300, which gives 0.8330
+   (414/497) on the same prompts. `evidence_classifier.py` defaults to the 400 file, which is why the retrained
+   table inherited it. Which checkpoint the paper should call "the adapter" is an open decision (§8.3); the
+   conclusion does not move: as checkpoint-300 the adapter is 16.5 points behind LightGBM (0.9980), as
+   checkpoint-400 it is 23.3 points behind.
 4. **Saturation.** 98.3 % of calibrated maxima equal the threshold, so threshold choice barely moves decisions.
 5. **Surrogate scope.** Leave-one-fault-out covers the 13 observable faults only.
 

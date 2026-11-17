@@ -131,8 +131,9 @@ This is the paper's sharpest descriptive result: **the adapter is numerically re
 ### 5.4 Diagnosis channel
 
 497 shared items: menu rule **1.0000**, LightGBM **0.9980**, hybrid **0.9960** (2 vs 1 discordant, p = 1), MLP
-0.9799, adapter alone **0.7646** (0.7253–0.7998; the pre-vocabulary-fix 0.8330 is superseded). The knowledge-base
-layer earns its place in *explanation*, not accuracy.
+0.9799, adapter alone **0.7646** (0.7253–0.7998, checkpoint-400 label scoring; checkpoint-300, the
+macro-F1-selected adapter, scores 0.8330 on the same prompts). The knowledge-base layer earns its place in
+*explanation*, not accuracy.
 
 *Re-measured 2026-11-16.* These replace the earlier hybrid 0.9940 / LightGBM 0.9940 / MLP 0.9698 / menu rule
 0.9980. The cause was a vocabulary defect, not a modelling choice: `TAGS` named the manipulated variables
