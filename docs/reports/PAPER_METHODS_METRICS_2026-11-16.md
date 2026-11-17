@@ -113,8 +113,8 @@ M 0 of A's. D substitutes A on **114/520 rows (21.9 %)**, inside its pre-registe
 | tag-role | 0 | 458 (14.46 %) | ≤ 2 % — B fails |
 | anchor exact | **3,168 (100 %)** | **1,170 (36.93 %)** | ≥ 90 % — B fails |
 
-McNemar: 40 vs 0, exact p ≈ 2 × 10⁻¹². B's anchor failures: z omitted 46.06 %, contradicting value 6.41 %,
-sensor absent 10.61 %.
+McNemar: 40 vs 0, exact p ≈ 2 × 10⁻¹². B's anchor failures: z omitted 46.05 %, contradicting value 6.41 %,
+sensor absent 10.61 % (1,459, 203 and 336 of 3,168 rows; `d33/test_contrast.json` `anchor_status`).
 
 ### 5.3 Where the adapter actually fails
 
@@ -175,9 +175,9 @@ preference ordering; a mechanism-quality claim; any latency figure for component
    numbers, compare them only within class (§5.3), and say so in the limitations.
 2. **Composition.** State the class mix of each split next to every rate.
 3. **Instrument history.** Include §8, or a citation to it, so a reader can see why A moved 19 → 13 → 0.
-4. **D's ceiling.** The signed decision records a 27.3 % breach; the corrected table shows 21.9 %. Either
-   keep the conservative "A with extra steps" wording (recommended: D contributes nothing of its own on the
-   rows it hands back) or re-sign the decision — do not silently claim a pass.
+4. **D's ceiling.** The decision is signed and reads "A with extra steps": the 27.3 % it records predates two
+   checker corrections, and the corrected table shows 21.9 %, inside the ceiling. The paper keeps that wording
+   and publishes both numbers; it claims neither a breach nor a certified pass.
 5. **Single configuration.** One adapter seed, one order (kb) on test, E unscored, parity's 1,390
    disagreements unresolved, no detector-frontier table, no follow-up T condition.
 

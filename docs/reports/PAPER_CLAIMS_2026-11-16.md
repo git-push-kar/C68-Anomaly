@@ -18,8 +18,9 @@ structural rather than numeric: grounding 10.26 %, tag-role 14.46 %, anchor exac
 **C2 — Anchor exactness, not defect counts, is where the language model fails structurally.**
 The adapter reproduces the top anomalous sensor's z-score in 188/520 validation texts (36.2 %) and
 1,170/3,168 test texts (36.93 %), against 100 % for the deterministic writer, and omits the z-score entirely
-in 46.06 % of test texts. The 90 % gate is failed on both splits. Sources: `pilot_rechecks.json`
-`anchor_gate`, `d33/test_contrast.json` `anchor_status`.
+in 46.05 % of test texts (1,459/3,168). The 90 % gate is failed on both splits. Sources: `n4_cells.json`
+summary (`anchor_exact`), `d33/test_contrast.json` `anchor_status`. (The pilot's `anchor_gate` is a different,
+smaller population — 329 rows, 170 exact — and does not support this sentence.)
 
 **C3 — The calibrated hybrid classifier is statistically indistinguishable from a plain gradient-boosted
 model on the same features.** 0.9960 against 0.9980 on 497 shared items, 2 vs 1 discordant, p = 1. The
@@ -37,18 +38,19 @@ mechanism claim); rung 5 compares seconds per 520-row pass on a signed basis and
 `confirm/selection_receipt_2026-11-16_final.json`, `decided_by_rung 5`, `measured_rungs_with_input [5]`.
 No dollar figure is claimed.
 
-**C6 — The fallback wrapper stays inside its budget, and the paper's D wording awaits re-signoff.**
+**C6 — The fallback wrapper stays inside its budget, under the signed conservative framing.**
 Condition D substitutes the fallback report when the adapter is flagged; on the corrected instrument it falls
-back on **114/520 rows (21.9 %)**, inside the pre-registered 25 % ceiling. The signed
-`d_ceiling_decision_2026-11-16.json` records a 27.3 % breach measured before two checker corrections, so D is
-**not** claimed as a pass here: the owner must re-sign the decision, and the conservative "A with extra
-steps" framing remains available because D's own contribution is zero on the rows it hands back. Source:
-`n4_cells.json` seam certification.
+back on **114/520 rows (21.9 %)**, inside the pre-registered 25 % ceiling. The decision is **signed**
+(`d_ceiling_decision_2026-11-16.json`, 2026-11-16) and reads "D is A with extra steps": the 27.3 % rate it
+records was measured before two checker corrections and stays published beside D's numeric count, and no claim
+is made that D reduces defects on the rows it hands back. No certified-pass claim is made either. Sources:
+`n4_cells.json` seam certification, `confirm/d_ceiling_decision_2026-11-16.json`.
 
 **C7 — Generation is not batch-invariant, so batch size is a measurement parameter.**
 Same prompts at batch 16 and batch 8: 1 of 12 texts identical; batch 1 against padding-free grouped batch 8:
 3 of 8 identical. All reported numbers come from one batch size per experiment. Evidence:
-`outputs/analysis/phase3a/fit/eq_B1`, `eq_B8`, `prose_pilot/pb16`, `pb8`.
+`outputs/analysis/phase3a/fit/eq_B1`, `outputs/analysis/phase3a/fit/eq_B8`,
+`outputs/benchmark_v2/eval/prose_pilot/pb16`, `outputs/benchmark_v2/eval/prose_pilot/pb8`.
 
 **C8 — The system's diagnosis channel is deterministic by construction.** Diagnosis, verdict, severity and
 confidence are computed by code and calibrated classifiers; the model writes prose only. The paper's
@@ -63,7 +65,7 @@ architectural claim rests on that separation, not on model accuracy.
 | test numeric defects | A 0/3,168 (0.00 %), B 40/3,168 (1.26 %) | `d33/test_contrast.json` |
 | test grounding / contradiction / tag-role | A 7.89 / 0 / 0 %, B 10.26 / 0.16 / 14.46 % | same |
 | anchors exact | validation A 520/520, B 188/520; test A 3,168/3,168, B 1,170/3,168 | same |
-| primary validation contrast | B vs A McNemar 30/0, exact p ≈ 1.9 × 10⁻⁹; order invariance 0.7077 | `n4_cells`, overnight receipt |
+| primary validation contrast | B vs A McNemar 30/0, exact p ≈ 1.9 × 10⁻⁹; order invariance 368/520 = 0.7077 | `n4_cells.json`; `overnight_2026-11-05/n5_invariance_dialogue.json` `order_invariance` |
 | classifier contrast | hybrid 0.9960 ≈ LightGBM 0.9980, 2/1, p = 1 | `hybrid/vocabfix/classifier_contrasts.json` |
 | preference | κ 0.5776 over 360 pairs | `preference_2026-11-16_result.json` |
 | cost basis | seconds per 520-row pass, tie-break signed | `cost_basis_seconds_2026-11-16.json` |
