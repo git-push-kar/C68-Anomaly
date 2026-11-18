@@ -94,6 +94,12 @@ features parsed from the rendered evidence page, followed by a menu rule that na
 the item's menu and above the abstention threshold. The classifier is wired into the live report path behind a flag
 that is off by default; switching it on leaves the prose fields untouched.
 
+**The writer.** One LoRA adapter on a frozen InternVL3-2B base: rank 16, alpha 32, dropout 0.05 over the seven
+attention and MLP projections of the language model; three epochs on 2,376 report-prose examples at learning rate
+2e-4 with cosine decay and 3 % warmup, effective batch 16, maximum sequence length 4,096, BF16, seed 42. The run
+takes 447 steps and yields 18.5 M trainable parameters, 0.88 % of the model. The adapter is loaded through PEFT
+rather than merged into the base, and decoding is greedy.
+
 ## 4. Data, splits and composition
 
 Two splits of simulated events, each rendered at a fixed token budget: a 520-event fit set and a 3,168-event
